@@ -17,28 +17,27 @@ def eval_top_down(root, x, ls, leaf_func):
     x_len = len(x)
     result = np.array(x)
     nan_mask = np.isnan(x)
-    masks = {root: np.repeat(True, x_len).reshape(-1, 1)}
+    max_masks = {root: np.repeat(True, x_len).reshape(-1, 1)}
 
     def evaluate(node):
         if isinstance(node, Leaf):
-            m = masks[node]
+            m = max_masks[node]
             n = nan_mask[:, node.scope]
             p = np.logical_and(m, n).reshape(x_len)
             s = len(result[p, node.scope])
             result[p, node.scope] = leaf_func(node, s)
         elif isinstance(node, Mul):
             for c in node.children:
-                masks[c] = np.copy(masks[node])
+                max_masks[c] = np.copy(max_masks[node])
         elif isinstance(node, Sum):
             wcl = np.zeros((x_len, len(node.weights), 1))
             for i, c in enumerate(node.children):
                 wcl[:, i] = ls[c] + np.log(node.weights[i])
             max_branch = np.argmax(wcl, axis=1)
             for i, c in enumerate(node.children):
-                masks[c] = np.logical_and(masks[node], max_branch == i)
+                max_masks[c] = np.logical_and(max_masks[node], max_branch == i)
         else:
-            raise NotImplementedError("MPE not implemented for node of type " + type(node).__name__)
+            raise NotImplementedError("Top down evaluation not implemented for node of type " + type(node).__name__)
 
     bfs(root, evaluate)
     return result
-
