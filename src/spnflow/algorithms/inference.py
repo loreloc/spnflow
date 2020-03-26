@@ -1,6 +1,7 @@
 import numpy as np
 from spnflow.structure.leaf import Leaf
 from spnflow.structure.node import dfs_post_order
+from spnflow.utils.validity import assert_is_valid
 
 
 def likelihood(root, x, return_results=False):
@@ -12,6 +13,8 @@ def log_likelihood(root, x, return_results=False):
 
 
 def eval_bottom_up(root, x, leaf_func, node_func, return_results=False):
+    assert_is_valid(root)
+
     ls = {}
     x = np.array(x)
     m = np.isnan(x)
