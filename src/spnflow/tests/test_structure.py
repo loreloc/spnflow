@@ -39,7 +39,7 @@ def build_spn():
             ])
         ]),
         Mul([
-            Bernoulli(0, p=0.3),
+            Bernoulli(0, p=0.9),
             Mul([
                 Gaussian(1, mean=0.0, stdev=2.0),
                 Gaussian(2, mean=1.0, stdev=1.0),
