@@ -1,6 +1,7 @@
 import unittest
 from spnflow.structure.node import *
 from spnflow.structure.leaf import *
+from spnflow.utils.validity import assert_is_valid
 
 
 class TestStructure(unittest.TestCase):
@@ -40,7 +41,9 @@ def build_spn():
             ])
         ])
     ])
-    return assign_ids(spn)
+    assign_ids(spn)
+    assert_is_valid(spn)
+    return spn
 
 
 if __name__ == '__main__':
