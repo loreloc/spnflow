@@ -6,26 +6,42 @@ from spnflow.structure.leaf import *
 class TestStructure(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.d0 = Bernoulli(0, p=0.3)
-        self.d1 = Gaussian(1, mean=0.0, stdev=2.0)
-        self.d2 = Gaussian(1, mean=2.0, stdev=1.0)
-        self.d3 = Gaussian(2, mean=1.0, stdev=1.0)
-        self.d4 = Gaussian(2, mean=3.0, stdev=2.0)
-        self.spn = Mul([
-            self.d0, Sum([0.3, 0.7], [
-                Mul([self.d1, self.d3]),
-                Mul([self.d2, self.d4])
-            ])
-        ])
-        assign_ids(self.spn)
+        self.spn = build_spn()
 
     def test_bfs(self):
+        print("BFS IDs:")
         bfs(self.spn, lambda n: print(n.id))
 
     def test_dfs_post_order(self):
+        print("DFS-PO IDs:")
         dfs_post_order(self.spn, lambda n: print(n.id))
+
+
+def build_spn():
+    spn = Sum([0.3, 0.7], [
+        Mul([
+            Bernoulli(0, p=0.3),
+            Sum([0.4, 0.6], [
+                Mul([
+                    Gaussian(1, mean=0.0, stdev=2.0),
+                    Gaussian(2, mean=1.0, stdev=1.0)
+                ]),
+                Mul([
+                    Gaussian(1, mean=2.0, stdev=1.0),
+                    Gaussian(2, mean=3.0, stdev=2.0)
+                ])
+            ])
+        ]),
+        Mul([
+            Bernoulli(0, p=0.3),
+            Mul([
+                Gaussian(1, mean=0.0, stdev=2.0),
+                Gaussian(2, mean=1.0, stdev=1.0),
+            ])
+        ])
+    ])
+    return assign_ids(spn)
 
 
 if __name__ == '__main__':
     unittest.main()
-
