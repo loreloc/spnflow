@@ -21,6 +21,10 @@ class Leaf(Node):
     def sample(self, size=1):
         pass
 
+    @staticmethod
+    def params_count():
+        pass
+
 
 class Bernoulli(Leaf):
     def __init__(self, scope, p=0.5):
@@ -41,6 +45,10 @@ class Bernoulli(Leaf):
 
     def sample(self, size=1):
         return stats.bernoulli.rvs(self.p, size=size)
+
+    @staticmethod
+    def params_count():
+        return 1
 
 
 class Uniform(Leaf):
@@ -64,6 +72,10 @@ class Uniform(Leaf):
     def sample(self, size=1):
         return stats.uniform.rvs(self.start, self.width, size=size)
 
+    @staticmethod
+    def params_count():
+        return 2
+
 
 class Gaussian(Leaf):
     def __init__(self, scope, mean=0.0, stdev=1.0):
@@ -85,3 +97,7 @@ class Gaussian(Leaf):
 
     def sample(self, size=1):
         return stats.norm.rvs(self.mean, self.stdev, size=size)
+
+    @staticmethod
+    def params_count():
+        return 2

@@ -2,12 +2,17 @@ import unittest
 from spnflow.structure.node import *
 from spnflow.structure.leaf import *
 from spnflow.utils.validity import assert_is_valid
+from spnflow.utils.statistics import get_statistics
 
 
 class TestStructure(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.spn = build_spn()
+
+    def test_get_statistics(self):
+        print("SPN Statistics:")
+        print(get_statistics(self.spn))
 
     def test_bfs(self):
         print("BFS IDs:")
