@@ -59,7 +59,7 @@ class Uniform(Leaf):
         self.start, self.width = stats.uniform.fit(data)
 
     def mode(self):
-        return self.sample()
+        return self.start
 
     def sample(self, size=1):
         return stats.uniform.rvs(self.start, self.width, size=size)

@@ -17,7 +17,7 @@ def eval_top_down(root, x, ls, leaf_func):
     x_len = len(x)
     result = np.array(x)
     nan_mask = np.isnan(x)
-    max_masks = {root: np.repeat(True, x_len).reshape(-1, 1)}
+    max_masks = {root: np.full((x_len, 1), True)}
 
     def evaluate(node):
         if isinstance(node, Leaf):
