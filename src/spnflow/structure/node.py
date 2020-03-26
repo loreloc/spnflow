@@ -18,11 +18,6 @@ class Node:
 class Sum(Node):
     def __init__(self, weights, children):
         scope = children[0].scope
-        assert len(weights) > 0, "Weights list cannot be empty"
-        assert len(children) > 0, "Children list cannot be empty"
-        assert len(weights) == len(children), "Each child must be associated to a weight"
-        assert np.isclose(sum(weights), 1.0), "The sum of weights must be 1.0"
-        assert all(set(c.scope) == set(scope) for c in children), "The scopes of the children must be equal"
         super().__init__(scope, children)
         self.weights = weights
 
@@ -38,8 +33,6 @@ class Sum(Node):
 class Mul(Node):
     def __init__(self, children):
         scope = sum([c.scope for c in children], [])
-        assert len(children) > 0, "Children list cannot be empty"
-        assert set(scope) == set.union(*[set(c.scope) for c in children]), "The scopes of the children must be disjoint"
         super().__init__(scope, children)
 
     def likelihood(self, x):
