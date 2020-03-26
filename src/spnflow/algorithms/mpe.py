@@ -32,7 +32,7 @@ def eval_top_down(root, x, ls, leaf_func):
                 wcl[:, i] = ls[c] + np.log(node.weights[i])
             max_branch = np.argmax(wcl, axis=1)
             for i, c in enumerate(node.children):
-                masks[c] = max_branch == i
+                masks[c] = np.logical_and(masks[node], max_branch == i)
         else:
             raise NotImplementedError("MPE not implemented for node of type " + type(node).__name__)
 
