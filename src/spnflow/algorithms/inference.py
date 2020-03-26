@@ -4,43 +4,23 @@ from spnflow.structure.node import dfs_post_order
 
 
 def likelihood(root, x, return_results=False):
-    ls = {}
-    x = np.array(x)
-    m = np.isnan(x)
-
-    def evaluate(node):
-        if isinstance(node, Leaf):
-            z = x[:, node.scope]
-            sm = m[:, node.scope]
-            v = np.ones(shape=(z.shape[0], 1))
-            v[~sm] = node.likelihood(z[~sm])
-            ls[node] = v
-        else:
-            z = np.concatenate([ls[n] for n in node.children], axis=1)
-            ls[node] = node.likelihood(z)
-
-    dfs_post_order(root, evaluate)
-
-    if return_results:
-        return ls[root], ls
-    return ls[root]
+    return eval_bottom_up(root, x, leaf_likelihood, node_likelihood, return_results)
 
 
 def log_likelihood(root, x, return_results=False):
+    return eval_bottom_up(root, x, leaf_log_likelihood, node_log_likelihood, return_results)
+
+
+def eval_bottom_up(root, x, leaf_func, node_func, return_results=False):
     ls = {}
     x = np.array(x)
     m = np.isnan(x)
 
     def evaluate(node):
         if isinstance(node, Leaf):
-            z = x[:, node.scope]
-            sm = m[:, node.scope]
-            v = np.zeros(shape=(z.shape[0], 1))
-            v[~sm] = node.log_likelihood(z[~sm])
-            ls[node] = v
+            ls[node] = leaf_func(node, x[:, node.scope], m[:, node.scope])
         else:
-            z = np.concatenate([ls[n] for n in node.children], axis=1)
-            ls[node] = node.log_likelihood(z)
+            ls[node] = node_func(node, [ls[c] for c in node.children])
 
     dfs_post_order(root, evaluate)
 
@@ -49,3 +29,23 @@ def log_likelihood(root, x, return_results=False):
     return ls[root]
 
 
+def leaf_likelihood(node, x, m):
+    y = np.ones(shape=(x.shape[0], 1))
+    y[~m] = node.likelihood(x[~m])
+    return y
+
+
+def leaf_log_likelihood(node, x, m):
+    y = np.zeros(shape=(x.shape[0], 1))
+    y[~m] = node.log_likelihood(x[~m])
+    return y
+
+
+def node_likelihood(node, lc):
+    z = np.concatenate(lc, axis=1)
+    return node.likelihood(z)
+
+
+def node_log_likelihood(node, lc):
+    z = np.concatenate(lc, axis=1)
+    return node.log_likelihood(z)

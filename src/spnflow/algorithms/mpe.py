@@ -5,19 +5,24 @@ from spnflow.algorithms.inference import log_likelihood
 
 
 def mpe(root, x):
+    _, ls = log_likelihood(root, x, return_results=True)
+    return eval_top_down(root, x, ls, lambda n, s: n.mode())
+
+
+def eval_top_down(root, x, ls, leaf_func):
     assert np.all(np.any(np.isnan(x), axis=1)), "Each row must have at least a NaN value"
     x_len = len(x)
     result = np.array(x)
     nan_mask = np.isnan(x)
     masks = {root: np.repeat(True, x_len).reshape(-1, 1)}
-    _, ls = log_likelihood(root, x, return_results=True)
 
     def evaluate(node):
         if isinstance(node, Leaf):
             m = masks[node]
             n = nan_mask[:, node.scope]
             p = np.logical_and(m, n).reshape(x_len)
-            result[p, node.scope] = node.mode()
+            s = len(result[p, node.scope])
+            result[p, node.scope] = leaf_func(node, s)
         elif isinstance(node, Mul):
             for c in node.children:
                 masks[c] = np.copy(masks[node])
@@ -29,7 +34,8 @@ def mpe(root, x):
             for i, c in enumerate(node.children):
                 masks[c] = max_branch == i
         else:
-            raise NotImplementedError("MPE not implemented for node of type " + str(type(node)))
+            raise NotImplementedError("MPE not implemented for node of type " + type(node).__name__)
 
     bfs(root, evaluate)
     return result
+
