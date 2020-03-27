@@ -27,22 +27,22 @@ def is_valid(root):
 def is_complete(root):
     for n in filter_nodes_type(root, Sum):
         if not np.isclose(sum(n.weights), 1.0):
-            return False, "Sum of weights of node # " + n.id + " is not 1.0"
+            return False, "Sum of weights of node #%s is not 1.0" % n.id
         if len(n.children) == 0:
-            return False, "Sum node # " + n.id + " has no children"
+            return False, "Sum node #%s has no children" % n.id
         if len(n.children) != len(n.weights):
-            return False, "Weights and children length mismatch in node # " + n.id
+            return False, "Weights and children length mismatch in node #%s" % n.id
         n_scope = set(n.scope)
         for c in n.children:
             if n_scope != set(c.scope):
-                return False, "Children of sum node # " + n.id + " have different scopes"
+                return False, "Children of sum node #%s have different scopes" % n.id
     return True, None
 
 
 def is_consistent(root):
     for n in filter_nodes_type(root, Mul):
         if len(n.children) == 0:
-            return False, "Mul node # " + n.id + " has no children"
+            return False, "Mul node #%s has no children" % n.id
         sum_features = 0
         all_scope = set()
         n_scope = set(n.scope)
@@ -50,7 +50,7 @@ def is_consistent(root):
             sum_features += len(c.scope)
             all_scope.update(c.scope)
         if n_scope != all_scope or sum_features != len(all_scope):
-            return False, "Children of mul node # " + n.id + " don't have disjointed scopes"
+            return False, "Children of mul node #%s don't have disjointed scopes" % n.id
     return True, None
 
 

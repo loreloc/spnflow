@@ -25,6 +25,8 @@ class TaskQueue:
 
     def pop(self):
         task = (parent, op, local_data, scope) = self.tasks.popleft()
+        if op == OperationKind.CREATE_LEAF or op == OperationKind.ROOT_SPLIT_ROWS or op == OperationKind.ROOT_SPLIT_COLS:
+            return task
         n_rows, n_cols = local_data.shape
         if n_rows >= self.min_rows_slice and n_cols >= self.min_cols_slice:
             return task

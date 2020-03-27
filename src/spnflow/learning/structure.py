@@ -41,7 +41,10 @@ def learn_structure(data, distributions, root_split='cols',
             parent.children.append(leaf)
         elif op == OperationKind.SPLIT_ROWS:
             clusters = split_rows_func(local_data, n_clusters)
-            weights, slices = split_rows_clusters(local_data, clusters)
+            slices, weights = split_rows_clusters(local_data, clusters)
+            if len(slices) == 1:
+                tasks.push(parent, OperationKind.NAIVE_FACTORIZE, local_data, scope)
+                continue
             node = Sum(weights, [], scope)
             for s in slices:
                 tasks.push(node, OperationKind.SPLIT_COLS, s, scope)
@@ -57,19 +60,23 @@ def learn_structure(data, distributions, root_split='cols',
                 tasks.push(node, OperationKind.SPLIT_ROWS, s, scopes[i])
             parent.children.append(node)
         elif op == OperationKind.NAIVE_FACTORIZE:
-            node = Mul()
-            _, n_features = local_data.shape
-            for i in range(n_features):
-                tasks.push(node, OperationKind.CREATE_LEAF, local_data[:, i], i)
+            node = Mul([], scope)
+            n_local_samples, n_local_features = local_data.shape
+            for i in range(n_local_features):
+                tasks.push(node, OperationKind.CREATE_LEAF, local_data[:, i].reshape(n_local_samples, -1), scope[i])
+            parent.children.append(node)
         elif op == OperationKind.ROOT_SPLIT_ROWS:
             clusters = split_rows_func(local_data, n_clusters)
-            weights, slices = split_rows_clusters(local_data, clusters)
+            slices, weights = split_rows_clusters(local_data, clusters)
+            if len(slices) == 1:
+                tasks.push(parent, OperationKind.NAIVE_FACTORIZE, local_data, scope)
+                continue
             root = Sum(weights, [], scope)
             for s in slices:
                 tasks.push(root, OperationKind.SPLIT_COLS, s, scope)
         elif op == OperationKind.ROOT_SPLIT_COLS:
             clusters = split_cols_func(local_data, threshold)
-            slices, scopes = split_cols_clusters(local_data, scope)
+            slices, scopes = split_cols_clusters(local_data, clusters, scope)
             if len(slices) == 1:
                 tasks.push(None, OperationKind.ROOT_SPLIT_ROWS, local_data, scope)
                 continue
