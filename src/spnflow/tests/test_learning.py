@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from spnflow.structure.leaf import *
-from spnflow.learning.structure import *
+from spnflow.learning.wrappers import *
 from spnflow.algorithms.mpe import *
 from spnflow.utils.validity import assert_is_valid
 from spnflow.utils.statistics import get_statistics
@@ -20,7 +20,7 @@ class TestLearning(unittest.TestCase):
         self.query = [[4.0, 6.0, np.nan], [10.0, 11.0, np.nan]]
 
     def test_learn_structure(self):
-        spn = learn_structure(self.train_data, [Gaussian, Gaussian, Bernoulli], root_split='rows')
+        spn = learn_classifier(self.train_data, [Gaussian, Gaussian, Bernoulli])
         assert_is_valid(spn)
         print(get_statistics(spn))
         classes = [result[2] for result in mpe(spn, self.query)]
