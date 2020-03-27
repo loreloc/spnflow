@@ -3,10 +3,10 @@ from collections import deque
 
 
 class Node:
-    def __init__(self, scope, children):
+    def __init__(self, children, scope):
         self.id = None
-        self.scope = scope
         self.children = children
+        self.scope = scope
 
     def likelihood(self, x):
         pass
@@ -16,9 +16,10 @@ class Node:
 
 
 class Sum(Node):
-    def __init__(self, weights, children):
-        scope = children[0].scope
-        super().__init__(scope, children)
+    def __init__(self, weights, children=[], scope=[]):
+        if len(scope) == 0 and len(children) > 0:
+            scope = children[0].scope
+        super().__init__(children, scope)
         self.weights = weights
 
     def likelihood(self, x):
@@ -31,9 +32,10 @@ class Sum(Node):
 
 
 class Mul(Node):
-    def __init__(self, children):
-        scope = sum([c.scope for c in children], [])
-        super().__init__(scope, children)
+    def __init__(self, children=[], scope=[]):
+        if len(scope) == 0 and len(children) > 0:
+            scope = sum([c.scope for c in children], [])
+        super().__init__(children, scope)
 
     def likelihood(self, x):
         return np.prod(x, axis=1).reshape(-1, 1)

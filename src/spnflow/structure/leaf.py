@@ -4,7 +4,7 @@ from spnflow.structure.node import Node
 
 class Leaf(Node):
     def __init__(self, scope):
-        super().__init__(scope, [])
+        super().__init__([], [scope] if type(scope) == int else scope)
 
     def likelihood(self, x):
         pass
@@ -28,7 +28,7 @@ class Leaf(Node):
 
 class Bernoulli(Leaf):
     def __init__(self, scope, p=0.5):
-        super().__init__([scope])
+        super().__init__(scope)
         self.p = p
 
     def likelihood(self, x):
@@ -53,7 +53,7 @@ class Bernoulli(Leaf):
 
 class Uniform(Leaf):
     def __init__(self, scope, start=0.0, width=1.0):
-        super().__init__([scope])
+        super().__init__(scope)
         self.start = start
         self.width = width
 
@@ -79,7 +79,7 @@ class Uniform(Leaf):
 
 class Gaussian(Leaf):
     def __init__(self, scope, mean=0.0, stdev=1.0):
-        super().__init__([scope])
+        super().__init__(scope)
         self.mean = mean
         self.stdev = stdev
 
