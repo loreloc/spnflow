@@ -2,6 +2,7 @@ import unittest
 from spnflow.structure.leaf import *
 from spnflow.learning.wrappers import *
 from spnflow.algorithms.mpe import *
+from spnflow.optimization.pruning import *
 from spnflow.utils.validity import assert_is_valid
 from spnflow.utils.statistics import get_statistics
 
@@ -23,6 +24,9 @@ class TestLearning(unittest.TestCase):
         domains = [[-1e3, 1e3], [-1e3, 1e3], [0, 1]]
         spn = learn_classifier(self.train_data, distributions, domains, class_idx=2)
         assert_is_valid(spn)
+        print(get_statistics(spn))
+        assert_is_valid(spn)
+        spn = prune(spn)
         print(get_statistics(spn))
         classes = [result[2] for result in mpe(spn, self.query)]
         assert classes == [0.0, 1.0]
