@@ -21,12 +21,14 @@ def learn_structure(data, distributions, domains,
     assert len(domains) > 0
     assert split_rows is not None
     assert split_cols is not None
-    assert min_rows_slice > 0
-    assert min_cols_slice > 0
+    assert min_rows_slice > 1
+    assert min_cols_slice > 1
     assert n_clusters > 1
     assert threshold > 0.0
 
     n_samples, n_features = data.shape
+    assert len(distributions) == n_features, "Each feature must have a distribution"
+
     split_rows_func = get_split_rows_method(split_rows)
     split_cols_func = get_split_cols_method(split_cols)
     initial_scope = list(range(n_features))
