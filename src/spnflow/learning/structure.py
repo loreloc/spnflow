@@ -14,7 +14,7 @@ class Operation(Enum):
 
 def learn_structure(data, distributions, domains,
                     split_rows='kmeans', split_cols='rdc',
-                    min_rows_slice=128, min_cols_slice=1,
+                    min_rows_slice=128, min_cols_slice=2,
                     n_clusters=2, threshold=0.25):
     assert data is not None
     assert len(distributions) > 0

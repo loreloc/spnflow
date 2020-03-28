@@ -9,6 +9,7 @@ from spnflow.structure.leaf import Gaussian, Multinomial
 from spnflow.algorithms.inference import likelihood, log_likelihood
 from spnflow.algorithms.mpe import mpe
 from spnflow.algorithms.sampling import sample
+from spnflow.optimization.pruning import prune
 from spnflow.examples.mnist.utils import build_autoencoder, plot_fit_history, load_dataset, plot_samples
 
 # Disable some warnings
@@ -35,7 +36,6 @@ if __name__ == '__main__':
     encoder = tf.keras.models.load_model('encoder.h5')
     decoder = tf.keras.models.load_model('decoder.h5')
 
-
     # Code the entire MNIST digits dataset
     x_train = encoder.predict(x_train)
     x_test = encoder.predict(x_test)
@@ -51,6 +51,9 @@ if __name__ == '__main__':
     spn = learn_classifier(train_data, distributions, domains, class_idx=n_features, min_rows_slice=2048)
     assert_is_valid(spn)
     print("SPN Statistics: " + str(get_statistics(spn)))
+    spn = prune(spn)
+    assert_is_valid(spn)
+    print("SPN Statistics after pruning: " + str(get_statistics(spn)))
 
     # Evaluate some metrics
     ll = log_likelihood(spn, test_data)
