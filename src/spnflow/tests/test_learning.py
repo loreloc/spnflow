@@ -19,7 +19,9 @@ class TestLearning(unittest.TestCase):
         self.query = [[4.0, 6.0, np.nan], [10.0, 11.0, np.nan]]
 
     def test_learn_structure(self):
-        spn = learn_classifier(self.train_data, [Gaussian, Gaussian, Bernoulli], class_idx=2)
+        distributions = [Gaussian, Gaussian, Bernoulli]
+        domains = [[-1e3, 1e3], [-1e3, 1e3], [0, 1]]
+        spn = learn_classifier(self.train_data, distributions, domains, class_idx=2)
         assert_is_valid(spn)
         print(get_statistics(spn))
         classes = [result[2] for result in mpe(spn, self.query)]

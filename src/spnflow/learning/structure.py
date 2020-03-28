@@ -12,15 +12,18 @@ class Operation(Enum):
     SPLIT_COLS = 4
 
 
-def learn_structure(data, distributions,
+def learn_structure(data, distributions, domains,
                     split_rows='kmeans', split_cols='rdc',
                     min_rows_slice=128, min_cols_slice=1,
                     n_clusters=2, threshold=0.25):
     assert data is not None
+    assert len(distributions) > 0
+    assert len(domains) > 0
     assert split_rows is not None
     assert split_cols is not None
     assert min_rows_slice > 0
     assert min_cols_slice > 0
+    assert n_clusters > 1
     assert threshold > 0.0
 
     n_samples, n_features = data.shape
@@ -37,15 +40,16 @@ def learn_structure(data, distributions,
         op = choose_next_operation(task, min_rows_slice, min_cols_slice)
 
         if op == Operation.CREATE_LEAF:
-            leaf = distributions[scope[0]](scope)
-            leaf.fit(local_data)
+            idx = scope[0]
+            leaf = distributions[idx](scope)
+            leaf.fit(local_data, domains[idx])
             parent.children.append(leaf)
         elif op == Operation.SPLIT_NAIVE:
             node = Mul([], scope)
             n_local_samples, n_local_features = local_data.shape
             for i in range(n_local_features):
                 s = local_data[:, i].reshape(n_local_samples, -1)
-                tasks.append((node, s, scope[i], True, True))
+                tasks.append((node, s, [scope[i]], True, True))
             parent.children.append(node)
         elif op == Operation.SPLIT_ROWS:
             clusters = split_rows_func(local_data, n_clusters)
@@ -55,7 +59,7 @@ def learn_structure(data, distributions,
                 continue
             node = Sum(weights, [], scope)
             for s in slices:
-                tasks.append((node, s, scope, False, False))
+                tasks.append((node, s, scope, False, no_cols_split))
             parent.children.append(node)
         elif op == Operation.SPLIT_COLS:
             clusters = split_cols_func(local_data, threshold)
@@ -65,7 +69,7 @@ def learn_structure(data, distributions,
                 continue
             node = Mul([], scope)
             for i, s in enumerate(slices):
-                tasks.append((node, s, scopes[i], False, False))
+                tasks.append((node, s, scopes[i], no_rows_split, False))
             parent.children.append(node)
         else:
             raise NotImplementedError("Operation of kind " + op.__name__ + " not implemented")
@@ -91,13 +95,13 @@ def choose_next_operation(task, min_rows_slice, min_cols_slice):
     if n_samples < min_rows_slice:
         if no_cols_split:
             return split_end_op
-        else:
+        elif n_features >= min_cols_slice:
             return split_cols_op
 
     if n_features < min_cols_slice:
         if no_rows_split:
             return split_end_op
-        else:
+        elif n_samples >= min_rows_slice:
             return split_rows_op
 
     if no_cols_split:
@@ -105,5 +109,9 @@ def choose_next_operation(task, min_rows_slice, min_cols_slice):
     if no_rows_split:
         return split_cols_op
 
-    return split_cols_op
+    if n_features >= min_cols_slice:
+        return split_cols_op
+    elif n_samples >= min_rows_slice:
+        return split_rows_op
 
+    return split_end_op

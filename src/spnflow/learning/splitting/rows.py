@@ -11,7 +11,7 @@ def split_rows_clusters(data, clusters):
     for c in unique_clusters:
         local_data = data[clusters == c, :]
         n_local_samples = len(local_data)
-        slices.append(local_data.reshape(n_local_samples, -1))
+        slices.append(local_data)
         weights.append(n_local_samples / n_samples)
     return slices, weights
 

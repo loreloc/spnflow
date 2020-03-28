@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.special import logsumexp
 from collections import deque
 
 
@@ -26,9 +27,7 @@ class Sum(Node):
         return np.dot(x, self.weights).reshape(-1, 1)
 
     def log_likelihood(self, x):
-        z = np.exp(x)
-        z[np.isclose(z, 0.0)] = np.finfo(float).eps
-        return np.log(np.dot(z, self.weights)).reshape(-1, 1)
+        return logsumexp(x, b=self.weights, axis=1).reshape(-1, 1)
 
 
 class Mul(Node):

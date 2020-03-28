@@ -21,7 +21,7 @@ def get_edges_count(root):
 
 def get_parameters_count(root):
     n_weights = sum([len(n.weights) for n in filter_nodes_type(root, Sum)])
-    n_leaf_params = sum([n.__class__.params_count() for n in filter_nodes_type(root, Leaf)])
+    n_leaf_params = sum([n.params_count() for n in filter_nodes_type(root, Leaf)])
     return n_weights + n_leaf_params
 
 

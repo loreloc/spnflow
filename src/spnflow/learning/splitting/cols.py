@@ -14,7 +14,7 @@ def split_cols_clusters(data, clusters, scope):
     for c in unique_clusters:
         cols = clusters == c
         local_data = data[:, cols]
-        slices.append(local_data.reshape(n_samples, -1))
+        slices.append(local_data)
         scopes.append(np_scope[cols].tolist())
     return slices, scopes
 
@@ -30,15 +30,18 @@ def rdc(data, threshold):
     n_samples, n_features = data.shape
     rdc_features = rdc_transform(data)
 
-    pairwise_comparisons = combinations(range(n_features), 2)
+    pairwise_comparisons = list(combinations(range(n_features), 2))
     rdc_values = [rdc_cca(i, j, rdc_features) for i, j in pairwise_comparisons]
+
     adj_matrix = np.zeros((n_features, n_features))
     for (i, j), v in zip(pairwise_comparisons, rdc_values):
-        adj_matrix[i, j] = adj_matrix[j, i] = v
-    np.fill_diagonal(adj_matrix, 1.0)
+        adj_matrix[i, j] = v
+        adj_matrix[j, i] = v
 
+    adj_matrix[np.isnan(adj_matrix)] = 0
     adj_matrix[adj_matrix <= threshold] = 0
-    adj_matrix[adj_matrix > threshold] = 1
+    adj_matrix[adj_matrix > 0] = 1
+
     adj_matrix = sparse.csr_matrix(adj_matrix)
     _, clusters = sparse.csgraph.connected_components(adj_matrix, directed=False, return_labels=True)
     return clusters
@@ -48,12 +51,13 @@ def rdc_transform(data, k=20, s=1.0/6.0, nl_func=np.sin):
     n_samples, n_features = data.shape
 
     features = []
-    for i in range(n_features):
-        col = data[:, i]
-        if issubclass(col.dtype.type, np.integer):
-            features.append(ohe_data(col).reshape(-1, 1))
-        else:
-            features.append(col.reshape(-1, 1))
+    #for i in range(n_features):
+    #    col = data[:, i]
+    #    if issubclass(col.dtype.type, np.integer):
+    #        features.append(ohe_data(col).reshape(-1, 1))
+    #    else:
+    #        features.append(col.reshape(-1, 1))
+    features = [data[:, i].reshape(-1, 1) for i in range(n_features)]
 
     features = [empirical_copula_transform(f) for f in features]
 

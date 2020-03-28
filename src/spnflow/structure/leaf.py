@@ -1,3 +1,4 @@
+import numpy as np
 import scipy.stats as stats
 from spnflow.structure.node import Node
 
@@ -6,13 +7,13 @@ class Leaf(Node):
     def __init__(self, scope):
         super().__init__([], [scope] if type(scope) == int else scope)
 
+    def fit(self, data, domain):
+        pass
+
     def likelihood(self, x):
         pass
 
     def log_likelihood(self, x):
-        pass
-
-    def fit(self, data):
         pass
 
     def mode(self):
@@ -21,8 +22,7 @@ class Leaf(Node):
     def sample(self, size=1):
         pass
 
-    @staticmethod
-    def params_count():
+    def params_count(self):
         pass
 
 
@@ -31,14 +31,15 @@ class Bernoulli(Leaf):
         super().__init__(scope)
         self.p = p
 
+    def fit(self, data, domain):
+        self.p = data.sum().item() / len(data)
+
     def likelihood(self, x):
         return stats.bernoulli.pmf(x, self.p)
 
     def log_likelihood(self, x):
-        return stats.bernoulli.logpmf(x, self.p)
-
-    def fit(self, data):
-        self.p = data.sum().item() / len(data)
+        y = stats.bernoulli.logpmf(x, self.p)
+        return y
 
     def mode(self):
         return 0 if self.p < 0.5 else 1
@@ -46,9 +47,44 @@ class Bernoulli(Leaf):
     def sample(self, size=1):
         return stats.bernoulli.rvs(self.p, size=size)
 
-    @staticmethod
-    def params_count():
+    def params_count(self):
         return 1
+
+
+class Multinomial(Leaf):
+    def __init__(self, scope, k=2):
+        super().__init__(scope)
+        self.k = k
+        self.p = [1.0 / k for i in range(k)]
+
+    def fit(self, data, domain):
+        self.k = domain
+        self.p = []
+        len_data = len(data)
+        for c in range(self.k):
+            self.p.append(len(data[data == c]) / len_data)
+
+    def likelihood(self, x):
+        x_len = len(x)
+        z = np.zeros((x_len, self.k))
+        z[np.arange(x_len), x.astype(int)] = 1
+        return stats.multinomial.pmf(z, 1, self.p)
+
+    def log_likelihood(self, x):
+        x_len = len(x)
+        z = np.zeros((x_len, self.k))
+        z[np.arange(x_len), x.astype(int)] = 1
+        return stats.multinomial.logpmf(z, 1, self.p)
+
+    def mode(self):
+        return np.argmax(self.p)
+
+    def sample(self, size=1):
+        s = stats.multinomial.rvs(1, self.p, size=size)
+        return np.argmax(s, axis=1)
+
+    def params_count(self):
+        return 1 + self.k
 
 
 class Uniform(Leaf):
@@ -57,14 +93,14 @@ class Uniform(Leaf):
         self.start = start
         self.width = width
 
+    def fit(self, data, domain):
+        self.start, self.width = stats.uniform.fit(data)
+
     def likelihood(self, x):
         return stats.uniform.pdf(x, self.start, self.width)
 
     def log_likelihood(self, x):
         return stats.uniform.logpdf(x, self.start, self.width)
-
-    def fit(self, data):
-        self.start, self.width = stats.uniform.fit(data)
 
     def mode(self):
         return self.start
@@ -72,8 +108,7 @@ class Uniform(Leaf):
     def sample(self, size=1):
         return stats.uniform.rvs(self.start, self.width, size=size)
 
-    @staticmethod
-    def params_count():
+    def params_count(self):
         return 2
 
 
@@ -83,14 +118,16 @@ class Gaussian(Leaf):
         self.mean = mean
         self.stdev = stdev
 
+    def fit(self, data, domain):
+        self.mean, self.stdev = stats.norm.fit(data)
+        if np.isclose(self.stdev, 0.0):
+            self.stdev = 1e-8
+
     def likelihood(self, x):
         return stats.norm.pdf(x, self.mean, self.stdev)
 
     def log_likelihood(self, x):
         return stats.norm.logpdf(x, self.mean, self.stdev)
-
-    def fit(self, data):
-        self.mean, self.stdev = stats.norm.fit(data)
 
     def mode(self):
         return self.mean
@@ -98,6 +135,5 @@ class Gaussian(Leaf):
     def sample(self, size=1):
         return stats.norm.rvs(self.mean, self.stdev, size=size)
 
-    @staticmethod
-    def params_count():
+    def params_count(self):
         return 2
