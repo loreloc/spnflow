@@ -1,3 +1,4 @@
+import numpy as np
 from enum import Enum
 from collections import deque
 from spnflow.structure.node import Sum, Mul, assign_ids
@@ -7,9 +8,10 @@ from spnflow.learning.splitting.cols import get_split_cols_method, split_cols_cl
 
 class Operation(Enum):
     CREATE_LEAF = 1,
-    SPLIT_NAIVE = 2,
-    SPLIT_ROWS = 3,
-    SPLIT_COLS = 4
+    REM_FEATURE = 2
+    SPLIT_NAIVE = 3,
+    SPLIT_ROWS = 4,
+    SPLIT_COLS = 5
 
 
 def learn_structure(data, distributions, domains,
@@ -39,13 +41,20 @@ def learn_structure(data, distributions, domains,
 
     while tasks:
         task = (parent, local_data, scope, no_rows_split, no_cols_split) = tasks.popleft()
-        op = choose_next_operation(task, min_rows_slice, min_cols_slice)
+        op, params = choose_next_operation(task, min_rows_slice, min_cols_slice)
 
         if op == Operation.CREATE_LEAF:
             idx = scope[0]
             leaf = distributions[idx](scope)
             leaf.fit(local_data, domains[idx])
             parent.children.append(leaf)
+        elif op == Operation.REM_FEATURE:
+            node = Mul([], scope)
+            rem_scope = [scope[x.item()] for x in np.argwhere( params)]
+            oth_scope = [scope[x.item()] for x in np.argwhere(~params)]
+            tasks.append((node, local_data[:,  params], rem_scope, True, True))
+            tasks.append((node, local_data[:, ~params], oth_scope, False, False))
+            parent.children.append(node)
         elif op == Operation.SPLIT_NAIVE:
             node = Mul([], scope)
             n_local_samples, n_local_features = local_data.shape
@@ -84,36 +93,44 @@ def choose_next_operation(task, min_rows_slice, min_cols_slice):
     parent, local_data, scope, no_rows_split, no_cols_split = task
     n_samples, n_features = local_data.shape
 
-    split_rows_op = Operation.SPLIT_ROWS
-    split_cols_op = Operation.SPLIT_COLS
-
-    split_end_op = Operation.CREATE_LEAF
-    if n_features > 1:
-        split_end_op = Operation.SPLIT_NAIVE
-
     if no_rows_split and no_cols_split:
-        return split_end_op
+        if n_features == 1:
+            return Operation.CREATE_LEAF, None
+        else:
+            return Operation.SPLIT_NAIVE, None
+
+    zero_var_idx = np.isclose(np.var(local_data, axis=0), 0.0)
+    if np.all(zero_var_idx):
+        return Operation.SPLIT_NAIVE, None
+    if np.any(zero_var_idx):
+        return Operation.REM_FEATURE, zero_var_idx
 
     if n_samples < min_rows_slice:
         if no_cols_split:
-            return split_end_op
+            if n_features == 1:
+                return Operation.CREATE_LEAF, None
+            else:
+                return Operation.SPLIT_NAIVE, None
         elif n_features >= min_cols_slice:
-            return split_cols_op
+            return Operation.SPLIT_COLS, None
 
     if n_features < min_cols_slice:
         if no_rows_split:
-            return split_end_op
+            if n_features == 1:
+                return Operation.CREATE_LEAF, None
+            else:
+                return Operation.SPLIT_NAIVE, None
         elif n_samples >= min_rows_slice:
-            return split_rows_op
+            return Operation.SPLIT_ROWS, None
 
     if no_cols_split:
-        return split_rows_op
+        return Operation.SPLIT_ROWS, None
     if no_rows_split:
-        return split_cols_op
+        return Operation.SPLIT_COLS, None
 
     if n_features >= min_cols_slice:
-        return split_cols_op
+        return Operation.SPLIT_COLS, None
     elif n_samples >= min_rows_slice:
-        return split_rows_op
+        return Operation.SPLIT_ROWS, None
 
-    return split_end_op
+    return Operation.SPLIT_NAIVE, None
