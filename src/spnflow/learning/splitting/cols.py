@@ -8,7 +8,6 @@ from itertools import combinations
 def split_cols_clusters(data, clusters, scope):
     slices = []
     scopes = []
-    n_samples = len(data)
     np_scope = np.asarray(scope)
     unique_clusters = np.unique(clusters)
     for c in unique_clusters:
