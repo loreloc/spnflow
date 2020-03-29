@@ -1,6 +1,12 @@
+from enum import Enum
 import numpy as np
 import scipy.stats as stats
 from spnflow.structure.node import Node
+
+
+class LeafType(Enum):
+    DISCRETE = 1,
+    CONTINUOUS = 2
 
 
 class Leaf(Node):
@@ -27,6 +33,8 @@ class Leaf(Node):
 
 
 class Bernoulli(Leaf):
+    LEAF_TYPE = LeafType.DISCRETE
+
     def __init__(self, scope, p=0.5):
         super().__init__(scope)
         self.p = p
@@ -52,6 +60,8 @@ class Bernoulli(Leaf):
 
 
 class Multinomial(Leaf):
+    LEAF_TYPE = LeafType.DISCRETE
+
     def __init__(self, scope, k=2):
         super().__init__(scope)
         self.k = k
@@ -88,6 +98,8 @@ class Multinomial(Leaf):
 
 
 class Uniform(Leaf):
+    LEAF_TYPE = LeafType.CONTINUOUS
+
     def __init__(self, scope, start=0.0, width=1.0):
         super().__init__(scope)
         self.start = start
@@ -113,6 +125,8 @@ class Uniform(Leaf):
 
 
 class Gaussian(Leaf):
+    LEAF_TYPE = LeafType.CONTINUOUS
+
     def __init__(self, scope, mean=0.0, stdev=1.0):
         super().__init__(scope)
         self.mean = mean

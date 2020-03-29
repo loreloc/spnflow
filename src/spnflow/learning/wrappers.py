@@ -2,12 +2,16 @@ import joblib
 import numpy as np
 from spnflow.structure.node import Sum, assign_ids
 from spnflow.learning.structure import learn_structure
+from spnflow.utils.data import get_data_domains
 
 
-def learn_classifier(data, distributions, domains, class_idx, n_jobs=1, **kwargs):
+def learn_classifier(data, distributions, class_idx, domains=None, n_jobs=1, **kwargs):
     assert data is not None
     assert distributions is not None
     assert class_idx >= 0
+
+    if domains is None:
+        domains = get_data_domains(data, distributions)
 
     n_samples, n_features = data.shape
     classes = data[:, class_idx]

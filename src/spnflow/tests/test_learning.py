@@ -21,8 +21,7 @@ class TestLearning(unittest.TestCase):
 
     def test_learn_structure(self):
         distributions = [Gaussian, Gaussian, Bernoulli]
-        domains = [[-1e3, 1e3], [-1e3, 1e3], [0, 1]]
-        spn = learn_classifier(self.train_data, distributions, domains, class_idx=2)
+        spn = learn_classifier(self.train_data, distributions, class_idx=2)
         assert_is_valid(spn)
         print(get_statistics(spn))
         assert_is_valid(spn)
