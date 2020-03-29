@@ -27,7 +27,9 @@ class Sum(Node):
         return np.dot(x, self.weights).reshape(-1, 1)
 
     def log_likelihood(self, x):
-        return logsumexp(x, b=self.weights, axis=1).reshape(-1, 1)
+        z = np.copy(x)
+        z[np.isinf(z)] = np.finfo(float).min
+        return logsumexp(z, b=self.weights, axis=1).reshape(-1, 1)
 
 
 class Mul(Node):
