@@ -33,22 +33,32 @@ def eval_bottom_up(root, x, leaf_func, node_func, return_results=False):
 
 
 def leaf_likelihood(node, x, m):
-    y = np.ones(shape=(x.shape[0], 1))
-    y[~m] = node.likelihood(x[~m])
-    return y
+    z = np.ones(shape=(x.shape[0], 1))
+    z[~m] = node.likelihood(x[~m])
+    z[np.isnan(z)] = 1.0
+    z[np.isinf(z)] = np.finfo(float).eps
+    return z
 
 
 def leaf_log_likelihood(node, x, m):
-    y = np.zeros(shape=(x.shape[0], 1))
-    y[~m] = node.log_likelihood(x[~m])
-    return y
+    z = np.zeros(shape=(x.shape[0], 1))
+    z[~m] = node.log_likelihood(x[~m])
+    z[np.isnan(z)] = 0.0
+    z[np.isinf(z)] = np.finfo(float).min
+    return z
 
 
 def node_likelihood(node, lc):
-    z = np.concatenate(lc, axis=1)
-    return node.likelihood(z)
+    x = np.concatenate(lc, axis=1)
+    z = node.likelihood(x)
+    z[np.isnan(z)] = 1.0
+    z[np.isinf(z)] = np.finfo(float).eps
+    return z
 
 
 def node_log_likelihood(node, lc):
-    z = np.concatenate(lc, axis=1)
-    return node.log_likelihood(z)
+    x = np.concatenate(lc, axis=1)
+    z = node.log_likelihood(x)
+    z[np.isnan(z)] = 0.0
+    z[np.isinf(z)] = np.finfo(float).min
+    return z

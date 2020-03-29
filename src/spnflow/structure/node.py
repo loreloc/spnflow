@@ -27,9 +27,7 @@ class Sum(Node):
         return np.dot(x, self.weights).reshape(-1, 1)
 
     def log_likelihood(self, x):
-        z = np.copy(x)
-        z[np.isinf(z)] = np.finfo(float).min
-        return logsumexp(z, b=self.weights, axis=1).reshape(-1, 1)
+        return logsumexp(x, b=self.weights, axis=1).reshape(-1, 1)
 
 
 class Mul(Node):
@@ -42,9 +40,7 @@ class Mul(Node):
         return np.prod(x, axis=1).reshape(-1, 1)
 
     def log_likelihood(self, x):
-        z = np.copy(x)
-        z[np.isinf(z)] = np.finfo(float).min
-        return np.sum(z, axis=1).reshape(-1, 1)
+        return np.sum(x, axis=1).reshape(-1, 1)
 
 
 def assign_ids(root):

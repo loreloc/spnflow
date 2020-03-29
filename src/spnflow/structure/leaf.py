@@ -134,8 +134,6 @@ class Gaussian(Leaf):
 
     def fit(self, data, domain):
         self.mean, self.stdev = stats.norm.fit(data)
-        if np.isclose(self.stdev, 0.0):
-            self.stdev = 1e-8
 
     def likelihood(self, x):
         return stats.norm.pdf(x, self.mean, self.stdev)

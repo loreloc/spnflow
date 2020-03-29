@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     # Learn the SPN classifier
     distributions = [Gaussian] * n_features + [Multinomial]
-    spn = learn_classifier(train_data, distributions, class_idx=n_features, n_jobs=4, min_rows_slice=2048)
+    spn = learn_classifier(train_data, distributions, class_idx=n_features, n_jobs=4, min_rows_slice=1024)
     assert_is_valid(spn)
     print("SPN Statistics: " + str(get_statistics(spn)))
     spn = prune(spn)
@@ -51,6 +51,8 @@ if __name__ == '__main__':
     print("SPN Statistics after pruning: " + str(get_statistics(spn)))
 
     # Evaluate some metrics
+    l = likelihood(spn, test_data)
+    print("Likelihood: " + str(np.mean(l)))
     ll = log_likelihood(spn, test_data)
     print("Log Likelihood: " + str(np.mean(ll)))
     test_data[:, n_features] = np.nan
