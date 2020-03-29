@@ -68,7 +68,7 @@ class Multinomial(Leaf):
         self.p = [1.0 / k for i in range(k)]
 
     def fit(self, data, domain):
-        self.k = domain
+        self.k = len(domain)
         self.p = []
         len_data = len(data)
         for c in range(self.k):

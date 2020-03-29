@@ -12,10 +12,6 @@ from spnflow.algorithms.sampling import sample
 from spnflow.optimization.pruning import prune
 from spnflow.examples.mnist.utils import build_autoencoder, plot_fit_history, load_dataset, plot_samples
 
-# Disable some warnings
-import warnings
-warnings.filterwarnings('ignore')
-np.seterr(divide='ignore', invalid='ignore')
 
 if __name__ == '__main__':
     # Set the random state

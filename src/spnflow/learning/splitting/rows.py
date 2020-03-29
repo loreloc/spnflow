@@ -1,6 +1,6 @@
 import numpy as np
-from sklearn import cluster
-from sklearn import mixture
+from spnflow.learning.splitting.kmeans import kmeans
+from spnflow.learning.splitting.gmm import gmm
 
 
 def split_rows_clusters(data, clusters):
@@ -23,11 +23,3 @@ def get_split_rows_method(split_rows):
         return gmm
     else:
         raise NotImplementedError("Unknow split rows method called " + split_rows)
-
-
-def kmeans(data, k=2):
-    return cluster.KMeans(n_clusters=k).fit_predict(data)
-
-
-def gmm(data, k=2):
-    return mixture.GaussianMixture(n_components=k).fit_predict(data)
