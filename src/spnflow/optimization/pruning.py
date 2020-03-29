@@ -9,7 +9,9 @@ def prune(root):
     def evaluate(node):
         if isinstance(node, Leaf):
             return
-        for i, c in enumerate(node.children):
+        i = 0
+        while i < len(node.children):
+            c = node.children[i]
             if len(c.children) == 1:
                 node.children[i] = c.children[0]
                 continue
@@ -20,6 +22,8 @@ def prune(root):
                     weights = [w * node.weights[i] for w in c.weights]
                     node.weights.extend(weights)
                     del node.weights[i]
+                continue
+            i += 1
 
     bfs(root, evaluate)
 
