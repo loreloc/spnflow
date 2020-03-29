@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     # Learn the SPN classifier
     distributions = [Gaussian] * n_features + [Multinomial]
-    spn = learn_classifier(train_data, distributions, class_idx=n_features, n_jobs=4, min_rows_slice=1024)
+    spn = learn_classifier(train_data, distributions, class_idx=n_features, n_jobs=4, min_rows_slice=512)
     assert_is_valid(spn)
     print("SPN Statistics: " + str(get_statistics(spn)))
     spn = prune(spn)
