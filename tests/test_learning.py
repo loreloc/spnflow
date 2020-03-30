@@ -1,4 +1,5 @@
 import unittest
+import numpy as np
 from spnflow.structure.leaf import *
 from spnflow.learning.wrappers import *
 from spnflow.algorithms.mpe import *

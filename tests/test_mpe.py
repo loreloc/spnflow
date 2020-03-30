@@ -1,4 +1,5 @@
 import unittest
+import numpy as np
 from spnflow.algorithms.mpe import *
 from tests.test_structure import build_spn
 
