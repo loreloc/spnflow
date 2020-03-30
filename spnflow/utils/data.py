@@ -3,8 +3,16 @@ from spnflow.structure.leaf import LeafType
 
 
 def get_data_domains(data, distributions):
+    """
+    Compute the domains based on the training data and the features distributions.
+
+    :param data: The training data.
+    :param distributions: A list of distribution classes.
+    :return: A list of domains.
+    """
     assert data is not None
     assert distributions is not None
+
     domains = []
     for i, d in enumerate(distributions):
         col = data[:, i]

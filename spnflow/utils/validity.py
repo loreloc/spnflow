@@ -4,11 +4,23 @@ from spnflow.utils.filter import get_nodes, filter_nodes_type
 
 
 def assert_is_valid(root):
+    """
+    Assert if the SPN is valid.
+
+    :param root: The SPN root.
+    """
     v, msg = is_valid(root)
     assert v, "SPN not valid: " + msg
 
 
 def is_valid(root):
+    """
+    Check if the SPN is valid.
+
+    :param root: The SPN root.
+    :return: (True, None) if the SPN is valid;
+             (False, reason) otherwise.
+    """
     valid, msg = is_complete(root)
     if not valid:
         return valid, msg
@@ -25,6 +37,15 @@ def is_valid(root):
 
 
 def is_complete(root):
+    """
+    Check if the SPN is complete.
+    It checks that each child of a sum node has the same scope.
+    Furthermore, it checks that the sum of the weights of a sum node is close to 1.
+
+    :param root: The root of the SPN.
+    :return: (True, None) if the SPN is complete;
+             (False, reason) otherwise.
+    """
     for n in filter_nodes_type(root, Sum):
         if not np.isclose(sum(n.weights), 1.0):
             return False, "Sum of weights of node #%s is not 1.0" % n.id
@@ -40,6 +61,14 @@ def is_complete(root):
 
 
 def is_consistent(root):
+    """
+    Check if the SPN is consistent.
+    It checks that each child of a sum node has disjointed scopes.
+
+    :param root: The root of the SPN.
+    :return: (True, None) if the SPN is consistent;
+             (False, reason) otherwise.
+    """
     for n in filter_nodes_type(root, Mul):
         if len(n.children) == 0:
             return False, "Mul node #%s has no children" % n.id
@@ -55,6 +84,14 @@ def is_consistent(root):
 
 
 def is_labeled(root):
+    """
+    Check if the SPN is labeled correctly.
+    It checks that the initial id is zero and each id is consecutive.
+
+    :param root: The root of the SPN.
+    :return: (True, None) if the SPN is labeled correctly;
+             (False, reason) otherwise.
+    """
     ids = set()
     nodes = get_nodes(root)
     for n in nodes:
@@ -67,4 +104,3 @@ def is_labeled(root):
     if max(ids) != len(ids) - 1:
         return False, "Node ids not consecutive"
     return True, None
-
