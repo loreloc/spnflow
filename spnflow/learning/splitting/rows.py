@@ -4,6 +4,14 @@ from spnflow.learning.splitting.gmm import gmm
 
 
 def split_rows_clusters(data, clusters):
+    """
+    Split the data horizontally given the clusters.
+
+    :param data: The data.
+    :param clusters: The clusters.
+    :return: (slices, weights) where slices is a list of partial data and weights is a list of proportions of the
+             local data in respect to the original data.
+    """
     slices = []
     weights = []
     n_samples = len(data)
@@ -17,6 +25,12 @@ def split_rows_clusters(data, clusters):
 
 
 def get_split_rows_method(split_rows):
+    """
+    Get the rows splitting method given a string.
+
+    :param split_rows: The string of the method do get.
+    :return: The corresponding rows splitting function.
+    """
     if split_rows == 'kmeans':
         return kmeans
     elif split_rows == 'gmm':

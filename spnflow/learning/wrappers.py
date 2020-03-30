@@ -6,6 +6,20 @@ from spnflow.utils.data import get_data_domains
 
 
 def learn_classifier(data, distributions, class_idx, domains=None, n_jobs=1, **kwargs):
+    """
+    Learn a SPN classifier given some training data, the features distributions and domains and
+    the class index in the training data.
+
+    It also supports multithreading by giving appropriate values to the n_jobs parameters.
+
+    :param data: The training data.
+    :param distributions: A list of distribution classes (one for each feature).
+    :param class_idx: The index of the class feature in the training data.
+    :param domains: A list of domains (one for each feature).
+    :param n_jobs: The number of jobs.
+    :param kwargs: Other parameters for structure learning.
+    :return: A learned valid SPN.
+    """
     assert data is not None
     assert distributions is not None
     assert class_idx >= 0

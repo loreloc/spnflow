@@ -6,6 +6,13 @@ from itertools import combinations
 
 
 def rdc(data, threshold):
+    """
+    Split the features using the RDC (Randomized Dependency Coefficient) method.
+
+    :param data: The data.
+    :param threshold: The threshold value that regulates the independence tests among the features.
+    :return:
+    """
     n_samples, n_features = data.shape
     rdc_features = rdc_transform(data)
 
@@ -27,6 +34,15 @@ def rdc(data, threshold):
 
 
 def rdc_transform(data, k=20, s=1.0/6.0, nl_func=np.sin):
+    """
+    Execute the RDC (Randomized Dependency Coefficient) pipeline on some data.
+
+    :param data: The data.
+    :param k: The size of the latent space.
+    :param s: The standard deviation of the gaussian distribution.
+    :param nl_func: The non linear function to use.
+    :return: The transformed data.
+    """
     n_samples, n_features = data.shape
 
     features = []
@@ -43,20 +59,27 @@ def rdc_transform(data, k=20, s=1.0/6.0, nl_func=np.sin):
 
 
 def rdc_cca(i, j, features):
+    """
+    Compute the RDC (Randomized Dependency Coefficient) using CCA (Canonical Correlation Coefficient).
+
+    :param i: The index of the first feature.
+    :param j: The index of the second feature.
+    :param features: The list of the features.
+    :return: The RDC coefficient (the largest canonical correlation coefficient).
+    """
     cca = cross_decomposition.CCA(n_components=1, max_iter=100)
     x_cca, y_cca = cca.fit_transform(features[i], features[j])
     corr = np.corrcoef(x_cca.T, y_cca.T)
     return corr[0, 1]
 
 
-def ohe_data(data, domain):
-    n_samples, _ = data.shape
-    ohe = np.zeros((n_samples, len(domain)))
-    ohe[data == domain] = 1
-    return ohe
-
-
 def empirical_copula_transform(data):
+    """
+    Compute the Empirical Copula Transformation of some data.
+
+    :param data: The data.
+    :return: The transformed data.
+    """
     def ecdf(x):
         return stats.rankdata(x, method='max') / len(x)
     n_samples, _ = data.shape

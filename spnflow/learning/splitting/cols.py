@@ -3,6 +3,14 @@ from spnflow.learning.splitting.rdc import rdc
 
 
 def split_cols_clusters(data, clusters, scope):
+    """
+    Split the data vertically given the clusters.
+
+    :param data: The data.
+    :param clusters: The clusters.
+    :param scope: The original scope.
+    :return: (slices, scopes) where slices is a list of partial data and scopes is a list of partial scopes.
+    """
     slices = []
     scopes = []
     np_scope = np.asarray(scope)
@@ -16,6 +24,12 @@ def split_cols_clusters(data, clusters, scope):
 
 
 def get_split_cols_method(split_cols):
+    """
+    Get the columns splitting method given a string.
+
+    :param split_cols: The string of the method do get.
+    :return: The corresponding columns splitting function.
+    """
     if split_cols == 'rdc':
         return rdc
     else:

@@ -7,6 +7,9 @@ from spnflow.learning.splitting.cols import get_split_cols_method, split_cols_cl
 
 
 class Operation(Enum):
+    """
+    The possible operation to execute for SPN structure learning.
+    """
     CREATE_LEAF = 1,
     REM_FEATURE = 2
     SPLIT_NAIVE = 3,
@@ -18,6 +21,20 @@ def learn_structure(data, distributions, domains,
                     split_rows='kmeans', split_cols='rdc',
                     min_rows_slice=128, min_cols_slice=2,
                     n_clusters=2, threshold=0.25):
+    """
+    Learn the structure and parameters of a SPN given some training data and several hyperparameters.
+
+    :param data: The training data.
+    :param distributions: A list of distributions classes (one for each feature).
+    :param domains: A list of domains (one for each feature).
+    :param split_rows: The rows splitting method (it can be 'kmeans' or 'gmm').
+    :param split_cols: The columns splitting method (it can be 'rdc').
+    :param min_rows_slice: The minimum number of samples required to split horizontally.
+    :param min_cols_slice: The minimum number of features required to split vertically.
+    :param n_clusters: The number of clusters used for splitting horizontally.
+    :param threshold: The threshold value that regulates the independence tests among the features.
+    :return: A learned valid SPN.
+    """
     assert data is not None
     assert len(distributions) > 0
     assert len(domains) > 0
@@ -90,6 +107,15 @@ def learn_structure(data, distributions, domains,
 
 
 def choose_next_operation(task, min_rows_slice, min_cols_slice):
+    """
+    Choose the next operation to execute.
+
+    :param task: The next task, a tuple composed by the parent node, the local data, the scope and two booleans
+                 indicating if rows and columns splitting have failed or not respectively.
+    :param min_rows_slice: The minimum number of samples required to split horizontally.
+    :param min_cols_slice: The minimum number of features required to split vertically.
+    :return: (op, params) where op is the operation to execute and params are the optional parameters of the operation.
+    """
     parent, local_data, scope, no_rows_split, no_cols_split = task
     n_samples, n_features = local_data.shape
 
