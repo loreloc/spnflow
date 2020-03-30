@@ -7,15 +7,18 @@ def get_statistics(root):
     """
     Compute some statistics of a SPN given its root.
 
+    The computed statistics are the following:
+
+    - n_nodes, the number of nodes
+    - n_sum, the number of sum nodes
+    - n_mul, the number of multiplication nodes
+    - n_leaves, the number of leaves
+    - n_edges, the number of edges
+    - n_params, the number of parameters
+    - depth, the depth of the network
+
     :param root: The root of the SPN.
-    :return: A dictionary containing the following statistics:
-             - n_nodes, the number of nodes
-             - n_sum, the number of sum nodes
-             - n_mul, the number of multiplication nodes
-             - n_leaves, the number of leaves
-             - n_edges, the number of edges
-             - n_params, the number of parameters
-             - depth, the depth of the network
+    :return: A dictionary containing the statistics.
     """
     stats = {}
     stats['n_nodes'] = len(get_nodes(root))
