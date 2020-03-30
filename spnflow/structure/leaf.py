@@ -76,6 +76,14 @@ class Leaf(Node):
         """
         pass
 
+    def params_dict(self):
+        """
+        Get a dictionary representation of the distribution parameters.
+
+        :return: A dictionary containing the distribution parameters.
+        """
+        pass
+
 
 class Bernoulli(Leaf):
     """
@@ -147,6 +155,14 @@ class Bernoulli(Leaf):
         """
         return 1
 
+    def params_dict(self):
+        """
+        Get a dictionary representation of the distribution parameters.
+
+        :return: A dictionary containing the distribution parameters.
+        """
+        return {'p': self.p}
+
 
 class Multinomial(Leaf):
     """
@@ -155,7 +171,7 @@ class Multinomial(Leaf):
 
     LEAF_TYPE = LeafType.DISCRETE
 
-    def __init__(self, scope, k=2):
+    def __init__(self, scope, p=[0.5, 0.5]):
         """
         Initialize a Multinomial leaf node given its scope.
 
@@ -163,8 +179,7 @@ class Multinomial(Leaf):
         :param k: The number of classes.
         """
         super().__init__(scope)
-        self.k = k
-        self.p = [1.0 / k for i in range(k)]
+        self.p = p
 
     def fit(self, data, domain):
         """
@@ -173,10 +188,9 @@ class Multinomial(Leaf):
         :param data: The training data.
         :param domain: The domain of the distribution leaf.
         """
-        self.k = len(domain)
         self.p = []
         len_data = len(data)
-        for c in range(self.k):
+        for c in range(len(domain)):
             self.p.append(len(data[data == c]) / len_data)
 
     def likelihood(self, x):
@@ -187,7 +201,8 @@ class Multinomial(Leaf):
         :return: The resulting likelihood.
         """
         x_len = len(x)
-        z = np.zeros((x_len, self.k))
+        k = len(self.p)
+        z = np.zeros((x_len, k))
         z[np.arange(x_len), x.astype(int)] = 1
         return stats.multinomial.pmf(z, 1, self.p)
 
@@ -199,7 +214,8 @@ class Multinomial(Leaf):
         :return: The resulting log likelihood.
         """
         x_len = len(x)
-        z = np.zeros((x_len, self.k))
+        k = len(self.p)
+        z = np.zeros((x_len, k))
         z[np.arange(x_len), x.astype(int)] = 1
         return stats.multinomial.logpmf(z, 1, self.p)
 
@@ -227,7 +243,15 @@ class Multinomial(Leaf):
 
         :return: The number of parameters.
         """
-        return 1 + self.k
+        return len(self.p)
+
+    def params_dict(self):
+        """
+        Get a dictionary representation of the distribution parameters.
+
+        :return: A dictionary containing the distribution parameters.
+        """
+        return {'p': self.p}
 
 
 class Uniform(Leaf):
@@ -301,6 +325,14 @@ class Uniform(Leaf):
         """
         return 2
 
+    def params_dict(self):
+        """
+        Get a dictionary representation of the distribution parameters.
+
+        :return: A dictionary containing the distribution parameters.
+        """
+        return {'start': self.start, 'width': self.width}
+
 
 class Gaussian(Leaf):
     """
@@ -372,3 +404,11 @@ class Gaussian(Leaf):
         :return: The number of parameters.
         """
         return 2
+
+    def params_dict(self):
+        """
+        Get a dictionary representation of the distribution parameters.
+
+        :return: A dictionary containing the distribution parameters.
+        """
+        return {'mean': self.mean, 'stdev': self.stdev}
