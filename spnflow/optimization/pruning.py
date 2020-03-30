@@ -4,6 +4,12 @@ from spnflow.utils.validity import assert_is_valid
 
 
 def prune(root):
+    """
+    Prune (or simplify) the given SPN to a minimal and equivalent SPN.
+
+    :param root: The root of the SPN.
+    :return: A minimal and equivalent SPN.
+    """
     assert_is_valid(root)
 
     def evaluate(node):
