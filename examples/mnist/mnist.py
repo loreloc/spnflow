@@ -10,7 +10,7 @@ from spnflow.algorithms.inference import likelihood, log_likelihood
 from spnflow.algorithms.mpe import mpe
 from spnflow.algorithms.sampling import sample
 from spnflow.optimization.pruning import prune
-from spnflow.examples.mnist.utils import build_autoencoder, plot_fit_history, load_dataset, plot_samples
+from examples.mnist.utils import build_autoencoder, plot_fit_history, load_dataset, plot_samples
 
 
 if __name__ == '__main__':

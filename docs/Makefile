@@ -2,7 +2,7 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SPHINXAPI     = sphinx-apidoc
 SOURCEDIR     = .
-APISOURCE     = ../src/spnflow
+APISOURCE     = ../spnflow
 BUILDDIR      = _build
 APIDIR        = api
 

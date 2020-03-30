@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from spnflow.examples.mnist.autoencoder import Autoencoder
+from examples.mnist.autoencoder import Autoencoder
 
 
 def plot_fit_history(history, title='Untitled'):

@@ -1,6 +1,6 @@
 import unittest
 from spnflow.algorithms.inference import *
-from spnflow.tests.test_structure import build_spn
+from tests.test_structure import build_spn
 
 
 class TestInference(unittest.TestCase):

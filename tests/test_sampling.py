@@ -1,6 +1,6 @@
 import unittest
-from spnflow.algorithms.mpe import *
-from spnflow.tests.test_structure import build_spn
+from spnflow.algorithms.sampling import *
+from tests.test_structure import build_spn
 
 
 class TestInference(unittest.TestCase):
@@ -9,8 +9,8 @@ class TestInference(unittest.TestCase):
         self.spn = build_spn()
         self.q = [[np.nan, 0.0, 1.0], [np.nan, 2.0, 3.0]]
 
-    def test_mpe(self):
-        print(mpe(self.spn, self.q))
+    def test_sample(self):
+        print(sample(self.spn, self.q))
 
 
 if __name__ == '__main__':
