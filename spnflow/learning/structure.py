@@ -27,12 +27,12 @@ def learn_structure(data, distributions, domains,
     :param data: The training data.
     :param distributions: A list of distributions classes (one for each feature).
     :param domains: A list of domains (one for each feature).
-    :param split_rows: The rows splitting method (it can be 'kmeans' or 'gmm').
-    :param split_cols: The columns splitting method (it can be 'rdc').
+    :param split_rows: The rows splitting method (it can be 'kmeans', 'gmm' or 'random').
+    :param split_cols: The columns splitting method (it can be 'rdc' or 'random').
+    :param split_rows_params: The parameters of the rows splitting method.
+    :param split_cols_params: The parameters of the cols splitting method.
     :param min_rows_slice: The minimum number of samples required to split horizontally.
     :param min_cols_slice: The minimum number of features required to split vertically.
-    :param n_clusters: The number of clusters used for splitting horizontally.
-    :param threshold: The threshold value that regulates the independence tests among the features.
     :return: A learned valid SPN.
     """
     assert data is not None
