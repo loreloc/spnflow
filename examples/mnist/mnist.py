@@ -48,7 +48,7 @@ if __name__ == '__main__':
         class_idx=n_features, n_jobs=4,
         split_rows='kmeans', split_cols='rdc',
         split_rows_params={'k': 2}, split_cols_params={'d': 0.3},
-        min_rows_slice=512, min_cols_slice=2
+        min_rows_slice=256, min_cols_slice=2
     )
 
     # Check and print some statistics
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     y_hat = mpe(spn, test_data)[:, n_features]
     print("Accuracy Score: " + str(sk.metrics.accuracy_score(y_test, y_hat)))
 
-    # Do some Sampling
+    # Sample each digit multiple time
     queries = []
     n_instances = 10
     # Sample all the digits
@@ -80,6 +80,20 @@ if __name__ == '__main__':
     samples = samples.reshape(len(queries), img_w, img_h)
 
     # Plot the samples
-    n_rows = n_instances
-    n_cols = n_class
+    plot_samples(n_instances, n_class, samples)
+
+    # Sample digits randomly
+    queries = []
+    n_rows = 5
+    n_cols = 5
+    # Sample digits
+    for i in range(n_rows):
+        for j in range(n_cols):
+            queries.append([np.nan] * n_features + [np.nan])
+    # Execute the queries
+    samples = sample(spn, queries)[:, :n_features]
+    samples = decoder.predict(samples)
+    samples = samples.reshape(len(queries), img_w, img_h)
+
+    # Plot the samples
     plot_samples(n_rows, n_cols, samples)

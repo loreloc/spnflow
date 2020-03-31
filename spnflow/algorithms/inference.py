@@ -1,7 +1,5 @@
 import numpy as np
-from spnflow.structure.leaf import Leaf
-from spnflow.structure.node import dfs_post_order
-from spnflow.utils.validity import assert_is_valid
+from spnflow.algorithms.evaluation import eval_bottom_up
 
 
 def likelihood(root, x, return_results=False):
@@ -26,36 +24,6 @@ def log_likelihood(root, x, return_results=False):
     :return: The log likelihood values. Additionally it returns the log likelihood values of each node.
     """
     return eval_bottom_up(root, x, leaf_log_likelihood, node_log_likelihood, return_results)
-
-
-def eval_bottom_up(root, x, leaf_func, node_func, return_results=False):
-    """
-    Evaluate the SPN bottom up given some inputs and leaves and nodes evaluation functions.
-
-    :param root: The root of the SPN.
-    :param x: The inputs.
-    :param leaf_func: The function to compute at the leaves.
-    :param node_func: The function to compute at each internal node.
-    :param return_results: A flag indicating if this function must return the log likelihoods of each node of the SPN.
-    :return: The outputs. Additionally it returns the output of each node.
-    """
-    assert_is_valid(root)
-
-    ls = {}
-    x = np.array(x)
-    m = np.isnan(x)
-
-    def evaluate(node):
-        if isinstance(node, Leaf):
-            ls[node] = leaf_func(node, x[:, node.scope], m[:, node.scope])
-        else:
-            ls[node] = node_func(node, [ls[c] for c in node.children])
-
-    dfs_post_order(root, evaluate)
-
-    if return_results:
-        return ls[root], ls
-    return ls[root]
 
 
 def leaf_likelihood(node, x, m):
