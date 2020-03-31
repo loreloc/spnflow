@@ -18,7 +18,7 @@ def random_rows(data, a=2.0, b=2.0):
 
 def random_cols(data, a=2.0, b=2.0):
     """
-    Choose a binary partition horizontally randomly.
+    Choose a binary partition vertically randomly.
     The proportion of the split is sampled from a beta distribution.
 
     :param data: The data.

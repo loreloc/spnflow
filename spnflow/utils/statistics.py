@@ -43,7 +43,7 @@ def get_edges_count(root):
 
 def get_parameters_count(root):
     """
-    Get the number of parameters of a SPN given its root
+    Get the number of parameters of a SPN given its root.
 
     :param root:  The root of the SPN.
     :return: The number of parameters.

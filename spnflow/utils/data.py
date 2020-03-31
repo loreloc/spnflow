@@ -29,10 +29,10 @@ def get_data_domains(data, distributions):
 
 def ohe_data(data, domain):
     """
-    One-Hot-Encoding
+    One-Hot-Encoding function.
     :param data: The data to encode.
     :param domain: The domain to use.
-    :return: The One Hot encoded data
+    :return: The One Hot encoded data.
     """
     n_samples, _ = len(data)
     ohe = np.zeros((n_samples, len(domain)))
