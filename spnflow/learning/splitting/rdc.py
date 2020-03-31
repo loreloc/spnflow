@@ -33,6 +33,20 @@ def rdc(data, threshold):
     return clusters
 
 
+def rdc_cca(i, j, features):
+    """
+    Compute the RDC (Randomized Dependency Coefficient) using CCA (Canonical Correlation Coefficient).
+
+    :param i: The index of the first feature.
+    :param j: The index of the second feature.
+    :param features: The list of the features.
+    :return: The RDC coefficient (the largest canonical correlation coefficient).
+    """
+    cca = cross_decomposition.CCA(n_components=1)
+    x_cca, y_cca = cca.fit_transform(features[i], features[j])
+    return np.corrcoef(x_cca.T, y_cca.T)[0, 1]
+
+
 def rdc_transform(data, k=20, s=1.0/6.0, nl_func=np.sin):
     """
     Execute the RDC (Randomized Dependency Coefficient) pipeline on some data.
@@ -47,41 +61,13 @@ def rdc_transform(data, k=20, s=1.0/6.0, nl_func=np.sin):
 
     features = []
     for i in range(n_features):
-        features.append(data[:, i].reshape(-1, 1))
+        features.append(stats.rankdata(data[:, i], method='max') / n_samples)
 
-    features = [empirical_copula_transform(f) for f in features]
-    gaussian_samples = [stats.norm.rvs(0.0, s, size=(f.shape[1], k)) for f in features]
-    projected_samples = [np.dot(c, w) for c, w in zip(features, gaussian_samples)]
-    non_linear_samples = [nl_func(c) for c in projected_samples]
+    weights = [stats.norm.rvs(0.0, s, size=k) for f in features]
+    bases = [stats.norm.rvs(0.0, s, size=k) for f in features]
 
-    ones_column = np.ones((n_samples, 1))
-    return [np.concatenate((phi, ones_column), axis=1) for phi in non_linear_samples]
+    projected_samples = [np.add(np.outer(f, w), b) for f, w, b in zip(features, weights, bases)]
 
+    non_linear_samples = [nl_func(s) for s in projected_samples]
 
-def rdc_cca(i, j, features):
-    """
-    Compute the RDC (Randomized Dependency Coefficient) using CCA (Canonical Correlation Coefficient).
-
-    :param i: The index of the first feature.
-    :param j: The index of the second feature.
-    :param features: The list of the features.
-    :return: The RDC coefficient (the largest canonical correlation coefficient).
-    """
-    cca = cross_decomposition.CCA(n_components=1, max_iter=100)
-    x_cca, y_cca = cca.fit_transform(features[i], features[j])
-    corr = np.corrcoef(x_cca.T, y_cca.T)
-    return corr[0, 1]
-
-
-def empirical_copula_transform(data):
-    """
-    Compute the Empirical Copula Transformation of some data.
-
-    :param data: The data.
-    :return: The transformed data.
-    """
-    def ecdf(x):
-        return stats.rankdata(x, method='max') / len(x)
-    n_samples, _ = data.shape
-    ones_column = np.ones((n_samples, 1))
-    return np.concatenate((np.apply_along_axis(ecdf, 0, data), ones_column), axis=1)
+    return non_linear_samples
