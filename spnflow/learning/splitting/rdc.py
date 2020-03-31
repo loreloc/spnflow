@@ -5,16 +5,19 @@ from sklearn import cross_decomposition
 from itertools import combinations
 
 
-def rdc(data, threshold):
+def rdc(data, d=0.3, k=20, s=1.0/6.0, f=np.sin):
     """
     Split the features using the RDC (Randomized Dependency Coefficient) method.
 
     :param data: The data.
-    :param threshold: The threshold value that regulates the independence tests among the features.
+    :param d: The threshold value that regulates the independence tests among the features.
+    :param k: The size of the latent space.
+    :param s: The standard deviation of the gaussian distribution.
+    :param f: The non linear function to use.
     :return:
     """
     n_samples, n_features = data.shape
-    rdc_features = rdc_transform(data)
+    rdc_features = rdc_transform(data, k, s, f)
 
     pairwise_comparisons = list(combinations(range(n_features), 2))
     rdc_values = [rdc_cca(i, j, rdc_features) for i, j in pairwise_comparisons]
@@ -25,7 +28,7 @@ def rdc(data, threshold):
         adj_matrix[j, i] = v
 
     adj_matrix[np.isnan(adj_matrix)] = 0
-    adj_matrix[adj_matrix <= threshold] = 0
+    adj_matrix[adj_matrix <= d] = 0
     adj_matrix[adj_matrix > 0] = 1
 
     adj_matrix = sparse.csr_matrix(adj_matrix)
@@ -47,14 +50,14 @@ def rdc_cca(i, j, features):
     return np.corrcoef(x_cca.T, y_cca.T)[0, 1]
 
 
-def rdc_transform(data, k=20, s=1.0/6.0, nl_func=np.sin):
+def rdc_transform(data, k, s, f):
     """
     Execute the RDC (Randomized Dependency Coefficient) pipeline on some data.
 
     :param data: The data.
     :param k: The size of the latent space.
     :param s: The standard deviation of the gaussian distribution.
-    :param nl_func: The non linear function to use.
+    :param f: The non linear function to use.
     :return: The transformed data.
     """
     n_samples, n_features = data.shape
@@ -68,6 +71,6 @@ def rdc_transform(data, k=20, s=1.0/6.0, nl_func=np.sin):
 
     projected_samples = [np.add(np.outer(f, w), b) for f, w, b in zip(features, weights, bases)]
 
-    non_linear_samples = [nl_func(s) for s in projected_samples]
+    non_linear_samples = [f(s) for s in projected_samples]
 
     return non_linear_samples

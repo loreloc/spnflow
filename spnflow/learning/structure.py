@@ -19,8 +19,8 @@ class Operation(Enum):
 
 def learn_structure(data, distributions, domains,
                     split_rows='kmeans', split_cols='rdc',
-                    min_rows_slice=128, min_cols_slice=2,
-                    n_clusters=2, threshold=0.25):
+                    split_rows_params={}, split_cols_params={},
+                    min_rows_slice=128, min_cols_slice=2):
     """
     Learn the structure and parameters of a SPN given some training data and several hyperparameters.
 
@@ -42,8 +42,6 @@ def learn_structure(data, distributions, domains,
     assert split_cols is not None
     assert min_rows_slice > 1
     assert min_cols_slice > 1
-    assert n_clusters > 1
-    assert threshold > 0.0
 
     n_samples, n_features = data.shape
     assert len(distributions) == n_features, "Each feature must have a distribution"
@@ -80,7 +78,7 @@ def learn_structure(data, distributions, domains,
                 tasks.append((node, s, [scope[i]], True, True))
             parent.children.append(node)
         elif op == Operation.SPLIT_ROWS:
-            clusters = split_rows_func(local_data, n_clusters)
+            clusters = split_rows_func(local_data, **split_rows_params)
             slices, weights = split_rows_clusters(local_data, clusters)
             if len(slices) == 1:
                 tasks.append((parent, local_data, scope, True, no_cols_split))
@@ -90,7 +88,7 @@ def learn_structure(data, distributions, domains,
                 tasks.append((node, s, scope, False, no_cols_split))
             parent.children.append(node)
         elif op == Operation.SPLIT_COLS:
-            clusters = split_cols_func(local_data, threshold)
+            clusters = split_cols_func(local_data, **split_cols_params)
             slices, scopes = split_cols_clusters(local_data, clusters, scope)
             if len(slices) == 1:
                 tasks.append((parent, local_data, scope, no_rows_split, True))

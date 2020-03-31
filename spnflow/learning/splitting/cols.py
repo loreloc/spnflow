@@ -1,5 +1,6 @@
 import numpy as np
 from spnflow.learning.splitting.rdc import rdc
+from spnflow.learning.splitting.random import random_cols
 
 
 def split_cols_clusters(data, clusters, scope):
@@ -32,5 +33,7 @@ def get_split_cols_method(split_cols):
     """
     if split_cols == 'rdc':
         return rdc
+    elif split_cols == 'random':
+        return random_cols
     else:
         raise NotImplementedError("Unknow split rows method called " + split_cols)
