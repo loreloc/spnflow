@@ -39,7 +39,7 @@ def leaf_likelihood(node, x, m):
     z = np.ones(shape=(x.shape[0], 1))
     z[~m] = node.likelihood(x[~m])
     z[np.isnan(z)] = 1.0
-    z[np.isinf(z)] = np.finfo(float).eps
+    z[np.isinf(z)] = 0.0
     return z
 
 
@@ -73,7 +73,7 @@ def node_likelihood(node, lc):
     x = np.concatenate(lc, axis=1)
     z = node.likelihood(x)
     z[np.isnan(z)] = 1.0
-    z[np.isinf(z)] = np.finfo(float).eps
+    z[np.isinf(z)] = 0.0
     return z
 
 

@@ -20,7 +20,7 @@ class Operation(Enum):
 def learn_structure(data, distributions, domains,
                     split_rows='kmeans', split_cols='rdc',
                     split_rows_params={}, split_cols_params={},
-                    min_rows_slice=128, min_cols_slice=2):
+                    min_rows_slice=256, min_cols_slice=2):
     """
     Learn the structure and parameters of a SPN given some training data and several hyperparameters.
 
@@ -56,7 +56,7 @@ def learn_structure(data, distributions, domains,
 
     while tasks:
         task = (parent, local_data, scope, no_rows_split, no_cols_split) = tasks.popleft()
-        op, params = choose_next_operation(task, min_rows_slice, min_cols_slice)
+        op, params = choose_next_operation(task, min_rows_slice, min_cols_slice, parent is tmp_node)
 
         if op == Operation.CREATE_LEAF:
             idx = scope[0]
@@ -104,7 +104,7 @@ def learn_structure(data, distributions, domains,
     return assign_ids(root)
 
 
-def choose_next_operation(task, min_rows_slice, min_cols_slice):
+def choose_next_operation(task, min_rows_slice, min_cols_slice, is_first):
     """
     Choose the next operation to execute.
 
@@ -112,12 +112,16 @@ def choose_next_operation(task, min_rows_slice, min_cols_slice):
                  indicating if rows and columns splitting have failed or not respectively.
     :param min_rows_slice: The minimum number of samples required to split horizontally.
     :param min_cols_slice: The minimum number of features required to split vertically.
+    :param is_first: A boolean indicating if the parent node is the root node.
     :return: (op, params) where op is the operation to execute and params are the optional parameters of the operation.
     """
     parent, local_data, scope, no_rows_split, no_cols_split = task
     n_samples, n_features = local_data.shape
 
-    if no_rows_split and no_cols_split:
+    min_samples = n_samples < min_rows_slice
+    min_features = n_features < min_cols_slice
+
+    if min_features:
         if n_features == 1:
             return Operation.CREATE_LEAF, None
         else:
@@ -129,32 +133,15 @@ def choose_next_operation(task, min_rows_slice, min_cols_slice):
     if np.any(zero_var_idx):
         return Operation.REM_FEATURE, zero_var_idx
 
-    if n_samples < min_rows_slice:
-        if n_features == 1:
-            return Operation.CREATE_LEAF, None
-        else:
-            if no_cols_split:
-                return Operation.SPLIT_NAIVE, None
-            else:
-                return Operation.SPLIT_COLS, None
-
-    if n_features < min_cols_slice:
-        if n_features == 1:
-            return Operation.CREATE_LEAF, None
-        else:
-            if no_rows_split:
-                return Operation.SPLIT_NAIVE, None
-            else:
-                return Operation.SPLIT_ROWS, None
+    if min_samples or (no_rows_split and no_cols_split):
+        return Operation.SPLIT_NAIVE, None
 
     if no_cols_split:
         return Operation.SPLIT_ROWS, None
     if no_rows_split:
         return Operation.SPLIT_COLS, None
 
-    if n_features >= min_cols_slice:
-        return Operation.SPLIT_COLS, None
-    if n_samples >= min_rows_slice:
+    if is_first:
         return Operation.SPLIT_ROWS, None
 
-    return Operation.SPLIT_NAIVE, None
+    return Operation.SPLIT_COLS, None
