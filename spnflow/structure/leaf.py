@@ -254,6 +254,84 @@ class Multinomial(Leaf):
         return {'p': self.p}
 
 
+class Poisson(Leaf):
+    """
+    The Poisson distribution leaf.
+    """
+
+    LEAF_TYPE = LeafType.DISCRETE
+
+    def __init__(self, scope, mu=1.0):
+        """
+        Initialize a Poisson leaf node given its scope.
+
+        :param scope: The scope of the leaf.
+        :param mu: The mu parameter.
+        """
+        super().__init__(scope)
+        self.mu = mu
+
+    def fit(self, data, domain):
+        """
+        Fit the distribution parameters given the domain and some training data.
+
+        :param data: The training data.
+        :param domain: The domain of the distribution leaf.
+        """
+        self.mu = np.mean().item()
+
+    def likelihood(self, x):
+        """
+        Compute the likelihood of the distribution leaf given some input.
+
+        :param x: The inputs.
+        :return: The resulting likelihood.
+        """
+        return stats.poisson.pmf(x, self.mu)
+
+    def log_likelihood(self, x):
+        """
+        Compute the logarithmic likelihood of the distribution leaf given some input.
+
+        :param x: The inputs.
+        :return: The resulting log likelihood.
+        """
+        return stats.poisson.logpmf(x, self.mu)
+
+    def mode(self):
+        """
+        Compute the mode of the distribution.
+
+        :return: The distribution's mode.
+        """
+        return np.floor(self.mu)
+
+    def sample(self, size=1):
+        """
+        Sample from the leaf distribution.
+
+        :param size: The number of samples.
+        :return: Some samples.
+        """
+        return stats.poisson.rvs(self.mu)
+
+    def params_count(self):
+        """
+        Get the number of parameters of the distribution leaf.
+
+        :return: The number of parameters.
+        """
+        return 1
+
+    def params_dict(self):
+        """
+        Get a dictionary representation of the distribution parameters.
+
+        :return: A dictionary containing the distribution parameters.
+        """
+        return {'mu': self.mu}
+
+
 class Uniform(Leaf):
     """
     The Uniform distribution leaf.
@@ -412,3 +490,85 @@ class Gaussian(Leaf):
         :return: A dictionary containing the distribution parameters.
         """
         return {'mean': self.mean, 'stdev': self.stdev}
+
+
+class Gamma(Leaf):
+    """
+    The Gamma distribution leaf.
+    """
+
+    LEAF_TYPE = LeafType.CONTINUOUS
+
+    def __init__(self, scope, alpha=1.0, loc=0.0, beta=2.0):
+        """
+        Initialize a Gamma leaf node given its scope.
+
+        :param scope: The scope of the leaf.
+        :param alpha: The alpha parameter.
+        :param beta: The beta parameter.
+        """
+        super().__init__(scope)
+        self.loc = loc
+        self.alpha = alpha
+        self.beta = beta
+
+    def fit(self, data, domain):
+        """
+        Fit the distribution parameters given the domain and some training data.
+
+        :param data: The training data.
+        :param domain: The domain of the distribution leaf.
+        """
+        assert np.any(data < 0.0), "Cannot fit Gamma distribution leaf with negative data"
+        self.alpha, self.loc, self.beta = stats.gamma.fit(data)
+
+    def likelihood(self, x):
+        """
+        Compute the likelihood of the distribution leaf given some input.
+
+        :param x: The inputs.
+        :return: The resulting likelihood.
+        """
+        return stats.gamma.pdf(x, self.alpha, self.loc, self.beta)
+
+    def log_likelihood(self, x):
+        """
+        Compute the logarithmic likelihood of the distribution leaf given some input.
+
+        :param x: The inputs.
+        :return: The resulting log likelihood.
+        """
+        return stats.gamma.logpdf(x, self.alpha, self.loc, self.beta)
+
+    def mode(self):
+        """
+        Compute the mode of the distribution.
+
+        :return: The distribution's mode.
+        """
+        return (self.alpha - 1.0) * self.beta
+
+    def sample(self, size=1):
+        """
+        Sample from the leaf distribution.
+
+        :param size: The number of samples.
+        :return: Some samples.
+        """
+        return stats.gamma.rvs(self.alpha, self.loc, self.beta, size=size)
+
+    def params_count(self):
+        """
+        Get the number of parameters of the distribution leaf.
+
+        :return: The number of parameters.
+        """
+        return 3
+
+    def params_dict(self):
+        """
+        Get a dictionary representation of the distribution parameters.
+
+        :return: A dictionary containing the distribution parameters.
+        """
+        return {'loc': self.loc, 'alpha': self.alpha, 'beta': self.beta}
