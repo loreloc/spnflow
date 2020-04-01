@@ -47,7 +47,7 @@ if __name__ == '__main__':
         train_data, distributions,
         class_idx=n_features, n_jobs=4,
         split_rows='kmeans', split_cols='rdc',
-        split_rows_params={'k': 2}, split_cols_params={'d': 0.25},
+        split_rows_params={'k': 2}, split_cols_params={'d': 0.2},
         min_rows_slice=256, min_cols_slice=2
     )
 
