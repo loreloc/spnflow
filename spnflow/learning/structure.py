@@ -85,7 +85,7 @@ def learn_structure(data, distributions, domains,
                 continue
             node = Sum(weights, [], scope)
             for s in slices:
-                tasks.append((node, s, scope, False, no_cols_split))
+                tasks.append((node, s, scope, False, False))
             parent.children.append(node)
         elif op == Operation.SPLIT_COLS:
             clusters = split_cols_func(local_data, **split_cols_params)
@@ -95,7 +95,7 @@ def learn_structure(data, distributions, domains,
                 continue
             node = Mul([], scope)
             for i, s in enumerate(slices):
-                tasks.append((node, s, scopes[i], no_rows_split, False))
+                tasks.append((node, s, scopes[i], False, False))
             parent.children.append(node)
         else:
             raise NotImplementedError("Operation of kind " + op.__name__ + " not implemented")
@@ -123,29 +123,29 @@ def choose_next_operation(task, min_rows_slice, min_cols_slice):
         else:
             return Operation.SPLIT_NAIVE, None
 
-    zero_var_idx = np.isclose(np.var(local_data, axis=0), 0.0)
+    zero_var_idx = np.isclose(np.var(local_data, axis=0))
     if np.all(zero_var_idx):
         return Operation.SPLIT_NAIVE, None
     if np.any(zero_var_idx):
         return Operation.REM_FEATURE, zero_var_idx
 
     if n_samples < min_rows_slice:
-        if no_cols_split:
-            if n_features == 1:
-                return Operation.CREATE_LEAF, None
-            else:
+        if n_features == 1:
+            return Operation.CREATE_LEAF, None
+        else:
+            if no_cols_split:
                 return Operation.SPLIT_NAIVE, None
-        elif n_features >= min_cols_slice:
-            return Operation.SPLIT_COLS, None
+            else:
+                return Operation.SPLIT_COLS, None
 
     if n_features < min_cols_slice:
-        if no_rows_split:
-            if n_features == 1:
-                return Operation.CREATE_LEAF, None
-            else:
+        if n_features == 1:
+            return Operation.CREATE_LEAF, None
+        else:
+            if no_rows_split:
                 return Operation.SPLIT_NAIVE, None
-        elif n_samples >= min_rows_slice:
-            return Operation.SPLIT_ROWS, None
+            else:
+                return Operation.SPLIT_ROWS, None
 
     if no_cols_split:
         return Operation.SPLIT_ROWS, None
@@ -154,7 +154,7 @@ def choose_next_operation(task, min_rows_slice, min_cols_slice):
 
     if n_features >= min_cols_slice:
         return Operation.SPLIT_COLS, None
-    elif n_samples >= min_rows_slice:
+    if n_samples >= min_rows_slice:
         return Operation.SPLIT_ROWS, None
 
     return Operation.SPLIT_NAIVE, None
