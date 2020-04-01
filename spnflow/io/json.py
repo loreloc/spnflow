@@ -6,8 +6,10 @@ from spnflow.structure.node import Sum, Mul, assign_ids
 DistributionMapper = {
     'Bernoulli': lambda s, p: Bernoulli(s, p['p']),
     'Multinomial': lambda s, p: Multinomial(s, p['p']),
+    'Poisson': lambda s, p: Poisson(s, p['mu']),
     'Uniform': lambda s, p: Uniform(s, p['start'], p['width']),
-    'Gaussian': lambda s, p: Gaussian(s, p['mean'], p['stdev'])
+    'Gaussian': lambda s, p: Gaussian(s, p['mean'], p['stdev']),
+    'Gamma': lambda s, p: Gamma(s, p['alpha'], p['loc'], p['beta'])
 }
 
 
