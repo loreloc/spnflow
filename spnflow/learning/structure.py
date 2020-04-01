@@ -123,7 +123,7 @@ def choose_next_operation(task, min_rows_slice, min_cols_slice):
         else:
             return Operation.SPLIT_NAIVE, None
 
-    zero_var_idx = np.isclose(np.var(local_data, axis=0))
+    zero_var_idx = np.isclose(np.var(local_data, axis=0), 0.0)
     if np.all(zero_var_idx):
         return Operation.SPLIT_NAIVE, None
     if np.any(zero_var_idx):
