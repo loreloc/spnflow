@@ -383,7 +383,7 @@ class Isotonic(Leaf):
         n_samples = len(x)
         l = np.full(n_samples, np.finfo(float).eps)
         for i in range(n_samples):
-            j = np.searchsorted(self.breaks, x[i])
+            j = np.searchsorted(self.breaks, x[i], side='right')
             if j == 0 or j == len(self.breaks):
                 continue
             l[i] = self.densities[j - 1]
