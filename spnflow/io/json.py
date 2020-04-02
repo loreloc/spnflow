@@ -4,12 +4,13 @@ from spnflow.structure.node import Sum, Mul, assign_ids
 
 
 DistributionMapper = {
-    'Bernoulli': lambda s, p: Bernoulli(s, p['p']),
-    'Multinomial': lambda s, p: Multinomial(s, p['p']),
-    'Poisson': lambda s, p: Poisson(s, p['mu']),
-    'Uniform': lambda s, p: Uniform(s, p['start'], p['width']),
-    'Gaussian': lambda s, p: Gaussian(s, p['mean'], p['stdev']),
-    'Gamma': lambda s, p: Gamma(s, p['alpha'], p['loc'], p['beta'])
+    'Bernoulli': Bernoulli,
+    'Multinomial': Multinomial,
+    'Poisson': Poisson,
+    'Isotonic': Isotonic,
+    'Uniform': Uniform,
+    'Gaussian': Gaussian,
+    'Gamma': Gamma
 }
 
 
@@ -82,6 +83,6 @@ def json_obj_spn(obj):
         children = [json_obj_spn(o) for o in obj['children']]
         return Mul(children, scope)
     if kind in DistributionMapper:
-        return DistributionMapper[kind](scope, obj['params'])
+        return DistributionMapper[kind](scope, **obj['params'])
 
     raise NotImplementedError("JSON serialization not implemented for node of type " + kind)
