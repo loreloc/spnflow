@@ -1,11 +1,12 @@
 import numpy as np
 import scipy.stats as stats
 import scipy.sparse as sparse
+from sklearn import cluster
 from sklearn import cross_decomposition
 from itertools import combinations
 
 
-def rdc(data, d=0.3, k=20, s=1.0/6.0, f=np.sin):
+def rdc_cols(data, d=0.3, k=20, s=1.0 / 6.0, f=np.sin):
     """
     Split the features using the RDC (Randomized Dependency Coefficient) method.
 
@@ -14,7 +15,7 @@ def rdc(data, d=0.3, k=20, s=1.0/6.0, f=np.sin):
     :param k: The size of the latent space.
     :param s: The standard deviation of the gaussian distribution.
     :param f: The non linear function to use.
-    :return:
+    :return: A features partitioning.
     """
     n_samples, n_features = data.shape
     rdc_features = rdc_transform(data, k, s, f)
@@ -34,6 +35,21 @@ def rdc(data, d=0.3, k=20, s=1.0/6.0, f=np.sin):
     adj_matrix = sparse.csr_matrix(adj_matrix)
     _, clusters = sparse.csgraph.connected_components(adj_matrix, directed=False, return_labels=True)
     return clusters
+
+
+def rdc_rows(data, n=2, k=20, s=1.0 / 6.0, f=np.sin):
+    """
+    Split the samples using the RDC (Randomized Dependency Coefficient) method.
+
+    :param data: The data.
+    :param n: The number of clusters for KMeans.
+    :param k: The size of the latent space.
+    :param s: The standard deviation of the gaussian distribution.
+    :param f: The non linear function to use.
+    :return: A samples partitioning.
+    """
+    rdc_samples = np.concatenate(rdc_transform(data, k, s, f), axis=1)
+    return cluster.KMeans(n_clusters=2).fit_predict(rdc_samples)
 
 
 def rdc_cca(i, j, features):

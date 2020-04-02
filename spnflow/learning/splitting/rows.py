@@ -1,6 +1,7 @@
 import numpy as np
 from spnflow.learning.splitting.kmeans import kmeans
 from spnflow.learning.splitting.gmm import gmm
+from spnflow.learning.splitting.rdc import rdc_rows
 from spnflow.learning.splitting.random import random_rows
 
 
@@ -36,6 +37,8 @@ def get_split_rows_method(split_rows):
         return kmeans
     elif split_rows == 'gmm':
         return gmm
+    elif split_rows == 'rdc':
+        return rdc_rows
     elif split_rows == 'random':
         return random_rows
     else:

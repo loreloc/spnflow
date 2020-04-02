@@ -1,5 +1,5 @@
 import numpy as np
-from spnflow.learning.splitting.rdc import rdc
+from spnflow.learning.splitting.rdc import rdc_cols
 from spnflow.learning.splitting.random import random_cols
 
 
@@ -32,7 +32,7 @@ def get_split_cols_method(split_cols):
     :return: The corresponding columns splitting function.
     """
     if split_cols == 'rdc':
-        return rdc
+        return rdc_cols
     elif split_cols == 'random':
         return random_cols
     else:

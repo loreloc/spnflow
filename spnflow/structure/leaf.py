@@ -332,6 +332,111 @@ class Poisson(Leaf):
         return {'mu': self.mu}
 
 
+class Isotonic(Leaf):
+    """
+    The Isotonic distribution leaf.
+    """
+
+    LEAF_TYPE = LeafType.DISCRETE
+
+    def __init__(self, scope, meta):
+        """
+        Initialize an Isotonic leaf node given its scope.
+
+        :param scope: The scope of the leaf.
+        :param meta: The meta type.
+        :param delta: The smoothing factor.
+        """
+        super().__init__(scope)
+        self.meta = meta
+        self.densities = []
+        self.breaks = []
+        self.mids = []
+
+    def fit(self, data, domain):
+        """
+        Fit the distribution parameters given the domain and some training data.
+
+        :param data: The training data.
+        :param domain: The domain of the distribution leaf.
+        """
+        n_samples, _ = data.shape
+        if self.meta == LeafType.DISCRETE:
+            bins = np.array([d for d in domain] + [domain[-1] + 1])
+            self.densities, self.breaks = np.histogram(data, bins=bins, density=True)
+            self.mids = np.array(domain)
+        else:
+            self.densities, self.breaks = np.histogram(data, bins='auto', density=True)
+            self.mids = ((self.breaks + np.roll(self.breaks, -1)) / 2.0)[:-1]
+
+        # Apply Laplace smoothing
+        n_bins = len(self.breaks) - 1
+        self.densities = (self.densities * n_samples + 1.0) / (n_samples + n_bins)
+
+    def likelihood(self, x):
+        """
+        Compute the likelihood of the distribution leaf given some input.
+
+        :param x: The inputs.
+        :return: The resulting likelihood.
+        """
+        n_samples = len(x)
+        l = np.full(n_samples, np.finfo(float).eps)
+        for i in range(n_samples):
+            j = np.searchsorted(self.breaks, x[i])
+            if j == 0 or j == len(self.breaks):
+                continue
+            l[i] = self.densities[j - 1]
+        return l
+
+    def log_likelihood(self, x):
+        """
+        Compute the logarithmic likelihood of the distribution leaf given some input.
+
+        :param x: The inputs.
+        :return: The resulting log likelihood.
+        """
+        return np.log(self.likelihood(x))
+
+    def mode(self):
+        """
+        Compute the mode of the distribution.
+
+        :return: The distribution's mode.
+        """
+        return self.mids[np.argmax(self.densities)]
+
+    def sample(self, size=1):
+        """
+        Sample from the leaf distribution.
+
+        :param size: The number of samples.
+        :return: Some samples.
+        """
+        if self.meta == LeafType.DISCRETE:
+            return np.random.choice(self.mids, p=self.densities, size=size)
+        else:
+            q = stats.uniform.rvs(size=size)
+            return stats.rv_histogram((self.densities, self.breaks)).ppf(q)
+
+
+    def params_count(self):
+        """
+        Get the number of parameters of the distribution leaf.
+
+        :return: The number of parameters.
+        """
+        return 1 + len(self.densities) + len(self.breaks) + len(self.mids)
+
+    def params_dict(self):
+        """
+        Get a dictionary representation of the distribution parameters.
+
+        :return: A dictionary containing the distribution parameters.
+        """
+        return {'meta': self.meta, 'densities': self.densities, 'breaks': self.breaks, 'mids': self.mids}
+
+
 class Uniform(Leaf):
     """
     The Uniform distribution leaf.

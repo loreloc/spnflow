@@ -2,6 +2,7 @@ import numpy as np
 from enum import Enum
 from collections import deque
 from spnflow.structure.node import Sum, Mul, assign_ids
+from spnflow.learning.leaf import get_learn_leaf_method
 from spnflow.learning.splitting.rows import get_split_rows_method, split_rows_clusters
 from spnflow.learning.splitting.cols import get_split_cols_method, split_cols_clusters
 
@@ -18,6 +19,7 @@ class Operation(Enum):
 
 
 def learn_structure(data, distributions, domains,
+                    learn_leaf='mle', learn_leaf_params={},
                     split_rows='kmeans', split_cols='rdc',
                     split_rows_params={}, split_cols_params={},
                     min_rows_slice=256, min_cols_slice=2):
@@ -27,8 +29,9 @@ def learn_structure(data, distributions, domains,
     :param data: The training data.
     :param distributions: A list of distributions classes (one for each feature).
     :param domains: A list of domains (one for each feature).
-    :param split_rows: The rows splitting method (it can be 'kmeans', 'gmm' or 'random').
-    :param split_cols: The columns splitting method (it can be 'rdc' or 'random').
+    :param learn_leaf: The method to use to learn a distribution leaf node (it can be 'mle' or 'isotonic').
+    :param split_rows: The rows splitting method (it can be 'kmeans', 'gmm', 'rdc' or 'random').
+    :param split_cols: The columns splitting method (it can be 'rdc_cols' or 'random').
     :param split_rows_params: The parameters of the rows splitting method.
     :param split_cols_params: The parameters of the cols splitting method.
     :param min_rows_slice: The minimum number of samples required to split horizontally.
@@ -46,6 +49,7 @@ def learn_structure(data, distributions, domains,
     n_samples, n_features = data.shape
     assert len(distributions) == n_features, "Each feature must have a distribution"
 
+    learn_leaf_func = get_learn_leaf_method(learn_leaf)
     split_rows_func = get_split_rows_method(split_rows)
     split_cols_func = get_split_cols_method(split_cols)
     initial_scope = list(range(n_features))
@@ -60,8 +64,8 @@ def learn_structure(data, distributions, domains,
 
         if op == Operation.CREATE_LEAF:
             idx = scope[0]
-            leaf = distributions[idx](scope)
-            leaf.fit(local_data, domains[idx])
+            dist, dom = distributions[idx], domains[idx]
+            leaf = learn_leaf_func(local_data, dist, dom, scope, **learn_leaf_params)
             parent.children.append(leaf)
         elif op == Operation.REM_FEATURE:
             node = Mul([], scope)

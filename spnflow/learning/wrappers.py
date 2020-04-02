@@ -5,7 +5,7 @@ from spnflow.learning.structure import learn_structure
 from spnflow.utils.data import get_data_domains
 
 
-def learn_classifier(data, distributions, class_idx, domains=None, n_jobs=1, **kwargs):
+def learn_classifier(data, distributions, domains=None, class_idx=-1, n_jobs=1, **kwargs):
     """
     Learn a SPN classifier given some training data, the features distributions and domains and
     the class index in the training data.
@@ -22,7 +22,6 @@ def learn_classifier(data, distributions, class_idx, domains=None, n_jobs=1, **k
     """
     assert data is not None
     assert distributions is not None
-    assert class_idx >= 0
 
     if domains is None:
         domains = get_data_domains(data, distributions)
