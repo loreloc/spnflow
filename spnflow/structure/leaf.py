@@ -339,7 +339,7 @@ class Isotonic(Leaf):
 
     LEAF_TYPE = LeafType.DISCRETE
 
-    def __init__(self, scope, meta):
+    def __init__(self, scope, meta, densities=[], breaks=[], mids=[]):
         """
         Initialize an Isotonic leaf node given its scope.
 
@@ -349,9 +349,9 @@ class Isotonic(Leaf):
         """
         super().__init__(scope)
         self.meta = meta
-        self.densities = []
-        self.breaks = []
-        self.mids = []
+        self.densities = densities
+        self.breaks = breaks
+        self.mids = mids
 
     def fit(self, data, domain):
         """
@@ -418,7 +418,6 @@ class Isotonic(Leaf):
         else:
             q = stats.uniform.rvs(size=size)
             return stats.rv_histogram((self.densities, self.breaks)).ppf(q)
-
 
     def params_count(self):
         """
@@ -613,8 +612,8 @@ class Gamma(Leaf):
         :param beta: The beta parameter.
         """
         super().__init__(scope)
-        self.loc = loc
         self.alpha = alpha
+        self.loc = loc
         self.beta = beta
 
     def fit(self, data, domain):
