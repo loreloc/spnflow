@@ -110,7 +110,7 @@ class RegionGraph:
             r2 = tuple(sorted(items[mid:]))
 
             # Create a partition from the region split
-            partition = (r1, r2)
+            partition = tuple(sorted((r1, r2)))
             self._regions.add(r1)
             self._regions.add(r2)
 
@@ -169,7 +169,7 @@ class RegionGraph:
 
 
 if __name__ == '__main__':
-    rg = RegionGraph([0, 1, 2, 3, 4, 5, 6])
+    rg = RegionGraph([0, 1, 2, 3, 4, 5, 6, 7, 8])
     for k in range(3):
         rg.random_split(2)
     rg.make_layers()
