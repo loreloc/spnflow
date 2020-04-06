@@ -1,41 +1,47 @@
 import tensorflow as tf
-from distributions import MultivariateNormal
+import tensorflow_probability as tfp
 
 
-class InputLayer(tf.keras.layers.Layer):
+class NormalLayer(tf.keras.layers.Layer):
     """
-    Input distributions layer class.
+    Multi-batch Multivariate Normal distribution layer class.
     """
-    def __init__(self, regions, n_distributions, **kwargs):
+    def __init__(self, region, n_batch):
         """
-        Initialize the Input of distributions layer.
+        Initialize the multi-batch and multivariate normal distribution.
 
-        :param regions: The list of regions of the input layer.
-        :param n_distributions: The number of distributions.
-        :param kwargs: Parent class arguments.
+        :param n_batch: The number of batches.
+        :param n_features: The number of random variables.
         """
-        super(InputLayer, self).__init__(**kwargs)
-        self.regions = regions
-        self.n_distributions = n_distributions
-        self.vectors = []
-        self.n_features = None
+        super(NormalLayer, self).__init__()
+        self.region = region
+        self.n_batch = n_batch
+        self._mean = None
+        self._scale = None
+        self._distribution = None
 
     def build(self, input_shape):
         """
-        Build the layer.
-
-        :param input_shape: The number of distributions per region.
+        Build the multi-batch and multivariate distribution.
         """
-        self.n_features = input_shape[-1]
+        # Create the mean multi-batch multivariate variable
+        self._mean = tf.Variable(
+            tf.random.normal(shape=(self.n_batch, len(self.region)), stddev=0.1),
+            trainable=True
+        )
 
-        # Set the number of features and distributions and create a normal distribution vector for each region
-        for region in self.regions:
-            distribution = MultivariateNormal(self.n_distributions, len(region))
-            distribution.build()
-            self.vectors.append(distribution)
+        # Create the scale matrix multi-batch multivariate variable
+        self._scale = tfp.util.TransformedVariable(
+            tf.eye(len(self.region), batch_shape=(self.n_batch,)),
+            tfp.bijectors.FillScaleTriL(),
+            trainable=True
+        )
+
+        # Create the multi-batch multivariate variable
+        self._distribution = tfp.distributions.MultivariateNormalTriL(self._mean, tf.linalg.cholesky(self._scale))
 
         # Call the parent class build method
-        super(InputLayer, self).build(input_shape)
+        super(NormalLayer, self).build(input_shape)
 
     def compute_output_shape(self, input_shape):
         """
@@ -44,27 +50,35 @@ class InputLayer(tf.keras.layers.Layer):
         :param input_shape: The input shape.
         :return: The output shape.
         """
-        return len(self.regions), self.n_distributions
+        return self.n_batch, len(self.region)
 
-    def call(self, inputs, **kwargs):
+    def call(self, inputs, training=None, **kwargs):
         """
-        Evaluate the layer given some inputs.
+        Compute the log likelihoods given some inputs.
 
         :param inputs: The inputs.
+        :param training: A boolean indicating if it's training.
         :param kwargs: Other arguments.
-        :return: The tensor result of the layer.
+        :return: The log likelihoods.
         """
-        results = []
+        # Calculate the log likelihoods given some inputs
+        masked_input = None
+        if training:
+            masked_input = tf.gather(inputs, self.region, axis=1)
+            masked_input = tf.expand_dims(masked_input, 1)
+        else:
+            masked_input = tf.gather(inputs, self.region, axis=0)
+        return self._distribution.log_prob(masked_input)
 
-        # Compute the log likelihoods for each region
-        for i, region in enumerate(self.regions):
-            # Create the masked input from the region indices
-            masked_input = tf.gather(inputs, region, axis=1)
+    def sample(self, sample_shape):
+        """
+        Sample some values from the distribution.
 
-            # Calculate the log likelihoods of the given distribution vector
-            results.append(self.vectors[i].log_prob(masked_input))
-
-        return tf.stack(results)
+        :param sample_shape: The sample shape.
+        :return: Some samples.
+        """
+        # Sample some values from the distributions
+        return self._distribution.sample(sample_shape)
 
 
 class ProductLayer(tf.keras.layers.Layer):
@@ -78,7 +92,8 @@ class ProductLayer(tf.keras.layers.Layer):
         :param kwargs: Parent class arguments.
         """
         super(ProductLayer, self).__init__(**kwargs)
-        self.n_outputs = None
+        self.n_regions = None
+        self.n_nodes = None
 
     def build(self, input_shape):
         """
@@ -86,6 +101,10 @@ class ProductLayer(tf.keras.layers.Layer):
 
         :param input_shape: The input shape.
         """
+        # Set the number of regions and the number of product nodes per layer.
+        self.n_regions = input_shape[0]
+        self.n_nodes = input_shape[1] ** 2
+
         # Call the parent class build method
         super(ProductLayer, self).build(input_shape)
 
@@ -96,27 +115,27 @@ class ProductLayer(tf.keras.layers.Layer):
         :param input_shape: The input shape.
         :return: The output shape.
         """
-        return input_shape[0] // 2, input_shape[1] ** 2
+        return self.n_regions // 2, self.n_nodes
 
-    def call(self, inputs, **kwargs):
+    def call(self, inputs, training=None, **kwargs):
         """
         Evaluate the layer given some inputs.
 
         :param inputs: The inputs.
+        :param training: A boolean indicating if it's training.
         :param kwargs: Other arguments.
         :return: The tensor result of the layer.
         """
-        n_regions = inputs.get_shape()[0]
-
-        # Pairs the results using even-odd indexing
-        dist0 = tf.gather(inputs, [i for i in range(n_regions) if i % 2 == 0])
-        dist1 = tf.gather(inputs, [i for i in range(n_regions) if i % 2 == 1])
-
-        # Compute the outer product (the "outer sum" in the log space)
-        result = tf.expand_dims(dist0, 1) + tf.expand_dims(dist1, 2)
-
-        # Flatten the results of each product layer
-        return tf.reshape(result, [n_regions // 2, -1])
+        if training:
+            dist0 = tf.gather(inputs, [i for i in range(self.n_regions) if i % 2 == 0], axis=1)
+            dist1 = tf.gather(inputs, [i for i in range(self.n_regions) if i % 2 == 1], axis=1)
+            result = tf.expand_dims(dist0, 2) + tf.expand_dims(dist1, 3)
+            return tf.reshape(result, [-1, self.n_regions // 2, self.n_nodes])
+        else:
+            dist0 = tf.gather(inputs, [i for i in range(self.n_regions) if i % 2 == 0], axis=0)
+            dist1 = tf.gather(inputs, [i for i in range(self.n_regions) if i % 2 == 1], axis=0)
+            result = tf.expand_dims(dist0, 1) + tf.expand_dims(dist1, 2)
+            return tf.reshape(result, [self.n_regions // 2, self.n_nodes])
 
 
 class SumLayer(tf.keras.layers.Layer):
@@ -132,6 +151,7 @@ class SumLayer(tf.keras.layers.Layer):
         """
         super(SumLayer, self).__init__(**kwargs)
         self.n_sum = n_sum
+        self.n_mul = None
         self.kernel = None
 
     def build(self, input_shape):
@@ -140,21 +160,27 @@ class SumLayer(tf.keras.layers.Layer):
 
         :param input_shape: The input shape.
         """
+        # Get the number of product node of each product layer
+        self.n_mul = input_shape[1]
+
         # Construct the weights as a matrix of shape (N, S, M) where N is the number of input product layers, S is the
         # number of sum nodes for each layer and M is the number of product node of each product layer
-        self.kernel = self.add_weight('kernel', shape=(input_shape[0], self.n_sum, input_shape[1]), trainable=True)
+        self.kernel = tf.Variable(
+            initial_value=tf.random.uniform(shape=(input_shape[0], self.n_sum, self.n_mul), minval=0.0, maxval=1.0),
+            trainable=True
+        )
 
         # Call the parent class build method
         super(SumLayer, self).build(input_shape)
 
     def compute_output_shape(self, input_shape):
         """
-        Compute the output shape.
+        Compute the output shape of the layer.
 
         :param input_shape: The input shape.
         :return: The output shape.
         """
-        return input_shape[0], self.n_sum
+        return self.n_sum, self.n_mul
 
     def call(self, inputs, **kwargs):
         """

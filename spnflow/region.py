@@ -170,8 +170,10 @@ class RegionGraph:
 
 if __name__ == '__main__':
     rg = RegionGraph([0, 1, 2, 3, 4, 5, 6, 7, 8])
-    for k in range(3):
+
+    for i in range(3):
         rg.random_split(2)
     rg.make_layers()
-    for l in reversed(rg.layers()):
-        print(l)
+    layers = rg.layers()
+    for layer in reversed(layers):
+        print(layer)

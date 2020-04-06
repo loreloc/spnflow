@@ -17,7 +17,7 @@ if __name__ == '__main__':
     y_test = tf.keras.utils.to_categorical(y_test, n_classes)
 
     # Generate the region graph's layers
-    depth = 8
+    depth = 4
     n_repetitions = 2
     region_graph = RegionGraph(list(range(n_features)))
     for i in range(n_repetitions):
@@ -26,12 +26,16 @@ if __name__ == '__main__':
     layers = region_graph.layers()
 
     # Construct the RAT-SPN model
-    n_sum = 2
+    n_sum = 6
     n_distributions = 2
     spn = RatSpn(n_classes, n_sum, n_distributions, layers)
 
     # Compile the model
     spn.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
+    # Build and print the summary
+    spn.build((n_features,))
+    spn.summary()
+
     # Fit the model
-    spn.fit(x_train, y_train, batch_size=100, epochs=10, validation_data=(x_test, y_test))
+    history = spn.fit(x_train, y_train, batch_size=100, epochs=10, validation_data=(x_test, y_test))
