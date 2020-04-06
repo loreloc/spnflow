@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-from spnflow.ratspn import RatSpn
+from spnflow.model import build_spn
 from spnflow.region import RegionGraph
 
 
@@ -26,16 +26,15 @@ if __name__ == '__main__':
     layers = region_graph.layers()
 
     # Construct the RAT-SPN model
-    n_sum = 6
+    n_sum = 2
     n_distributions = 2
-    spn = RatSpn(n_classes, n_sum, n_distributions, layers)
+    spn = build_spn(n_classes, n_sum, n_distributions, layers)
 
     # Compile the model
     spn.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-    # Build and print the summary
-    spn.build((n_features,))
+    # Print some summary
     spn.summary()
 
     # Fit the model
-    history = spn.fit(x_train, y_train, batch_size=100, epochs=10, validation_data=(x_test, y_test))
+    #history = spn.fit(x_train, y_train, batch_size=100, epochs=10, validation_data=(x_test, y_test))

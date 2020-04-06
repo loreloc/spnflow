@@ -45,7 +45,7 @@ class NormalLayer(tf.keras.layers.Layer):
 
     def compute_output_shape(self, input_shape):
         """
-        Compute the output shape of the layer.
+        Compute the output shape.
 
         :param input_shape: The input shape.
         :return: The output shape.
@@ -62,12 +62,7 @@ class NormalLayer(tf.keras.layers.Layer):
         :return: The log likelihoods.
         """
         # Calculate the log likelihoods given some inputs
-        masked_input = None
-        if training:
-            masked_input = tf.gather(inputs, self.region, axis=1)
-            masked_input = tf.expand_dims(masked_input, 1)
-        else:
-            masked_input = tf.gather(inputs, self.region, axis=0)
+        masked_input = tf.gather(inputs, self.region, axis=1)
         return self._distribution.log_prob(masked_input)
 
     def sample(self, sample_shape):
@@ -79,6 +74,58 @@ class NormalLayer(tf.keras.layers.Layer):
         """
         # Sample some values from the distributions
         return self._distribution.sample(sample_shape)
+
+
+class InputLayer(tf.keras.layers.Layer):
+    """
+    The distributions input layer class.
+    """
+    def __init__(self, regions, n_distributions, **kwargs):
+        """
+        Initialize an input layer.
+
+        :param regions: The regions of the distributions.
+        :param n_distributions: The number of distributions.
+        :param kwargs: Other arguments.
+        """
+        super(InputLayer, self).__init__(**kwargs)
+        self.regions = regions
+        self.n_distributions = n_distributions
+        self._layers = []
+
+    def build(self, input_shape):
+        """
+        Build the layer.
+
+        :param input_shape: The input shape.
+        """
+        # Add the gaussian distribution leaves
+        for region in self.regions:
+            self._layers.append(NormalLayer(region, self.n_distributions))
+
+        # Call the parent class's build method
+        super(InputLayer, self).build(input_shape)
+
+    def compute_output_shape(self, input_shape):
+        """
+        Compute the output shape.
+
+        :param input_shape: The input shape.
+        :return: The output shape.
+        """
+        return len(self.regions), self.n_distributions
+
+    def call(self, inputs, training=None, **kwargs):
+        """
+        Execute the layer on some inputs.
+
+        :param inputs: The inputs.
+        :param training: A flag indicating if it's training.
+        :param kwargs: Other arguments.
+        :return: The log likelihood of each distribution leaf.
+        """
+        x = tf.stack([dist(inputs) for dist in self._layers], axis=0)
+        return x
 
 
 class ProductLayer(tf.keras.layers.Layer):
@@ -101,7 +148,7 @@ class ProductLayer(tf.keras.layers.Layer):
 
         :param input_shape: The input shape.
         """
-        # Set the number of regions and the number of product nodes per layer.
+        # Set the number of child regions and the number of product nodes per partition
         self.n_regions = input_shape[0]
         self.n_nodes = input_shape[1] ** 2
 
@@ -115,7 +162,7 @@ class ProductLayer(tf.keras.layers.Layer):
         :param input_shape: The input shape.
         :return: The output shape.
         """
-        return self.n_regions // 2, self.n_nodes
+        return input_shape[0] // 2, input_shape[1] ** 2
 
     def call(self, inputs, training=None, **kwargs):
         """
@@ -126,16 +173,10 @@ class ProductLayer(tf.keras.layers.Layer):
         :param kwargs: Other arguments.
         :return: The tensor result of the layer.
         """
-        if training:
-            dist0 = tf.gather(inputs, [i for i in range(self.n_regions) if i % 2 == 0], axis=1)
-            dist1 = tf.gather(inputs, [i for i in range(self.n_regions) if i % 2 == 1], axis=1)
-            result = tf.expand_dims(dist0, 2) + tf.expand_dims(dist1, 3)
-            return tf.reshape(result, [-1, self.n_regions // 2, self.n_nodes])
-        else:
-            dist0 = tf.gather(inputs, [i for i in range(self.n_regions) if i % 2 == 0], axis=0)
-            dist1 = tf.gather(inputs, [i for i in range(self.n_regions) if i % 2 == 1], axis=0)
-            result = tf.expand_dims(dist0, 1) + tf.expand_dims(dist1, 2)
-            return tf.reshape(result, [self.n_regions // 2, self.n_nodes])
+        dist0 = tf.gather(inputs, [i for i in range(self.n_regions) if i % 2 == 0], axis=0)
+        dist1 = tf.gather(inputs, [i for i in range(self.n_regions) if i % 2 == 1], axis=0)
+        result = tf.expand_dims(dist0, 1) + tf.expand_dims(dist1, 2)
+        return tf.reshape(result, [self.n_regions // 2, self.n_nodes])
 
 
 class SumLayer(tf.keras.layers.Layer):
@@ -151,7 +192,6 @@ class SumLayer(tf.keras.layers.Layer):
         """
         super(SumLayer, self).__init__(**kwargs)
         self.n_sum = n_sum
-        self.n_mul = None
         self.kernel = None
 
     def build(self, input_shape):
@@ -160,13 +200,10 @@ class SumLayer(tf.keras.layers.Layer):
 
         :param input_shape: The input shape.
         """
-        # Get the number of product node of each product layer
-        self.n_mul = input_shape[1]
-
         # Construct the weights as a matrix of shape (N, S, M) where N is the number of input product layers, S is the
         # number of sum nodes for each layer and M is the number of product node of each product layer
         self.kernel = tf.Variable(
-            initial_value=tf.random.uniform(shape=(input_shape[0], self.n_sum, self.n_mul), minval=0.0, maxval=1.0),
+            initial_value=tf.random.uniform(shape=(input_shape[0], self.n_sum, input_shape[1]), minval=0.0, maxval=1.0),
             trainable=True
         )
 
@@ -175,12 +212,11 @@ class SumLayer(tf.keras.layers.Layer):
 
     def compute_output_shape(self, input_shape):
         """
-        Compute the output shape of the layer.
-
+        Compute the output shape.
         :param input_shape: The input shape.
         :return: The output shape.
         """
-        return self.n_sum, self.n_mul
+        return self.n_partitions, self.n_sum
 
     def call(self, inputs, **kwargs):
         """
