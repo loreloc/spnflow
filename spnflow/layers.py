@@ -50,7 +50,7 @@ class NormalLayer(tf.keras.layers.Layer):
         :param input_shape: The input shape.
         :return: The output shape.
         """
-        return self.n_batch, len(self.region)
+        return None, self.n_batch, len(self.region)
 
     def call(self, inputs, training=None, **kwargs):
         """
@@ -63,6 +63,7 @@ class NormalLayer(tf.keras.layers.Layer):
         """
         # Calculate the log likelihoods given some inputs
         masked_input = tf.gather(inputs, self.region, axis=1)
+        masked_input = tf.expand_dims(masked_input, 1)
         return self._distribution.log_prob(masked_input)
 
     def sample(self, sample_shape):
@@ -113,7 +114,7 @@ class InputLayer(tf.keras.layers.Layer):
         :param input_shape: The input shape.
         :return: The output shape.
         """
-        return len(self.regions), self.n_distributions
+        return None, len(self.regions), self.n_distributions
 
     def call(self, inputs, training=None, **kwargs):
         """
@@ -124,7 +125,7 @@ class InputLayer(tf.keras.layers.Layer):
         :param kwargs: Other arguments.
         :return: The log likelihood of each distribution leaf.
         """
-        x = tf.stack([dist(inputs) for dist in self._layers], axis=0)
+        x = tf.stack([dist(inputs) for dist in self._layers], axis=1)
         return x
 
 
@@ -149,8 +150,8 @@ class ProductLayer(tf.keras.layers.Layer):
         :param input_shape: The input shape.
         """
         # Set the number of child regions and the number of product nodes per partition
-        self.n_regions = input_shape[0]
-        self.n_nodes = input_shape[1] ** 2
+        self.n_regions = input_shape[1]
+        self.n_nodes = input_shape[2] ** 2
 
         # Call the parent class build method
         super(ProductLayer, self).build(input_shape)
@@ -162,7 +163,7 @@ class ProductLayer(tf.keras.layers.Layer):
         :param input_shape: The input shape.
         :return: The output shape.
         """
-        return input_shape[0] // 2, input_shape[1] ** 2
+        return None, input_shape[1] // 2, input_shape[2] ** 2
 
     def call(self, inputs, training=None, **kwargs):
         """
@@ -173,17 +174,17 @@ class ProductLayer(tf.keras.layers.Layer):
         :param kwargs: Other arguments.
         :return: The tensor result of the layer.
         """
-        dist0 = tf.gather(inputs, [i for i in range(self.n_regions) if i % 2 == 0], axis=0)
-        dist1 = tf.gather(inputs, [i for i in range(self.n_regions) if i % 2 == 1], axis=0)
-        result = tf.expand_dims(dist0, 1) + tf.expand_dims(dist1, 2)
-        return tf.reshape(result, [self.n_regions // 2, self.n_nodes])
+        dist0 = tf.gather(inputs, [i for i in range(self.n_regions) if i % 2 == 0], axis=1)
+        dist1 = tf.gather(inputs, [i for i in range(self.n_regions) if i % 2 == 1], axis=1)
+        result = tf.expand_dims(dist0, 2) + tf.expand_dims(dist1, 3)
+        return tf.reshape(result, [-1, self.n_regions // 2, self.n_nodes])
 
 
 class SumLayer(tf.keras.layers.Layer):
     """
     Sum node layer.
     """
-    def __init__(self, n_sum, **kwargs):
+    def __init__(self, n_sum, is_root=False, **kwargs):
         """
         Initialize the sum layer.
 
@@ -192,6 +193,7 @@ class SumLayer(tf.keras.layers.Layer):
         """
         super(SumLayer, self).__init__(**kwargs)
         self.n_sum = n_sum
+        self.is_root = is_root
         self.kernel = None
 
     def build(self, input_shape):
@@ -200,10 +202,18 @@ class SumLayer(tf.keras.layers.Layer):
 
         :param input_shape: The input shape.
         """
+
+        # Set the kernel shape
+        kernel_shape = None
+        if self.is_root:
+            kernel_shape = (1, self.n_sum, input_shape[1])
+        else:
+            kernel_shape = (input_shape[1], self.n_sum, input_shape[2])
+
         # Construct the weights as a matrix of shape (N, S, M) where N is the number of input product layers, S is the
         # number of sum nodes for each layer and M is the number of product node of each product layer
         self.kernel = tf.Variable(
-            initial_value=tf.random.uniform(shape=(input_shape[0], self.n_sum, input_shape[1]), minval=0.0, maxval=1.0),
+            initial_value=tf.random.uniform(kernel_shape, minval=0.0, maxval=1.0),
             trainable=True
         )
 
@@ -216,7 +226,7 @@ class SumLayer(tf.keras.layers.Layer):
         :param input_shape: The input shape.
         :return: The output shape.
         """
-        return self.n_partitions, self.n_sum
+        return None, self.n_partitions, self.n_sum
 
     def call(self, inputs, **kwargs):
         """

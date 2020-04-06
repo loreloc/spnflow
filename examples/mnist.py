@@ -37,4 +37,4 @@ if __name__ == '__main__':
     spn.summary()
 
     # Fit the model
-    #history = spn.fit(x_train, y_train, batch_size=100, epochs=10, validation_data=(x_test, y_test))
+    history = spn.fit(x_train, y_train, batch_size=100, epochs=10, validation_data=(x_test, y_test))

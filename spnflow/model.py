@@ -16,7 +16,7 @@ def build_spn(n_classes, n_sum, n_distributions, rg_layers):
     n_features = len(rg_layers[-1][0])
 
     # Instantiate the sequential model
-    spn = tf.keras.models.Sequential()
+    spn = tf.keras.models.Sequential(name='RAT-SPN')
 
     # Add the input distributions layers
     input_layer = InputLayer(rg_layers[0], n_distributions, input_shape=(n_features,))
@@ -35,6 +35,6 @@ def build_spn(n_classes, n_sum, n_distributions, rg_layers):
     spn.add(tf.keras.layers.Flatten())
 
     # Add the root sum layer
-    spn.add(SumLayer(n_classes))
+    spn.add(SumLayer(n_classes, is_root=True))
 
     return spn
