@@ -7,22 +7,24 @@ class RatSpn(tf.keras.Model):
         super(RatSpn, self).__init__()
         self.n_classes = n_classes
         self.n_sum = n_sum
-        self.n_distributions = n_distributions
         self.n_features = len(rg_layers[-1][0])
-        self.rg_layers = rg_layers
+        self.n_distributions = n_distributions
+        self._rg_layers = rg_layers
         self._layers = []
 
     def input_shape(self):
-        return self.n_features, self.n_distributions
+        return self.n_features
+
+    def output_shape(self):
+        return self.n_classes
 
     def build(self, input_shape):
         # Add the input distributions layer
-        input_layer = InputLayer(self.rg_layers[0])
-        input_layer.build(input_shape)
+        input_layer = InputLayer(self._rg_layers[0], self.n_distributions)
         self._layers.append(input_layer)
 
         # Alternate between product and sum layers
-        for i in range(1, len(self.rg_layers)):
+        for i in range(1, len(self._rg_layers)):
             if i % 2 == 1:
                 product_layer = ProductLayer()
                 self._layers.append(product_layer)
@@ -31,7 +33,7 @@ class RatSpn(tf.keras.Model):
                 self._layers.append(sum_layer)
 
         # Add the root sum layer
-        root_layer = SumLayer(self.n_classes)
+        root_layer = SumLayer(self.n_classes, name='root_sum_layer')
         self._layers.append(root_layer)
 
         # Call the parent class build method
