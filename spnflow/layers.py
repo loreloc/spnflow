@@ -6,16 +6,20 @@ class NormalLayer(tf.keras.layers.Layer):
     """
     Multi-batch Multivariate Normal distribution layer class.
     """
-    def __init__(self, region, n_batch):
+    def __init__(self, region, n_batch, sigma_min=0.8, sigma_max=1.2):
         """
         Initialize the multi-batch and multivariate normal distribution.
 
+        :param region: The region of the layer.
         :param n_batch: The number of batches.
-        :param n_features: The number of random variables.
+        :param sigma_min: Variance initialization minimum value.
+        :param sigma_max: Variance initialization maximum value.
         """
         super(NormalLayer, self).__init__()
         self.region = region
         self.n_batch = n_batch
+        self.sigma_min = sigma_min
+        self.sigma_max = sigma_max
         self._mean = None
         self._scale = None
         self._distribution = None
@@ -26,13 +30,14 @@ class NormalLayer(tf.keras.layers.Layer):
         """
         # Create the mean multi-batch multivariate variable
         self._mean = tf.Variable(
-            tf.random.normal(shape=(self.n_batch, len(self.region)), stddev=0.1),
+            tf.random.normal(shape=(self.n_batch, len(self.region)), stddev=1e-1),
             trainable=True
         )
 
         # Create the scale matrix multi-batch multivariate variable
+        sigmoid_params = tf.random.normal(shape=(self.n_batch, len(self.region)), stddev=1e-1)
         self._scale = tf.Variable(
-            tf.random.uniform(shape=(self.n_batch, len(self.region)), minval=0.5, maxval=2.0),
+            self.sigma_min + (self.sigma_max - self.sigma_min) * tf.math.sigmoid(sigmoid_params),
             trainable=True
         )
 
@@ -71,17 +76,19 @@ class InputLayer(tf.keras.layers.Layer):
     """
     The distributions input layer class.
     """
-    def __init__(self, regions, n_distributions, **kwargs):
+    def __init__(self, regions, n_distributions, distribution_class, **kwargs):
         """
         Initialize an input layer.
 
         :param regions: The regions of the distributions.
         :param n_distributions: The number of distributions.
+        :param distribution_class: The leaves distributions class.
         :param kwargs: Other arguments.
         """
         super(InputLayer, self).__init__(**kwargs)
         self.regions = regions
         self.n_distributions = n_distributions
+        self.distribution_class = distribution_class
         self._layers = []
 
     def build(self, input_shape):
@@ -92,7 +99,8 @@ class InputLayer(tf.keras.layers.Layer):
         """
         # Add the gaussian distribution leaves
         for region in self.regions:
-            self._layers.append(NormalLayer(region, self.n_distributions))
+            distribution = self.distribution_class(region, self.n_distributions)
+            self._layers.append(distribution)
 
         # Call the parent class's build method
         super(InputLayer, self).build(input_shape)
@@ -185,7 +193,7 @@ class SumLayer(tf.keras.layers.Layer):
 
         # Construct the weights
         self.kernel = tf.Variable(
-            initial_value=tf.random.normal(kernel_shape, mean=0.0, stddev=5e-1),
+            initial_value=tf.random.normal(kernel_shape),
             trainable=True
         )
 

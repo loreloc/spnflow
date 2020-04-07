@@ -1,5 +1,5 @@
 import tensorflow as tf
-from spnflow.layers import InputLayer, ProductLayer, SumLayer
+from spnflow.layers import NormalLayer, InputLayer, ProductLayer, SumLayer
 
 
 def build_spn(n_classes, n_sum, n_distributions, rg_layers):
@@ -19,7 +19,7 @@ def build_spn(n_classes, n_sum, n_distributions, rg_layers):
     spn = tf.keras.models.Sequential(name='RAT-SPN')
 
     # Add the input distributions layers
-    input_layer = InputLayer(rg_layers[0], n_distributions, input_shape=(n_features,))
+    input_layer = InputLayer(rg_layers[0], n_distributions, NormalLayer, input_shape=(n_features,))
     spn.add(input_layer)
 
     # Alternate between product and sum layers
