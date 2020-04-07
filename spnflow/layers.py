@@ -6,7 +6,7 @@ class NormalLayer(tf.keras.layers.Layer):
     """
     Multi-batch Multivariate Normal distribution layer class.
     """
-    def __init__(self, region, n_batch, sigma_min=0.8, sigma_max=1.2):
+    def __init__(self, region, n_batch, sigma_min=1.0-1e-1, sigma_max=1.0+1e-1):
         """
         Initialize the multi-batch and multivariate normal distribution.
 
@@ -27,6 +27,8 @@ class NormalLayer(tf.keras.layers.Layer):
     def build(self, input_shape):
         """
         Build the multi-batch and multivariate distribution.
+
+        :param input_shape: The input shape.
         """
         # Create the mean multi-batch multivariate variable
         self._mean = tf.Variable(
@@ -41,18 +43,17 @@ class NormalLayer(tf.keras.layers.Layer):
             trainable=True
         )
 
-        # Create the multi-batch multivariate variable
+        # Create the multi-batch multivariate distribution
         self._distribution = tfp.distributions.MultivariateNormalDiag(self._mean, self._scale)
 
         # Call the parent class build method
         super(NormalLayer, self).build(input_shape)
 
-    def call(self, inputs, training=None, **kwargs):
+    def call(self, inputs, **kwargs):
         """
         Compute the log likelihoods given some inputs.
 
         :param inputs: The inputs.
-        :param training: A boolean indicating if it's training.
         :param kwargs: Other arguments.
         :return: The log likelihoods.
         """
@@ -105,12 +106,11 @@ class InputLayer(tf.keras.layers.Layer):
         # Call the parent class's build method
         super(InputLayer, self).build(input_shape)
 
-    def call(self, inputs, training=None, **kwargs):
+    def call(self, inputs, **kwargs):
         """
         Execute the layer on some inputs.
 
         :param inputs: The inputs.
-        :param training: A flag indicating if it's training.
         :param kwargs: Other arguments.
         :return: The log likelihood of each distribution leaf.
         """
@@ -145,13 +145,12 @@ class ProductLayer(tf.keras.layers.Layer):
         # Call the parent class build method
         super(ProductLayer, self).build(input_shape)
 
-    def call(self, inputs, training=None, **kwargs):
+    def call(self, inputs, **kwargs):
         """
         Evaluate the layer given some inputs.
 
         :param inputs: The inputs.
         :param training: A boolean indicating if it's training.
-        :param kwargs: Other arguments.
         :return: The tensor result of the layer.
         """
         dist0 = tf.gather(inputs, [i for i in range(self.n_regions) if i % 2 == 0], axis=1)
@@ -193,7 +192,7 @@ class SumLayer(tf.keras.layers.Layer):
 
         # Construct the weights
         self.kernel = tf.Variable(
-            initial_value=tf.random.normal(kernel_shape),
+            initial_value=tf.random.normal(kernel_shape, stddev=5e-1),
             trainable=True
         )
 
@@ -202,19 +201,14 @@ class SumLayer(tf.keras.layers.Layer):
 
     def call(self, inputs, **kwargs):
         """
-        Evaluate the layer  given some inputs.
+        Evaluate the layer given some inputs.
 
         :param inputs: The inputs.
         :param kwargs: Other arguments.
         :return: The tensor result of the layer.
         """
-        # Calculate the log likelihood using the logsumexp trick (3-D tensor with 2-D tensor multiplication here)
+        # Calculate the log likelihood using the logsumexp trick
         x = tf.expand_dims(inputs, axis=-1)
         x = x + tf.math.log_softmax(self.kernel, axis=2)
-
-        if self.is_root:
-            x = tf.math.reduce_logsumexp(x, axis=1)
-        else:
-            x = tf.math.reduce_logsumexp(x, axis=2)
-
+        x = tf.math.reduce_logsumexp(x, axis=-2)
         return x

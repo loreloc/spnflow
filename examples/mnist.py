@@ -15,17 +15,27 @@ def plot_fit_history(history, metric='loss', title='Untitled'):
     plt.show()
 
 
-def get_loss_function(lam=1.0):
+def get_loss_function(kind='mixed', lam=1.0):
+    @tf.function
     def log_loss(y_true, y_pred):
         return tf.math.negative(tf.reduce_mean(y_pred))
 
+    @tf.function
     def cross_entropy(y_true, y_pred):
         return tf.nn.softmax_cross_entropy_with_logits(y_true, y_pred)
 
+    @tf.function
     def mixed_loss(y_true, y_pred):
         return lam * cross_entropy(y_true, y_pred) + (1 - lam) * log_loss(y_true, y_pred)
 
-    return mixed_loss
+    if kind == 'mixed':
+        return mixed_loss
+    elif kind == 'log_loss':
+        return log_loss
+    elif kind == 'cross_entropy':
+        return cross_entropy
+    else:
+        raise NotImplementedError("Loss function kind not implemented")
 
 
 if __name__ == '__main__':
@@ -59,10 +69,11 @@ if __name__ == '__main__':
     spn.summary()
 
     # Compile the model
-    spn.compile(optimizer='adam', loss=get_loss_function(lam=1.0), metrics=['accuracy'])
+    loss_fn = get_loss_function(kind='cross_entropy')
+    spn.compile(optimizer='adam', loss=loss_fn, metrics=['accuracy'])
 
     # Fit the model
-    history = spn.fit(x_train, y_train, batch_size=256, epochs=100, validation_data=(x_test, y_test))
+    history = spn.fit(x_train, y_train, batch_size=128, epochs=20, validation_data=(x_test, y_test))
 
     # Plot the train history
     plot_fit_history(history, metric='loss', title='Loss')
