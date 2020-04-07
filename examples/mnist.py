@@ -11,13 +11,13 @@ if __name__ == '__main__':
     # Preprocess the MNIST dataset
     n_classes = 10
     n_features = 784
-    x_train = np.reshape(x_train, (x_train.shape[0], n_features)).astype(np.float32) / 255.0
-    x_test = np.reshape(x_test, (x_test.shape[0], n_features)).astype(np.float32) / 255.0
+    x_train = np.reshape(x_train, (x_train.shape[0], n_features)).astype(np.float32)
+    x_test = np.reshape(x_test, (x_test.shape[0], n_features)).astype(np.float32)
     y_train = tf.keras.utils.to_categorical(y_train, n_classes)
     y_test = tf.keras.utils.to_categorical(y_test, n_classes)
 
     # Generate the region graph's layers
-    depth = 4
+    depth = 2
     n_repetitions = 2
     region_graph = RegionGraph(list(range(n_features)))
     for i in range(n_repetitions):
@@ -26,15 +26,16 @@ if __name__ == '__main__':
     layers = region_graph.layers()
 
     # Construct the RAT-SPN model
-    n_sum = 2
-    n_distributions = 2
+    n_sum = 10
+    n_distributions = 16
     spn = build_spn(n_classes, n_sum, n_distributions, layers)
 
-    # Compile the model
-    spn.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-
     # Print some summary
+    spn.build()
     spn.summary()
 
+    # Compile the model
+    spn.compile(optimizer='adam', loss=tf.nn.softmax_cross_entropy_with_logits, metrics=['accuracy'])
+
     # Fit the model
-    history = spn.fit(x_train, y_train, batch_size=100, epochs=10, validation_data=(x_test, y_test))
+    history = spn.fit(x_train, y_train, batch_size=256, epochs=100)

@@ -31,26 +31,16 @@ class NormalLayer(tf.keras.layers.Layer):
         )
 
         # Create the scale matrix multi-batch multivariate variable
-        self._scale = tfp.util.TransformedVariable(
-            tf.eye(len(self.region), batch_shape=(self.n_batch,)),
-            tfp.bijectors.FillScaleTriL(),
+        self._scale = tf.Variable(
+            tf.random.uniform(shape=(self.n_batch, len(self.region)), minval=0.5, maxval=2.0),
             trainable=True
         )
 
         # Create the multi-batch multivariate variable
-        self._distribution = tfp.distributions.MultivariateNormalTriL(self._mean, tf.linalg.cholesky(self._scale))
+        self._distribution = tfp.distributions.MultivariateNormalDiag(self._mean, self._scale)
 
         # Call the parent class build method
         super(NormalLayer, self).build(input_shape)
-
-    def compute_output_shape(self, input_shape):
-        """
-        Compute the output shape.
-
-        :param input_shape: The input shape.
-        :return: The output shape.
-        """
-        return None, self.n_batch, len(self.region)
 
     def call(self, inputs, training=None, **kwargs):
         """
@@ -107,15 +97,6 @@ class InputLayer(tf.keras.layers.Layer):
         # Call the parent class's build method
         super(InputLayer, self).build(input_shape)
 
-    def compute_output_shape(self, input_shape):
-        """
-        Compute the output shape.
-
-        :param input_shape: The input shape.
-        :return: The output shape.
-        """
-        return None, len(self.regions), self.n_distributions
-
     def call(self, inputs, training=None, **kwargs):
         """
         Execute the layer on some inputs.
@@ -156,15 +137,6 @@ class ProductLayer(tf.keras.layers.Layer):
         # Call the parent class build method
         super(ProductLayer, self).build(input_shape)
 
-    def compute_output_shape(self, input_shape):
-        """
-        Compute the output shape.
-
-        :param input_shape: The input shape.
-        :return: The output shape.
-        """
-        return None, input_shape[1] // 2, input_shape[2] ** 2
-
     def call(self, inputs, training=None, **kwargs):
         """
         Evaluate the layer given some inputs.
@@ -189,6 +161,7 @@ class SumLayer(tf.keras.layers.Layer):
         Initialize the sum layer.
 
         :param n_sum: The number of sum node per region.
+        :param is_root: A boolean indicating if the sum layer is a root layer.
         :param kwargs: Parent class arguments.
         """
         super(SumLayer, self).__init__(**kwargs)
@@ -206,27 +179,18 @@ class SumLayer(tf.keras.layers.Layer):
         # Set the kernel shape
         kernel_shape = None
         if self.is_root:
-            kernel_shape = (1, self.n_sum, input_shape[1])
+            kernel_shape = (1, input_shape[1], self.n_sum)
         else:
-            kernel_shape = (input_shape[1], self.n_sum, input_shape[2])
+            kernel_shape = (input_shape[1], input_shape[2], self.n_sum)
 
-        # Construct the weights as a matrix of shape (N, S, M) where N is the number of input product layers, S is the
-        # number of sum nodes for each layer and M is the number of product node of each product layer
+        # Construct the weights
         self.kernel = tf.Variable(
-            initial_value=tf.random.uniform(kernel_shape, minval=0.0, maxval=1.0),
+            initial_value=tf.random.normal(kernel_shape, mean=0.0, stddev=5e-1),
             trainable=True
         )
 
         # Call the parent class build method
         super(SumLayer, self).build(input_shape)
-
-    def compute_output_shape(self, input_shape):
-        """
-        Compute the output shape.
-        :param input_shape: The input shape.
-        :return: The output shape.
-        """
-        return None, self.n_partitions, self.n_sum
 
     def call(self, inputs, **kwargs):
         """
@@ -237,4 +201,12 @@ class SumLayer(tf.keras.layers.Layer):
         :return: The tensor result of the layer.
         """
         # Calculate the log likelihood using the logsumexp trick (3-D tensor with 2-D tensor multiplication here)
-        return tf.math.log(tf.linalg.matvec(self.kernel, tf.math.exp(inputs)))
+        x = tf.expand_dims(inputs, axis=-1)
+        x = x + tf.math.log_softmax(self.kernel, axis=2)
+
+        if self.is_root:
+            x = tf.math.reduce_logsumexp(x, axis=1)
+        else:
+            x = tf.math.reduce_logsumexp(x, axis=2)
+
+        return x
