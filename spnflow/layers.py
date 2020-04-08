@@ -1,97 +1,23 @@
 import tensorflow as tf
-import tensorflow_probability as tfp
 
 
-class NormalLayer(tf.keras.layers.Layer):
-    """
-    Multi-batch Multivariate Normal distribution layer class.
-    """
-    def __init__(self, region, n_batch, sigma_min=1.0-1e-1, sigma_max=1.0+1e-1, **kwargs):
-        """
-        Initialize the multi-batch and multivariate normal distribution.
-
-        :param region: The region of the layer.
-        :param n_batch: The number of batches.
-        :param sigma_min: Variance initialization minimum value.
-        :param sigma_max: Variance initialization maximum value.
-        :param kwargs: Other arguments.
-        """
-        super(NormalLayer, self).__init__(**kwargs)
-        self.region = region
-        self.n_batch = n_batch
-        self.sigma_min = sigma_min
-        self.sigma_max = sigma_max
-        self._mean = None
-        self._scale = None
-        self._distribution = None
-
-    def build(self, input_shape):
-        """
-        Build the multi-batch and multivariate distribution.
-
-        :param input_shape: The input shape.
-        """
-        # Create the mean variable
-        self._mean = tf.Variable(
-            tf.random.normal(shape=(self.n_batch, len(self.region)), stddev=1e-1),
-            trainable=True
-        )
-
-        # Create the log variance diagonal variable
-        sigmoid_params = tf.random.normal(shape=(self.n_batch, len(self.region)), stddev=1e-1)
-        self._scale = tf.Variable(
-            self.sigma_min + (self.sigma_max - self.sigma_min) * tf.math.sigmoid(sigmoid_params),
-            trainable=True
-        )
-
-        # Create the multi-batch multivariate distribution
-        self._distribution = tfp.distributions.MultivariateNormalDiag(self._mean, self._scale)
-
-        # Call the parent class build method
-        super(NormalLayer, self).build(input_shape)
-
-    @tf.function
-    def call(self, inputs):
-        """
-        Compute the log likelihoods given some inputs.
-
-        :param inputs: The inputs.
-        :return: The log likelihoods.
-        """
-        # Calculate the log likelihoods given some inputs
-        masked_input = tf.gather(inputs, self.region, axis=1)
-        masked_input = tf.expand_dims(masked_input, 1)
-        return self._distribution.log_prob(masked_input)
-
-    @tf.function
-    def sample(self, sample_shape):
-        """
-        Sample some values from the distribution.
-
-        :param sample_shape: The sample shape.
-        :return: Some samples.
-        """
-        # Sample some values from the distributions
-        return self._distribution.sample(sample_shape)
-
-
-class InputLayer(tf.keras.layers.Layer):
+class DistributionsLayer(tf.keras.layers.Layer):
     """
     The distributions input layer class.
     """
-    def __init__(self, regions, n_distributions, distribution_class, **kwargs):
+    def __init__(self, regions, dist_class, n_dists, **kwargs):
         """
-        Initialize an input layer.
+        Initialize a distributions input layer.
 
         :param regions: The regions of the distributions.
-        :param n_distributions: The number of distributions.
-        :param distribution_class: The leaves distributions class.
+        :param dist_class: The leaves distributions class.
+        :param n_dists: The number of distributions.
         :param kwargs: Other arguments.
         """
-        super(InputLayer, self).__init__(**kwargs)
+        super(DistributionsLayer, self).__init__(**kwargs)
         self.regions = regions
-        self.n_distributions = n_distributions
-        self.distribution_class = distribution_class
+        self.dist_class = dist_class
+        self.n_dists = n_dists
         self._layers = []
 
     def build(self, input_shape):
@@ -102,11 +28,10 @@ class InputLayer(tf.keras.layers.Layer):
         """
         # Add the gaussian distribution leaves
         for region in self.regions:
-            distribution = self.distribution_class(region, self.n_distributions)
-            self._layers.append(distribution)
+            self._layers.append(self.dist_class(region, self.n_dists))
 
         # Call the parent class's build method
-        super(InputLayer, self).build(input_shape)
+        super(DistributionsLayer, self).build(input_shape)
 
     @tf.function
     def call(self, inputs):
@@ -116,7 +41,7 @@ class InputLayer(tf.keras.layers.Layer):
         :param inputs: The inputs.
         :return: The log likelihood of each distribution leaf.
         """
-        return tf.stack([dist(inputs) for dist in self._layers], axis=1)
+        return tf.stack([d(inputs) for d in self._layers], axis=1)
 
 
 class ProductLayer(tf.keras.layers.Layer):

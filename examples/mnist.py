@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 from spnflow.model import build_spn
-from spnflow.region import RegionGraph
+from spnflow.distributions import NormalLayer
 import matplotlib.pyplot as plt
 
 
@@ -50,22 +50,15 @@ if __name__ == '__main__':
     y_train = tf.keras.utils.to_categorical(y_train, n_classes)
     y_test = tf.keras.utils.to_categorical(y_test, n_classes)
 
-    # Generate the region graph's layers
+    # Build the RAT-SPN model
     depth = 2
-    n_repetitions = 10
-    region_graph = RegionGraph(list(range(n_features)))
-    for i in range(n_repetitions):
-        region_graph.random_split(depth)
-    region_graph.make_layers()
-    layers = region_graph.layers()
-
-    # Construct the RAT-SPN model
     n_sum = 10
-    n_distributions = 2
-    spn = build_spn(n_classes, n_sum, n_distributions, layers)
+    n_dists = 2
+    n_repetitions = 10
+    dist_class = NormalLayer
+    spn = build_spn(n_features, n_classes, depth, dist_class, n_sum, n_dists, n_repetitions)
 
     # Print some summary
-    spn.build()
     spn.summary()
 
     # Compile the model
@@ -73,7 +66,7 @@ if __name__ == '__main__':
     spn.compile(optimizer='adam', loss=loss_fn, metrics=['accuracy'])
 
     # Fit the model
-    history = spn.fit(x_train, y_train, batch_size=128, epochs=100, validation_data=(x_test, y_test))
+    history = spn.fit(x_train, y_train, batch_size=256, epochs=100, validation_data=(x_test, y_test))
 
     # Plot the train history
     plot_fit_history(history, metric='loss', title='Loss')

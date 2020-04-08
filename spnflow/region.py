@@ -36,7 +36,7 @@ class RegionGraph:
         """
         self._items = tuple(sorted(items))
         self._rnd = np.random.RandomState(seed)
-        self._regions = {self._items}
+        self._regions = set()
         self._children = dict()
         self._partitions = set()
         self._layers = list()
@@ -88,6 +88,15 @@ class RegionGraph:
         :return: The leaves.
         """
         return [x for x in self._regions if x not in self._children]
+
+    def clear(self):
+        """
+        Clear The partitions and layers.
+        """
+        self._regions.clear()
+        self._children.clear()
+        self._partitions.clear()
+        self._layers.clear()
 
     def random_split(self, depth):
         """
@@ -170,9 +179,7 @@ class RegionGraph:
 
 if __name__ == '__main__':
     rg = RegionGraph([0, 1, 2, 3, 4, 5, 6, 7, 8])
-
-    for i in range(3):
-        rg.random_split(2)
+    rg.random_split(3)
     rg.make_layers()
     layers = rg.layers()
     for layer in reversed(layers):
