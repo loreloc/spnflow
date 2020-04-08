@@ -6,7 +6,7 @@ class NormalLayer(tf.keras.layers.Layer):
     """
     Multi-batch Multivariate Normal distribution layer class.
     """
-    def __init__(self, region, n_batch, sigma_min=1.0-1e-1, sigma_max=1.0+1e-1):
+    def __init__(self, region, n_batch, sigma_min=1.0-1e-1, sigma_max=1.0+1e-1, **kwargs):
         """
         Initialize the multi-batch and multivariate normal distribution.
 
@@ -14,8 +14,9 @@ class NormalLayer(tf.keras.layers.Layer):
         :param n_batch: The number of batches.
         :param sigma_min: Variance initialization minimum value.
         :param sigma_max: Variance initialization maximum value.
+        :param kwargs: Other arguments.
         """
-        super(NormalLayer, self).__init__()
+        super(NormalLayer, self).__init__(**kwargs)
         self.region = region
         self.n_batch = n_batch
         self.sigma_min = sigma_min
@@ -30,13 +31,13 @@ class NormalLayer(tf.keras.layers.Layer):
 
         :param input_shape: The input shape.
         """
-        # Create the mean multi-batch multivariate variable
+        # Create the mean variable
         self._mean = tf.Variable(
             tf.random.normal(shape=(self.n_batch, len(self.region)), stddev=1e-1),
             trainable=True
         )
 
-        # Create the scale matrix multi-batch multivariate variable
+        # Create the log variance diagonal variable
         sigmoid_params = tf.random.normal(shape=(self.n_batch, len(self.region)), stddev=1e-1)
         self._scale = tf.Variable(
             self.sigma_min + (self.sigma_max - self.sigma_min) * tf.math.sigmoid(sigmoid_params),
@@ -49,12 +50,12 @@ class NormalLayer(tf.keras.layers.Layer):
         # Call the parent class build method
         super(NormalLayer, self).build(input_shape)
 
-    def call(self, inputs, **kwargs):
+    @tf.function
+    def call(self, inputs):
         """
         Compute the log likelihoods given some inputs.
 
         :param inputs: The inputs.
-        :param kwargs: Other arguments.
         :return: The log likelihoods.
         """
         # Calculate the log likelihoods given some inputs
@@ -62,6 +63,7 @@ class NormalLayer(tf.keras.layers.Layer):
         masked_input = tf.expand_dims(masked_input, 1)
         return self._distribution.log_prob(masked_input)
 
+    @tf.function
     def sample(self, sample_shape):
         """
         Sample some values from the distribution.
@@ -106,16 +108,15 @@ class InputLayer(tf.keras.layers.Layer):
         # Call the parent class's build method
         super(InputLayer, self).build(input_shape)
 
-    def call(self, inputs, **kwargs):
+    @tf.function
+    def call(self, inputs):
         """
         Execute the layer on some inputs.
 
         :param inputs: The inputs.
-        :param kwargs: Other arguments.
         :return: The log likelihood of each distribution leaf.
         """
-        x = tf.stack([dist(inputs) for dist in self._layers], axis=1)
-        return x
+        return tf.stack([dist(inputs) for dist in self._layers], axis=1)
 
 
 class ProductLayer(tf.keras.layers.Layer):
@@ -145,12 +146,12 @@ class ProductLayer(tf.keras.layers.Layer):
         # Call the parent class build method
         super(ProductLayer, self).build(input_shape)
 
-    def call(self, inputs, **kwargs):
+    @tf.function
+    def call(self, inputs):
         """
         Evaluate the layer given some inputs.
 
         :param inputs: The inputs.
-        :param training: A boolean indicating if it's training.
         :return: The tensor result of the layer.
         """
         dist0 = tf.gather(inputs, [i for i in range(self.n_regions) if i % 2 == 0], axis=1)
@@ -182,7 +183,6 @@ class SumLayer(tf.keras.layers.Layer):
 
         :param input_shape: The input shape.
         """
-
         # Set the kernel shape
         kernel_shape = None
         if self.is_root:
@@ -199,12 +199,12 @@ class SumLayer(tf.keras.layers.Layer):
         # Call the parent class build method
         super(SumLayer, self).build(input_shape)
 
-    def call(self, inputs, **kwargs):
+    @tf.function
+    def call(self, inputs):
         """
         Evaluate the layer given some inputs.
 
         :param inputs: The inputs.
-        :param kwargs: Other arguments.
         :return: The tensor result of the layer.
         """
         # Calculate the log likelihood using the logsumexp trick

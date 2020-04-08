@@ -73,7 +73,7 @@ if __name__ == '__main__':
     spn.compile(optimizer='adam', loss=loss_fn, metrics=['accuracy'])
 
     # Fit the model
-    history = spn.fit(x_train, y_train, batch_size=128, epochs=20, validation_data=(x_test, y_test))
+    history = spn.fit(x_train, y_train, batch_size=128, epochs=100, validation_data=(x_test, y_test))
 
     # Plot the train history
     plot_fit_history(history, metric='loss', title='Loss')
