@@ -53,7 +53,7 @@ if __name__ == '__main__':
     depth = 2
     n_sum = 10
     n_dists = 2
-    n_reps = 20
+    n_reps = 10
     spn = build_spn(n_features, n_classes, depth, n_sum, n_dists, n_reps)
 
     # Print some summary
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     spn.compile(optimizer='adam', loss=loss_fn, metrics=['accuracy'])
 
     # Fit the model
-    history = spn.fit(x_train, y_train, batch_size=256, epochs=50, validation_data=(x_test, y_test))
+    history = spn.fit(x_train, y_train, batch_size=256, epochs=100, validation_data=(x_test, y_test))
 
     # Plot the train history
     plot_fit_history(history, metric='loss', title='Loss')

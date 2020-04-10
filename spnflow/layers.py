@@ -40,7 +40,7 @@ class GaussianLayer(tf.keras.layers.Layer):
         # Create the scales variables
         self._scales = [
             tf.Variable(
-                1.0 + 1e-1 * tf.math.sigmoid(tf.random.normal(shape=(self.n_dists, len(r)))),
+                5e-1 + 1e-1 * tf.math.sigmoid(tf.random.normal(shape=(self.n_dists, len(r)))),
                 trainable=True
             )
             for r in self.regions
@@ -63,7 +63,7 @@ class GaussianLayer(tf.keras.layers.Layer):
         :param inputs: The inputs.
         :return: The log likelihood of each distribution leaf.
         """
-        # Concatenate the results of each distribution result
+        # Concatenate the results of each distribution's batch result
         ll = [
             d.log_prob(tf.expand_dims(tf.gather(inputs, r, axis=1), axis=1))
             for r, d in zip(self.regions, self._distributions)
@@ -109,9 +109,11 @@ class ProductLayer(tf.keras.layers.Layer):
         :return: The tensor result of the layer.
         """
         # Compute the outer product (the "outer sum" in log domain)
-        x = tf.reshape(inputs, [-1, 2, self.n_partitions, self.n_nodes])
-        x = tf.expand_dims(x[:, 0], 3) + tf.expand_dims(x[:, 1], 2)
-        x = tf.reshape(x, [-1, self.n_partitions, self.n_nodes ** 2])
+        x = tf.reshape(inputs, [-1, self.n_partitions, 2, self.n_nodes])  # (n, p, 2, s)
+        x0 = tf.expand_dims(x[:, :, 0], 3)  # (n, p, s, 1)
+        x1 = tf.expand_dims(x[:, :, 1], 2)  # (n, p, 1, s)
+        x = x0 + x1  # (n, p, s, s)
+        x = tf.reshape(x, [-1, self.n_partitions, self.n_nodes ** 2])  # (n, p, s * s)
         return x
 
 
@@ -137,7 +139,7 @@ class SumLayer(tf.keras.layers.Layer):
         :param input_shape: The input shape.
         """
         # Set the kernel shape
-        kernel_shape = (input_shape[1], input_shape[2], self.n_sum)
+        kernel_shape = (input_shape[1], self.n_sum, input_shape[2])
 
         # Construct the weights
         self.kernel = tf.Variable(
@@ -157,7 +159,7 @@ class SumLayer(tf.keras.layers.Layer):
         :return: The tensor result of the layer.
         """
         # Calculate the log likelihood using the "logsumexp" trick
-        x = tf.expand_dims(inputs, axis=-1)
-        w = tf.math.log_softmax(self.kernel, axis=2)
-        x = tf.math.reduce_logsumexp(x + w, axis=2)
+        x = tf.expand_dims(inputs, axis=2)  # (n, p, 1, k)
+        w = tf.math.log_softmax(self.kernel, axis=2)  # (n, p, k)
+        x = tf.math.reduce_logsumexp(x + w, axis=-1)  # (n, p, s)
         return x
