@@ -1,7 +1,8 @@
 import numpy as np
 import tensorflow as tf
-from spnflow.model import build_spn
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+from spnflow.model import build_spn
 
 
 def plot_fit_history(history, metric='loss', title='Untitled'):
@@ -44,8 +45,12 @@ if __name__ == '__main__':
     # Preprocess the MNIST dataset
     n_classes = 10
     n_features = 784
-    x_train = np.reshape(x_train, (x_train.shape[0], n_features)).astype(np.float32) / 255.0
-    x_test = np.reshape(x_test, (x_test.shape[0], n_features)).astype(np.float32) / 255.0
+    scaler = StandardScaler()
+    x_train = np.reshape(x_train, (x_train.shape[0], n_features)).astype(np.float32)
+    x_test = np.reshape(x_test, (x_test.shape[0], n_features)).astype(np.float32)
+    scaler.fit(x_train)
+    x_train = scaler.transform(x_train)
+    x_test = scaler.transform(x_test)
     y_train = tf.keras.utils.to_categorical(y_train, n_classes)
     y_test = tf.keras.utils.to_categorical(y_test, n_classes)
 
