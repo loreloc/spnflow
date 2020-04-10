@@ -1,7 +1,6 @@
 import numpy as np
 import tensorflow as tf
 from spnflow.model import build_spn
-from spnflow.distributions import NormalLayer
 import matplotlib.pyplot as plt
 
 
@@ -18,7 +17,7 @@ def plot_fit_history(history, metric='loss', title='Untitled'):
 def get_loss_function(kind='mixed', lam=1.0):
     @tf.function
     def log_loss(y_true, y_pred):
-        return tf.math.negative(tf.reduce_mean(y_pred))
+        return tf.math.negative(y_pred)
 
     @tf.function
     def cross_entropy(y_true, y_pred):
@@ -54,9 +53,8 @@ if __name__ == '__main__':
     depth = 2
     n_sum = 10
     n_dists = 2
-    n_repetitions = 10
-    dist_class = NormalLayer
-    spn = build_spn(n_features, n_classes, depth, dist_class, n_sum, n_dists, n_repetitions)
+    n_reps = 20
+    spn = build_spn(n_features, n_classes, depth, n_sum, n_dists, n_reps)
 
     # Print some summary
     spn.summary()
@@ -66,7 +64,7 @@ if __name__ == '__main__':
     spn.compile(optimizer='adam', loss=loss_fn, metrics=['accuracy'])
 
     # Fit the model
-    history = spn.fit(x_train, y_train, batch_size=256, epochs=100, validation_data=(x_test, y_test))
+    history = spn.fit(x_train, y_train, batch_size=256, epochs=50, validation_data=(x_test, y_test))
 
     # Plot the train history
     plot_fit_history(history, metric='loss', title='Loss')

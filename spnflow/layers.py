@@ -1,24 +1,26 @@
+import numpy as np
 import tensorflow as tf
+import tensorflow_probability as tfp
 
 
-class DistributionsLayer(tf.keras.layers.Layer):
+class GaussianLayer(tf.keras.layers.Layer):
     """
-    The distributions input layer class.
+    The Gaussian distributions input layer class.
     """
-    def __init__(self, regions, dist_class, n_dists, **kwargs):
+    def __init__(self, regions, n_dists, **kwargs):
         """
-        Initialize a distributions input layer.
+        Initialize a Gaussian distributions input layer.
 
         :param regions: The regions of the distributions.
-        :param dist_class: The leaves distributions class.
         :param n_dists: The number of distributions.
         :param kwargs: Other arguments.
         """
-        super(DistributionsLayer, self).__init__(**kwargs)
+        super(GaussianLayer, self).__init__(**kwargs)
         self.regions = regions
-        self.dist_class = dist_class
         self.n_dists = n_dists
-        self._layers = []
+        self._means = None
+        self._scales = None
+        self._distributions = None
 
     def build(self, input_shape):
         """
@@ -26,12 +28,32 @@ class DistributionsLayer(tf.keras.layers.Layer):
 
         :param input_shape: The input shape.
         """
-        # Add the gaussian distribution leaves
-        for region in self.regions:
-            self._layers.append(self.dist_class(region, self.n_dists))
+        # Create the means variables
+        self._means = [
+            tf.Variable(
+                tf.random.normal(shape=(self.n_dists, len(r)), stddev=1e-1),
+                trainable=True
+            )
+            for r in self.regions
+        ]
+
+        # Create the scales variables
+        self._scales = [
+            tf.Variable(
+                1.0 + 1e-1 * tf.math.sigmoid(tf.random.normal(shape=(self.n_dists, len(r)))),
+                trainable=True
+            )
+            for r in self.regions
+        ]
+
+        # Create the multi-batch multivariate distributions
+        self._distributions = [
+            tfp.distributions.MultivariateNormalDiag(mean, scale)
+            for mean, scale in zip(self._means, self._scales)
+        ]
 
         # Call the parent class's build method
-        super(DistributionsLayer, self).build(input_shape)
+        super(GaussianLayer, self).build(input_shape)
 
     @tf.function
     def call(self, inputs):
@@ -41,7 +63,13 @@ class DistributionsLayer(tf.keras.layers.Layer):
         :param inputs: The inputs.
         :return: The log likelihood of each distribution leaf.
         """
-        return tf.stack([d(inputs) for d in self._layers], axis=1)
+        # Concatenate the results of each distribution result
+        ll = [
+            d.log_prob(tf.expand_dims(tf.gather(inputs, r, axis=1), axis=1))
+            for r, d in zip(self.regions, self._distributions)
+        ]
+        x = tf.stack(ll, axis=1)
+        return x
 
 
 class ProductLayer(tf.keras.layers.Layer):
@@ -52,10 +80,11 @@ class ProductLayer(tf.keras.layers.Layer):
         """
         Initialize the Product layer.
 
+        :param partitions: The partitions list.
         :param kwargs: Parent class arguments.
         """
         super(ProductLayer, self).__init__(**kwargs)
-        self.n_regions = None
+        self.n_partitions = None
         self.n_nodes = None
 
     def build(self, input_shape):
@@ -64,9 +93,9 @@ class ProductLayer(tf.keras.layers.Layer):
 
         :param input_shape: The input shape.
         """
-        # Set the number of child regions and the number of product nodes per partition
-        self.n_regions = input_shape[1]
-        self.n_nodes = input_shape[2] ** 2
+        # Set the number of partitions and the number of nodes for each region channel
+        self.n_partitions = input_shape[1] // 2
+        self.n_nodes = input_shape[2]
 
         # Call the parent class build method
         super(ProductLayer, self).build(input_shape)
@@ -79,27 +108,26 @@ class ProductLayer(tf.keras.layers.Layer):
         :param inputs: The inputs.
         :return: The tensor result of the layer.
         """
-        dist0 = tf.gather(inputs, [i for i in range(self.n_regions) if i % 2 == 0], axis=1)
-        dist1 = tf.gather(inputs, [i for i in range(self.n_regions) if i % 2 == 1], axis=1)
-        result = tf.expand_dims(dist0, 2) + tf.expand_dims(dist1, 3)
-        return tf.reshape(result, [-1, self.n_regions // 2, self.n_nodes])
+        # Compute the outer product (the "outer sum" in log domain)
+        x = tf.reshape(inputs, [-1, 2, self.n_partitions, self.n_nodes])
+        x = tf.expand_dims(x[:, 0], 3) + tf.expand_dims(x[:, 1], 2)
+        x = tf.reshape(x, [-1, self.n_partitions, self.n_nodes ** 2])
+        return x
 
 
 class SumLayer(tf.keras.layers.Layer):
     """
     Sum node layer.
     """
-    def __init__(self, n_sum, is_root=False, **kwargs):
+    def __init__(self, n_sum, **kwargs):
         """
         Initialize the sum layer.
 
         :param n_sum: The number of sum node per region.
-        :param is_root: A boolean indicating if the sum layer is a root layer.
         :param kwargs: Parent class arguments.
         """
         super(SumLayer, self).__init__(**kwargs)
         self.n_sum = n_sum
-        self.is_root = is_root
         self.kernel = None
 
     def build(self, input_shape):
@@ -109,15 +137,11 @@ class SumLayer(tf.keras.layers.Layer):
         :param input_shape: The input shape.
         """
         # Set the kernel shape
-        kernel_shape = None
-        if self.is_root:
-            kernel_shape = (1, input_shape[1], self.n_sum)
-        else:
-            kernel_shape = (input_shape[1], input_shape[2], self.n_sum)
+        kernel_shape = (input_shape[1], input_shape[2], self.n_sum)
 
         # Construct the weights
         self.kernel = tf.Variable(
-            initial_value=tf.random.normal(kernel_shape, stddev=5e-1),
+            initial_value=tf.random.normal(kernel_shape, stddev=1e-1),
             trainable=True
         )
 
@@ -132,8 +156,8 @@ class SumLayer(tf.keras.layers.Layer):
         :param inputs: The inputs.
         :return: The tensor result of the layer.
         """
-        # Calculate the log likelihood using the logsumexp trick
+        # Calculate the log likelihood using the "logsumexp" trick
         x = tf.expand_dims(inputs, axis=-1)
-        x = x + tf.math.log_softmax(self.kernel, axis=2)
-        x = tf.math.reduce_logsumexp(x, axis=-2)
+        w = tf.math.log_softmax(self.kernel, axis=2)
+        x = tf.math.reduce_logsumexp(x + w, axis=2)
         return x
