@@ -68,7 +68,7 @@ class RegionGraph:
 
 
 if __name__ == '__main__':
-    rg = RegionGraph([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], depth=4)
+    rg = RegionGraph(17, depth=3)
     layers = rg.random_layers()
     for layer in layers:
         print(layer)
