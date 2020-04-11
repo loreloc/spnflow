@@ -163,3 +163,42 @@ class SumLayer(tf.keras.layers.Layer):
         w = tf.math.log_softmax(self.kernel, axis=2)  # (n, p, k)
         x = tf.math.reduce_logsumexp(x + w, axis=-1)  # (n, p, s)
         return x
+
+
+class DropoutLayer(tf.keras.layers.Layer):
+    """
+    Dropout layer.
+    """
+    def __init__(self, rate=0.9, **kwargs):
+        """
+        Initialize the dropout layer.
+
+        :param rate: The rate of "surviveness" of the input.
+        """
+        super(DropoutLayer, self).__init__(**kwargs)
+        self.rate = rate
+
+    def build(self, input_shape):
+        """
+        Build the layer.
+
+        :param input_shape: The input shape.
+        """
+        # Call the parent class build method
+        super(DropoutLayer, self).build(input_shape)
+
+    @tf.function
+    def call(self, inputs, training=None):
+        """
+        Evaluate the layer given some inputs.
+
+        :param inputs: The inputs.
+        :return: The tensor result of the layer.
+        """
+        if not training:
+            return inputs
+
+        # Apply the dropout to the inputs
+        x = tf.random.uniform(shape=tf.shape(inputs))
+        x = tf.math.log(tf.math.floor(self.rate + x))
+        return inputs + x

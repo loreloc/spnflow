@@ -57,9 +57,10 @@ if __name__ == '__main__':
     # Build the RAT-SPN model
     depth = 2
     n_sum = 10
-    n_dists = 2
-    n_reps = 10
-    spn = build_spn(n_features, n_classes, depth, n_sum, n_dists, n_reps)
+    n_dists = 4
+    n_reps = 20
+    dropout = 0.8
+    spn = build_spn(n_features, n_classes, depth, n_sum, n_dists, n_reps, dropout)
 
     # Print some summary
     spn.summary()

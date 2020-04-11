@@ -1,9 +1,9 @@
 import tensorflow as tf
 from spnflow.region import RegionGraph
-from spnflow.layers import GaussianLayer, ProductLayer, SumLayer
+from spnflow.layers import GaussianLayer, ProductLayer, SumLayer, DropoutLayer
 
 
-def build_spn(n_features, n_classes, depth, n_sum=2, n_dists=2, n_reps=1, seed=42):
+def build_spn(n_features, n_classes, depth, n_sum=2, n_dists=2, n_reps=1, dropout=1.0, seed=42):
     """
     Build a RAT-SPN model.
 
@@ -13,6 +13,7 @@ def build_spn(n_features, n_classes, depth, n_sum=2, n_dists=2, n_reps=1, seed=4
     :param n_sum: The number of sum nodes.
     :param n_dists: The number of distributions.
     :param n_reps: The number of independent repetitions of the region graph.
+    :param dropout: The rate of the dropout layer.
     :return: A Keras based RAT-SPN model.
     """
     # Instantiate the region graph
@@ -34,6 +35,8 @@ def build_spn(n_features, n_classes, depth, n_sum=2, n_dists=2, n_reps=1, seed=4
         for i in range(1, len(layers) - 1):
             if i % 2 == 1:
                 x = ProductLayer()(x)
+                if dropout < 1.0:
+                    x = DropoutLayer(dropout)(x)
             else:
                 x = SumLayer(n_sum)(x)
         hidden_layers.append(x)
