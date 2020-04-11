@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
+from sklearn.feature_selection import VarianceThreshold
 from spnflow.model import build_spn
 
 
@@ -45,14 +46,23 @@ if __name__ == '__main__':
     # Preprocess the MNIST dataset
     n_classes = 10
     n_features = 784
-    scaler = StandardScaler()
     x_train = np.reshape(x_train, (x_train.shape[0], n_features)).astype(np.float32)
     x_test = np.reshape(x_test, (x_test.shape[0], n_features)).astype(np.float32)
+    y_train = tf.keras.utils.to_categorical(y_train, n_classes)
+    y_test = tf.keras.utils.to_categorical(y_test, n_classes)
+
+    # Apply standardization
+    scaler = StandardScaler()
     scaler.fit(x_train)
     x_train = scaler.transform(x_train)
     x_test = scaler.transform(x_test)
-    y_train = tf.keras.utils.to_categorical(y_train, n_classes)
-    y_test = tf.keras.utils.to_categorical(y_test, n_classes)
+
+    # Remove uninformative features
+    filter = VarianceThreshold(1e-1)
+    filter.fit(x_train)
+    x_train = filter.transform(x_train)
+    x_test = filter.transform(x_test)
+    n_features = x_train.shape[1]
 
     # Build the RAT-SPN model
     depth = 2
@@ -66,11 +76,11 @@ if __name__ == '__main__':
     spn.summary()
 
     # Compile the model
-    loss_fn = get_loss_function(kind='mixed', lam=0.8, n_features=n_features)
+    loss_fn = get_loss_function(kind='mixed', lam=0.9, n_features=n_features)
     spn.compile(optimizer='adam', loss=loss_fn, metrics=['accuracy'])
 
     # Fit the model
-    history = spn.fit(x_train, y_train, batch_size=256, epochs=100, validation_data=(x_test, y_test))
+    history = spn.fit(x_train, y_train, batch_size=256, epochs=10, validation_data=(x_test, y_test))
 
     # Plot the train history
     plot_fit_history(history, metric='loss', title='Loss')

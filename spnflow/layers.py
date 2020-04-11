@@ -28,10 +28,6 @@ class GaussianLayer(tf.keras.layers.Layer):
 
         :param input_shape: The input shape.
         """
-        @tf.function
-        def scale_constraint(s):
-            return tf.math.maximum(s, 1e-1)
-
         # Create the means variables
         self._means = [
             tf.Variable(
@@ -45,7 +41,6 @@ class GaussianLayer(tf.keras.layers.Layer):
         self._scales = [
             tf.Variable(
                 5e-1 + 1e-1 * tf.math.sigmoid(tf.random.normal(shape=(self.n_dists, len(r)))),
-                constraint=scale_constraint,
                 trainable=True
             )
             for r in self.regions
