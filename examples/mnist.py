@@ -15,10 +15,10 @@ def plot_fit_history(history, metric='loss', title='Untitled'):
     plt.show()
 
 
-def get_loss_function(kind='mixed', lam=1.0):
+def get_loss_function(kind='mixed', lam=None, n_features=None):
     @tf.function
     def log_loss(y_true, y_pred):
-        return tf.math.negative(y_pred)
+        return tf.math.negative(tf.math.reduce_mean(y_pred)) / n_features
 
     @tf.function
     def cross_entropy(y_true, y_pred):
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     spn.summary()
 
     # Compile the model
-    loss_fn = get_loss_function(kind='cross_entropy')
+    loss_fn = get_loss_function(kind='mixed', lam=0.8, n_features=n_features)
     spn.compile(optimizer='adam', loss=loss_fn, metrics=['accuracy'])
 
     # Fit the model
