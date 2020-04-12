@@ -72,6 +72,71 @@ class GaussianLayer(tf.keras.layers.Layer):
         return x
 
 
+class AutoregressiveFlowLayer(tf.keras.layers.Layer):
+    """
+    Autoregressive Flow layer.
+    """
+    def __init__(self, regions, hidden_units, factor, **kwargs):
+        """
+        Initialize a Autoregressive Flow transformed gaussian input distribution layer.
+
+        :param regions: The regions of the distributions.
+        :param hidden_units: A list of the number of units for each layer for the autoregressive network.
+        :param factor: The regularization factor for the autoregressive network kernels.
+        :param kwargs: Other arguments.
+        """
+        super(AutoregressiveFlowLayer, self).__init__(**kwargs)
+        self.regions = regions
+        self.hidden_units = hidden_units
+        self.factor = factor
+        self._mades = None
+        self._mafs = None
+
+    def build(self, input_shape):
+        """
+        Build the layer.
+
+        :param input_shape: The input shape.
+        """
+        # Initialize the MADEs models (one for each region)
+        self._mades = [
+            tfp.bijectors.AutoregressiveNetwork(
+                params=2, hidden_units=self.hidden_units, activation='relu',
+                use_bias=False, kernel_regularizer=tf.keras.regularizers.l2(self.factor)
+            )
+            for _ in self.regions
+        ]
+
+        # Initialize the transformed distributions (Masked Autoregressive Flow (MAF))
+        self._mafs = [
+            tfp.distributions.TransformedDistribution(
+                distribution=tfp.distributions.Normal(loc=0.0, scale=1.0),
+                bijector=tfp.bijectors.MaskedAutoregressiveFlow(made),
+                event_shape=[len(r)]
+            )
+            for r, made in zip(self.regions, self._mades)
+        ]
+
+        # Call the parent class's build method
+        super(AutoregressiveFlowLayer, self).build(input_shape)
+
+    @tf.function
+    def call(self, inputs):
+        """
+        Execute the layer on some inputs.
+
+        :param inputs: The inputs.
+        :return: The log likelihood of each distribution leaf.
+        """
+        # Concatenate the results of each distribution's result
+        ll = [
+            tf.expand_dims(d.log_prob(tf.gather(inputs, r, axis=1)), axis=1)
+            for r, d in zip(self.regions, self._mafs)
+        ]
+        x = tf.stack(ll, axis=1)
+        return x
+
+
 class ProductLayer(tf.keras.layers.Layer):
     """
     Product node layer class.

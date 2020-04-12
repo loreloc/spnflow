@@ -3,7 +3,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import VarianceThreshold
-from spnflow.model import build_spn
+from spnflow.wrappers import build_autoregressive_flow_spn
 
 
 def plot_fit_history(history, metric='loss', title='Untitled'):
@@ -65,22 +65,21 @@ if __name__ == '__main__':
     n_features = x_train.shape[1]
 
     # Build the RAT-SPN model
-    depth = 2
-    n_sum = 10
-    n_dists = 4
-    n_reps = 20
-    dropout = 0.8
-    spn = build_spn(n_features, n_classes, depth, n_sum, n_dists, n_reps, dropout)
+    depth = 4
+    spn = build_autoregressive_flow_spn(
+        n_features, n_classes, depth,
+        hidden_units=[32, 32], factor=1e-5, n_sum=10, n_reps=40, dropout=0.8
+    )
 
     # Print some summary
     spn.summary()
 
     # Compile the model
-    loss_fn = get_loss_function(kind='mixed', lam=0.9, n_features=n_features)
+    loss_fn = get_loss_function(kind='cross_entropy', n_features=n_features)
     spn.compile(optimizer='adam', loss=loss_fn, metrics=['accuracy'])
 
     # Fit the model
-    history = spn.fit(x_train, y_train, batch_size=256, epochs=10, validation_data=(x_test, y_test))
+    history = spn.fit(x_train, y_train, batch_size=256, epochs=100, validation_data=(x_test, y_test))
 
     # Plot the train history
     plot_fit_history(history, metric='loss', title='Loss')
