@@ -146,7 +146,6 @@ class SumLayer(tf.keras.layers.Layer):
             kernel_shape = (1, self.n_sum, input_shape[1])
         else:
             kernel_shape = (input_shape[1], self.n_sum, input_shape[2])
-        print(kernel_shape)
 
         # Construct the weights
         self.kernel = tf.Variable(
