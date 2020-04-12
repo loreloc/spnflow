@@ -19,38 +19,28 @@ def build_spn(n_features, n_classes, depth, n_sum=2, n_dists=2, n_reps=1, dropou
     # Instantiate the region graph
     region_graph = RegionGraph(n_features, depth=depth, seed=seed)
 
-    # Create the input layer
-    input_layer = tf.keras.layers.Input(shape=(n_features,))
+    # Generate the layers
+    layers = list(reversed(region_graph.random_graph(n_reps)))
 
-    # Hidden layers build loop
-    hidden_layers = []
-    for _ in range(n_reps):
-        # Compute a random graph layers
-        layers = list(reversed(region_graph.random_layers()))
+    # Instantiate the sequential model
+    model = tf.keras.Sequential()
 
-        # Build the input distributions layer
-        x = GaussianLayer(layers[0], n_dists)(input_layer)
+    # Add the input distributions layer
+    model.add(GaussianLayer(layers[0], n_dists, input_shape=(n_features,)))
 
-        # Alternate between product and sum layer
-        for i in range(1, len(layers) - 1):
-            if i % 2 == 1:
-                x = ProductLayer()(x)
-                if dropout < 1.0:
-                    x = DropoutLayer(dropout)(x)
-            else:
-                x = SumLayer(n_sum)(x)
-        hidden_layers.append(x)
+    # Alternate between product and sum layer
+    for i in range(1, len(layers) - 1):
+        if i % 2 == 1:
+            model.add(ProductLayer())
+            if dropout < 1.0:
+                model.add(DropoutLayer(dropout))
+        else:
+            model.add(SumLayer(n_sum))
 
-    # Build the concatenation layer
-    concat_layer = tf.keras.layers.Concatenate()(hidden_layers)
+    # Add the flatten layer
+    model.add(tf.keras.layers.Flatten())
 
-    # Build the root layer
-    root_layer = SumLayer(n_classes)(concat_layer)
-
-    # Build the flatten layer
-    output_layer = tf.keras.layers.Flatten()(root_layer)
-
-    # Build the model
-    model = tf.keras.Model(inputs=input_layer, outputs=output_layer)
+    # Add the root sum layer
+    model.add(SumLayer(n_classes, is_root=True))
 
     return model

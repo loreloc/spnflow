@@ -35,13 +35,15 @@ class RegionGraph:
         :param depth: The maximum depth.
         :param seed: The random state's seed.
         """
+        assert depth > 0
+
         self._items = tuple(range(n_features))
         self._depth = depth
         self._rnd = np.random.RandomState(seed)
 
     def random_layers(self):
         """
-        Generate a region graph randomly.
+        Generate a list of layers randomly over a single repetition of features.
 
         :return: A list of layers, alternating between regions and partitions.
         """
@@ -66,9 +68,28 @@ class RegionGraph:
 
         return layers
 
+    def random_graph(self, n_repetitions=1):
+        """
+        Generate a random graph's layers over multiple repetitions of features.
+
+        :param n_repetitions: The number of repetitions.
+        :return: A list of layers, alternating between regions and partitions.
+        """
+        assert n_repetitions > 0
+
+        root = [self._items]
+        graph_layers = [root] + [[]] * (self._depth * 2)
+
+        for _ in range(n_repetitions):
+            layers = self.random_layers()
+            for h in range(1, len(layers)):
+                graph_layers[h] = graph_layers[h] + layers[h]
+
+        return graph_layers
+
 
 if __name__ == '__main__':
-    rg = RegionGraph(17, depth=3)
-    layers = rg.random_layers()
+    rg = RegionGraph(10, depth=2)
+    layers = rg.random_graph(n_repetitions=4)
     for layer in layers:
         print(layer)

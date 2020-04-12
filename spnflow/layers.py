@@ -121,15 +121,17 @@ class SumLayer(tf.keras.layers.Layer):
     """
     Sum node layer.
     """
-    def __init__(self, n_sum, **kwargs):
+    def __init__(self, n_sum, is_root=False, **kwargs):
         """
         Initialize the sum layer.
 
         :param n_sum: The number of sum node per region.
+        :param is_root: A flag indicating if the sum layer is the root layer.
         :param kwargs: Parent class arguments.
         """
         super(SumLayer, self).__init__(**kwargs)
         self.n_sum = n_sum
+        self.is_root = is_root
         self.kernel = None
 
     def build(self, input_shape):
@@ -139,7 +141,12 @@ class SumLayer(tf.keras.layers.Layer):
         :param input_shape: The input shape.
         """
         # Set the kernel shape
-        kernel_shape = (input_shape[1], self.n_sum, input_shape[2])
+        kernel_shape = None
+        if self.is_root:
+            kernel_shape = (1, self.n_sum, input_shape[1])
+        else:
+            kernel_shape = (input_shape[1], self.n_sum, input_shape[2])
+        print(kernel_shape)
 
         # Construct the weights
         self.kernel = tf.Variable(
@@ -159,7 +166,7 @@ class SumLayer(tf.keras.layers.Layer):
         :return: The tensor result of the layer.
         """
         # Calculate the log likelihood using the "logsumexp" trick
-        x = tf.expand_dims(inputs, axis=2)  # (n, p, 1, k)
+        x = tf.expand_dims(inputs, axis=-2)  # (n, p, 1, k)
         w = tf.math.log_softmax(self.kernel, axis=2)  # (n, p, k)
         x = tf.math.reduce_logsumexp(x + w, axis=-1)  # (n, p, s)
         return x
