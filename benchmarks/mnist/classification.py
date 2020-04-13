@@ -1,5 +1,4 @@
 import os
-import itertools
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -10,18 +9,47 @@ from spnflow.wrappers import build_autoregressive_flow_spn
 
 RESULTS_DIR = "results/"
 
-EPOCHS = 1
+EPOCHS = 100
 
 BATCH_SIZE = 256
 
-HYPER_PARAMETERS = {
-    'depth': [2, 3, 4],
-    'hidden_units': [[32, 32], [64, 64]],
-    'regularization': [1e-4, 1e-5, 1e-6],
-    'n_sum': [10, 20, 30],
-    'n_reps': [20, 30, 40],
-    'dropout': [1.0, 0.8]
-}
+HYPER_PARAMETERS = [
+    {'depth': 2, 'hidden_units': [128, 128], 'n_sum': 10, 'n_reps': 20, 'dropout': 1.0},
+    {'depth': 2, 'hidden_units': [128, 128], 'n_sum': 10, 'n_reps': 20, 'dropout': 0.8},
+    {'depth': 2, 'hidden_units': [128, 128], 'n_sum': 10, 'n_reps': 40, 'dropout': 1.0},
+    {'depth': 2, 'hidden_units': [128, 128], 'n_sum': 10, 'n_reps': 40, 'dropout': 0.8},
+    {'depth': 2, 'hidden_units': [128, 128], 'n_sum': 20, 'n_reps': 20, 'dropout': 1.0},
+    {'depth': 2, 'hidden_units': [128, 128], 'n_sum': 20, 'n_reps': 20, 'dropout': 0.8},
+    {'depth': 2, 'hidden_units': [128, 128], 'n_sum': 20, 'n_reps': 40, 'dropout': 1.0},
+    {'depth': 2, 'hidden_units': [128, 128], 'n_sum': 20, 'n_reps': 40, 'dropout': 0.8},
+
+    {'depth': 3, 'hidden_units': [64, 64], 'n_sum': 10, 'n_reps': 20, 'dropout': 1.0},
+    {'depth': 3, 'hidden_units': [64, 64], 'n_sum': 10, 'n_reps': 20, 'dropout': 0.8},
+    {'depth': 3, 'hidden_units': [64, 64], 'n_sum': 10, 'n_reps': 40, 'dropout': 1.0},
+    {'depth': 3, 'hidden_units': [64, 64], 'n_sum': 10, 'n_reps': 40, 'dropout': 0.8},
+    {'depth': 3, 'hidden_units': [64, 64], 'n_sum': 20, 'n_reps': 20, 'dropout': 1.0},
+    {'depth': 3, 'hidden_units': [64, 64], 'n_sum': 20, 'n_reps': 20, 'dropout': 0.8},
+    {'depth': 3, 'hidden_units': [64, 64], 'n_sum': 20, 'n_reps': 40, 'dropout': 1.0},
+    {'depth': 3, 'hidden_units': [64, 64], 'n_sum': 20, 'n_reps': 40, 'dropout': 0.8},
+
+    {'depth': 4, 'hidden_units': [32, 32], 'n_sum': 10, 'n_reps': 20, 'dropout': 1.0},
+    {'depth': 4, 'hidden_units': [32, 32], 'n_sum': 10, 'n_reps': 20, 'dropout': 0.8},
+    {'depth': 4, 'hidden_units': [32, 32], 'n_sum': 10, 'n_reps': 40, 'dropout': 1.0},
+    {'depth': 4, 'hidden_units': [32, 32], 'n_sum': 10, 'n_reps': 40, 'dropout': 0.8},
+    {'depth': 4, 'hidden_units': [32, 32], 'n_sum': 20, 'n_reps': 20, 'dropout': 1.0},
+    {'depth': 4, 'hidden_units': [32, 32], 'n_sum': 20, 'n_reps': 20, 'dropout': 0.8},
+    {'depth': 4, 'hidden_units': [32, 32], 'n_sum': 20, 'n_reps': 40, 'dropout': 1.0},
+    {'depth': 4, 'hidden_units': [32, 32], 'n_sum': 20, 'n_reps': 40, 'dropout': 0.8},
+
+    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 10, 'n_reps': 20, 'dropout': 1.0},
+    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 10, 'n_reps': 20, 'dropout': 0.8},
+    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 10, 'n_reps': 40, 'dropout': 1.0},
+    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 10, 'n_reps': 40, 'dropout': 0.8},
+    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 20, 'n_reps': 20, 'dropout': 1.0},
+    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 20, 'n_reps': 20, 'dropout': 0.8},
+    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 20, 'n_reps': 40, 'dropout': 1.0},
+    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 20, 'n_reps': 40, 'dropout': 0.8},
+]
 
 
 def load_mnist_dataset(standardize=True, features_select=True):
@@ -90,13 +118,6 @@ def get_loss_function(kind='mixed', n_features=None, lam=None):
         raise NotImplementedError("Unknown loss function")
 
 
-def build_hyper_parameters_space():
-    """
-    Build the hyper-parameters list.
-    """
-    return (dict(zip(HYPER_PARAMETERS.keys(), values)) for values in itertools.product(*HYPER_PARAMETERS.values()))
-
-
 def benchmark_classification():
     """
     Run the benchmark of the classification task.
@@ -112,13 +133,10 @@ def benchmark_classification():
     # Get the loss function to use
     loss_fn = get_loss_function(kind='cross_entropy')
 
-    # Build the hyper-parameters space
-    hp_space = build_hyper_parameters_space()
-
     # Create the hyper-parameters space and results data frame
-    hp_space_df = pd.DataFrame(columns=list(HYPER_PARAMETERS.keys()) + ['val_loss', 'val_accuracy'])
+    results_df = pd.DataFrame(columns=list(HYPER_PARAMETERS[0].keys()) + ['val_loss', 'val_accuracy'])
 
-    for idx, hp in enumerate(hp_space):
+    for idx, hp in enumerate(HYPER_PARAMETERS):
         # Build the model
         spn = build_autoregressive_flow_spn(n_features, n_classes, **hp)
 
@@ -137,9 +155,9 @@ def benchmark_classification():
         history_df.to_csv(os.path.join(model_path, 'history.csv'))
 
         # Save the validation loss and accuracy at the end of the training
-        hp_space_df.loc[idx, hp.keys()] = hp
-        hp_space_df.loc[idx, 'val_loss'] = history.history['val_loss'][-1]
-        hp_space_df.loc[idx, 'val_accuracy'] = history.history['val_accuracy'][-1]
+        results_df.loc[idx, hp.keys()] = hp
+        results_df.loc[idx, 'val_loss'] = history.history['val_loss'][-1]
+        results_df.loc[idx, 'val_accuracy'] = history.history['val_accuracy'][-1]
 
     # Save the hyper-parameters space and results to file
-    hp_space_df.to_csv(os.path.join(RESULTS_DIR, 'hpspace.csv'))
+    results_df.to_csv(os.path.join(RESULTS_DIR, 'hpspace.csv'))
