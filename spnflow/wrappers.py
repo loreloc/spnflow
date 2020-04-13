@@ -3,8 +3,8 @@ from spnflow.layers import GaussianLayer, AutoregressiveFlowLayer
 
 
 def build_gaussian_spn(
-        n_features, n_classes, depth,
-        n_dists=2, n_sum=2, n_reps=1, dropout=1.0, seed=42
+        n_features, n_classes, depth=2, n_dists=2,
+        n_sum=2, n_reps=1, dropout=1.0, seed=42
         ):
     """
     Build a RAT-SPN model with Gaussian distributions at leaves.
@@ -27,8 +27,8 @@ def build_gaussian_spn(
 
 
 def build_autoregressive_flow_spn(
-        n_features, n_classes, depth,
-        hidden_units=[32, 32], factor=1e-5,
+        n_features, n_classes, depth=2,
+        hidden_units=[32, 32], regularization=1e-6,
         n_sum=2, n_reps=1, dropout=1.0, seed=42
         ):
     """
@@ -38,7 +38,7 @@ def build_autoregressive_flow_spn(
     :param n_classes: The number of classes.
     :param depth: The depth of the network.
     :param hidden_units: A list of the number of units for each layer for the autoregressive network.
-    :param factor: The regularization factor for the autoregressive network kernels.
+    :param regularization: The regularization factor for the autoregressive network kernels.
     :param n_sum: The number of sum nodes.
     :param n_reps: The number of independent repetitions of the region graph.
     :param dropout: The rate of the dropout layer.
@@ -48,6 +48,6 @@ def build_autoregressive_flow_spn(
     return build_spn(
         n_features, n_classes, depth,
         base_dist_class=AutoregressiveFlowLayer,
-        base_dist_params={'hidden_units': hidden_units, 'factor': factor},
+        base_dist_params={'hidden_units': hidden_units, 'regularization': regularization},
         n_sum=n_sum, n_reps=n_reps, dropout=dropout, seed=seed
     )

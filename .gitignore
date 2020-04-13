@@ -2,6 +2,7 @@
 *.h5
 venv
 __pycache__
+results/*
 docs/_build
 docs/_static
 docs/_templates

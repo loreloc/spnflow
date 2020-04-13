@@ -76,19 +76,19 @@ class AutoregressiveFlowLayer(tf.keras.layers.Layer):
     """
     Autoregressive Flow layer.
     """
-    def __init__(self, regions, hidden_units, factor, **kwargs):
+    def __init__(self, regions, hidden_units, regularization, **kwargs):
         """
         Initialize a Autoregressive Flow transformed gaussian input distribution layer.
 
         :param regions: The regions of the distributions.
         :param hidden_units: A list of the number of units for each layer for the autoregressive network.
-        :param factor: The regularization factor for the autoregressive network kernels.
+        :param regularization: The regularization factor for the autoregressive network kernels.
         :param kwargs: Other arguments.
         """
         super(AutoregressiveFlowLayer, self).__init__(**kwargs)
         self.regions = regions
         self.hidden_units = hidden_units
-        self.factor = factor
+        self.regularization = regularization
         self._mades = None
         self._mafs = None
 
@@ -102,7 +102,7 @@ class AutoregressiveFlowLayer(tf.keras.layers.Layer):
         self._mades = [
             tfp.bijectors.AutoregressiveNetwork(
                 params=2, hidden_units=self.hidden_units, activation='relu',
-                use_bias=False, kernel_regularizer=tf.keras.regularizers.l2(self.factor)
+                use_bias=False, kernel_regularizer=tf.keras.regularizers.l2(self.regularization)
             )
             for _ in self.regions
         ]
