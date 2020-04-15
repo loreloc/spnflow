@@ -134,7 +134,8 @@ def benchmark_classification():
     loss_fn = get_loss_function(kind='cross_entropy')
 
     # Create the hyper-parameters space and results data frame
-    results_df = pd.DataFrame(columns=list(HYPER_PARAMETERS[0].keys()) + ['val_loss', 'val_accuracy'])
+    csv_cols = list(HYPER_PARAMETERS[0].keys()) + ['n_params', 'val_loss', 'val_accuracy']
+    results_df = pd.DataFrame(columns=csv_cols)
 
     for idx, hp in enumerate(HYPER_PARAMETERS):
         # Build the model
@@ -156,6 +157,7 @@ def benchmark_classification():
 
         # Save the validation loss and accuracy at the end of the training
         results_df.loc[idx, hp.keys()] = hp
+        results_df.loc[idx, 'n_params'] = spn.count_params()
         results_df.loc[idx, 'val_loss'] = history.history['val_loss'][-1]
         results_df.loc[idx, 'val_accuracy'] = history.history['val_accuracy'][-1]
 
