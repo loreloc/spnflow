@@ -1,4 +1,3 @@
-import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 
@@ -206,7 +205,6 @@ class SumLayer(tf.keras.layers.Layer):
         :param input_shape: The input shape.
         """
         # Set the kernel shape
-        kernel_shape = None
         if self.is_root:
             kernel_shape = (1, self.n_sum, input_shape[1])
         else:
@@ -230,9 +228,9 @@ class SumLayer(tf.keras.layers.Layer):
         :return: The tensor result of the layer.
         """
         # Calculate the log likelihood using the "logsumexp" trick
-        x = tf.expand_dims(inputs, axis=-2)  # (n, p, 1, k)
+        x = tf.expand_dims(inputs, axis=-2)  # (n, p, 1, k) or (n, 1, k)
         w = tf.math.log_softmax(self.kernel, axis=2)  # (n, p, k)
-        x = tf.math.reduce_logsumexp(x + w, axis=-1)  # (n, p, s)
+        x = tf.math.reduce_logsumexp(x + w, axis=-1)  # (n, p, s) or (n, s)
         return x
 
 
@@ -240,7 +238,7 @@ class DropoutLayer(tf.keras.layers.Layer):
     """
     Dropout layer.
     """
-    def __init__(self, rate=0.9, **kwargs):
+    def __init__(self, rate=0.8, **kwargs):
         """
         Initialize the dropout layer.
 
@@ -264,6 +262,7 @@ class DropoutLayer(tf.keras.layers.Layer):
         Evaluate the layer given some inputs.
 
         :param inputs: The inputs.
+        :param training: An boolean indicating if the layer must be used in training mode or not.
         :return: The tensor result of the layer.
         """
         if not training:
