@@ -6,7 +6,7 @@ from spnflow.layers import ProductLayer, SumLayer, DropoutLayer
 def build_spn(
         n_features, n_classes, depth,
         base_dist_class, base_dist_params={},
-        n_sum=2, n_reps=1, dropout=1.0, seed=42
+        n_sum=2, n_repetitions=1, dropout=1.0, seed=42
         ):
     """
     Build a RAT-SPN model.
@@ -17,7 +17,7 @@ def build_spn(
     :param base_dist_class: The base distribution class.
     :param base_dist_params: The base distribution class's initialization parameters.
     :param n_sum: The number of sum nodes.
-    :param n_reps: The number of independent repetitions of the region graph.
+    :param n_repetitions: The number of independent repetitions of the region graph.
     :param dropout: The rate of the dropout layer.
     :param seed: The seed to use to randomly generate the region graph.
     :return: A Keras based RAT-SPN model.
@@ -26,7 +26,7 @@ def build_spn(
     region_graph = RegionGraph(n_features, depth=depth, seed=seed)
 
     # Generate the layers
-    layers = list(reversed(region_graph.random_graph(n_reps)))
+    layers = list(reversed(region_graph.random_graph(n_repetitions)))
 
     # Instantiate the sequential model
     model = tf.keras.Sequential()
