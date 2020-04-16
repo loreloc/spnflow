@@ -1,10 +1,7 @@
-import os
 import numpy as np
-import pandas as pd
 import tensorflow as tf
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import VarianceThreshold
-from spnflow.wrappers import build_autoregressive_flow_spn
 
 # The results directory
 RESULTS_DIR = "results"
@@ -14,45 +11,6 @@ EPOCHS = 100
 
 # The batch size
 BATCH_SIZE = 256
-
-# The hyper-parameters space.
-HYPER_PARAMETERS = [
-    {'depth': 3, 'hidden_units': [128, 128], 'n_sum': 10, 'n_reps': 20, 'dropout': 1.0},
-    {'depth': 3, 'hidden_units': [128, 128], 'n_sum': 10, 'n_reps': 20, 'dropout': 0.8},
-    {'depth': 3, 'hidden_units': [128, 128], 'n_sum': 10, 'n_reps': 40, 'dropout': 1.0},
-    {'depth': 3, 'hidden_units': [128, 128], 'n_sum': 10, 'n_reps': 40, 'dropout': 0.8},
-    {'depth': 3, 'hidden_units': [128, 128], 'n_sum': 20, 'n_reps': 20, 'dropout': 1.0},
-    {'depth': 3, 'hidden_units': [128, 128], 'n_sum': 20, 'n_reps': 20, 'dropout': 0.8},
-    {'depth': 3, 'hidden_units': [128, 128], 'n_sum': 20, 'n_reps': 40, 'dropout': 1.0},
-    {'depth': 3, 'hidden_units': [128, 128], 'n_sum': 20, 'n_reps': 40, 'dropout': 0.8},
-
-    {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 10, 'n_reps': 20, 'dropout': 1.0},
-    {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 10, 'n_reps': 20, 'dropout': 0.8},
-    {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 10, 'n_reps': 40, 'dropout': 1.0},
-    {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 10, 'n_reps': 40, 'dropout': 0.8},
-    {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 20, 'n_reps': 20, 'dropout': 1.0},
-    {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 20, 'n_reps': 20, 'dropout': 0.8},
-    {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 20, 'n_reps': 40, 'dropout': 1.0},
-    {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 20, 'n_reps': 40, 'dropout': 0.8},
-
-    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 10, 'n_reps': 20, 'dropout': 1.0},
-    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 10, 'n_reps': 20, 'dropout': 0.8},
-    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 10, 'n_reps': 40, 'dropout': 1.0},
-    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 10, 'n_reps': 40, 'dropout': 0.8},
-    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 20, 'n_reps': 20, 'dropout': 1.0},
-    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 20, 'n_reps': 20, 'dropout': 0.8},
-    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 20, 'n_reps': 40, 'dropout': 1.0},
-    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 20, 'n_reps': 40, 'dropout': 0.8},
-
-    {'depth': 6, 'hidden_units': [16, 16], 'n_sum': 10, 'n_reps': 20, 'dropout': 1.0},
-    {'depth': 6, 'hidden_units': [16, 16], 'n_sum': 10, 'n_reps': 20, 'dropout': 0.8},
-    {'depth': 6, 'hidden_units': [16, 16], 'n_sum': 10, 'n_reps': 40, 'dropout': 1.0},
-    {'depth': 6, 'hidden_units': [16, 16], 'n_sum': 10, 'n_reps': 40, 'dropout': 0.8},
-    {'depth': 6, 'hidden_units': [16, 16], 'n_sum': 20, 'n_reps': 20, 'dropout': 1.0},
-    {'depth': 6, 'hidden_units': [16, 16], 'n_sum': 20, 'n_reps': 20, 'dropout': 0.8},
-    {'depth': 6, 'hidden_units': [16, 16], 'n_sum': 20, 'n_reps': 40, 'dropout': 1.0},
-    {'depth': 6, 'hidden_units': [16, 16], 'n_sum': 20, 'n_reps': 40, 'dropout': 0.8},
-]
 
 
 def load_mnist_dataset(standardize=True, features_select=True):
@@ -119,66 +77,3 @@ def get_loss_function(kind='mixed', n_features=None, lam=None):
         return cross_entropy
     else:
         raise NotImplementedError("Unknown loss function")
-
-
-def run_benchmark(name=None, kind='classification'):
-    """
-    Run the benchmark.
-
-    :param name: The name of the benchmark. It'll be used as folder name of the results.
-    :param kind: The kind of benchmarks.
-                 It can be 'discriminative' for classification and 'generative' for maximum likelihood learning.
-    """
-    assert name is not None
-
-    # Make sure results directory exists
-    directory = os.path.join(RESULTS_DIR, name)
-    if not os.path.isdir(directory):
-        os.mkdir(directory)
-
-    # Load the MNIST dataset
-    x_train, y_train, x_test, y_test = load_mnist_dataset()
-    n_features = x_train.shape[1]
-    n_classes = y_train.shape[1]
-
-    # Get the loss function to use
-    if kind == 'discriminative':
-        loss_fn = get_loss_function(kind='cross_entropy')
-    elif kind == 'generative':
-        loss_fn = get_loss_function(kind='log_loss', n_features=n_features)
-    else:
-        raise NotImplementedError("Unknown benchmark kind " + kind)
-
-    # Create the hyper-parameters space and results data frame
-    csv_cols = list(HYPER_PARAMETERS[0].keys()) + ['n_params', 'val_loss', 'val_accuracy']
-    results_df = pd.DataFrame(columns=csv_cols)
-
-    for idx, hp in enumerate(HYPER_PARAMETERS):
-        # Build the model
-        spn = build_autoregressive_flow_spn(n_features, n_classes, **hp)
-
-        # Compile the model
-        spn.compile(optimizer='adam', loss=loss_fn, metrics=['accuracy'])
-
-        # Fit the model
-        history = spn.fit(x_train, y_train, beatch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(x_test, y_test))
-
-        # Make directory
-        model_path = os.path.join(directory, str(idx).zfill(4))
-        if not os.path.isdir(model_path):
-            os.mkdir(model_path)
-
-        # Save the history
-        history_df = pd.DataFrame(history.history)
-        history_df.to_csv(os.path.join(model_path, 'history.csv'))
-
-        # Save some information about the model
-        results_df.loc[idx, hp.keys()] = hp
-        results_df.loc[idx, 'n_params'] = spn.count_params()
-
-        # Save the validation loss and accuracy at the end of the training
-        results_df.loc[idx, 'val_loss'] = history.history['val_loss'][-1]
-        results_df.loc[idx, 'val_accuracy'] = history.history['val_accuracy'][-1]
-
-    # Save the hyper-parameters space and results to file
-    results_df.to_csv(os.path.join(directory, 'hpspace.csv'))
