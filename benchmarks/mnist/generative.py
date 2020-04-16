@@ -5,11 +5,6 @@ from benchmarks.mnist.utils import *
 
 # The hyper-parameters space.
 HYPER_PARAMETERS = [
-    {'depth': 3, 'hidden_units': [128, 128], 'n_sum': 10, 'n_repetitions': 20},
-    {'depth': 3, 'hidden_units': [128, 128], 'n_sum': 10, 'n_repetitions': 40},
-    {'depth': 3, 'hidden_units': [128, 128], 'n_sum': 20, 'n_repetitions': 20},
-    {'depth': 3, 'hidden_units': [128, 128], 'n_sum': 20, 'n_repetitions': 40},
-
     {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 10, 'n_repetitions': 20},
     {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 10, 'n_repetitions': 40},
     {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 20, 'n_repetitions': 20},
