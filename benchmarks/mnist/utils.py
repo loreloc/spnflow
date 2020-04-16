@@ -6,13 +6,16 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import VarianceThreshold
 from spnflow.wrappers import build_autoregressive_flow_spn
 
+# The results directory
+RESULTS_DIR = "results"
 
-RESULTS_DIR = "results/"
-
+# The number of training epochs
 EPOCHS = 100
 
+# The batch size
 BATCH_SIZE = 256
 
+# The hyper-parameters space.
 HYPER_PARAMETERS = [
     {'depth': 3, 'hidden_units': [128, 128], 'n_sum': 10, 'n_reps': 20, 'dropout': 1.0},
     {'depth': 3, 'hidden_units': [128, 128], 'n_sum': 10, 'n_reps': 20, 'dropout': 0.8},
@@ -118,12 +121,18 @@ def get_loss_function(kind='mixed', n_features=None, lam=None):
         raise NotImplementedError("Unknown loss function")
 
 
-def benchmark_classification():
+def run_benchmark(name=None, kind='classification'):
     """
-    Run the benchmark of the classification task.
+    Run the benchmark.
+
+    :param name: The name of the benchmark. It'll be used as folder name of the results.
+    :param kind: The kind of benchmarks.
+                 It can be 'discriminative' for classification and 'generative' for maximum likelihood learning.
     """
+    assert name is not None
+
     # Make sure results directory exists
-    os.mkdir(RESULTS_DIR)
+    os.mkdir(os.path.join(RESULTS_DIR, name))
 
     # Load the MNIST dataset
     x_train, y_train, x_test, y_test = load_mnist_dataset()
@@ -131,7 +140,12 @@ def benchmark_classification():
     n_classes = y_train.shape[1]
 
     # Get the loss function to use
-    loss_fn = get_loss_function(kind='cross_entropy')
+    if kind == 'discriminative':
+        loss_fn = get_loss_function(kind='cross_entropy')
+    elif kind == 'generative':
+        loss_fn = get_loss_function(kind='log_loss', n_features=n_features)
+    else:
+        raise NotImplementedError("Unknown benchmark kind " + kind)
 
     # Create the hyper-parameters space and results data frame
     csv_cols = list(HYPER_PARAMETERS[0].keys()) + ['n_params', 'val_loss', 'val_accuracy']
@@ -155,9 +169,11 @@ def benchmark_classification():
         history_df = pd.DataFrame(history.history)
         history_df.to_csv(os.path.join(model_path, 'history.csv'))
 
-        # Save the validation loss and accuracy at the end of the training
+        # Save some information about the model
         results_df.loc[idx, hp.keys()] = hp
         results_df.loc[idx, 'n_params'] = spn.count_params()
+
+        # Save the validation loss and accuracy at the end of the training
         results_df.loc[idx, 'val_loss'] = history.history['val_loss'][-1]
         results_df.loc[idx, 'val_accuracy'] = history.history['val_accuracy'][-1]
 
