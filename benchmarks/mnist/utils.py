@@ -132,7 +132,9 @@ def run_benchmark(name=None, kind='classification'):
     assert name is not None
 
     # Make sure results directory exists
-    os.mkdir(os.path.join(RESULTS_DIR, name))
+    directory = os.path.join(RESULTS_DIR, name)
+    if not os.path.isdir(directory):
+        os.mkdir(directory)
 
     # Load the MNIST dataset
     x_train, y_train, x_test, y_test = load_mnist_dataset()
@@ -162,8 +164,9 @@ def run_benchmark(name=None, kind='classification'):
         history = spn.fit(x_train, y_train, beatch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(x_test, y_test))
 
         # Make directory
-        model_path = os.path.join(RESULTS_DIR, str(idx).zfill(4))
-        os.mkdir(model_path)
+        model_path = os.path.join(directory, str(idx).zfill(4))
+        if not os.path.isdir(model_path):
+            os.mkdir(model_path)
 
         # Save the history
         history_df = pd.DataFrame(history.history)
@@ -178,4 +181,4 @@ def run_benchmark(name=None, kind='classification'):
         results_df.loc[idx, 'val_accuracy'] = history.history['val_accuracy'][-1]
 
     # Save the hyper-parameters space and results to file
-    results_df.to_csv(os.path.join(RESULTS_DIR, 'hpspace.csv'))
+    results_df.to_csv(os.path.join(directory, 'hpspace.csv'))
