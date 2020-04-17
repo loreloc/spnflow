@@ -65,10 +65,11 @@ if __name__ == '__main__':
     n_features = x_train.shape[1]
 
     # Build the RAT-SPN model
-    depth = 4
+    depth = 5
     spn = build_autoregressive_flow_spn(
         n_features, n_classes, depth,
-        hidden_units=[32, 32], regularization=1e-6, n_sum=10, n_repetitions=10, dropout=0.8
+        n_batch=2, hidden_units=[32, 32], regularization=1e-6,
+        n_sum=10, n_repetitions=10, dropout=0.8
     )
 
     # Print some summary

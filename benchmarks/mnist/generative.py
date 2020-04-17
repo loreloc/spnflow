@@ -5,20 +5,20 @@ from benchmarks.mnist.utils import *
 
 # The hyper-parameters space.
 HYPER_PARAMETERS = [
+    {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 10, 'n_repetitions': 10},
     {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 10, 'n_repetitions': 20},
-    {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 10, 'n_repetitions': 40},
+    {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 20, 'n_repetitions': 10},
     {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 20, 'n_repetitions': 20},
-    {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 20, 'n_repetitions': 40},
 
+    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 10, 'n_repetitions': 10},
     {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 10, 'n_repetitions': 20},
-    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 10, 'n_repetitions': 40},
+    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 20, 'n_repetitions': 10},
     {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 20, 'n_repetitions': 20},
-    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 20, 'n_repetitions': 40},
 
+    {'depth': 6, 'hidden_units': [16, 16], 'n_sum': 10, 'n_repetitions': 10},
     {'depth': 6, 'hidden_units': [16, 16], 'n_sum': 10, 'n_repetitions': 20},
-    {'depth': 6, 'hidden_units': [16, 16], 'n_sum': 10, 'n_repetitions': 40},
+    {'depth': 6, 'hidden_units': [16, 16], 'n_sum': 20, 'n_repetitions': 10},
     {'depth': 6, 'hidden_units': [16, 16], 'n_sum': 20, 'n_repetitions': 20},
-    {'depth': 6, 'hidden_units': [16, 16], 'n_sum': 20, 'n_repetitions': 40},
 ]
 
 if __name__ == '__main__':
@@ -36,13 +36,16 @@ if __name__ == '__main__':
     csv_cols.extend(['n_params', 'val_loss'])
     results_df = pd.DataFrame(columns=csv_cols)
 
-    # Set some hyper-parameters
-    regularization = 1e-3
+    # Get the loss function
     loss_fn = get_loss_function(kind='cross_entropy', n_features=n_features)
 
     for idx, hp in enumerate(HYPER_PARAMETERS):
+        # Set some fixed hyper-parameters
+        hp['n_batch'] = 4
+        hp['regularization'] = 1e-3
+
         # Build the model
-        spn = build_autoregressive_flow_spn(n_features, n_classes=1, regularization=regularization, **hp)
+        spn = build_autoregressive_flow_spn(n_features, n_classes=1, **hp)
 
         # Compile the model
         spn.compile(optimizer='adam', loss=loss_fn)

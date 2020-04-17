@@ -6,17 +6,17 @@ class GaussianLayer(tf.keras.layers.Layer):
     """
     The Gaussian distributions input layer class.
     """
-    def __init__(self, regions, n_dists, **kwargs):
+    def __init__(self, regions, n_batch, **kwargs):
         """
         Initialize a Gaussian distributions input layer.
 
         :param regions: The regions of the distributions.
-        :param n_dists: The number of distributions.
+        :param n_batch: The number of distributions.
         :param kwargs: Other arguments.
         """
         super(GaussianLayer, self).__init__(**kwargs)
         self.regions = regions
-        self.n_dists = n_dists
+        self.n_batch = n_batch
         self._means = None
         self._scales = None
         self._distributions = None
@@ -30,7 +30,7 @@ class GaussianLayer(tf.keras.layers.Layer):
         # Create the means variables
         self._means = [
             tf.Variable(
-                tf.random.normal(shape=(self.n_dists, len(r)), stddev=1e-1),
+                tf.random.normal(shape=(self.n_batch, len(r)), stddev=1e-1),
                 trainable=True
             )
             for r in self.regions
@@ -39,7 +39,7 @@ class GaussianLayer(tf.keras.layers.Layer):
         # Create the scales variables
         self._scales = [
             tf.Variable(
-                5e-1 + 1e-1 * tf.math.sigmoid(tf.random.normal(shape=(self.n_dists, len(r)))),
+                5e-1 + 1e-1 * tf.math.sigmoid(tf.random.normal(shape=(self.n_batch, len(r)))),
                 trainable=True
             )
             for r in self.regions
@@ -75,21 +75,23 @@ class AutoregressiveFlowLayer(tf.keras.layers.Layer):
     """
     Autoregressive Flow layer.
     """
-    def __init__(self, regions, hidden_units, regularization, **kwargs):
+    def __init__(self, regions, n_batch, hidden_units, regularization, **kwargs):
         """
         Initialize a Autoregressive Flow transformed gaussian input distribution layer.
 
         :param regions: The regions of the distributions.
+        :param n_batch: The number of distributions.
         :param hidden_units: A list of the number of units for each layer for the autoregressive network.
         :param regularization: The regularization factor for the autoregressive network kernels.
         :param kwargs: Other arguments.
         """
         super(AutoregressiveFlowLayer, self).__init__(**kwargs)
         self.regions = regions
+        self.n_batch = n_batch
         self.hidden_units = hidden_units
         self.regularization = regularization
-        self._mades = None
         self._mafs = None
+        self._mades = None
 
     def build(self, input_shape):
         """
@@ -99,21 +101,27 @@ class AutoregressiveFlowLayer(tf.keras.layers.Layer):
         """
         # Initialize the MADEs models (one for each region)
         self._mades = [
-            tfp.bijectors.AutoregressiveNetwork(
-                params=2, hidden_units=self.hidden_units, activation='relu',
-                use_bias=False, kernel_regularizer=tf.keras.regularizers.l2(self.regularization)
-            )
+            [
+                tfp.bijectors.AutoregressiveNetwork(
+                    params=2, input_order='random', hidden_units=self.hidden_units, activation='relu',
+                    use_bias=False, kernel_regularizer=tf.keras.regularizers.l2(self.regularization)
+                )
+                for _ in range(self.n_batch)
+            ]
             for _ in self.regions
         ]
 
         # Initialize the transformed distributions (Masked Autoregressive Flow (MAF))
         self._mafs = [
-            tfp.distributions.TransformedDistribution(
-                distribution=tfp.distributions.Normal(loc=0.0, scale=1.0),
-                bijector=tfp.bijectors.MaskedAutoregressiveFlow(made),
-                event_shape=[len(r)]
-            )
-            for r, made in zip(self.regions, self._mades)
+            [
+                tfp.distributions.TransformedDistribution(
+                    distribution=tfp.distributions.Normal(loc=0.0, scale=1.0),
+                    bijector=tfp.bijectors.MaskedAutoregressiveFlow(made),
+                    event_shape=[len(r)]
+                )
+                for made in mades
+            ]
+            for r, mades in zip(self.regions, self._mades)
         ]
 
         # Call the parent class's build method
@@ -127,11 +135,18 @@ class AutoregressiveFlowLayer(tf.keras.layers.Layer):
         :param inputs: The inputs.
         :return: The log likelihood of each distribution leaf.
         """
+        # Mask the inputs
+        inputs = [
+            tf.gather(inputs, r, axis=1)
+            for r in self.regions
+        ]
+
         # Concatenate the results of each distribution's result
         ll = [
-            tf.expand_dims(d.log_prob(tf.gather(inputs, r, axis=1)), axis=1)
-            for r, d in zip(self.regions, self._mafs)
+            tf.stack([d.log_prob(y) for d in mafs], axis=1)
+            for y, mafs in zip(inputs, self._mafs)
         ]
+
         x = tf.stack(ll, axis=1)
         return x
 
