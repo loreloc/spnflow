@@ -72,84 +72,6 @@ class GaussianLayer(tf.keras.layers.Layer):
         return x
 
 
-class AutoregressiveFlowLayer(tf.keras.layers.Layer):
-    """
-    Autoregressive Flow layer.
-    """
-    def __init__(self, regions, n_batch, hidden_units, regularization, **kwargs):
-        """
-        Initialize a Autoregressive Flow transformed gaussian input distribution layer.
-
-        :param regions: The regions of the distributions.
-        :param n_batch: The number of distributions.
-        :param hidden_units: A list of the number of units for each layer for the autoregressive network.
-        :param regularization: The regularization factor for the autoregressive network kernels.
-        :param kwargs: Other arguments.
-        """
-        super(AutoregressiveFlowLayer, self).__init__(**kwargs)
-        self.regions = regions
-        self.n_batch = n_batch
-        self.hidden_units = hidden_units
-        self.regularization = regularization
-        self._mafs = None
-        self._mades = None
-
-    def build(self, input_shape):
-        """
-        Build the layer.
-
-        :param input_shape: The input shape.
-        """
-        # Initialize the MADEs models (multiple batches for each region)
-        self._mades = []
-        for _ in self.regions:
-            batch_mades = []
-            for _ in range(self.n_batch):
-                made = tfp.bijectors.AutoregressiveNetwork(
-                    params=2, input_order='random',
-                    hidden_units=self.hidden_units, activation='relu',
-                    use_bias=False, kernel_regularizer=tf.keras.regularizers.l2(self.regularization)
-                )
-                batch_mades.append(made)
-            self._mades.append(batch_mades)
-
-        # Initialize the transformed distributions (MAFs)
-        self._mafs = []
-        for region, batch_mades in zip(self.regions, self._mades):
-            batch_dists = []
-            for made in batch_mades:
-                dist = tfp.distributions.TransformedDistribution(
-                    distribution=tfp.distributions.Normal(loc=0.0, scale=1.0),
-                    bijector=tfp.bijectors.MaskedAutoregressiveFlow(made),
-                    event_shape=[len(region)]
-                )
-                batch_dists.append(dist)
-            self._mafs.append(batch_dists)
-
-        # Call the parent class's build method
-        super(AutoregressiveFlowLayer, self).build(input_shape)
-
-    @tf.function
-    def call(self, inputs):
-        """
-        Execute the layer on some inputs.
-
-        :param inputs: The inputs.
-        :return: The log likelihood of each distribution leaf.
-        """
-        # Mask the inputs over the regions
-        inputs = [tf.gather(inputs, r, axis=1) for r in self.regions]
-
-        # Concatenate the results of each batch distributions
-        ll = [
-            tf.stack([d.log_prob(y) for d in batch_dists], axis=1)
-            for y, batch_dists in zip(inputs, self._mafs)
-        ]
-
-        x = tf.stack(ll, axis=1)
-        return x
-
-
 class ProductLayer(tf.keras.layers.Layer):
     """
     Product node layer class.
@@ -199,17 +121,15 @@ class SumLayer(tf.keras.layers.Layer):
     """
     Sum node layer.
     """
-    def __init__(self, n_sum, is_root=False, **kwargs):
+    def __init__(self, n_sum, **kwargs):
         """
         Initialize the sum layer.
 
         :param n_sum: The number of sum node per region.
-        :param is_root: A flag indicating if the sum layer is the root layer.
         :param kwargs: Parent class arguments.
         """
         super(SumLayer, self).__init__(**kwargs)
         self.n_sum = n_sum
-        self.is_root = is_root
         self.kernel = None
 
     def build(self, input_shape):
@@ -219,10 +139,7 @@ class SumLayer(tf.keras.layers.Layer):
         :param input_shape: The input shape.
         """
         # Set the kernel shape
-        if self.is_root:
-            kernel_shape = (1, self.n_sum, input_shape[1])
-        else:
-            kernel_shape = (input_shape[1], self.n_sum, input_shape[2])
+        kernel_shape = (input_shape[1], self.n_sum, input_shape[2])
 
         # Construct the weights
         self.kernel = tf.Variable(
@@ -242,9 +159,57 @@ class SumLayer(tf.keras.layers.Layer):
         :return: The tensor result of the layer.
         """
         # Calculate the log likelihood using the "logsumexp" trick
-        x = tf.expand_dims(inputs, axis=-2)  # (n, p, 1, k) or (n, 1, k)
+        x = tf.expand_dims(inputs, axis=2)  # (n, p, 1, k)
         w = tf.math.log_softmax(self.kernel, axis=2)  # (n, p, k)
-        x = tf.math.reduce_logsumexp(x + w, axis=-1)  # (n, p, s) or (n, s)
+        x = tf.math.reduce_logsumexp(x + w, axis=-1)  # (n, p, s)
+        return x
+
+
+class RootLayer(tf.keras.layers.Layer):
+    """
+    Root sum node layer.
+    """
+    def __init__(self, n_classes, **kwargs):
+        """
+        Initialize the root layer.
+
+        :param n_classes: The number of classes.
+        :param kwargs: Parent class arguments.
+        """
+        super(RootLayer, self).__init__(**kwargs)
+        self.n_classes = n_classes
+        self.kernel = None
+
+    def build(self, input_shape):
+        """
+        Build the layer.
+
+        :param input_shape: The input shape.
+        """
+        # Set the kernel shape
+        kernel_shape = (self.n_classes, input_shape[1])
+
+        # Construct the weights
+        self.kernel = tf.Variable(
+            initial_value=tf.random.normal(kernel_shape, stddev=1e-1),
+            trainable=True
+        )
+
+        # Call the parent class build method
+        super(RootLayer, self).build(input_shape)
+
+    @tf.function
+    def call(self, inputs):
+        """
+        Evaluate the layer given some inputs.
+
+        :param inputs: The inputs.
+        :return: The tensor result of the layer.
+        """
+        # Calculate the log likelihood using the "logsumexp" trick
+        x = tf.expand_dims(inputs, axis=1)  # (n, 1, k)
+        w = tf.math.log_softmax(self.kernel, axis=1)  # (n, k)
+        x = tf.math.reduce_logsumexp(x + w, axis=-1)  # (n, s)
         return x
 
 
