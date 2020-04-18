@@ -67,6 +67,7 @@ class GaussianLayer(tf.keras.layers.Layer):
             d.log_prob(tf.expand_dims(tf.gather(inputs, r, axis=1), axis=1))
             for r, d in zip(self.regions, self._distributions)
         ]
+
         x = tf.stack(ll, axis=1)
         return x
 
@@ -99,30 +100,31 @@ class AutoregressiveFlowLayer(tf.keras.layers.Layer):
 
         :param input_shape: The input shape.
         """
-        # Initialize the MADEs models (one for each region)
-        self._mades = [
-            [
-                tfp.bijectors.AutoregressiveNetwork(
-                    params=2, input_order='random', hidden_units=self.hidden_units, activation='relu',
+        # Initialize the MADEs models (multiple batches for each region)
+        self._mades = []
+        for _ in self.regions:
+            batch_mades = []
+            for _ in range(self.n_batch):
+                made = tfp.bijectors.AutoregressiveNetwork(
+                    params=2, input_order='random',
+                    hidden_units=self.hidden_units, activation='relu',
                     use_bias=False, kernel_regularizer=tf.keras.regularizers.l2(self.regularization)
                 )
-                for _ in range(self.n_batch)
-            ]
-            for _ in self.regions
-        ]
+                batch_mades.append(made)
+            self._mades.append(batch_mades)
 
-        # Initialize the transformed distributions (Masked Autoregressive Flow (MAF))
-        self._mafs = [
-            [
-                tfp.distributions.TransformedDistribution(
+        # Initialize the transformed distributions (MAFs)
+        self._mafs = []
+        for region, batch_mades in zip(self.regions, self._mades):
+            batch_dists = []
+            for made in batch_mades:
+                dist = tfp.distributions.TransformedDistribution(
                     distribution=tfp.distributions.Normal(loc=0.0, scale=1.0),
                     bijector=tfp.bijectors.MaskedAutoregressiveFlow(made),
-                    event_shape=[len(r)]
+                    event_shape=[len(region)]
                 )
-                for made in mades
-            ]
-            for r, mades in zip(self.regions, self._mades)
-        ]
+                batch_dists.append(dist)
+            self._mafs.append(batch_dists)
 
         # Call the parent class's build method
         super(AutoregressiveFlowLayer, self).build(input_shape)
@@ -135,16 +137,13 @@ class AutoregressiveFlowLayer(tf.keras.layers.Layer):
         :param inputs: The inputs.
         :return: The log likelihood of each distribution leaf.
         """
-        # Mask the inputs
-        inputs = [
-            tf.gather(inputs, r, axis=1)
-            for r in self.regions
-        ]
+        # Mask the inputs over the regions
+        inputs = [tf.gather(inputs, r, axis=1) for r in self.regions]
 
-        # Concatenate the results of each distribution's result
+        # Concatenate the results of each batch distributions
         ll = [
-            tf.stack([d.log_prob(y) for d in mafs], axis=1)
-            for y, mafs in zip(inputs, self._mafs)
+            tf.stack([d.log_prob(y) for d in batch_dists], axis=1)
+            for y, batch_dists in zip(inputs, self._mafs)
         ]
 
         x = tf.stack(ll, axis=1)

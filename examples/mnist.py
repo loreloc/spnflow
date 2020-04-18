@@ -68,7 +68,7 @@ if __name__ == '__main__':
     depth = 5
     spn = build_autoregressive_flow_spn(
         n_features, n_classes, depth,
-        n_batch=2, hidden_units=[32, 32], regularization=1e-6,
+        n_batch=4, hidden_units=[32, 32], regularization=1e-6,
         n_sum=10, n_repetitions=10, dropout=0.8
     )
 
