@@ -3,13 +3,14 @@ from spnflow.layers.flow import *
 from spnflow.utils.region import RegionGraph
 
 
-def build_flow_spn(
+def build_rat_spn_flow(
         n_features,
         n_classes,
         depth=2,
         n_batch=2,
         hidden_units=[32, 32],
         regularization=1e-6,
+        activation='relu',
         n_sum=2,
         n_repetitions=1,
         dropout=1.0,
@@ -24,6 +25,7 @@ def build_flow_spn(
     :param n_batch: The number of distributions.
     :param hidden_units: A list of the number of units for each layer for the autoregressive network.
     :param regularization: The regularization factor for the autoregressive network kernels.
+    :param activation: The activation function for the autoregressive network.
     :param n_sum: The number of sum nodes.
     :param n_repetitions: The number of independent repetitions of the region graph.
     :param dropout: The rate of the dropout layer.
@@ -40,7 +42,15 @@ def build_flow_spn(
     model = tf.keras.Sequential()
 
     # Add the input distributions layer
-    model.add(AutoregressiveFlowLayer(layers[0], n_batch, hidden_units, regularization, input_shape=(n_features,)))
+    input_layer = AutoregressiveFlowLayer(
+        layers[0],
+        n_batch,
+        hidden_units,
+        regularization,
+        activation,
+        input_shape=(n_features,)
+    )
+    model.add(input_layer)
 
     # Alternate between product and sum layer
     for i in range(1, len(layers) - 1):

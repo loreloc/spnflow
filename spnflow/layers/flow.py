@@ -6,7 +6,7 @@ class AutoregressiveFlowLayer(tf.keras.layers.Layer):
     """
     Autoregressive Flow layer.
     """
-    def __init__(self, regions, n_batch, hidden_units, regularization, **kwargs):
+    def __init__(self, regions, n_batch, hidden_units, regularization, activation, **kwargs):
         """
         Initialize a Autoregressive Flow transformed gaussian input distribution layer.
 
@@ -14,6 +14,7 @@ class AutoregressiveFlowLayer(tf.keras.layers.Layer):
         :param n_batch: The number of distributions.
         :param hidden_units: A list of the number of units for each layer for the autoregressive network.
         :param regularization: The regularization factor for the autoregressive network kernels.
+        :param activation: The activation function for the autoregressive network.
         :param kwargs: Other arguments.
         """
         super(AutoregressiveFlowLayer, self).__init__(**kwargs)
@@ -21,6 +22,7 @@ class AutoregressiveFlowLayer(tf.keras.layers.Layer):
         self.n_batch = n_batch
         self.hidden_units = hidden_units
         self.regularization = regularization
+        self.activation = activation
         self._mafs = None
         self._mades = None
 
@@ -37,7 +39,7 @@ class AutoregressiveFlowLayer(tf.keras.layers.Layer):
             for _ in range(self.n_batch):
                 made = tfp.bijectors.AutoregressiveNetwork(
                     params=2, input_order='random',
-                    hidden_units=self.hidden_units, activation='relu',
+                    hidden_units=self.hidden_units, activation=self.activation,
                     use_bias=False, kernel_regularizer=tf.keras.regularizers.l2(self.regularization)
                 )
                 batch_mades.append(made)
