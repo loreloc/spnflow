@@ -3,7 +3,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import VarianceThreshold
-from spnflow.model.rat import build_rat_spn
+from spnflow.model.flow import build_rat_spn_flow
 
 
 def plot_fit_history(history, metric='loss', title='Untitled'):
@@ -65,13 +65,16 @@ if __name__ == '__main__':
     n_features = x_train.shape[1]
 
     # Build the RAT-SPN model
-    spn = build_rat_spn(
+    spn = build_rat_spn_flow(
         n_features,
         n_classes,
         depth=4,
         n_batch=4,
+        hidden_units=[64, 64],
+        regularization=1e-6,
+        activation='relu',
         n_sum=10,
-        n_repetitions=10,
+        n_repetitions=2,
         dropout=0.8
     )
 

@@ -55,11 +55,12 @@ class GaussianLayer(tf.keras.layers.Layer):
         super(GaussianLayer, self).build(input_shape)
 
     @tf.function
-    def call(self, inputs):
+    def call(self, inputs, **kwargs):
         """
         Execute the layer on some inputs.
 
         :param inputs: The inputs.
+        :param kwargs: Other arguments.
         :return: The log likelihood of each distribution leaf.
         """
         # Concatenate the results of each distribution's batch result
@@ -101,11 +102,12 @@ class ProductLayer(tf.keras.layers.Layer):
         super(ProductLayer, self).build(input_shape)
 
     @tf.function
-    def call(self, inputs):
+    def call(self, inputs, **kwargs):
         """
         Evaluate the layer given some inputs.
 
         :param inputs: The inputs.
+        :param kwargs: Other arguments.
         :return: The tensor result of the layer.
         """
         # Compute the outer product (the "outer sum" in log domain)
@@ -151,11 +153,12 @@ class SumLayer(tf.keras.layers.Layer):
         super(SumLayer, self).build(input_shape)
 
     @tf.function
-    def call(self, inputs):
+    def call(self, inputs, **kwargs):
         """
         Evaluate the layer given some inputs.
 
         :param inputs: The inputs.
+        :param kwargs: Other arguments.
         :return: The tensor result of the layer.
         """
         # Calculate the log likelihood using the "logsumexp" trick
@@ -199,11 +202,12 @@ class RootLayer(tf.keras.layers.Layer):
         super(RootLayer, self).build(input_shape)
 
     @tf.function
-    def call(self, inputs):
+    def call(self, inputs, **kwargs):
         """
         Evaluate the layer given some inputs.
 
         :param inputs: The inputs.
+        :param kwargs: Other arguments.
         :return: The tensor result of the layer.
         """
         # Calculate the log likelihood using the "logsumexp" trick
@@ -236,12 +240,13 @@ class DropoutLayer(tf.keras.layers.Layer):
         super(DropoutLayer, self).build(input_shape)
 
     @tf.function
-    def call(self, inputs, training=None):
+    def call(self, inputs, training=None, **kwargs):
         """
         Evaluate the layer given some inputs.
 
         :param inputs: The inputs.
         :param training: An boolean indicating if the layer must be used in training mode or not.
+        :param kwargs: Other arguments.
         :return: The tensor result of the layer.
         """
         if not training:

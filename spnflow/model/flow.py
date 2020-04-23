@@ -42,7 +42,7 @@ def build_rat_spn_flow(
     model = tf.keras.Sequential()
 
     # Add the input distributions layer
-    input_layer = AutoregressiveFlowLayer(
+    input_layer = MAFLayer(
         layers[0],
         n_batch,
         hidden_units,
