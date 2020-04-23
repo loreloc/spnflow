@@ -54,7 +54,6 @@ class GaussianLayer(tf.keras.layers.Layer):
         # Call the parent class's build method
         super(GaussianLayer, self).build(input_shape)
 
-    @tf.function
     def call(self, inputs, **kwargs):
         """
         Execute the layer on some inputs.
@@ -101,7 +100,6 @@ class ProductLayer(tf.keras.layers.Layer):
         # Call the parent class build method
         super(ProductLayer, self).build(input_shape)
 
-    @tf.function
     def call(self, inputs, **kwargs):
         """
         Evaluate the layer given some inputs.
@@ -152,7 +150,6 @@ class SumLayer(tf.keras.layers.Layer):
         # Call the parent class build method
         super(SumLayer, self).build(input_shape)
 
-    @tf.function
     def call(self, inputs, **kwargs):
         """
         Evaluate the layer given some inputs.
@@ -201,7 +198,6 @@ class RootLayer(tf.keras.layers.Layer):
         # Call the parent class build method
         super(RootLayer, self).build(input_shape)
 
-    @tf.function
     def call(self, inputs, **kwargs):
         """
         Evaluate the layer given some inputs.
@@ -239,7 +235,6 @@ class DropoutLayer(tf.keras.layers.Layer):
         # Call the parent class build method
         super(DropoutLayer, self).build(input_shape)
 
-    @tf.function
     def call(self, inputs, training=None, **kwargs):
         """
         Evaluate the layer given some inputs.

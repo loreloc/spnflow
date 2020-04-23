@@ -6,14 +6,13 @@ class BatchMAFLayer(tf.keras.layers.Layer):
     """
     Multiple batch Masked Autoregressive Flow sub-layer.
     """
-    def __init__(self, region, n_batch, hidden_units, regularization, activation, **kwargs):
+    def __init__(self, region, n_batch, hidden_units, activation, **kwargs):
         """
         Initialize a Autoregressive Flow transformed gaussian input distribution layer.
 
         :param region: The regions of the distributions.
         :param n_batch: The number of distributions.
         :param hidden_units: A list of the number of units for each layer for the autoregressive network.
-        :param regularization: The regularization factor for the autoregressive network kernels.
         :param activation: The activation function for the autoregressive network.
         :param kwargs: Other arguments.
         """
@@ -21,7 +20,6 @@ class BatchMAFLayer(tf.keras.layers.Layer):
         self.region = region
         self.n_batch = n_batch
         self.hidden_units = hidden_units
-        self.regularization = regularization
         self.activation = activation
         self._mades = None
         self._distributions = None
@@ -39,18 +37,19 @@ class BatchMAFLayer(tf.keras.layers.Layer):
             # Initialize the MADE model
             made = tfp.bijectors.AutoregressiveNetwork(
                 params=2,
-                use_bias=False,
                 input_order='random',
                 hidden_units=self.hidden_units,
                 activation=self.activation,
-                kernel_regularizer=tf.keras.regularizers.l2(self.regularization)
             )
             self._mades.append(made)
 
             # Initialize the distribution
             dist = tfp.distributions.TransformedDistribution(
                 distribution=tfp.distributions.Normal(loc=0.0, scale=1.0),
-                bijector=tfp.bijectors.MaskedAutoregressiveFlow(made),
+                bijector=tfp.bijectors.Chain([
+                    tfp.bijectors.BatchNormalization(),
+                    tfp.bijectors.MaskedAutoregressiveFlow(made)
+                ]),
                 event_shape=[len(self.region)]
             )
             self._distributions.append(dist)
@@ -58,7 +57,6 @@ class BatchMAFLayer(tf.keras.layers.Layer):
         # Call the parent class's build method
         super(BatchMAFLayer, self).build(input_shape)
 
-    @tf.function
     def call(self, inputs, **kwargs):
         """
         Execute the layer on some inputs.
@@ -75,14 +73,13 @@ class MAFLayer(tf.keras.layers.Layer):
     """
     Masked Autoregressive Flow layer.
     """
-    def __init__(self, regions, n_batch, hidden_units, regularization, activation, **kwargs):
+    def __init__(self, regions, n_batch, hidden_units, activation, **kwargs):
         """
         Initialize a Autoregressive Flow transformed gaussian input distribution layer.
 
         :param regions: The regions of the distributions.
         :param n_batch: The number of distributions.
         :param hidden_units: A list of the number of units for each layer for the autoregressive network.
-        :param regularization: The regularization factor for the autoregressive network kernels.
         :param activation: The activation function for the autoregressive network.
         :param kwargs: Other arguments.
         """
@@ -90,7 +87,6 @@ class MAFLayer(tf.keras.layers.Layer):
         self.regions = regions
         self.n_batch = n_batch
         self.hidden_units = hidden_units
-        self.regularization = regularization
         self.activation = activation
         self._mafs = None
 
@@ -103,13 +99,12 @@ class MAFLayer(tf.keras.layers.Layer):
         # Initialize the MAFs multiple batch sub-layers
         self._mafs = []
         for region in self.regions:
-            maf = BatchMAFLayer(region, self.n_batch, self.hidden_units, self.regularization, self.activation)
+            maf = BatchMAFLayer(region, self.n_batch, self.hidden_units, self.activation)
             self._mafs.append(maf)
 
         # Call the parent class's build method
         super(MAFLayer, self).build(input_shape)
 
-    @tf.function
     def call(self, inputs, **kwargs):
         """
         Execute the layer on some inputs.

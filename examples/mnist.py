@@ -71,11 +71,9 @@ if __name__ == '__main__':
         depth=4,
         n_batch=4,
         hidden_units=[64, 64],
-        regularization=1e-6,
         activation='relu',
         n_sum=10,
-        n_repetitions=2,
-        dropout=0.8
+        n_repetitions=2
     )
 
     # Print some summary

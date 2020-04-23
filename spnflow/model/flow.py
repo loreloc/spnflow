@@ -9,11 +9,9 @@ def build_rat_spn_flow(
         depth=2,
         n_batch=2,
         hidden_units=[32, 32],
-        regularization=1e-6,
         activation='relu',
         n_sum=2,
         n_repetitions=1,
-        dropout=1.0,
         seed=42
         ):
     """
@@ -24,11 +22,9 @@ def build_rat_spn_flow(
     :param depth: The depth of the network.
     :param n_batch: The number of distributions.
     :param hidden_units: A list of the number of units for each layer for the autoregressive network.
-    :param regularization: The regularization factor for the autoregressive network kernels.
     :param activation: The activation function for the autoregressive network.
     :param n_sum: The number of sum nodes.
     :param n_repetitions: The number of independent repetitions of the region graph.
-    :param dropout: The rate of the dropout layer.
     :param seed: The seed to use to randomly generate the region graph.
     :return: A Keras based RAT-SPN model.
     """
@@ -46,7 +42,6 @@ def build_rat_spn_flow(
         layers[0],
         n_batch,
         hidden_units,
-        regularization,
         activation,
         input_shape=(n_features,)
     )
@@ -56,8 +51,6 @@ def build_rat_spn_flow(
     for i in range(1, len(layers) - 1):
         if i % 2 == 1:
             model.add(ProductLayer())
-            if dropout < 1.0:
-                model.add(DropoutLayer(dropout))
         else:
             model.add(SumLayer(n_sum))
 
