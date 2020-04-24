@@ -12,6 +12,7 @@ def build_rat_spn_flow(
         activation='relu',
         n_sum=2,
         n_repetitions=1,
+        log_scale=False,
         seed=42
         ):
     """
@@ -25,6 +26,7 @@ def build_rat_spn_flow(
     :param activation: The activation function for the autoregressive network.
     :param n_sum: The number of sum nodes.
     :param n_repetitions: The number of independent repetitions of the region graph.
+    :param log_scale: Whatever to apply shift + log scale transformation or shift only.
     :param seed: The seed to use to randomly generate the region graph.
     :return: A Keras based RAT-SPN model.
     """
@@ -43,6 +45,7 @@ def build_rat_spn_flow(
         n_batch,
         hidden_units,
         activation,
+        log_scale,
         input_shape=(n_features,)
     )
     model.add(input_layer)

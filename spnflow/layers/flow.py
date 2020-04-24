@@ -6,7 +6,7 @@ class BatchMAFLayer(tf.keras.layers.Layer):
     """
     Multiple batch Masked Autoregressive Flow sub-layer.
     """
-    def __init__(self, region, n_batch, hidden_units, activation, **kwargs):
+    def __init__(self, region, n_batch, hidden_units, activation, log_scale, **kwargs):
         """
         Initialize a Autoregressive Flow transformed gaussian input distribution layer.
 
@@ -14,6 +14,7 @@ class BatchMAFLayer(tf.keras.layers.Layer):
         :param n_batch: The number of distributions.
         :param hidden_units: A list of the number of units for each layer for the autoregressive network.
         :param activation: The activation function for the autoregressive network.
+        :param log_scale: Whatever to apply shift + log scale transformation or shift only.
         :param kwargs: Other arguments.
         """
         super(BatchMAFLayer, self).__init__(**kwargs)
@@ -21,6 +22,7 @@ class BatchMAFLayer(tf.keras.layers.Layer):
         self.n_batch = n_batch
         self.hidden_units = hidden_units
         self.activation = activation
+        self.log_scale = log_scale
         self._mades = None
         self._distributions = None
 
@@ -30,13 +32,33 @@ class BatchMAFLayer(tf.keras.layers.Layer):
 
         :param input_shape: The input shape.
         """
+        def get_bijector_fn(made):
+            # Shift only bijector function
+            def bijector_shift_only(x, **condition_kwargs):
+                x = made(x, **condition_kwargs)
+                shift = tf.squeeze(x, axis=-1)
+                return tfp.bijectors.Shift(shift)
+
+            # Shift + Log Scale bijector function
+            def bijector_shift_log_scale(x, **condition_kwargs):
+                x = made(x, **condition_kwargs)
+                shift, log_scale = tf.unstack(x, num=2, axis=-1)
+                return tfp.bijectors.Shift(shift)(tfp.bijectors.Scale(tf.exp(log_scale)))
+
+            if self.log_scale:
+                return bijector_shift_log_scale
+            return bijector_shift_only
+
+        # Set the number of paramters of the MADE model
+        n_params = 2 if self.log_scale else 1
+
         # Initialize the MAFs distributions
         self._mades = []
         self._distributions = []
         for _ in range(self.n_batch):
             # Initialize the MADE model
             made = tfp.bijectors.AutoregressiveNetwork(
-                params=2,
+                params=n_params,
                 input_order='random',
                 hidden_units=self.hidden_units,
                 activation=self.activation,
@@ -48,7 +70,9 @@ class BatchMAFLayer(tf.keras.layers.Layer):
                 distribution=tfp.distributions.Normal(loc=0.0, scale=1.0),
                 bijector=tfp.bijectors.Chain([
                     tfp.bijectors.BatchNormalization(),
-                    tfp.bijectors.MaskedAutoregressiveFlow(made)
+                    tfp.bijectors.MaskedAutoregressiveFlow(
+                        bijector_fn=get_bijector_fn(made)
+                    )
                 ]),
                 event_shape=[len(self.region)]
             )
@@ -73,7 +97,7 @@ class MAFLayer(tf.keras.layers.Layer):
     """
     Masked Autoregressive Flow layer.
     """
-    def __init__(self, regions, n_batch, hidden_units, activation, **kwargs):
+    def __init__(self, regions, n_batch, hidden_units, activation, log_scale, **kwargs):
         """
         Initialize a Autoregressive Flow transformed gaussian input distribution layer.
 
@@ -81,6 +105,7 @@ class MAFLayer(tf.keras.layers.Layer):
         :param n_batch: The number of distributions.
         :param hidden_units: A list of the number of units for each layer for the autoregressive network.
         :param activation: The activation function for the autoregressive network.
+        :param log_scale: Whatever to apply shift + log scale transformation or shift only.
         :param kwargs: Other arguments.
         """
         super(MAFLayer, self).__init__(**kwargs)
@@ -88,6 +113,7 @@ class MAFLayer(tf.keras.layers.Layer):
         self.n_batch = n_batch
         self.hidden_units = hidden_units
         self.activation = activation
+        self.log_scale = log_scale
         self._mafs = None
 
     def build(self, input_shape):
@@ -99,7 +125,7 @@ class MAFLayer(tf.keras.layers.Layer):
         # Initialize the MAFs multiple batch sub-layers
         self._mafs = []
         for region in self.regions:
-            maf = BatchMAFLayer(region, self.n_batch, self.hidden_units, self.activation)
+            maf = BatchMAFLayer(region, self.n_batch, self.hidden_units, self.activation, self.log_scale)
             self._mafs.append(maf)
 
         # Call the parent class's build method
