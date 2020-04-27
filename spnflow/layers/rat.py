@@ -217,14 +217,14 @@ class DropoutLayer(tf.keras.layers.Layer):
     """
     Dropout layer.
     """
-    def __init__(self, rate=0.8, **kwargs):
+    def __init__(self, rate=0.2, **kwargs):
         """
         Initialize the dropout layer.
 
-        :param rate: The rate of "surviveness" of the input.
+        :param rate: The dropout rate.
         """
         super(DropoutLayer, self).__init__(**kwargs)
-        self.rate = rate
+        self.rate = 1.0 - rate
 
     def build(self, input_shape):
         """

@@ -9,7 +9,7 @@ def build_rat_spn(
         n_batch=2,
         n_sum=2,
         n_repetitions=1,
-        dropout=1.0,
+        dropout=0.0,
         seed=42
         ):
     """
@@ -21,7 +21,7 @@ def build_rat_spn(
     :param n_batch: The number of distributions.
     :param n_sum: The number of sum nodes.
     :param n_repetitions: The number of independent repetitions of the region graph.
-    :param dropout: The rate of the dropout layer.
+    :param dropout: The rate of the dropout layers.
     :param seed: The seed to use to randomly generate the region graph.
     :return: A Keras based RAT-SPN model.
     """
@@ -41,7 +41,7 @@ def build_rat_spn(
     for i in range(1, len(layers) - 1):
         if i % 2 == 1:
             model.add(ProductLayer())
-            if dropout < 1.0:
+            if dropout > 0.0:
                 model.add(DropoutLayer(dropout))
         else:
             model.add(SumLayer(n_sum))

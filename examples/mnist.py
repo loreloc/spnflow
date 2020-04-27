@@ -68,13 +68,14 @@ if __name__ == '__main__':
     spn = build_rat_spn_flow(
         n_features,
         n_classes,
-        depth=4,
+        depth=2,
         n_batch=4,
-        hidden_units=[64, 64],
+        hidden_units=[32, 32],
         activation='relu',
         n_sum=10,
-        n_repetitions=4,
-        log_scale=True
+        n_repetitions=2,
+        log_scale=True,
+        dropout=0.2
     )
 
     # Print some summary
