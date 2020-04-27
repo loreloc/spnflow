@@ -1,10 +1,12 @@
+import os
 import numpy as np
 import tensorflow as tf
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import VarianceThreshold
 
+
 # The results directory
-RESULTS_DIR = "results"
+RESULTS_DIR = os.path.join('results', 'mnist')
 
 # The number of training epochs
 EPOCHS = 100

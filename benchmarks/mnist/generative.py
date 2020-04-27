@@ -1,25 +1,32 @@
 import os
 import pandas as pd
-from spnflow.wrappers import build_autoregressive_flow_spn
-from benchmarks.mnist.utils import *
+from spnflow.model.flow import build_rat_spn_flow
+from benchmarks.mnist.utils import RESULTS_DIR, EPOCHS, BATCH_SIZE, load_mnist_dataset, get_loss_function
+
 
 # The hyper-parameters space.
 HYPER_PARAMETERS = [
-    {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 10, 'n_repetitions': 10},
-    {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 10, 'n_repetitions': 20},
-    {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 20, 'n_repetitions': 10},
-    {'depth': 4, 'hidden_units': [64, 64], 'n_sum': 20, 'n_repetitions': 20},
+    {'depth': 4, 'n_batch': 8, 'hidden_units': [64, 64], 'n_sum': 10, 'n_repetitions':  8, 'log_scale': True},
+    {'depth': 4, 'n_batch': 8, 'hidden_units': [64, 64], 'n_sum': 10, 'n_repetitions': 16, 'log_scale': True},
+    {'depth': 4, 'n_batch': 8, 'hidden_units': [64, 64], 'n_sum': 20, 'n_repetitions':  8, 'log_scale': True},
+    {'depth': 4, 'n_batch': 8, 'hidden_units': [64, 64], 'n_sum': 20, 'n_repetitions': 16, 'log_scale': True},
 
-    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 10, 'n_repetitions': 10},
-    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 10, 'n_repetitions': 20},
-    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 20, 'n_repetitions': 10},
-    {'depth': 5, 'hidden_units': [32, 32], 'n_sum': 20, 'n_repetitions': 20},
+    {'depth': 5, 'n_batch': 4, 'hidden_units': [32, 32], 'n_sum': 10, 'n_repetitions':  8, 'log_scale': True},
+    {'depth': 5, 'n_batch': 4, 'hidden_units': [32, 32], 'n_sum': 10, 'n_repetitions': 16, 'log_scale': True},
+    {'depth': 5, 'n_batch': 4, 'hidden_units': [32, 32], 'n_sum': 20, 'n_repetitions':  8, 'log_scale': True},
+    {'depth': 5, 'n_batch': 4, 'hidden_units': [32, 32], 'n_sum': 20, 'n_repetitions': 16, 'log_scale': True},
 
-    {'depth': 6, 'hidden_units': [16, 16], 'n_sum': 10, 'n_repetitions': 10},
-    {'depth': 6, 'hidden_units': [16, 16], 'n_sum': 10, 'n_repetitions': 20},
-    {'depth': 6, 'hidden_units': [16, 16], 'n_sum': 20, 'n_repetitions': 10},
-    {'depth': 6, 'hidden_units': [16, 16], 'n_sum': 20, 'n_repetitions': 20},
+    {'depth': 4, 'n_batch': 8, 'hidden_units': [64, 64], 'n_sum': 10, 'n_repetitions':  8, 'log_scale': False},
+    {'depth': 4, 'n_batch': 8, 'hidden_units': [64, 64], 'n_sum': 10, 'n_repetitions': 16, 'log_scale': False},
+    {'depth': 4, 'n_batch': 8, 'hidden_units': [64, 64], 'n_sum': 20, 'n_repetitions':  8, 'log_scale': False},
+    {'depth': 4, 'n_batch': 8, 'hidden_units': [64, 64], 'n_sum': 20, 'n_repetitions': 16, 'log_scale': False},
+
+    {'depth': 5, 'n_batch': 4, 'hidden_units': [32, 32], 'n_sum': 10, 'n_repetitions':  8, 'log_scale': False},
+    {'depth': 5, 'n_batch': 4, 'hidden_units': [32, 32], 'n_sum': 10, 'n_repetitions': 16, 'log_scale': False},
+    {'depth': 5, 'n_batch': 4, 'hidden_units': [32, 32], 'n_sum': 20, 'n_repetitions':  8, 'log_scale': False},
+    {'depth': 5, 'n_batch': 4, 'hidden_units': [32, 32], 'n_sum': 20, 'n_repetitions': 16, 'log_scale': False},
 ]
+
 
 if __name__ == '__main__':
     # Make sure results directory exists
@@ -40,12 +47,8 @@ if __name__ == '__main__':
     loss_fn = get_loss_function(kind='cross_entropy', n_features=n_features)
 
     for idx, hp in enumerate(HYPER_PARAMETERS):
-        # Set some fixed hyper-parameters
-        hp['n_batch'] = 4
-        hp['regularization'] = 1e-3
-
         # Build the model
-        spn = build_autoregressive_flow_spn(n_features, n_classes=1, **hp)
+        spn = build_rat_spn_flow(n_features, n_classes=1, **hp)
 
         # Compile the model
         spn.compile(optimizer='adam', loss=loss_fn)
@@ -54,7 +57,7 @@ if __name__ == '__main__':
         history = spn.fit(x_train, y_train, beatch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(x_test, y_test))
 
         # Make directory
-        model_path = os.path.join(directory, str(idx).zfill(4))
+        model_path = os.path.join(directory, str(idx).zfill(2))
         if not os.path.isdir(model_path):
             os.mkdir(model_path)
 
