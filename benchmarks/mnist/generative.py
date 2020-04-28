@@ -6,25 +6,25 @@ from benchmarks.mnist.utils import RESULTS_DIR, EPOCHS, BATCH_SIZE, load_mnist_d
 
 # The hyper-parameters space.
 HYPER_PARAMETERS = [
-    {'depth': 4, 'n_batch': 8, 'hidden_units': [64, 64], 'n_sum': 10, 'n_repetitions':  8, 'log_scale': True},
-    {'depth': 4, 'n_batch': 8, 'hidden_units': [64, 64], 'n_sum': 10, 'n_repetitions': 16, 'log_scale': True},
-    {'depth': 4, 'n_batch': 8, 'hidden_units': [64, 64], 'n_sum': 20, 'n_repetitions':  8, 'log_scale': True},
-    {'depth': 4, 'n_batch': 8, 'hidden_units': [64, 64], 'n_sum': 20, 'n_repetitions': 16, 'log_scale': True},
+    {'depth': 3, 'n_batch': 8, 'hidden_units': [128, 128], 'n_sum': 10, 'n_repetitions':  8, 'log_scale': True},
+    {'depth': 3, 'n_batch': 8, 'hidden_units': [128, 128], 'n_sum': 10, 'n_repetitions': 16, 'log_scale': True},
+    {'depth': 3, 'n_batch': 8, 'hidden_units': [128, 128], 'n_sum': 20, 'n_repetitions':  8, 'log_scale': True},
+    {'depth': 3, 'n_batch': 8, 'hidden_units': [128, 128], 'n_sum': 20, 'n_repetitions': 16, 'log_scale': True},
 
-    {'depth': 5, 'n_batch': 4, 'hidden_units': [32, 32], 'n_sum': 10, 'n_repetitions':  8, 'log_scale': True},
-    {'depth': 5, 'n_batch': 4, 'hidden_units': [32, 32], 'n_sum': 10, 'n_repetitions': 16, 'log_scale': True},
-    {'depth': 5, 'n_batch': 4, 'hidden_units': [32, 32], 'n_sum': 20, 'n_repetitions':  8, 'log_scale': True},
-    {'depth': 5, 'n_batch': 4, 'hidden_units': [32, 32], 'n_sum': 20, 'n_repetitions': 16, 'log_scale': True},
+    {'depth': 4, 'n_batch': 4, 'hidden_units': [64, 64], 'n_sum': 10, 'n_repetitions':  8, 'log_scale': True},
+    {'depth': 4, 'n_batch': 4, 'hidden_units': [64, 64], 'n_sum': 10, 'n_repetitions': 16, 'log_scale': True},
+    {'depth': 4, 'n_batch': 4, 'hidden_units': [64, 64], 'n_sum': 20, 'n_repetitions':  8, 'log_scale': True},
+    {'depth': 4, 'n_batch': 4, 'hidden_units': [64, 64], 'n_sum': 20, 'n_repetitions': 16, 'log_scale': True},
 
-    {'depth': 4, 'n_batch': 8, 'hidden_units': [64, 64], 'n_sum': 10, 'n_repetitions':  8, 'log_scale': False},
-    {'depth': 4, 'n_batch': 8, 'hidden_units': [64, 64], 'n_sum': 10, 'n_repetitions': 16, 'log_scale': False},
-    {'depth': 4, 'n_batch': 8, 'hidden_units': [64, 64], 'n_sum': 20, 'n_repetitions':  8, 'log_scale': False},
-    {'depth': 4, 'n_batch': 8, 'hidden_units': [64, 64], 'n_sum': 20, 'n_repetitions': 16, 'log_scale': False},
+    {'depth': 3, 'n_batch': 8, 'hidden_units': [128, 128], 'n_sum': 10, 'n_repetitions':  8, 'log_scale': False},
+    {'depth': 3, 'n_batch': 8, 'hidden_units': [128, 128], 'n_sum': 10, 'n_repetitions': 16, 'log_scale': False},
+    {'depth': 3, 'n_batch': 8, 'hidden_units': [128, 128], 'n_sum': 20, 'n_repetitions':  8, 'log_scale': False},
+    {'depth': 3, 'n_batch': 8, 'hidden_units': [128, 128], 'n_sum': 20, 'n_repetitions': 16, 'log_scale': False},
 
-    {'depth': 5, 'n_batch': 4, 'hidden_units': [32, 32], 'n_sum': 10, 'n_repetitions':  8, 'log_scale': False},
-    {'depth': 5, 'n_batch': 4, 'hidden_units': [32, 32], 'n_sum': 10, 'n_repetitions': 16, 'log_scale': False},
-    {'depth': 5, 'n_batch': 4, 'hidden_units': [32, 32], 'n_sum': 20, 'n_repetitions':  8, 'log_scale': False},
-    {'depth': 5, 'n_batch': 4, 'hidden_units': [32, 32], 'n_sum': 20, 'n_repetitions': 16, 'log_scale': False},
+    {'depth': 4, 'n_batch': 4, 'hidden_units': [64, 64], 'n_sum': 10, 'n_repetitions':  8, 'log_scale': False},
+    {'depth': 4, 'n_batch': 4, 'hidden_units': [64, 64], 'n_sum': 10, 'n_repetitions': 16, 'log_scale': False},
+    {'depth': 4, 'n_batch': 4, 'hidden_units': [64, 64], 'n_sum': 20, 'n_repetitions':  8, 'log_scale': False},
+    {'depth': 4, 'n_batch': 4, 'hidden_units': [64, 64], 'n_sum': 20, 'n_repetitions': 16, 'log_scale': False},
 ]
 
 
