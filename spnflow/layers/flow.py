@@ -62,6 +62,7 @@ class BatchMAFLayer(tf.keras.layers.Layer):
                 input_order='random',
                 hidden_units=self.hidden_units,
                 activation=self.activation,
+                kernel_regularizer=tf.keras.regularizers.l2(1e-6)
             )
             self._mades.append(made)
 
