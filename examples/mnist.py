@@ -80,7 +80,6 @@ if __name__ == '__main__':
 
     # Print some summary
     spn.summary()
-    quit()
 
     # Compile the model
     loss_fn = get_loss_function(kind='cross_entropy', n_features=n_features)
