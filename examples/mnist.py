@@ -68,18 +68,19 @@ if __name__ == '__main__':
     spn = build_rat_spn_flow(
         n_features,
         n_classes,
-        depth=2,
-        n_batch=4,
-        hidden_units=[32, 32],
+        depth=3,
+        n_batch=8,
+        hidden_units=[128, 128],
         activation='relu',
         n_sum=10,
-        n_repetitions=2,
+        n_repetitions=4,
         log_scale=True,
         dropout=0.2
     )
 
     # Print some summary
     spn.summary()
+    quit()
 
     # Compile the model
     loss_fn = get_loss_function(kind='cross_entropy', n_features=n_features)

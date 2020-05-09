@@ -33,10 +33,12 @@ def build_rat_spn_flow(
     :return: A Keras based RAT-SPN model.
     """
     # Instantiate the region graph
-    region_graph = RegionGraph(n_features, depth=depth, seed=seed)
+    region_graph = RegionGraph(range(n_features), seed=seed)
 
     # Generate the layers
-    layers = list(reversed(region_graph.random_graph(n_repetitions)))
+    for k in range(n_repetitions):
+        region_graph.random_split(2, depth)
+    layers = region_graph.make_layers()
 
     # Instantiate the sequential model
     model = tf.keras.Sequential()
