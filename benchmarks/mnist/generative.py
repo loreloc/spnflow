@@ -54,7 +54,7 @@ if __name__ == '__main__':
         spn.compile(optimizer='adam', loss=loss_fn)
 
         # Fit the model
-        history = spn.fit(x_train, y_train, beatch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(x_test, y_test))
+        history = spn.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(x_test, y_test))
 
         # Make directory
         model_path = os.path.join(directory, str(idx).zfill(2))
