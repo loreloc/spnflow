@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import tensorflow as tf
 from spnflow.model.flow import AutoregressiveRatSpn
 from experiments.mnist.utils import RESULTS_DIR, EPOCHS, BATCH_SIZE, load_mnist_dataset, get_loss_function
 
@@ -51,7 +52,8 @@ if __name__ == '__main__':
         spn = AutoregressiveRatSpn(**hp)
 
         # Compile the model
-        spn.compile(optimizer='adam', loss=loss_fn)
+        lr = 1e-5
+        spn.compile(optimizer=tf.keras.optimizers.Adam(lr), loss=loss_fn)
 
         # Fit the model
         history = spn.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(x_test, y_test))
