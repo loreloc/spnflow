@@ -1,69 +1,127 @@
-from spnflow.layers.rat import *
-from spnflow.layers.flow import *
-from spnflow.utils.region import RegionGraph
+import tensorflow as tf
+import tensorflow_probability as tfp
+from spnflow.model.rat import build_rat_spn
 
 
-def build_rat_spn_flow(
-        n_features,
-        n_classes,
-        depth=2,
-        n_batch=2,
-        hidden_units=[32, 32],
-        activation='relu',
-        n_sum=2,
-        n_repetitions=1,
-        log_scale=False,
-        dropout=0.0,
-        seed=42
-        ):
-    """
-    Build a RAT-SPN model with Autoregressive Flow distributions at leaves.
+class AutoregressiveRatSpn(tf.keras.Model):
+    """RAT-SPN base distribution improved with Autoregressive Normalizing Flows."""
+    def __init__(self,
+                 depth=2,
+                 n_batch=2,
+                 n_sum=2,
+                 n_repetitions=1,
+                 dropout=0.0,
+                 optimize_scale=False,
+                 n_mafs=3,
+                 hidden_units=[32, 32],
+                 activation='relu',
+                 regularization=1e-6,
+                 rand_state=None,
+                 **kwargs
+                 ):
+        """
+        Initialize an Autoregressive RAT-SPN.
 
-    :param n_features: The number of features.
-    :param n_classes: The number of classes.
-    :param depth: The depth of the network.
-    :param n_batch: The number of distributions.
-    :param hidden_units: A list of the number of units for each layer for the autoregressive network.
-    :param activation: The activation function for the autoregressive network.
-    :param n_sum: The number of sum nodes.
-    :param n_repetitions: The number of independent repetitions of the region graph.
-    :param log_scale: Whatever to apply shift + log scale transformation or shift only.
-    :param dropout: The rate of the dropout layers.
-    :param seed: The seed to use to randomly generate the region graph.
-    :return: A Keras based RAT-SPN model.
-    """
-    # Instantiate the region graph
-    region_graph = RegionGraph(range(n_features), seed=seed)
+        :param depth: The depth of the network.
+        :param n_batch: The number of distributions.
+        :param n_sum: The number of sum nodes.
+        :param n_repetitions: The number of independent repetitions of the region graph.
+        :param dropout: The rate of the dropout layers.
+        :param optimize_scale: Whatever to train scale and mean jointly.
+        :param n_mafs: The number of chained Masked Autoregressive Flows (MAFs).
+        :param hidden_units: A list of the number of units for each layer of the autoregressive network.
+        :param activation: The activation function for the autoregressive network.
+        :param regularization: The L2 regularization weight for the autoregressive network.
+        :param rand_state: The random state to use to generate the RAT-SPN model.
+        :param kwargs: Other arguments.
+        """
+        super(AutoregressiveRatSpn, self).__init__(**kwargs)
+        self.depth = depth
+        self.n_batch = n_batch
+        self.n_sum = n_sum
+        self.n_repetitions = n_repetitions
+        self.dropout = dropout
+        self.optimize_scale = optimize_scale
+        self.n_mafs = n_mafs
+        self.hidden_units = hidden_units
+        self.activation = activation
+        self.regularization = regularization
+        self.rand_state = rand_state
+        self.spn = None
+        self.mades = None
+        self.mafs = None
+        self.bijector = None
 
-    # Generate the layers
-    for k in range(n_repetitions):
-        region_graph.random_split(2, depth)
-    layers = region_graph.make_layers()
+    def build(self, input_shape):
+        """
+        Build the model.
 
-    # Instantiate the sequential model
-    model = tf.keras.Sequential()
+        :param input_shape: The input shape.
+        """
+        # Get a bijector function given a Masked Autoregressive Density Estimator (MADE)
+        def get_bijector_fn(made):
+            # Shift + Log Scale bijector function
+            def bijector_shift_log_scale(x, **condition_kwargs):
+                x = made(x, **condition_kwargs)
+                shift, log_scale = tf.unstack(x, num=2, axis=-1)
+                return tfp.bijectors.Shift(shift)(tfp.bijectors.Scale(tf.exp(log_scale)))
+            return bijector_shift_log_scale
 
-    # Add the input distributions layer
-    input_layer = MAFLayer(
-        layers[0], n_batch,
-        hidden_units, activation, log_scale,
-        input_shape=(n_features,)
-    )
-    model.add(input_layer)
+        # Build the RAT-SPN that represents the base distribution
+        _, n_features = input_shape
+        self.spn = build_rat_spn(
+            n_features,
+            self.depth,
+            self.n_batch,
+            self.n_sum,
+            self.n_repetitions,
+            self.dropout,
+            self.optimize_scale,
+            self.rand_state
+        )
 
-    # Alternate between product and sum layer
-    for i in range(1, len(layers) - 1):
-        if i % 2 == 1:
-            model.add(ProductLayer())
-            if dropout > 0.0:
-                model.add(DropoutLayer(dropout))
-        else:
-            model.add(SumLayer(n_sum))
+        # Build the MADE models
+        self.mades = []
+        for _ in range(self.n_mafs):
+            made = tfp.bijectors.AutoregressiveNetwork(
+                params=2,
+                input_order='random',
+                use_bias=False,
+                hidden_units=self.hidden_units,
+                activation=self.activation,
+                kernel_regularizer=tf.keras.regularizers.l2(self.regularization)
+            )
+            self.mades.append(made)
 
-    # Add the flatten layer
-    model.add(tf.keras.layers.Flatten())
+        # Build the MAFs
+        self.mafs = []
+        for made in self.mades:
+            maf = tfp.bijectors.MaskedAutoregressiveFlow(
+                bijector_fn=get_bijector_fn(made)
+            )
+            self.mafs.append(maf)
 
-    # Add the root sum layer
-    model.add(RootLayer(n_classes))
+        # Build the bijector by chaining multiple MAFs
+        bijectors = []
+        for maf in self.mafs:
+            # Append the maf bijection
+            bijectors.append(maf)
+            # Append batch normalization bijection
+            bn = tfp.bijectors.BatchNormalization()
+            bijectors.append(bn)
+        self.bijector = tfp.bijectors.Chain(bijectors)
 
-    return model
+    def call(self, inputs, training=None, **kwargs):
+        """
+        Call the model.
+
+        :param inputs: The inputs tensor.
+        :param training: Whatever the model is training or not.
+        :param kwargs: Other arguments.
+        :return: The output of the model.
+        """
+        u = self.bijector.inverse(inputs)
+        p = self.spn(u, training=training, **kwargs)
+        d = self.bijector.inverse_log_det_jacobian(inputs, event_ndims=1)
+        p = p + tf.expand_dims(d, axis=-1)
+        return p

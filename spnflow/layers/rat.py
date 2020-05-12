@@ -6,17 +6,19 @@ class GaussianLayer(tf.keras.layers.Layer):
     """
     The Gaussian distributions input layer class.
     """
-    def __init__(self, regions, n_batch, **kwargs):
+    def __init__(self, regions, n_batch, optimize_scale, **kwargs):
         """
         Initialize a Gaussian distributions input layer.
 
         :param regions: The regions of the distributions.
         :param n_batch: The number of distributions.
+        :param optimize_scale: Whatever to train scale and mean jointly.
         :param kwargs: Other arguments.
         """
         super(GaussianLayer, self).__init__(**kwargs)
         self.regions = regions
         self.n_batch = n_batch
+        self.optimize_scale = optimize_scale
         self._means = None
         self._scales = None
         self._distributions = None
@@ -37,13 +39,22 @@ class GaussianLayer(tf.keras.layers.Layer):
         ]
 
         # Create the scales variables
-        self._scales = [
-            tf.Variable(
-                5e-1 + 1e-1 * tf.math.sigmoid(tf.random.normal(shape=(self.n_batch, len(r)))),
-                trainable=True
-            )
-            for r in self.regions
-        ]
+        if self.optimize_scale:
+            self._scales = [
+                tf.Variable(
+                    0.5 + 1e-1 * tf.math.sigmoid(tf.random.normal(shape=(self.n_batch, len(r)))),
+                    trainable=True
+                )
+                for r in self.regions
+            ]
+        else:
+            self._scales = [
+                tf.Variable(
+                    tf.ones(shape=(self.n_batch, len(r))),
+                    trainable=False
+                )
+                for r in self.regions
+            ]
 
         # Create the multi-batch multivariate distributions
         self._distributions = [
@@ -169,15 +180,13 @@ class RootLayer(tf.keras.layers.Layer):
     """
     Root sum node layer.
     """
-    def __init__(self, n_classes, **kwargs):
+    def __init__(self, **kwargs):
         """
         Initialize the root layer.
 
-        :param n_classes: The number of classes.
         :param kwargs: Parent class arguments.
         """
         super(RootLayer, self).__init__(**kwargs)
-        self.n_classes = n_classes
         self.kernel = None
 
     def build(self, input_shape):
@@ -186,10 +195,8 @@ class RootLayer(tf.keras.layers.Layer):
 
         :param input_shape: The input shape.
         """
-        # Set the kernel shape
-        kernel_shape = (self.n_classes, input_shape[1])
-
         # Construct the weights
+        kernel_shape = (1, input_shape[1])
         self.kernel = tf.Variable(
             initial_value=tf.random.normal(kernel_shape, stddev=1e-1),
             trainable=True
@@ -209,7 +216,7 @@ class RootLayer(tf.keras.layers.Layer):
         # Calculate the log likelihood using the "logsumexp" trick
         x = tf.expand_dims(inputs, axis=1)  # (n, 1, k)
         w = tf.math.log_softmax(self.kernel, axis=1)  # (n, k)
-        x = tf.math.reduce_logsumexp(x + w, axis=-1)  # (n, s)
+        x = tf.math.reduce_logsumexp(x + w, axis=-1)  # (n, 1)
         return x
 
 

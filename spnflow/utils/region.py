@@ -48,7 +48,7 @@ class RegionGraph(object):
 
     This procedure will always deliver a complete and decomposable SPN.
     """
-    def __init__(self, items, seed=12345):
+    def __init__(self, items, rand_state):
         self._items = tuple(sorted(items))
 
         # Regions
@@ -59,7 +59,7 @@ class RegionGraph(object):
         self._partitions = set()
 
         # Private random generator
-        self._rand_state = np.random.RandomState(seed)
+        self._rand_state = rand_state
 
         # layered representation of the region graph
         self._layers = []

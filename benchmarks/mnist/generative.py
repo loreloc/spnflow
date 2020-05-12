@@ -1,22 +1,30 @@
 import os
 import pandas as pd
-from spnflow.model.flow import build_rat_spn_flow
+from spnflow.model.flow import AutoregressiveRatSpn
 from benchmarks.mnist.utils import RESULTS_DIR, EPOCHS, BATCH_SIZE, load_mnist_dataset, get_loss_function
 
 
 # The hyper-parameters space.
 HYPER_PARAMETERS = [
-    {'depth': 2, 'n_batch': 8, 'hidden_units': [256, 256], 'n_sum': 10, 'n_repetitions':  8, 'log_scale': True},
-    {'depth': 2, 'n_batch': 8, 'hidden_units': [256, 256], 'n_sum': 10, 'n_repetitions': 16, 'log_scale': True},
+    # Depth = 3
+    {'depth': 3, 'n_batch': 4, 'n_sum': 8, 'n_repetitions': 16, 'optimize_scale': True,  'n_mafs': 5, 'hidden_units': [1024, 1024]},
+    {'depth': 3, 'n_batch': 4, 'n_sum': 8, 'n_repetitions': 16, 'optimize_scale': False, 'n_mafs': 5, 'hidden_units': [1024, 1024]},
+    {'depth': 3, 'n_batch': 4, 'n_sum': 8, 'n_repetitions': 32, 'optimize_scale': True,  'n_mafs': 5, 'hidden_units': [1024, 1024]},
+    {'depth': 3, 'n_batch': 4, 'n_sum': 8, 'n_repetitions': 32, 'optimize_scale': False, 'n_mafs': 5, 'hidden_units': [1024, 1024]},
+    {'depth': 3, 'n_batch': 8, 'n_sum': 8, 'n_repetitions': 16, 'optimize_scale': True,  'n_mafs': 5, 'hidden_units': [1024, 1024]},
+    {'depth': 3, 'n_batch': 8, 'n_sum': 8, 'n_repetitions': 16, 'optimize_scale': False, 'n_mafs': 5, 'hidden_units': [1024, 1024]},
+    {'depth': 3, 'n_batch': 8, 'n_sum': 8, 'n_repetitions': 32, 'optimize_scale': True,  'n_mafs': 5, 'hidden_units': [1024, 1024]},
+    {'depth': 3, 'n_batch': 8, 'n_sum': 8, 'n_repetitions': 32, 'optimize_scale': False, 'n_mafs': 5, 'hidden_units': [1024, 1024]},
 
-    {'depth': 3, 'n_batch': 4, 'hidden_units': [128, 128], 'n_sum': 10, 'n_repetitions':  8, 'log_scale': True},
-    {'depth': 3, 'n_batch': 4, 'hidden_units': [128, 128], 'n_sum': 10, 'n_repetitions': 16, 'log_scale': True},
-
-    {'depth': 2, 'n_batch': 8, 'hidden_units': [256, 256], 'n_sum': 10, 'n_repetitions':  8, 'log_scale': False},
-    {'depth': 2, 'n_batch': 8, 'hidden_units': [256, 256], 'n_sum': 10, 'n_repetitions': 16, 'log_scale': False},
-
-    {'depth': 3, 'n_batch': 4, 'hidden_units': [128, 128], 'n_sum': 10, 'n_repetitions':  8, 'log_scale': False},
-    {'depth': 3, 'n_batch': 4, 'hidden_units': [128, 128], 'n_sum': 10, 'n_repetitions': 16, 'log_scale': False},
+    # Depth = 4
+    {'depth': 4, 'n_batch': 4, 'n_sum': 8, 'n_repetitions': 16, 'optimize_scale': True,  'n_mafs': 5, 'hidden_units': [1024, 1024]},
+    {'depth': 4, 'n_batch': 4, 'n_sum': 8, 'n_repetitions': 16, 'optimize_scale': False, 'n_mafs': 5, 'hidden_units': [1024, 1024]},
+    {'depth': 4, 'n_batch': 4, 'n_sum': 8, 'n_repetitions': 32, 'optimize_scale': True,  'n_mafs': 5, 'hidden_units': [1024, 1024]},
+    {'depth': 4, 'n_batch': 4, 'n_sum': 8, 'n_repetitions': 32, 'optimize_scale': False, 'n_mafs': 5, 'hidden_units': [1024, 1024]},
+    {'depth': 4, 'n_batch': 8, 'n_sum': 8, 'n_repetitions': 16, 'optimize_scale': True,  'n_mafs': 5, 'hidden_units': [1024, 1024]},
+    {'depth': 4, 'n_batch': 8, 'n_sum': 8, 'n_repetitions': 16, 'optimize_scale': False, 'n_mafs': 5, 'hidden_units': [1024, 1024]},
+    {'depth': 4, 'n_batch': 8, 'n_sum': 8, 'n_repetitions': 32, 'optimize_scale': True,  'n_mafs': 5, 'hidden_units': [1024, 1024]},
+    {'depth': 4, 'n_batch': 8, 'n_sum': 8, 'n_repetitions': 32, 'optimize_scale': False, 'n_mafs': 5, 'hidden_units': [1024, 1024]}
 ]
 
 
@@ -40,7 +48,7 @@ if __name__ == '__main__':
 
     for idx, hp in enumerate(HYPER_PARAMETERS):
         # Build the model
-        spn = build_rat_spn_flow(n_features, n_classes=1, **hp)
+        spn = AutoregressiveRatSpn(**hp)
 
         # Compile the model
         spn.compile(optimizer='adam', loss=loss_fn)
