@@ -6,7 +6,7 @@ from sklearn.feature_selection import VarianceThreshold
 
 
 # The results directory
-RESULTS_DIR = os.path.join('results', 'mnist')
+RESULTS_DIR = 'results'
 
 # The number of training epochs
 EPOCHS = 100
