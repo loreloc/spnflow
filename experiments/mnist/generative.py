@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from spnflow.model.flow import AutoregressiveRatSpn
-from benchmarks.mnist.utils import RESULTS_DIR, EPOCHS, BATCH_SIZE, load_mnist_dataset, get_loss_function
+from experiments.mnist.utils import RESULTS_DIR, EPOCHS, BATCH_SIZE, load_mnist_dataset, get_loss_function
 
 
 # The hyper-parameters space.
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     results_df = pd.DataFrame(columns=csv_cols)
 
     # Get the loss function
-    loss_fn = get_loss_function(kind='cross_entropy', n_features=n_features)
+    loss_fn = get_loss_function(kind='log_loss', n_features=n_features)
 
     for idx, hp in enumerate(HYPER_PARAMETERS):
         # Build the model
