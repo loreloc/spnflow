@@ -7,7 +7,6 @@ from experiments.mnist.utils import RESULTS_DIR, EPOCHS, BATCH_SIZE, load_mnist_
 
 # The hyper-parameters space.
 HYPER_PARAMETERS = [
-    # Depth = 3
     {'depth': 3, 'n_batch': 4, 'n_sum': 8, 'n_repetitions': 16, 'optimize_scale': True,  'n_mafs': 5, 'hidden_units': [1024, 1024]},
     {'depth': 3, 'n_batch': 4, 'n_sum': 8, 'n_repetitions': 16, 'optimize_scale': False, 'n_mafs': 5, 'hidden_units': [1024, 1024]},
     {'depth': 3, 'n_batch': 4, 'n_sum': 8, 'n_repetitions': 32, 'optimize_scale': True,  'n_mafs': 5, 'hidden_units': [1024, 1024]},
@@ -16,16 +15,6 @@ HYPER_PARAMETERS = [
     {'depth': 3, 'n_batch': 8, 'n_sum': 8, 'n_repetitions': 16, 'optimize_scale': False, 'n_mafs': 5, 'hidden_units': [1024, 1024]},
     {'depth': 3, 'n_batch': 8, 'n_sum': 8, 'n_repetitions': 32, 'optimize_scale': True,  'n_mafs': 5, 'hidden_units': [1024, 1024]},
     {'depth': 3, 'n_batch': 8, 'n_sum': 8, 'n_repetitions': 32, 'optimize_scale': False, 'n_mafs': 5, 'hidden_units': [1024, 1024]},
-
-    # Depth = 4
-    {'depth': 4, 'n_batch': 4, 'n_sum': 8, 'n_repetitions': 16, 'optimize_scale': True,  'n_mafs': 5, 'hidden_units': [1024, 1024]},
-    {'depth': 4, 'n_batch': 4, 'n_sum': 8, 'n_repetitions': 16, 'optimize_scale': False, 'n_mafs': 5, 'hidden_units': [1024, 1024]},
-    {'depth': 4, 'n_batch': 4, 'n_sum': 8, 'n_repetitions': 32, 'optimize_scale': True,  'n_mafs': 5, 'hidden_units': [1024, 1024]},
-    {'depth': 4, 'n_batch': 4, 'n_sum': 8, 'n_repetitions': 32, 'optimize_scale': False, 'n_mafs': 5, 'hidden_units': [1024, 1024]},
-    {'depth': 4, 'n_batch': 8, 'n_sum': 8, 'n_repetitions': 16, 'optimize_scale': True,  'n_mafs': 5, 'hidden_units': [1024, 1024]},
-    {'depth': 4, 'n_batch': 8, 'n_sum': 8, 'n_repetitions': 16, 'optimize_scale': False, 'n_mafs': 5, 'hidden_units': [1024, 1024]},
-    {'depth': 4, 'n_batch': 8, 'n_sum': 8, 'n_repetitions': 32, 'optimize_scale': True,  'n_mafs': 5, 'hidden_units': [1024, 1024]},
-    {'depth': 4, 'n_batch': 8, 'n_sum': 8, 'n_repetitions': 32, 'optimize_scale': False, 'n_mafs': 5, 'hidden_units': [1024, 1024]}
 ]
 
 
