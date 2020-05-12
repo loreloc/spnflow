@@ -31,12 +31,11 @@ def build_rat_spn(
         rand_state = np.random.RandomState(42)
 
     # Instantiate the region graph
-    region_graph = RegionGraph(range(n_features), rand_state)
+    region_graph = RegionGraph(n_features, depth, rand_state)
 
     # Generate the layers
-    for k in range(n_repetitions):
-        region_graph.random_split(2, depth)
-    layers = region_graph.make_layers()
+    layers = region_graph.make_layers(n_repetitions)
+    layers = list(reversed(layers))
 
     # Instantiate the sequential model
     model = tf.keras.Sequential()
