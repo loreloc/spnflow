@@ -5,7 +5,7 @@ from spnflow.model.flow import AutoregressiveRatSpn
 from experiments.utils import log_loss
 
 
-def load_power_dataset(rand_state):
+def load_miniboone_dataset(rand_state):
     # Load the dataset
     data = np.load('datasets/miniboone/data.npy')
     rand_state.shuffle(data)
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     rand_state = np.random.RandomState(42)
 
     # Load the dataset
-    data_train, data_val, data_test = load_power_dataset(rand_state)
+    data_train, data_val, data_test = load_miniboone_dataset(rand_state)
 
     # Build the model
     model = AutoregressiveRatSpn(
