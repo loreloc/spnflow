@@ -73,8 +73,8 @@ if __name__ == '__main__':
         x=data_train,
         y=np.zeros((data_train.shape[0], 0), dtype=np.float32),
         validation_data=(data_val, np.zeros((data_val.shape[0], 0), dtype=np.float32)),
-        epochs=100,
-        batch_size=1024
+        epochs=200, batch_size=1024,
+        callbacks=[tf.keras.callbacks.EarlyStopping(patience=20)]
     )
 
     # Compute the test set mean log likelihood
