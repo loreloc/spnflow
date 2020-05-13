@@ -25,10 +25,6 @@ def load_power_dataset(rand_state):
     data_val = (data_val - mu) / sigma
     data_test = (data_test - mu) / sigma
 
-    print(data_test.shape)
-    print(data_val.shape)
-    print(data_train.shape)
-
     return data_train, data_val, data_test
 
 
