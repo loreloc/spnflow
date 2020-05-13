@@ -6,10 +6,6 @@ from experiments.utils import log_loss
 
 
 def load_gas_dataset(rand_state=None):
-    # Create the random state, if necessary
-    if rand_state is None:
-        rand_state = np.random.RandomState(42)
-
     # Load the dataset and remove useless features
     data = pd.read_pickle('datasets/gas/ethylene_CO.pickle')
     data.drop('Meth', axis=1, inplace=True)
@@ -42,7 +38,10 @@ def load_gas_dataset(rand_state=None):
     return data_train, data_val, data_test
 
 
-def experiment_gas(rand_state):
+if __name__ == '__main__':
+    # Instantiate a random state, used for reproducibility
+    rand_state = np.random.RandomState(42)
+
     # Load the dataset
     data_train, data_val, data_test = load_gas_dataset(rand_state)
 
@@ -51,7 +50,7 @@ def experiment_gas(rand_state):
         depth=2,
         n_batch=4,
         n_sum=8,
-        n_repetitions=8,
+        n_repetitions=4,
         optimize_scale=True,
         n_mafs=5,
         hidden_units=[128, 128],
@@ -75,23 +74,11 @@ def experiment_gas(rand_state):
 
     # Compute the test set mean log likelihood
     y_pred = model.predict(data_test)
-    mean_log_likelihood = np.mean(y_pred)
+    mu_log_likelihood = np.mean(y_pred)
+    sigma_log_likelihood = np.std(y_pred) / np.sqrt(data_test.shape[0])
 
-    return mean_log_likelihood, early_stopping.stopped_epoch
-
-
-if __name__ == '__main__':
-    # Instantiate a random state, used for reproducibility
-    rand_state = np.random.RandomState(42)
-
-    # Create a results data frame
-    df = pd.DataFrame(columns=['epochs', 'log-likelihood'])
-
-    # Run the experiments
-    n_experiments = 10
-    for i in range(n_experiments):
-        log_likelihood, epochs = experiment_gas(rand_state)
-        df.loc[i] = [epochs, log_likelihood]
-
-    # Save the results data frame as CSV
-    df.to_csv('results/gas.csv')
+    # Save the results to file
+    with open('results/gas.txt', 'w') as file:
+        file.write('Gas;\n')
+        file.write('Avg. Log-Likelihood: ' + str(mu_log_likelihood) + '\n')
+        file.write('Std. Log-Likelihood: ' + str(sigma_log_likelihood) + '\n')
