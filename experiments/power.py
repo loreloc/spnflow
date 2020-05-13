@@ -71,7 +71,7 @@ if __name__ == '__main__':
         x=data_train,
         y=np.zeros((data_train.shape[0], 0), dtype=np.float32),
         validation_data=(data_val, np.zeros((data_val.shape[0], 0), dtype=np.float32)),
-        epochs=100, batch_size=512,
+        epochs=200, batch_size=512,
         callbacks=[early_stopping],
     )
 
