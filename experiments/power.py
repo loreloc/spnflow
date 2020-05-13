@@ -37,6 +37,9 @@ def load_power_dataset(rand_state):
     data_train = (data_train - mu) / sigma
     data_val = (data_val - mu) / sigma
     data_test = (data_test - mu) / sigma
+    data_train = data_train.astype('float32')
+    data_val = data_val.astype('float32')
+    data_test = data_test.astype('float32')
 
     return data_train, data_val, data_test
 
@@ -71,7 +74,7 @@ if __name__ == '__main__':
         x=data_train,
         y=np.zeros((data_train.shape[0], 0), dtype=np.float32),
         validation_data=(data_val, np.zeros((data_val.shape[0], 0), dtype=np.float32)),
-        epochs=200, batch_size=512,
+        epochs=100, batch_size=512,
         callbacks=[early_stopping],
     )
 
