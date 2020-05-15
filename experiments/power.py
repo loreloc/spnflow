@@ -53,10 +53,10 @@ if __name__ == '__main__':
 
     # Build the model
     model = AutoregressiveRatSpn(
-        depth=2,
+        depth=1,
         n_batch=4,
         n_sum=8,
-        n_repetitions=4,
+        n_repetitions=8,
         optimize_scale=True,
         n_mafs=5,
         hidden_units=[128, 128],
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     )
 
     # Compile the model
-    model.compile(optimizer=tf.keras.optimizers.Adam(1e-4), loss=log_loss)
+    model.compile(optimizer='adam', loss=log_loss)
 
     # Fit the model
     model.fit(
