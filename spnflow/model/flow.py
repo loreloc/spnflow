@@ -11,11 +11,12 @@ class AutoregressiveRatSpn(tf.keras.Model):
                  n_sum=2,
                  n_repetitions=1,
                  dropout=0.0,
-                 optimize_scale=False,
+                 optimize_scale=True,
                  n_mafs=3,
                  hidden_units=[32, 32],
                  activation='relu',
                  regularization=1e-6,
+                 batch_norm=True,
                  rand_state=None,
                  **kwargs
                  ):
@@ -33,6 +34,7 @@ class AutoregressiveRatSpn(tf.keras.Model):
         :param activation: The activation function for the autoregressive network.
         :param regularization: The L2 regularization weight for the autoregressive network.
         :param rand_state: The random state to use to generate the RAT-SPN model.
+        :param batch_norm: Whatever to use batch normalization between MAFs.
         :param kwargs: Other arguments.
         """
         super(AutoregressiveRatSpn, self).__init__(**kwargs)
@@ -46,6 +48,7 @@ class AutoregressiveRatSpn(tf.keras.Model):
         self.hidden_units = hidden_units
         self.activation = activation
         self.regularization = regularization
+        self.batch_norm = batch_norm
         self.rand_state = rand_state
         self.spn = None
         self.mades = None
@@ -82,20 +85,19 @@ class AutoregressiveRatSpn(tf.keras.Model):
 
         # Build the MADE models
         self.mades = []
-        input_order = 'left-to-right'
+        input_order = 'right-to-left'
         for _ in range(self.n_mafs):
             # Build the MADE model
             made = tfp.bijectors.AutoregressiveNetwork(
                 params=2,
                 input_order=input_order,
-                use_bias=False,
                 hidden_units=self.hidden_units,
                 activation=self.activation,
                 kernel_regularizer=tf.keras.regularizers.l2(self.regularization)
             )
             self.mades.append(made)
             # Change the input order
-            input_order = 'right-to-left' if input_order == 'left-to-right' else 'left-to-right'
+            input_order = 'left-to-right' if input_order == 'right-to-left' else 'right-to-left'
 
         # Build the MAFs
         self.mafs = []
@@ -108,11 +110,11 @@ class AutoregressiveRatSpn(tf.keras.Model):
         # Build the bijector by chaining multiple MAFs
         bijectors = []
         for maf in self.mafs:
+            # Append batch normalization bijection, if specified
+            if self.batch_norm:
+                bijectors.append(tfp.bijectors.BatchNormalization())
             # Append the maf bijection
             bijectors.append(maf)
-            # Append batch normalization bijection
-            bn = tfp.bijectors.BatchNormalization()
-            bijectors.append(bn)
         self.bijector = tfp.bijectors.Chain(bijectors)
 
     def call(self, inputs, training=None, **kwargs):
@@ -124,8 +126,8 @@ class AutoregressiveRatSpn(tf.keras.Model):
         :param kwargs: Other arguments.
         :return: The output of the model.
         """
-        u = self.bijector.inverse(inputs)
+        u = self.bijector.inverse(inputs, training=training)
         p = self.spn(u, training=training, **kwargs)
-        d = self.bijector.inverse_log_det_jacobian(inputs, event_ndims=1)
+        d = self.bijector.inverse_log_det_jacobian(inputs, event_ndims=1, training=training)
         p = p + tf.expand_dims(d, axis=-1)
         return p

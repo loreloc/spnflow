@@ -10,7 +10,7 @@ def build_rat_spn(
         n_sum=2,
         n_repetitions=1,
         dropout=0.0,
-        optimize_scale=False,
+        optimize_scale=True,
         rand_state=None
         ):
     """
