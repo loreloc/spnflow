@@ -18,14 +18,14 @@ def load_gas_dataset(rand_state=None):
         data.drop(col_name, axis=1, inplace=True)
         uninformative_features = (data.corr() > 0.98).to_numpy().sum(axis=1)
     data = data.to_numpy()
+    mu = np.mean(data, axis=0)
+    sigma = np.std(data, axis=0)
     rand_state.shuffle(data)
 
     # Split the dataset in train, validation and test set
     n_test = int(0.1 * data.shape[0])
     data_test = data[-n_test:]
     data = data[0:-n_test]
-    mu = np.mean(data, axis=0)
-    sigma = np.std(data, axis=0)
     n_val = int(0.1 * data.shape[0])
     data_val = data[-n_val:]
     data_train = data[0:-n_val]
