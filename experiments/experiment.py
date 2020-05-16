@@ -177,7 +177,7 @@ def experiment_log_likelihood(model, data_train, data_val, data_test):
         y=np.zeros((data_train.shape[0], 0), dtype=np.float32),
         validation_data=(data_val, np.zeros((data_val.shape[0], 0), dtype=np.float32)),
         epochs=200,
-        batch_size=100,
+        batch_size=128,
         callbacks=[tf.keras.callbacks.EarlyStopping(patience=20)]
     )
 
