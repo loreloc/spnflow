@@ -61,7 +61,4 @@ def build_rat_spn(
     # Add the root sum layer
     model.add(RootLayer())
 
-    model.summary()
-    quit()
-
     return model
