@@ -45,8 +45,8 @@ if __name__ == '__main__':
     # Build the model
     model = AutoregressiveRatSpn(
         depth=3,
-        n_batch=8,
-        n_sum=8,
+        n_batch=16,
+        n_sum=16,
         n_repetitions=32,
         n_mafs=5,
         hidden_units=[1024],
