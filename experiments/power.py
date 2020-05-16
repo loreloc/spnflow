@@ -14,12 +14,10 @@ def load_power_dataset(rand_state):
     # Add noise to the dataset
     n_samples, n_features = data.shape
     gap_noise = 0.001 * rand_state.rand(n_samples, 1)
-    grp_noise = 0.001 * rand_state.rand(n_samples, 1)
     voltage_noise = 0.01 * rand_state.rand(n_samples, 1)
-    global_intensity_noise = 0.1 * rand_state.rand(n_samples, 1)
-    sm_noise = rand_state.rand(n_samples, 1)
+    sm_noise = rand_state.rand(n_samples, 3)
     time_noise = np.zeros((n_samples, 1))
-    noise = np.hstack((gap_noise, grp_noise, voltage_noise, global_intensity_noise, sm_noise, time_noise))
+    noise = np.hstack((gap_noise, voltage_noise, sm_noise, time_noise))
     data += noise
 
     # Split the dataset in train, validation and test set
