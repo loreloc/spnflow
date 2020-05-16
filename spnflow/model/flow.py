@@ -85,7 +85,7 @@ class AutoregressiveRatSpn(tf.keras.Model):
 
         # Build the MADE models
         self.mades = []
-        input_order = 'right-to-left'
+        input_order = 'left-to-right'
         for _ in range(self.n_mafs):
             # Build the MADE model
             made = tfp.bijectors.AutoregressiveNetwork(
@@ -97,7 +97,7 @@ class AutoregressiveRatSpn(tf.keras.Model):
             )
             self.mades.append(made)
             # Change the input order
-            input_order = 'left-to-right' if input_order == 'right-to-left' else 'right-to-left'
+            input_order = 'right-to-left' if input_order == 'left-to-right' else 'left-to-right'
 
         # Build the MAFs
         self.mafs = []
