@@ -110,11 +110,11 @@ class AutoregressiveRatSpn(tf.keras.Model):
         # Build the bijector by chaining multiple MAFs
         bijectors = []
         for maf in self.mafs:
+            # Append the maf bijection
+            bijectors.append(maf)
             # Append batch normalization bijection, if specified
             if self.batch_norm:
                 bijectors.append(tfp.bijectors.BatchNormalization())
-            # Append the maf bijection
-            bijectors.append(maf)
         self.bijector = tfp.bijectors.Chain(bijectors)
 
     def call(self, inputs, training=None, **kwargs):
