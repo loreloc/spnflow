@@ -4,3 +4,4 @@ python power.py
 python gas.py
 python hepmass.py
 python miniboone.py
+python mnist.py
