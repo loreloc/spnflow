@@ -54,7 +54,7 @@ if __name__ == '__main__':
         n_batch=8,
         n_sum=8,
         n_repetitions=8,
-        n_mafs=10,
+        n_mafs=5,
         hidden_units=[128, 128],
         activation='relu',
         regularization=1e-6,
