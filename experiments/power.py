@@ -1,7 +1,4 @@
 import numpy as np
-import tensorflow as tf
-from spnflow.model.flow import AutoregressiveRatSpn
-from experiments.utils import log_loss
 
 
 def load_power_dataset(rand_state):
@@ -39,47 +36,3 @@ def load_power_dataset(rand_state):
     data_test = data_test.astype('float32')
 
     return data_train, data_val, data_test
-
-
-if __name__ == '__main__':
-    # Instantiate a random state, used for reproducibility
-    rand_state = np.random.RandomState(42)
-
-    # Load the dataset
-    data_train, data_val, data_test = load_power_dataset(rand_state)
-
-    # Build the model
-    model = AutoregressiveRatSpn(
-        depth=1,
-        n_batch=8,
-        n_sum=8,
-        n_repetitions=8,
-        n_mafs=5,
-        hidden_units=[128, 128],
-        activation='relu',
-        regularization=1e-6,
-        rand_state=rand_state
-    )
-
-    # Compile the model
-    model.compile(optimizer=tf.keras.optimizers.Adam(1e-4), loss=log_loss)
-
-    # Fit the model
-    model.fit(
-        x=data_train,
-        y=np.zeros((data_train.shape[0], 0), dtype=np.float32),
-        validation_data=(data_val, np.zeros((data_val.shape[0], 0), dtype=np.float32)),
-        epochs=200, batch_size=256,
-        callbacks=[tf.keras.callbacks.EarlyStopping(patience=10)]
-    )
-
-    # Compute the test set mean log likelihood
-    y_pred = model.predict(data_test)
-    mu_log_likelihood = np.mean(y_pred)
-    sigma_log_likelihood = np.std(y_pred) / np.sqrt(data_test.shape[0])
-
-    # Save the results to file
-    with open('results/power.txt', 'w') as file:
-        file.write('Power;\n')
-        file.write('Avg. Log-Likelihood: ' + str(mu_log_likelihood) + '\n')
-        file.write('Std. Log-Likelihood: ' + str(sigma_log_likelihood) + '\n')
