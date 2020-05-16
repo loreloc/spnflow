@@ -53,7 +53,7 @@ if __name__ == '__main__':
         depth=1,
         n_batch=8,
         n_sum=8,
-        n_repetitions=16,
+        n_repetitions=8,
         n_mafs=5,
         hidden_units=[128, 128],
         activation='tanh',

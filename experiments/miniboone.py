@@ -43,7 +43,7 @@ if __name__ == '__main__':
         depth=2,
         n_batch=8,
         n_sum=8,
-        n_repetitions=32,
+        n_repetitions=16,
         n_mafs=5,
         hidden_units=[512, 512],
         activation='relu',
