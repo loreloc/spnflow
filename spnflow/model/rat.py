@@ -50,9 +50,9 @@ def build_rat_spn(
     for i in range(1, len(layers) - 1):
         if i % 2 == 1:
             model.add(ProductLayer())
+        else:
             if dropout > 0.0:
                 model.add(DropoutLayer(dropout))
-        else:
             model.add(SumLayer(n_sum))
 
     # Add the flatten layer
@@ -60,5 +60,8 @@ def build_rat_spn(
 
     # Add the root sum layer
     model.add(RootLayer())
+
+    model.summary()
+    quit()
 
     return model
