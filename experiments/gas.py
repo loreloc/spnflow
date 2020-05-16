@@ -51,12 +51,12 @@ if __name__ == '__main__':
     # Build the model
     model = AutoregressiveRatSpn(
         depth=2,
-        n_batch=4,
+        n_batch=8,
         n_sum=8,
-        n_repetitions=8,
+        n_repetitions=16,
         n_mafs=5,
         hidden_units=[128, 128],
-        activation='relu',
+        activation='tanh',
         regularization=1e-6,
         rand_state=rand_state
     )
@@ -69,7 +69,7 @@ if __name__ == '__main__':
         x=data_train,
         y=np.zeros((data_train.shape[0], 0), dtype=np.float32),
         validation_data=(data_val, np.zeros((data_val.shape[0], 0), dtype=np.float32)),
-        epochs=200, batch_size=128,
+        epochs=500, batch_size=128,
         callbacks=[tf.keras.callbacks.EarlyStopping(patience=20)]
     )
 
