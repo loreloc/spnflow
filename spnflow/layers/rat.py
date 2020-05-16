@@ -42,7 +42,7 @@ class GaussianLayer(tf.keras.layers.Layer):
         if self.optimize_scale:
             self._scales = [
                 tf.Variable(
-                    0.5 + 1e-1 * tf.math.sigmoid(tf.random.normal(shape=(self.n_batch, len(r)))),
+                    1.0 + 1e-1 * (1.0 - 2.0 * tf.math.sigmoid(tf.random.normal(shape=(self.n_batch, len(r))))),
                     trainable=True
                 )
                 for r in self.regions
