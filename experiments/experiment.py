@@ -169,7 +169,7 @@ def collect_results(dataset, info, model, data_train, data_val, data_test):
 
 def experiment_log_likelihood(model, data_train, data_val, data_test):
     # Compile the model
-    model.compile(optimizer=tf.keras.optimizers.Adam(1e-4), loss=log_loss)
+    model.compile(optimizer=tf.keras.optimizers.Adam(5e-4), loss=log_loss)
 
     # Fit the model
     model.fit(
