@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
     # Build the model
     model = AutoregressiveRatSpn(
-        depth=2,
+        depth=1,
         n_batch=8,
         n_sum=8,
         n_repetitions=16,
