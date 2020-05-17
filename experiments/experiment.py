@@ -10,6 +10,13 @@ from experiments.miniboone import load_miniboone_dataset
 from experiments.mnist import load_mnist_dataset
 from spnflow.model.flow import AutoregressiveRatSpn
 
+EPOCHS = 200
+BATCH_SIZE = 128
+PATIENCE = 10
+INITIAL_LR = 0.001
+DECAY_EPOCHS = 25
+DECAY_RATE = 0.5
+
 
 def run_experiment_power():
     # Instantiate a random state, used for reproducibility
@@ -164,21 +171,29 @@ def collect_results(dataset, info, model, data_train, data_val, data_test):
     with open(os.path.join('results', dataset + '_' + info + '.txt'), 'w') as file:
         file.write(dataset + '\n')
         file.write('Avg. Log-Likelihood: ' + str(mu_ll) + '\n')
-        file.write('Std. Log-Likelihood: ' + str(sigma_ll) + '\n')
+        file.write('Two Std. Log-Likelihood: ' + str(2.0 * sigma_ll) + '\n')
 
 
 def experiment_log_likelihood(model, data_train, data_val, data_test):
+    # Instantiate the optimizer
+    optimizer = tf.keras.optimizers.Adam(
+        tf.keras.optimizers.schedules.ExponentialDecay(
+            INITIAL_LR,
+            decay_steps=DECAY_EPOCHS * (data_train.shape[0] // BATCH_SIZE),
+            decay_rate=DECAY_RATE
+        )
+    )
+
     # Compile the model
-    model.compile(optimizer=tf.keras.optimizers.Adam(2e-4), loss=log_loss)
+    model.compile(optimizer=optimizer, loss=log_loss)
 
     # Fit the model
     model.fit(
         x=data_train,
         y=np.zeros((data_train.shape[0], 0), dtype=np.float32),
         validation_data=(data_val, np.zeros((data_val.shape[0], 0), dtype=np.float32)),
-        epochs=200,
-        batch_size=128,
-        callbacks=[tf.keras.callbacks.EarlyStopping(patience=20)]
+        epochs=EPOCHS, batch_size=BATCH_SIZE,
+        callbacks=[tf.keras.callbacks.EarlyStopping(patience=PATIENCE)]
     )
 
     # Compute the test set mean log likelihood
