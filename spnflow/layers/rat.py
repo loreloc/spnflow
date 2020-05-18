@@ -45,7 +45,7 @@ class GaussianLayer(tf.keras.layers.Layer):
         if self._pad > 0:
             for i in range(n_regions):
                 n_dummy = dim_gauss - len(self.regions[i])
-                self.regions[i] = tuple(list(self.regions[i]) + list(range(n_features, n_features + n_dummy)))
+                self.regions[i] = tuple(list(self.regions[i]) + list(self.regions[i])[:n_dummy])
 
         # Instantiate the mean variable
         self._mean = tf.Variable(
@@ -74,17 +74,10 @@ class GaussianLayer(tf.keras.layers.Layer):
         :param kwargs: Other arguments.
         :return: The log likelihood of each distribution leaf.
         """
-        # Pad dummy variables via reflection
-        if self._pad > 0:
-            inputs = tf.pad(inputs, paddings=[[0, 0], [0, self._pad]], mode='reflect')
-
-        # Gather the inputs based on region ordering
-        x = tf.gather(inputs, self.regions, axis=1)
-
         # Compute the log-likelihoods
+        x = tf.gather(inputs, self.regions, axis=1)
         x = tf.expand_dims(x, axis=2)
         x = self._distribution.log_prob(x)
-
         return x
 
 
