@@ -1,3 +1,4 @@
+import math
 import tensorflow as tf
 import tensorflow_probability as tfp
 
@@ -6,22 +7,27 @@ class GaussianLayer(tf.keras.layers.Layer):
     """
     The Gaussian distributions input layer class.
     """
-    def __init__(self, regions, n_batch, optimize_scale, **kwargs):
+    def __init__(self, n_repetitions, depth, regions, n_batch, optimize_scale, **kwargs):
         """
         Initialize a Gaussian distributions input layer.
 
+        :param n_repetitions: The number of repetitions of the RAT-SPN.
+        :param depth: The depth of the RAT-SPN.
         :param regions: The regions of the distributions.
         :param n_batch: The number of distributions.
         :param optimize_scale: Whatever to train scale and mean jointly.
         :param kwargs: Other arguments.
         """
         super(GaussianLayer, self).__init__(**kwargs)
+        self.n_repetitions = n_repetitions
+        self.depth = depth
         self.regions = regions
         self.n_batch = n_batch
         self.optimize_scale = optimize_scale
-        self._means = None
-        self._scales = None
-        self._distributions = None
+        self._pad = None
+        self._mean = None
+        self._scale = None
+        self._distribution = None
 
     def build(self, input_shape):
         """
@@ -29,38 +35,35 @@ class GaussianLayer(tf.keras.layers.Layer):
 
         :param input_shape: The input shape.
         """
-        # Create the means variables
-        self._means = [
-            tf.Variable(
-                tf.random.normal(shape=(self.n_batch, len(r)), stddev=1e-1),
-                trainable=True
-            )
-            for r in self.regions
-        ]
+        n_features = input_shape[1]
+        n_regions = len(self.regions)
+        cardinality = int(math.ceil(n_features / (2 ** self.depth)))
 
-        # Create the scales variables
+        # Compute the padding
+        self._pad = (cardinality - n_features % cardinality) % cardinality
+        dim_gauss = (n_features + self._pad) // (2 ** self.depth)
+
+        # Append dummy variables to regions orderings
+        if self._pad > 0:
+            for i in range(n_regions):
+                n_dummy = dim_gauss - len(self.regions[i])
+                self.regions[i] = tuple(list(self.regions[i]) + list(range(n_features, n_features + n_dummy)))
+
+        # Instantiate the mean variable
+        self._mean = tf.Variable(
+            tf.random.normal(shape=(n_regions, self.n_batch, dim_gauss), stddev=1e-1), trainable=True
+        )
+
+        # Instantiate the scale variable
         if self.optimize_scale:
-            self._scales = [
-                tf.Variable(
-                    1.0 + 1e-1 * (1.0 - 2.0 * tf.math.sigmoid(tf.random.normal(shape=(self.n_batch, len(r))))),
-                    trainable=True
-                )
-                for r in self.regions
-            ]
+            sigma = 1.0 - 2.0 * tf.math.sigmoid(tf.random.normal(shape=(n_regions, self.n_batch, dim_gauss)))
+            self._scale = tf.Variable(1.0 + 1e-1 * sigma, trainable=True)
         else:
-            self._scales = [
-                tf.Variable(
-                    tf.ones(shape=(self.n_batch, len(r))),
-                    trainable=False
-                )
-                for r in self.regions
-            ]
+            sigma = tf.ones(shape=(n_regions, self.n_batch, dim_gauss))
+            self._scale = tf.Variable(sigma, trainable=False)
 
-        # Create the multi-batch multivariate distributions
-        self._distributions = [
-            tfp.distributions.MultivariateNormalDiag(mean, scale)
-            for mean, scale in zip(self._means, self._scales)
-        ]
+        # Create the multi-batch multivariate distribution
+        self._distribution = tfp.distributions.MultivariateNormalDiag(self._mean, self._scale)
 
         # Call the parent class's build method
         super(GaussianLayer, self).build(input_shape)
@@ -73,13 +76,17 @@ class GaussianLayer(tf.keras.layers.Layer):
         :param kwargs: Other arguments.
         :return: The log likelihood of each distribution leaf.
         """
-        # Concatenate the results of each distribution's batch result
-        ll = [
-            d.log_prob(tf.expand_dims(tf.gather(inputs, r, axis=1), axis=1))
-            for r, d in zip(self.regions, self._distributions)
-        ]
+        # Pad dummy variables via reflection
+        if self._pad > 0:
+            inputs = tf.pad(inputs, paddings=[[0, 0], [0, self._pad]], mode='reflect')
 
-        x = tf.stack(ll, axis=1)
+        # Gather the inputs based on region ordering
+        x = tf.gather(inputs, self.regions, axis=1)
+
+        # Compute the log-likelihoods
+        x = tf.expand_dims(x, axis=2)
+        x = self._distribution.log_prob(x)
+
         return x
 
 
