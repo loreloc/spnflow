@@ -110,12 +110,12 @@ def run_experiment_miniboone():
     # Load the miniboone dataset
     data_train, data_val, data_test = load_miniboone_dataset(rand_state)
 
-    #model = AutoregressiveRatSpn(
-    #    depth=2, n_batch=16, n_sum=16, n_repetitions=16,
-    #    n_mafs=1, hidden_units=[512, 512], activation='relu', regularization=1e-6,
-    #    rand_state=rand_state
-    #)
-    #collect_results('miniboone', 'made', model, data_train, data_val, data_test)
+    model = AutoregressiveRatSpn(
+        depth=2, n_batch=16, n_sum=16, n_repetitions=16,
+        n_mafs=1, hidden_units=[512, 512], activation='relu', regularization=1e-6,
+        rand_state=rand_state
+    )
+    collect_results('miniboone', 'made', model, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=2, n_batch=16, n_sum=16, n_repetitions=16,
