@@ -7,11 +7,10 @@ class GaussianLayer(tf.keras.layers.Layer):
     """
     The Gaussian distributions input layer class.
     """
-    def __init__(self, n_repetitions, depth, regions, n_batch, optimize_scale, **kwargs):
+    def __init__(self, depth, regions, n_batch, optimize_scale, **kwargs):
         """
         Initialize a Gaussian distributions input layer.
 
-        :param n_repetitions: The number of repetitions of the RAT-SPN.
         :param depth: The depth of the RAT-SPN.
         :param regions: The regions of the distributions.
         :param n_batch: The number of distributions.
@@ -19,7 +18,6 @@ class GaussianLayer(tf.keras.layers.Layer):
         :param kwargs: Other arguments.
         """
         super(GaussianLayer, self).__init__(**kwargs)
-        self.n_repetitions = n_repetitions
         self.depth = depth
         self.regions = regions
         self.n_batch = n_batch

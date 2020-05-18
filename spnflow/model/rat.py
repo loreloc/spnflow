@@ -44,7 +44,7 @@ def build_rat_spn(
     model.add(tf.keras.layers.InputLayer(input_shape=(n_features,)))
 
     # Add the distributions layer
-    model.add(GaussianLayer(n_repetitions, depth, layers[0], n_batch, optimize_scale))
+    model.add(GaussianLayer(depth, layers[0], n_batch, optimize_scale))
 
     # Alternate between product and sum layer
     for i in range(1, len(layers) - 1):
