@@ -10,12 +10,10 @@ from experiments.miniboone import load_miniboone_dataset
 from experiments.mnist import load_mnist_dataset
 from spnflow.model.flow import AutoregressiveRatSpn
 
-EPOCHS = 200
+EPOCHS = 500
 BATCH_SIZE = 128
-PATIENCE = 10
-INITIAL_LR = 0.001
-DECAY_EPOCHS = 25
-DECAY_RATE = 0.5
+PATIENCE = 30
+LEARNING_RATE = 1e-4
 
 
 def run_experiment_power():
@@ -112,12 +110,12 @@ def run_experiment_miniboone():
     # Load the miniboone dataset
     data_train, data_val, data_test = load_miniboone_dataset(rand_state)
 
-    model = AutoregressiveRatSpn(
-        depth=2, n_batch=16, n_sum=16, n_repetitions=16,
-        n_mafs=1, hidden_units=[512, 512], activation='relu', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('miniboone', 'made', model, data_train, data_val, data_test)
+    #model = AutoregressiveRatSpn(
+    #    depth=2, n_batch=16, n_sum=16, n_repetitions=16,
+    #    n_mafs=1, hidden_units=[512, 512], activation='relu', regularization=1e-6,
+    #    rand_state=rand_state
+    #)
+    #collect_results('miniboone', 'made', model, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=2, n_batch=16, n_sum=16, n_repetitions=16,
@@ -176,13 +174,7 @@ def collect_results(dataset, info, model, data_train, data_val, data_test):
 
 def experiment_log_likelihood(model, data_train, data_val, data_test):
     # Instantiate the optimizer
-    optimizer = tf.keras.optimizers.Adam(
-        tf.keras.optimizers.schedules.ExponentialDecay(
-            INITIAL_LR,
-            decay_steps=DECAY_EPOCHS * (data_train.shape[0] // BATCH_SIZE),
-            decay_rate=DECAY_RATE
-        )
-    )
+    optimizer = tf.keras.optimizers.Adam(LEARNING_RATE)
 
     # Compile the model
     model.compile(optimizer=optimizer, loss=log_loss)
