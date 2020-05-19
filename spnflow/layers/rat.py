@@ -35,10 +35,9 @@ class GaussianLayer(tf.keras.layers.Layer):
         """
         n_features = input_shape[1]
         n_regions = len(self.regions)
-        cardinality = int(math.ceil(n_features / (2 ** self.depth)))
 
         # Compute the padding
-        self._pad = (cardinality - n_features % cardinality) % cardinality
+        self._pad = -n_features % (2 ** self.depth)
         dim_gauss = (n_features + self._pad) // (2 ** self.depth)
 
         # Append dummy variables to regions orderings
