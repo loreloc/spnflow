@@ -13,7 +13,7 @@ from spnflow.model.flow import AutoregressiveRatSpn
 EPOCHS = 500
 BATCH_SIZE = 128
 PATIENCE = 30
-LEARNING_RATE = 1e-4
+LEARNING_RATE = 0.0002
 
 
 def run_experiment_power():
