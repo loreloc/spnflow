@@ -3,62 +3,98 @@ from spnflow.layers.rat import *
 from spnflow.utils.region import RegionGraph
 
 
-def build_rat_spn(
-        n_features,
-        depth=2,
-        n_batch=2,
-        n_sum=2,
-        n_repetitions=1,
-        dropout=0.0,
-        optimize_scale=True,
-        rand_state=None
-        ):
-    """
-    Build a RAT-SPN model.
+class RatSpn(tf.keras.Model):
+    """RAT-SPN Keras model class."""
+    def __init__(self,
+                 n_features,
+                 depth=2,
+                 n_batch=2,
+                 n_sum=2,
+                 n_repetitions=1,
+                 dropout=0.0,
+                 optimize_scale=True,
+                 rand_state=None,
+                 **kwargs
+                 ):
+        """
+        Initialize a RAT-SPN.
 
-    :param n_features: The number of features.
-    :param depth: The depth of the network.
-    :param n_batch: The number of distributions.
-    :param n_sum: The number of sum nodes.
-    :param n_repetitions: The number of independent repetitions of the region graph.
-    :param dropout: The rate of the dropout layers.
-    :param optimize_scale: Whatever to train scale and mean jointly.
-    :param rand_state: The random state used to generate the random graph.
-    :return: A Keras based RAT-SPN model.
-    """
-    # If necessary, instantiate a random state
-    if rand_state is None:
-        rand_state = np.random.RandomState(42)
+        :param depth: The depth of the network.
+        :param n_batch: The number of distributions.
+        :param n_sum: The number of sum nodes.
+        :param n_repetitions: The number of independent repetitions of the region graph.
+        :param dropout: The rate of the dropout layers.
+        :param optimize_scale: Whatever to train scale and mean jointly.
+        :param rand_state: The random state used to generate the random graph.
+        :param kwargs: Other arguments.
+        """
+        super(RatSpn, self).__init__(**kwargs)
+        self.depth = depth
+        self.n_batch = n_batch
+        self.n_sum = n_sum
+        self.n_repetitions = n_repetitions
+        self.dropout = dropout
+        self.optimize_scale = optimize_scale
+        self.rand_state = rand_state
+        self.base_layer = None
+        self.inner_layers = None
+        self.flatten_layer = None
+        self.root_layer = None
 
-    # Instantiate the region graph
-    region_graph = RegionGraph(n_features, depth, rand_state)
+        # If necessary, instantiate a random state
+        if self.rand_state is None:
+            self.rand_state = np.random.RandomState(42)
 
-    # Generate the layers
-    layers = region_graph.make_layers(n_repetitions)
-    layers = list(reversed(layers))
+        # Instantiate the region graph
+        region_graph = RegionGraph(n_features, self.depth, self.rand_state)
 
-    # Instantiate the sequential model
-    model = tf.keras.Sequential()
+        # Generate the layers
+        self.rg_layers = region_graph.make_layers(self.n_repetitions)
+        self.rg_layers = list(reversed(self.rg_layers))
 
-    # Add the input layer
-    model.add(tf.keras.layers.InputLayer(input_shape=(n_features,)))
+    def build(self, input_shape):
+        """
+        Build the model.
 
-    # Add the distributions layer
-    model.add(GaussianLayer(depth, layers[0], n_batch, optimize_scale))
+        :param input_shape: The input shape.
+        """
 
-    # Alternate between product and sum layer
-    for i in range(1, len(layers) - 1):
-        if i % 2 == 1:
-            model.add(ProductLayer())
-        else:
-            if dropout > 0.0:
-                model.add(DropoutLayer(dropout))
-            model.add(SumLayer(n_sum))
+        # Add the base distributions layer
+        self.base_layer = GaussianLayer(self.depth, self.rg_layers[0], self.n_batch, self.optimize_scale)
 
-    # Add the flatten layer
-    model.add(tf.keras.layers.Flatten())
+        # Alternate between product and sum layer
+        self.inner_layers = []
+        for i in range(1, len(self.rg_layers) - 1):
+            if i % 2 == 1:
+                self.inner_layers.append(ProductLayer())
+            else:
+                if self.dropout > 0.0:
+                    self.inner_layers.append(DropoutLayer(self.dropout))
+                self.inner_layers.append(SumLayer(self.n_sum))
 
-    # Add the root sum layer
-    model.add(RootLayer())
+        # Add the flatten layer
+        self.flatten_layer = tf.keras.layers.Flatten()
 
-    return model
+        # Add the sum root layer
+        self.root_layer = RootLayer()
+
+    def call(self, inputs, training=None, **kwargs):
+        """
+        Call the model.
+
+        :param inputs: The inputs tensor.
+        :param training: Whatever the model is training or not.
+        :param kwargs: Other arguments.
+        :return: The output of the model.
+        """
+        # Calculate the base log-likelihoods
+        x = self.base_layer(inputs, training=training, **kwargs)
+
+        # Forward through the inner layers
+        for layer in self.inner_layers:
+            x = layer(x, training=training, **kwargs)
+
+        # Flatten the result and forward through the sum root layer
+        x = self.flatten_layer(x)
+        x = self.root_layer(x)
+        return x

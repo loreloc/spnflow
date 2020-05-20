@@ -1,6 +1,6 @@
 import tensorflow as tf
 import tensorflow_probability as tfp
-from spnflow.model.rat import build_rat_spn
+from spnflow.model.rat import RatSpn
 
 
 class AutoregressiveRatSpn(tf.keras.Model):
@@ -72,7 +72,7 @@ class AutoregressiveRatSpn(tf.keras.Model):
 
         # Build the RAT-SPN that represents the base distribution
         _, n_features = input_shape
-        self.spn = build_rat_spn(
+        self.spn = RatSpn(
             n_features,
             self.depth,
             self.n_batch,
