@@ -29,6 +29,7 @@ class RatSpn(tf.keras.Model):
         :param kwargs: Other arguments.
         """
         super(RatSpn, self).__init__(**kwargs)
+        self.n_features = n_features
         self.depth = depth
         self.n_batch = n_batch
         self.n_sum = n_sum
@@ -46,7 +47,7 @@ class RatSpn(tf.keras.Model):
             self.rand_state = np.random.RandomState(42)
 
         # Instantiate the region graph
-        region_graph = RegionGraph(n_features, self.depth, self.rand_state)
+        region_graph = RegionGraph(self.n_features, self.depth, self.rand_state)
 
         # Generate the layers
         self.rg_layers = region_graph.make_layers(self.n_repetitions)
@@ -60,17 +61,17 @@ class RatSpn(tf.keras.Model):
         """
 
         # Add the base distributions layer
-        self.base_layer = GaussianLayer(self.depth, self.rg_layers[0], self.n_batch, self.optimize_scale)
+        self.base_layer = GaussianLayer(self.n_features, self.depth, self.rg_layers[0], self.n_batch, self.optimize_scale)
 
         # Alternate between product and sum layer
         self.inner_layers = []
         for i in range(1, len(self.rg_layers) - 1):
             if i % 2 == 1:
-                self.inner_layers.append(ProductLayer())
+                self.inner_layers.append(ProductLayer(self.rg_layers[i]))
             else:
                 if self.dropout > 0.0:
                     self.inner_layers.append(DropoutLayer(self.dropout))
-                self.inner_layers.append(SumLayer(self.n_sum))
+                self.inner_layers.append(SumLayer(self.rg_layers[i], self.n_sum))
 
         # Add the flatten layer
         self.flatten_layer = tf.keras.layers.Flatten()
@@ -98,3 +99,26 @@ class RatSpn(tf.keras.Model):
         x = self.flatten_layer(x)
         x = self.root_layer(x)
         return x
+
+    @tf.function
+    def sample(self, n_samples=1):
+        """
+        Sample from the modeled distribution.
+
+        :param n_samples: The number of samples.
+        :return: The samples.
+        """
+        idx = self.root_layer.sample(n_samples)
+        idx = tf.transpose(idx)
+        idx_repetition = idx // (self.n_sum ** 2)
+        idx_offset = idx % (self.n_sum ** 2)
+        idx = tf.concat([idx_repetition, idx_offset], axis=1)
+        idx = tf.expand_dims(idx, axis=1)
+
+        for layer in reversed(self.inner_layers):
+            if isinstance(layer, DropoutLayer):
+                continue
+            idx = layer.sample(idx)
+
+        samples = self.base_layer.sample(idx)
+        return samples

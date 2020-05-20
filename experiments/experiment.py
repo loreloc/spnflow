@@ -2,12 +2,13 @@ import os
 import sys
 import numpy as np
 import tensorflow as tf
+import matplotlib.pyplot as plt
 from experiments.utils import log_loss
 from experiments.power import load_power_dataset
 from experiments.gas import load_gas_dataset
 from experiments.hepmass import load_hepmass_dataset
 from experiments.miniboone import load_miniboone_dataset
-from experiments.mnist import load_mnist_dataset
+from experiments.mnist import load_mnist_dataset, delogit
 from spnflow.model.flow import AutoregressiveRatSpn
 
 EPOCHS = 500
@@ -145,6 +146,7 @@ def run_experiment_mnist():
         rand_state=rand_state
     )
     collect_results('mnist', 'made', model, data_train, data_val, data_test)
+    collect_samples('mnist', 'made', model, 10, post_fn=delogit)
 
     model = AutoregressiveRatSpn(
         depth=3, n_batch=16, n_sum=16, n_repetitions=32,
@@ -152,6 +154,7 @@ def run_experiment_mnist():
         rand_state=rand_state
     )
     collect_results('mnist', 'maf5', model, data_train, data_val, data_test)
+    collect_samples('mnist', 'maf5', model, 10, post_fn=delogit)
 
     model = AutoregressiveRatSpn(
         depth=3, n_batch=16, n_sum=16, n_repetitions=32,
@@ -159,6 +162,7 @@ def run_experiment_mnist():
         rand_state=rand_state
     )
     collect_results('mnist', 'maf10', model, data_train, data_val, data_test)
+    collect_samples('mnist', 'maf10', model, 10, post_fn=delogit)
 
 
 def collect_results(dataset, info, model, data_train, data_val, data_test):
@@ -170,6 +174,25 @@ def collect_results(dataset, info, model, data_train, data_val, data_test):
         file.write(dataset + '\n')
         file.write('Avg. Log-Likelihood: ' + str(mu_ll) + '\n')
         file.write('Two Std. Log-Likelihood: ' + str(2.0 * sigma_ll) + '\n')
+
+
+def collect_samples(dataset, info, model, n_samples, post_fn=None):
+    # Get some samples
+    samples = model.sample(n_samples)
+
+    # Post process the samples
+    if post_fn != None:
+        samples = post_fn(samples)
+    _, n_features = samples.shape
+    img_size = int(np.sqrt(n_features))
+
+    # Plot the samples
+    fig, axs = plt.subplots(1, n_samples, figsize=(n_samples, 1))
+    fig.subplots_adjust(top=1.0, bottom=0.0, right=1.0, left=0.0, wspace=0.0, hspace=0.0)
+    for i in range(n_samples):
+        axs[i].axis('off')
+        axs[i].imshow(np.reshape(samples[i], (img_size, img_size)), cmap='gray', interpolation='nearest')
+    fig.savefig(os.path.join('results', dataset + '_' + info + '.png'))
 
 
 def experiment_log_likelihood(model, data_train, data_val, data_test):

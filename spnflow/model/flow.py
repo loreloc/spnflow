@@ -131,3 +131,15 @@ class AutoregressiveRatSpn(tf.keras.Model):
         d = self.bijector.inverse_log_det_jacobian(inputs, event_ndims=1, training=training)
         p = p + tf.expand_dims(d, axis=-1)
         return p
+
+    @tf.function
+    def sample(self, n_samples):
+        """
+        Sample from the modeled distribution.
+
+        :param n_samples: The number of samples.
+        :return: The samples.
+        """
+        samples = self.spn.sample(n_samples)
+        samples = self.bijector.forward(samples)
+        return samples
