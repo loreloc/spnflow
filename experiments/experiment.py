@@ -13,7 +13,7 @@ from spnflow.model.flow import AutoregressiveRatSpn
 
 EPOCHS = 500
 BATCH_SIZE = 128
-PATIENCE = 30
+PATIENCE = 20
 LEARNING_RATE = 0.0002
 
 
@@ -146,7 +146,7 @@ def run_experiment_mnist():
         rand_state=rand_state
     )
     collect_results('mnist', 'made', model, data_train, data_val, data_test)
-    collect_samples('mnist', 'made', model, 10, post_fn=delogit)
+    collect_samples('mnist', 'made', model, 20, post_fn=delogit)
 
     model = AutoregressiveRatSpn(
         depth=3, n_batch=16, n_sum=16, n_repetitions=32,
@@ -154,7 +154,7 @@ def run_experiment_mnist():
         rand_state=rand_state
     )
     collect_results('mnist', 'maf5', model, data_train, data_val, data_test)
-    collect_samples('mnist', 'maf5', model, 10, post_fn=delogit)
+    collect_samples('mnist', 'maf5', model, 20, post_fn=delogit)
 
     model = AutoregressiveRatSpn(
         depth=3, n_batch=16, n_sum=16, n_repetitions=32,
@@ -162,7 +162,7 @@ def run_experiment_mnist():
         rand_state=rand_state
     )
     collect_results('mnist', 'maf10', model, data_train, data_val, data_test)
-    collect_samples('mnist', 'maf10', model, 10, post_fn=delogit)
+    collect_samples('mnist', 'maf10', model, 20, post_fn=delogit)
 
 
 def collect_results(dataset, info, model, data_train, data_val, data_test):

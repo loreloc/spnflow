@@ -61,17 +61,17 @@ class RatSpn(tf.keras.Model):
         """
 
         # Add the base distributions layer
-        self.base_layer = GaussianLayer(self.n_features, self.depth, self.rg_layers[0], self.n_batch, self.optimize_scale)
+        self.base_layer = GaussianLayer(self.depth, self.rg_layers[0], self.n_batch, self.optimize_scale)
 
         # Alternate between product and sum layer
         self.inner_layers = []
         for i in range(1, len(self.rg_layers) - 1):
             if i % 2 == 1:
-                self.inner_layers.append(ProductLayer(self.rg_layers[i]))
+                self.inner_layers.append(ProductLayer())
             else:
                 if self.dropout > 0.0:
                     self.inner_layers.append(DropoutLayer(self.dropout))
-                self.inner_layers.append(SumLayer(self.rg_layers[i], self.n_sum))
+                self.inner_layers.append(SumLayer(self.n_sum))
 
         # Add the flatten layer
         self.flatten_layer = tf.keras.layers.Flatten()
@@ -110,15 +110,13 @@ class RatSpn(tf.keras.Model):
         """
         idx = self.root_layer.sample(n_samples)
         idx = tf.transpose(idx)
-        idx_repetition = idx // (self.n_sum ** 2)
+        idx_partition = idx // (self.n_sum ** 2)
         idx_offset = idx % (self.n_sum ** 2)
-        idx = tf.concat([idx_repetition, idx_offset], axis=1)
-        idx = tf.expand_dims(idx, axis=1)
 
         for layer in reversed(self.inner_layers):
             if isinstance(layer, DropoutLayer):
                 continue
-            idx = layer.sample(idx)
+            idx_partition, idx_offset = layer.sample(n_samples, idx_partition, idx_offset)
 
-        samples = self.base_layer.sample(idx)
+        samples = self.base_layer.sample(n_samples, idx_partition, idx_offset)
         return samples

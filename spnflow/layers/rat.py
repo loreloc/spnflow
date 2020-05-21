@@ -5,11 +5,10 @@ import tensorflow_probability as tfp
 
 class GaussianLayer(tf.keras.layers.Layer):
     """The Gaussian distributions input layer class."""
-    def __init__(self, n_features, depth, regions, n_batch, optimize_scale, **kwargs):
+    def __init__(self, depth, regions, n_batch, optimize_scale, **kwargs):
         """
         Initialize a Gaussian distributions input layer.
 
-        :param n_features: The number of features.
         :param depth: The depth of the RAT-SPN.
         :param regions: The regions of the distributions.
         :param n_batch: The number of distributions.
@@ -17,7 +16,6 @@ class GaussianLayer(tf.keras.layers.Layer):
         :param kwargs: Other arguments.
         """
         super(GaussianLayer, self).__init__(**kwargs)
-        self.n_features = n_features
         self.depth = depth
         self.regions = regions
         self.n_batch = n_batch
@@ -80,29 +78,31 @@ class GaussianLayer(tf.keras.layers.Layer):
         x = self._distribution.log_prob(x)
         return x
 
-    def sample(self, idx):
+    def sample(self, n_samples, idx_partition, idx_offset):
         """
         Sample from the modeled distribution.
 
-        :param idx: The parent distribution's indices.
+        TODO: remove dummy variables padding from generated samples.
+
+        :param n_samples: The number of samples.
+        :param idx_partiton: The indices of the partitions.
+        :param idx_offset: The indices of the nodes
         :return: The indices of the modeled sub-distributions.
         """
-        # TODO: remove dummy variables padding from generated samples
-        n_samples, n_nodes, _ = idx.shape
+        # Sample from the distributions layer and gather the correct samples
+        idx = tf.stack([idx_partition, idx_offset], axis=-1)
         samples = self._distribution.sample(n_samples)
         samples = tf.gather_nd(samples, idx, batch_dims=1)
-        samples = tf.reshape(samples, shape=[n_samples, self.n_features])
-        region_idx = tf.stack([
-            tf.gather(self.regions, idx[i, :, 0])
-            for i in range(n_samples)
-        ])
-        region_idx = tf.reshape(region_idx, shape=[n_samples, self.n_features])
-        region_idx = tf.stack([
-            tf.math.invert_permutation(region_idx[i])
-            for i in range(n_samples)
-        ])
+        samples = tf.reshape(samples, shape=[n_samples, -1])
+
+        # Invert the region permutations
+        region_perm = tf.gather(self.regions, idx_partition)
+        region_perm = tf.reshape(region_perm, shape=[n_samples, -1])
+        region_perm = tf.map_fn(tf.math.invert_permutation, region_perm)
+
+        # Reorder the samples features using the inverted region permutations
         samples = tf.stack([
-            tf.gather(samples[i], region_idx[i])
+            tf.gather(samples[i], region_perm[i])
             for i in range(n_samples)
         ])
         return samples
@@ -110,15 +110,13 @@ class GaussianLayer(tf.keras.layers.Layer):
 
 class ProductLayer(tf.keras.layers.Layer):
     """Product node layer class."""
-    def __init__(self, partitions, **kwargs):
+    def __init__(self, **kwargs):
         """
         Initialize the Product layer.
 
-        :param partitions: The partitions list.
         :param kwargs: Parent class arguments.
         """
         super(ProductLayer, self).__init__(**kwargs)
-        self.partitions = partitions
         self.n_partitions = None
         self.n_nodes = None
 
@@ -151,36 +149,35 @@ class ProductLayer(tf.keras.layers.Layer):
         x = tf.reshape(x, [-1, self.n_partitions, self.n_nodes ** 2])  # (n, p, s * s)
         return x
 
-    def sample(self, idx):
+    def sample(self, n_samples, idx_partition, idx_offset):
         """
         Sample from the modeled distribution.
 
-        :param idx: The parent distribution's indices.
+        :param n_samples: The number of samples.
+        :param idx_partition: The indices of the partitions.
+        :param idx_offset: The indices of the nodes
         :return: The indices of the modeled sub-distributions.
         """
-        idx_region0 = idx[:, :, 0] * 2 + 0
-        idx_region1 = idx[:, :, 0] * 2 + 1
-        idx_offset0 = idx[:, :, 1] // self.n_nodes
-        idx_offset1 = idx[:, :, 1] % self.n_nodes
-        x0 = tf.expand_dims(tf.concat([idx_region0, idx_region1], axis=1), axis=1)
-        x1 = tf.expand_dims(tf.concat([idx_offset0, idx_offset1], axis=1), axis=1)
-        x = tf.concat([x0, x1], axis=1)
-        x = tf.transpose(x, perm=[0, 2, 1])
-        return x
+        # Compute the sub-distributions region indices and the offset of the nodes
+        idx_region0 = idx_partition * 2 + 0
+        idx_region1 = idx_partition * 2 + 1
+        idx_offset0 = idx_offset // self.n_nodes
+        idx_offset1 = idx_offset % self.n_nodes
+        idx_region = tf.concat([idx_region0, idx_region1], axis=1)
+        idx_offset = tf.concat([idx_offset0, idx_offset1], axis=1)
+        return idx_region, idx_offset
 
 
 class SumLayer(tf.keras.layers.Layer):
     """Sum node layer."""
-    def __init__(self, regions, n_sum, **kwargs):
+    def __init__(self, n_sum, **kwargs):
         """
         Initialize the sum layer.
 
-        :param regions: The regions list.
         :param n_sum: The number of sum node per region.
         :param kwargs: Parent class arguments.
         """
         super(SumLayer, self).__init__(**kwargs)
-        self.regions = regions
         self.n_sum = n_sum
         self.kernel = None
 
@@ -216,30 +213,24 @@ class SumLayer(tf.keras.layers.Layer):
         x = tf.math.reduce_logsumexp(x + w, axis=-1)  # (n, p, s)
         return x
 
-    def sample(self, idx):
+    def sample(self, n_samples, idx_region, idx_offset):
         """
         Sample from the modeled distribution.
 
-        :param idx: The parent distribution's indices.
+        :param n_samples: The number of samples.
+        :param idx_region: The indices of the regions.
+        :param idx_offset: The indices of the nodes
         :return: The indices of the modeled sub-distributions.
         """
-        n_samples, _, _ = idx.shape
-        idx_partitions = idx[:, :, 0]
-        logits = tf.stack([
-            tf.math.log_softmax(tf.gather_nd(self.kernel, idx[i]), axis=0)
-            for i in range(n_samples)
-        ])
-        idx_nodes = tf.stack([
-            tf.random.categorical(logits[i], num_samples=1)
-            for i in range(n_samples)
-        ])
-        idx_nodes = tf.squeeze(idx_nodes)
-        x = tf.stack([
-            idx_partitions,
-            idx_nodes
-        ], axis=1)
-        x = tf.transpose(x, perm=[0, 2, 1])
-        return x
+        # Gather the weights and transform them into logits space
+        idx = tf.stack([idx_region, idx_offset], axis=-1)
+        logits = tf.gather_nd(self.kernel, idx)
+        logits = tf.math.log_softmax(logits, axis=-1)
+
+        # Sample the new offset indices
+        idx_offset = tf.map_fn(lambda x: tf.random.categorical(x, 1), logits, dtype='int64')
+        idx_offset = tf.squeeze(idx_offset)
+        return idx_region, idx_offset
 
 
 class RootLayer(tf.keras.layers.Layer):
@@ -290,9 +281,10 @@ class RootLayer(tf.keras.layers.Layer):
         :param n_samples: The number of samples.
         :return: The indices of the modeled sub-distributions.
         """
-        w = tf.math.log_softmax(self.kernel, axis=1)
-        c = tf.random.categorical(w, n_samples)
-        return c
+        # Sample the indices of the nodes of the flattened product layer
+        logits = tf.math.log_softmax(self.kernel, axis=1)
+        idx_offset = tf.random.categorical(logits, n_samples)
+        return idx_offset
 
 
 class DropoutLayer(tf.keras.layers.Layer):
