@@ -134,7 +134,7 @@ class AutoregressiveRatSpn(tf.keras.Model):
         return p
 
     @tf.function
-    def sample(self, n_samples):
+    def sample(self, n_samples=1):
         """
         Sample from the modeled distribution.
 
