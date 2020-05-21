@@ -79,6 +79,7 @@ class RatSpn(tf.keras.Model):
         # Add the sum root layer
         self.root_layer = RootLayer()
 
+    @tf.function
     def call(self, inputs, training=None, **kwargs):
         """
         Call the model.

@@ -117,6 +117,7 @@ class AutoregressiveRatSpn(tf.keras.Model):
                 bijectors.append(tfp.bijectors.BatchNormalization())
         self.bijector = tfp.bijectors.Chain(bijectors)
 
+    @tf.function
     def call(self, inputs, training=None, **kwargs):
         """
         Call the model.
