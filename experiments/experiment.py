@@ -201,7 +201,7 @@ def run_experiment_mnist():
 
     model = RatSpn(n_features, depth=3, n_batch=16, n_sum=16, n_repetitions=32, rand_state=rand_state)
     collect_results('mnist', 'spn', model, LR_SPN, data_train, data_val, data_test)
-    collect_samples('mnist', 'spn', model, 20, mnist_delogit, mnist_plot)
+    collect_samples('mnist', 'spn', model, 20, mnist_plot, mnist_delogit)
 
     model = AutoregressiveRatSpn(
         depth=3, n_batch=16, n_sum=16, n_repetitions=32,
@@ -209,7 +209,7 @@ def run_experiment_mnist():
         rand_state=rand_state
     )
     collect_results('mnist', 'made', model, LR_MADE, data_train, data_val, data_test)
-    collect_samples('mnist', 'made', model, 20, mnist_delogit, mnist_plot)
+    collect_samples('mnist', 'made', model, 20, mnist_plot, mnist_delogit)
 
     model = AutoregressiveRatSpn(
         depth=3, n_batch=16, n_sum=16, n_repetitions=32,
@@ -217,7 +217,7 @@ def run_experiment_mnist():
         rand_state=rand_state
     )
     collect_results('mnist', 'maf5', model, LR_MAF, data_train, data_val, data_test)
-    collect_samples('mnist', 'maf5', model, 20, mnist_delogit, mnist_plot)
+    collect_samples('mnist', 'maf5', model, 20, mnist_plot, mnist_delogit)
 
     model = AutoregressiveRatSpn(
         depth=3, n_batch=16, n_sum=16, n_repetitions=32,
@@ -225,7 +225,7 @@ def run_experiment_mnist():
         rand_state=rand_state
     )
     collect_results('mnist', 'maf10', model, LR_MAF, data_train, data_val, data_test)
-    collect_samples('mnist', 'maf10', model, 20, mnist_delogit, mnist_plot)
+    collect_samples('mnist', 'maf10', model, 20, mnist_plot, mnist_delogit)
 
 
 def run_experiment_cifar10():
@@ -238,7 +238,7 @@ def run_experiment_cifar10():
 
     model = RatSpn(n_features, depth=3, n_batch=16, n_sum=16, n_repetitions=32, rand_state=rand_state)
     collect_results('cifar10', 'spn', model, LR_SPN, data_train, data_val, data_test)
-    collect_samples('cifar10', 'spn', model, 20, cifar10_delogit, cifar10_plot)
+    collect_samples('cifar10', 'spn', model, 20, cifar10_plot, cifar10_delogit)
 
     model = AutoregressiveRatSpn(
         depth=3, n_batch=16, n_sum=16, n_repetitions=32,
@@ -246,7 +246,7 @@ def run_experiment_cifar10():
         rand_state=rand_state
     )
     collect_results('cifar10', 'made', model, LR_MADE, data_train, data_val, data_test)
-    collect_samples('cifar10', 'made', model, 20, cifar10_delogit, cifar10_plot)
+    collect_samples('cifar10', 'made', model, 20, cifar10_plot, cifar10_delogit)
 
     model = AutoregressiveRatSpn(
         depth=3, n_batch=16, n_sum=16, n_repetitions=32,
@@ -254,7 +254,7 @@ def run_experiment_cifar10():
         rand_state=rand_state
     )
     collect_results('cifar10', 'maf5', model, LR_MAF, data_train, data_val, data_test)
-    collect_samples('cifar10', 'maf5', model, 20, cifar10_delogit, cifar10_plot)
+    collect_samples('cifar10', 'maf5', model, 20, cifar10_plot, cifar10_delogit)
 
     model = AutoregressiveRatSpn(
         depth=3, n_batch=16, n_sum=16, n_repetitions=32,
@@ -262,7 +262,7 @@ def run_experiment_cifar10():
         rand_state=rand_state
     )
     collect_results('cifar10', 'maf10', model, LR_MAF, data_train, data_val, data_test)
-    collect_samples('cifar10', 'maf10', model, 20, cifar10_delogit, cifar10_plot)
+    collect_samples('cifar10', 'maf10', model, 20, cifar10_plot, cifar10_delogit)
 
 
 def collect_results(dataset, info, model, lr, data_train, data_val, data_test):
@@ -276,7 +276,7 @@ def collect_results(dataset, info, model, lr, data_train, data_val, data_test):
         file.write('Two Std. Log-Likelihood: ' + str(2.0 * sigma_ll) + '\n')
 
 
-def collect_samples(dataset, info, model, n_samples, post_fn=None, plot_fn=None):
+def collect_samples(dataset, info, model, n_samples, plot_fn, post_fn=None):
     # Get some samples
     samples = model.sample(n_samples)
 
