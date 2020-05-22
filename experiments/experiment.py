@@ -9,13 +9,18 @@ from experiments.gas import load_gas_dataset
 from experiments.hepmass import load_hepmass_dataset
 from experiments.miniboone import load_miniboone_dataset
 from experiments.bsds300 import load_bsds300_dataset
-from experiments.mnist import load_mnist_dataset, delogit
+from experiments.mnist import load_mnist_dataset
+from experiments.mnist import delogit as mnist_delogit
+from experiments.mnist import plot as mnist_plot
+from experiments.cifar10 import load_cifar10_dataset
+from experiments.cifar10 import delogit as cifar10_delogit
+from experiments.cifar10 import plot as cifar10_plot
 from spnflow.model.rat import RatSpn
 from spnflow.model.flow import AutoregressiveRatSpn
 
 EPOCHS = 500
 BATCH_SIZE = 128
-PATIENCE = 30
+PATIENCE = 25
 LR_SPN = 1e-3
 LR_MADE = 1e-3
 LR_MAF = 1e-4
@@ -196,7 +201,7 @@ def run_experiment_mnist():
 
     model = RatSpn(n_features, depth=3, n_batch=16, n_sum=16, n_repetitions=32, rand_state=rand_state)
     collect_results('mnist', 'spn', model, LR_SPN, data_train, data_val, data_test)
-    collect_samples('mnist', 'spn', model, 20, post_fn=delogit)
+    collect_samples('mnist', 'spn', model, 20, mnist_delogit, mnist_plot)
 
     model = AutoregressiveRatSpn(
         depth=3, n_batch=16, n_sum=16, n_repetitions=32,
@@ -204,7 +209,7 @@ def run_experiment_mnist():
         rand_state=rand_state
     )
     collect_results('mnist', 'made', model, LR_MADE, data_train, data_val, data_test)
-    collect_samples('mnist', 'made', model, 20, post_fn=delogit)
+    collect_samples('mnist', 'made', model, 20, mnist_delogit, mnist_plot)
 
     model = AutoregressiveRatSpn(
         depth=3, n_batch=16, n_sum=16, n_repetitions=32,
@@ -212,7 +217,7 @@ def run_experiment_mnist():
         rand_state=rand_state
     )
     collect_results('mnist', 'maf5', model, LR_MAF, data_train, data_val, data_test)
-    collect_samples('mnist', 'maf5', model, 20, post_fn=delogit)
+    collect_samples('mnist', 'maf5', model, 20, mnist_delogit, mnist_plot)
 
     model = AutoregressiveRatSpn(
         depth=3, n_batch=16, n_sum=16, n_repetitions=32,
@@ -220,7 +225,44 @@ def run_experiment_mnist():
         rand_state=rand_state
     )
     collect_results('mnist', 'maf10', model, LR_MAF, data_train, data_val, data_test)
-    collect_samples('mnist', 'maf10', model, 20, post_fn=delogit)
+    collect_samples('mnist', 'maf10', model, 20, mnist_delogit, mnist_plot)
+
+
+def run_experiment_cifar10():
+    # Instantiate a random state, used for reproducibility
+    rand_state = np.random.RandomState(42)
+
+    # Load the cifar10 dataset
+    data_train, data_val, data_test = load_cifar10_dataset(rand_state)
+    _, n_features = data_train.shape
+
+    model = RatSpn(n_features, depth=3, n_batch=16, n_sum=16, n_repetitions=32, rand_state=rand_state)
+    collect_results('cifar10', 'spn', model, LR_SPN, data_train, data_val, data_test)
+    collect_samples('cifar10', 'spn', model, 20, cifar10_delogit, cifar10_plot)
+
+    model = AutoregressiveRatSpn(
+        depth=3, n_batch=16, n_sum=16, n_repetitions=32,
+        n_mafs=1, hidden_units=[1024], activation='relu', regularization=1e-6,
+        rand_state=rand_state
+    )
+    collect_results('cifar10', 'made', model, LR_MADE, data_train, data_val, data_test)
+    collect_samples('cifar10', 'made', model, 20, cifar10_delogit, cifar10_plot)
+
+    model = AutoregressiveRatSpn(
+        depth=3, n_batch=16, n_sum=16, n_repetitions=32,
+        n_mafs=5, hidden_units=[1024], activation='relu', regularization=1e-6,
+        rand_state=rand_state
+    )
+    collect_results('cifar10', 'maf5', model, LR_MAF, data_train, data_val, data_test)
+    collect_samples('cifar10', 'maf5', model, 20, cifar10_delogit, cifar10_plot)
+
+    model = AutoregressiveRatSpn(
+        depth=3, n_batch=16, n_sum=16, n_repetitions=32,
+        n_mafs=10, hidden_units=[1024], activation='relu', regularization=1e-6,
+        rand_state=rand_state
+    )
+    collect_results('cifar10', 'maf10', model, LR_MAF, data_train, data_val, data_test)
+    collect_samples('cifar10', 'maf10', model, 20, cifar10_delogit, cifar10_plot)
 
 
 def collect_results(dataset, info, model, lr, data_train, data_val, data_test):
@@ -234,22 +276,21 @@ def collect_results(dataset, info, model, lr, data_train, data_val, data_test):
         file.write('Two Std. Log-Likelihood: ' + str(2.0 * sigma_ll) + '\n')
 
 
-def collect_samples(dataset, info, model, n_samples, post_fn=None):
+def collect_samples(dataset, info, model, n_samples, post_fn=None, plot_fn=None):
     # Get some samples
     samples = model.sample(n_samples)
 
     # Post process the samples
     if post_fn != None:
         samples = post_fn(samples)
-    _, n_features = samples.shape
-    img_size = int(np.sqrt(n_features))
 
     # Plot the samples
     fig, axs = plt.subplots(1, n_samples, figsize=(n_samples, 1))
     fig.subplots_adjust(top=1.0, bottom=0.0, right=1.0, left=0.0, wspace=0.0, hspace=0.0)
     for i in range(n_samples):
         axs[i].axis('off')
-        axs[i].imshow(np.reshape(samples[i], (img_size, img_size)), cmap='gray', interpolation='nearest')
+        plot_fn(axs[i], samples[i])
+
     fig.savefig(os.path.join('results', dataset + '_' + info + '.png'))
 
 
@@ -294,5 +335,7 @@ if __name__ == '__main__':
         run_experiment_bsds300()
     elif dataset == 'mnist':
         run_experiment_mnist()
+    elif dataset == 'cifar10':
+        run_experiment_cifar10()
     else:
         raise NotImplementedError("Unknown dataset: " + dataset)

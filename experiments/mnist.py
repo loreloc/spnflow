@@ -3,6 +3,7 @@ import pickle
 import numpy as np
 
 ALPHA = 1e-6
+IMG_SIZE = 28
 
 
 def load_mnist_dataset(rand_state):
@@ -42,3 +43,7 @@ def delogit(data):
 
 def dequantize(data, rand_state):
     return data + rand_state.rand(*data.shape) / 256.0
+
+
+def plot(ax, sample):
+    ax.imshow(np.reshape(sample, (IMG_SIZE, IMG_SIZE)), cmap='gray', interpolation='nearest')
