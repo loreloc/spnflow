@@ -8,6 +8,7 @@ from experiments.power import load_power_dataset
 from experiments.gas import load_gas_dataset
 from experiments.hepmass import load_hepmass_dataset
 from experiments.miniboone import load_miniboone_dataset
+from experiments.bsds300 import load_bsds300_dataset
 from experiments.mnist import load_mnist_dataset, delogit
 from spnflow.model.rat import RatSpn
 from spnflow.model.flow import AutoregressiveRatSpn
@@ -152,6 +153,39 @@ def run_experiment_miniboone():
     collect_results('miniboone', 'maf10', model, LR_MAF, data_train, data_val, data_test)
 
 
+def run_experiment_bsds300():
+    # Instantiate a random state, used for reproducibility
+    rand_state = np.random.RandomState(42)
+
+    # Load the BSDS300 dataset
+    data_train, data_val, data_test = load_bsds300_dataset(rand_state)
+    _, n_features = data_train.shape
+
+    model = RatSpn(n_features, depth=2, n_batch=16, n_sum=16, n_repetitions=16, rand_state=rand_state)
+    collect_results('bsds300', 'spn', model, LR_SPN, data_train, data_val, data_test)
+
+    model = AutoregressiveRatSpn(
+        depth=2, n_batch=16, n_sum=16, n_repetitions=16,
+        n_mafs=1, hidden_units=[512, 512], activation='relu', regularization=1e-6,
+        rand_state=rand_state
+    )
+    collect_results('bsds300', 'made', model, LR_MADE, data_train, data_val, data_test)
+
+    model = AutoregressiveRatSpn(
+        depth=2, n_batch=16, n_sum=16, n_repetitions=16,
+        n_mafs=5, hidden_units=[512, 512], activation='relu', regularization=1e-6,
+        rand_state=rand_state
+    )
+    collect_results('bsds300', 'maf5', model, LR_MAF, data_train, data_val, data_test)
+
+    model = AutoregressiveRatSpn(
+        depth=2, n_batch=16, n_sum=16, n_repetitions=16,
+        n_mafs=10, hidden_units=[512, 512], activation='relu', regularization=1e-6,
+        rand_state=rand_state
+    )
+    collect_results('bsds300', 'maf10', model, LR_MAF, data_train, data_val, data_test)
+
+
 def run_experiment_mnist():
     # Instantiate a random state, used for reproducibility
     rand_state = np.random.RandomState(42)
@@ -247,16 +281,18 @@ if __name__ == '__main__':
     if len(sys.argv) <= 1:
         print("Usage:\n\tpython experiment.py <dataset>")
 
-    dataset_fn = sys.argv[1]
-    if dataset_fn == 'power':
+    dataset = sys.argv[1]
+    if dataset == 'power':
         run_experiment_power()
-    elif dataset_fn == 'gas':
+    elif dataset == 'gas':
         run_experiment_gas()
-    elif dataset_fn == 'hepmass':
+    elif dataset == 'hepmass':
         run_experiment_hepmass()
-    elif dataset_fn == 'miniboone':
+    elif dataset == 'miniboone':
         run_experiment_miniboone()
-    elif dataset_fn == 'mnist':
+    elif dataset == 'bsds300':
+        run_experiment_bsds300()
+    elif dataset == 'mnist':
         run_experiment_mnist()
     else:
-        raise NotImplementedError("Unknown dataset: " + dataset_fn)
+        raise NotImplementedError("Unknown dataset: " + dataset)
