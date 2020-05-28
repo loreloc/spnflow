@@ -27,9 +27,6 @@ LR_MAF = 1e-4
 
 
 def run_experiment_power():
-    # Disable the GPU for this dataset
-    tf.config.set_visible_devices([], 'GPU')
-
     # Instantiate a random state, used for reproducibility
     rand_state = np.random.RandomState(42)
 
@@ -63,9 +60,6 @@ def run_experiment_power():
 
 
 def run_experiment_gas():
-    # Disable the GPU for this dataset
-    tf.config.set_visible_devices([], 'GPU')
-
     # Instantiate a random state, used for reproducibility
     rand_state = np.random.RandomState(42)
 
