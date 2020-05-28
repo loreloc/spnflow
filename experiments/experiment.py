@@ -27,6 +27,9 @@ LR_MAF = 1e-4
 
 
 def run_experiment_power():
+    # Disable the GPU for this dataset
+    tf.config.set_visible_devices([], 'GPU')
+
     # Instantiate a random state, used for reproducibility
     rand_state = np.random.RandomState(42)
 
@@ -38,7 +41,7 @@ def run_experiment_power():
     collect_results('power', 'spn', model, LR_SPN, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
-        depth=1, n_batch=8, n_sum=8, n_repetitions=8,
+        depth=1, n_batch=8, n_sum=8, n_repetitions=8, batch_norm=False,
         n_mafs=1, hidden_units=[128, 128], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
@@ -60,6 +63,9 @@ def run_experiment_power():
 
 
 def run_experiment_gas():
+    # Disable the GPU for this dataset
+    tf.config.set_visible_devices([], 'GPU')
+
     # Instantiate a random state, used for reproducibility
     rand_state = np.random.RandomState(42)
 
@@ -71,7 +77,7 @@ def run_experiment_gas():
     collect_results('gas', 'spn', model, LR_SPN, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
-        depth=1, n_batch=8, n_sum=8, n_repetitions=8,
+        depth=1, n_batch=8, n_sum=8, n_repetitions=8, batch_norm=False,
         n_mafs=1, hidden_units=[128, 128], activation='tanh', regularization=1e-6,
         rand_state=rand_state
     )
@@ -104,7 +110,7 @@ def run_experiment_hepmass():
     collect_results('hepmass', 'spn', model, LR_SPN, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
-        depth=2, n_batch=16, n_sum=16, n_repetitions=16,
+        depth=2, n_batch=16, n_sum=16, n_repetitions=16, batch_norm=False,
         n_mafs=1, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
@@ -137,7 +143,7 @@ def run_experiment_miniboone():
     collect_results('miniboone', 'spn', model, LR_SPN, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
-        depth=2, n_batch=16, n_sum=16, n_repetitions=16,
+        depth=2, n_batch=16, n_sum=16, n_repetitions=16, batch_norm=False,
         n_mafs=1, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
@@ -170,7 +176,7 @@ def run_experiment_bsds300():
     collect_results('bsds300', 'spn', model, LR_SPN, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
-        depth=2, n_batch=16, n_sum=16, n_repetitions=16,
+        depth=2, n_batch=16, n_sum=16, n_repetitions=16, batch_norm=False,
         n_mafs=1, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
@@ -204,7 +210,7 @@ def run_experiment_mnist():
     collect_samples('mnist', 'spn', model, 20, mnist_plot, mnist_delogit)
 
     model = AutoregressiveRatSpn(
-        depth=3, n_batch=16, n_sum=16, n_repetitions=32,
+        depth=3, n_batch=16, n_sum=16, n_repetitions=32, batch_norm=False,
         n_mafs=1, hidden_units=[1024], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
@@ -241,7 +247,7 @@ def run_experiment_cifar10():
     collect_samples('cifar10', 'spn', model, 20, cifar10_plot, cifar10_delogit)
 
     model = AutoregressiveRatSpn(
-        depth=3, n_batch=16, n_sum=16, n_repetitions=32,
+        depth=3, n_batch=16, n_sum=16, n_repetitions=32, batch_norm=False,
         n_mafs=1, hidden_units=[1024], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
