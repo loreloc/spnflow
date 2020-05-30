@@ -34,7 +34,7 @@ class AutoregressiveRatSpn(tf.keras.Model):
         :param activation: The activation function for the autoregressive network.
         :param regularization: The L2 regularization weight for the autoregressive network.
         :param rand_state: The random state to use to generate the RAT-SPN model.
-        :param batch_norm: Whatever to use batch normalization between MAFs.
+        :param batch_norm: Whatever to use batch normalization between MAFs. Valid only if n_mafs > 1.
         :param kwargs: Other arguments.
         """
         super(AutoregressiveRatSpn, self).__init__(**kwargs)
@@ -109,11 +109,11 @@ class AutoregressiveRatSpn(tf.keras.Model):
 
         # Build the bijector by chaining multiple MAFs
         bijectors = []
-        for maf in self.mafs:
+        for i, maf in enumerate(self.mafs):
             # Append the maf bijection
             bijectors.append(maf)
             # Append batch normalization bijection, if specified
-            if self.batch_norm:
+            if self.batch_norm and i != len(self.mafs) - 1:
                 bijectors.append(tfp.bijectors.BatchNormalization())
         self.bijector = tfp.bijectors.Chain(bijectors)
 
