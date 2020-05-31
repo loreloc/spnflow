@@ -1,0 +1,3 @@
+bsds300
+Avg. Log-Likelihood: 156.60004
+Two Std. Log-Likelihood: 0.2807112121582031
