@@ -1,0 +1,3 @@
+gas
+Avg. Log-Likelihood: 6.105648
+Two Std. Log-Likelihood: 0.02754740368804379
