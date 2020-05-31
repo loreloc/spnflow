@@ -15,10 +15,13 @@ def load_hepmass_dataset(rand_state):
     data_test = data_test.drop(data_test.columns[0], axis=1)
     data_test = data_test.drop(data_test.columns[-1], axis=1)
 
-    # Shuffle the train data
+    # Normalize the data
     data_train = data_train.to_numpy()
     data_test = data_test.to_numpy()
-    rand_state.shuffle(data_train)
+    mu = np.mean(data_train, axis=0)
+    sigma = np.std(data_train, axis=0)
+    data_train = (data_train - mu) / sigma
+    data_test = (data_test - mu) / sigma
 
     # Remove useless features
     i = 0
@@ -33,16 +36,10 @@ def load_hepmass_dataset(rand_state):
     data_test = data_test[:, np.array([i for i in range(data_test.shape[1]) if i not in features_to_remove])]
 
     # Split the dataset in train, validation and test set
-    mu = np.mean(data_train, axis=0)
-    sigma = np.std(data_train, axis=0)
     n_val = int(0.1 * data_train.shape[0])
     data_val = data_train[-n_val:]
     data_train = data_train[0:-n_val]
 
-    # Normalize the data
-    data_train = (data_train - mu) / sigma
-    data_val = (data_val - mu) / sigma
-    data_test = (data_test - mu) / sigma
     data_train = data_train.astype('float32')
     data_val = data_val.astype('float32')
     data_test = data_test.astype('float32')
