@@ -1,0 +1,3 @@
+hepmass
+Avg. Log-Likelihood: -12.315646
+Two Std. Log-Likelihood: 0.02468882528000763
