@@ -16,7 +16,8 @@ class AutoregressiveRatSpn(tf.keras.Model):
                  hidden_units=[32, 32],
                  activation='relu',
                  regularization=1e-6,
-                 batch_norm=True,
+                 maf_batch_norm=True,
+                 spn_batch_norm=True,
                  rand_state=None,
                  **kwargs
                  ):
@@ -34,7 +35,8 @@ class AutoregressiveRatSpn(tf.keras.Model):
         :param activation: The activation function for the autoregressive network.
         :param regularization: The L2 regularization weight for the autoregressive network.
         :param rand_state: The random state to use to generate the RAT-SPN model.
-        :param batch_norm: Whatever to use batch normalization between MAFs. Valid only if n_mafs > 1.
+        :param maf_batch_norm: Whatever to use batch normalization between MAFs.
+        :param spn_batch_norm: Whatever to use batch normalization between SPN and the first MAF layer.
         :param kwargs: Other arguments.
         """
         super(AutoregressiveRatSpn, self).__init__(**kwargs)
@@ -48,7 +50,8 @@ class AutoregressiveRatSpn(tf.keras.Model):
         self.hidden_units = hidden_units
         self.activation = activation
         self.regularization = regularization
-        self.batch_norm = batch_norm
+        self.maf_batch_norm = maf_batch_norm
+        self.spn_batch_norm = maf_batch_norm
         self.rand_state = rand_state
         self.spn = None
         self.mades = None
@@ -113,8 +116,11 @@ class AutoregressiveRatSpn(tf.keras.Model):
             # Append the maf bijection
             bijectors.append(maf)
             # Append batch normalization bijection, if specified
-            if self.batch_norm and i != len(self.mafs) - 1:
+            if self.maf_batch_norm and i != len(self.mafs) - 1:
                 bijectors.append(tfp.bijectors.BatchNormalization())
+        # Append the last batch normalization bijection, if specified
+        if self.spn_batch_norm:
+            bijectors.append(tfp.bijectors.BatchNormalization())
         self.bijector = tfp.bijectors.Chain(bijectors)
 
     @tf.function
