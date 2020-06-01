@@ -51,7 +51,7 @@ class AutoregressiveRatSpn(tf.keras.Model):
         self.activation = activation
         self.regularization = regularization
         self.maf_batch_norm = maf_batch_norm
-        self.spn_batch_norm = maf_batch_norm
+        self.spn_batch_norm = spn_batch_norm
         self.rand_state = rand_state
         self.spn = None
         self.mades = None
