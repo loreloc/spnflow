@@ -17,7 +17,7 @@ class AutoregressiveRatSpn(tf.keras.Model):
                  activation='relu',
                  regularization=1e-6,
                  maf_batch_norm=True,
-                 spn_batch_norm=True,
+                 spn_batch_norm=False,
                  rand_state=None,
                  **kwargs
                  ):
