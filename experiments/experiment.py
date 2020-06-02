@@ -199,29 +199,29 @@ def run_experiment_mnist():
     data_train, data_val, data_test = load_mnist_dataset(rand_state)
     _, n_features = data_train.shape
 
-    model = RatSpn(n_features, depth=4, n_batch=16, n_sum=16, n_repetitions=32, rand_state=rand_state)
+    model = RatSpn(n_features, depth=3, n_batch=16, n_sum=16, n_repetitions=32, rand_state=rand_state)
     collect_results('mnist', 'spn', model, LR_SPN, data_train, data_val, data_test)
     collect_samples('mnist', 'spn', model, 36, mnist_plot, mnist_delogit)
 
     model = AutoregressiveRatSpn(
-        depth=4, n_batch=16, n_sum=16, n_repetitions=32, spn_batch_norm=True,
-        n_mafs=1, hidden_units=[1024], activation='relu', regularization=1e-6,
+        depth=3, n_batch=16, n_sum=16, n_repetitions=32, spn_batch_norm=True,
+        n_mafs=1, hidden_units=[1024, 1024], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
     collect_results('mnist', 'made', model, LR_MADE, data_train, data_val, data_test)
     collect_samples('mnist', 'made', model, 36, mnist_plot, mnist_delogit)
 
     model = AutoregressiveRatSpn(
-        depth=4, n_batch=16, n_sum=16, n_repetitions=32, spn_batch_norm=True,
-        n_mafs=5, hidden_units=[1024], activation='relu', regularization=1e-6,
+        depth=3, n_batch=16, n_sum=16, n_repetitions=32, spn_batch_norm=True,
+        n_mafs=5, hidden_units=[1024, 1024], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
     collect_results('mnist', 'maf5', model, LR_MAF, data_train, data_val, data_test)
     collect_samples('mnist', 'maf5', model, 36, mnist_plot, mnist_delogit)
 
     model = AutoregressiveRatSpn(
-        depth=4, n_batch=16, n_sum=16, n_repetitions=32, spn_batch_norm=True,
-        n_mafs=10, hidden_units=[1024], activation='relu', regularization=1e-6,
+        depth=3, n_batch=16, n_sum=16, n_repetitions=32, spn_batch_norm=True,
+        n_mafs=10, hidden_units=[1024, 1024], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
     collect_results('mnist', 'maf10', model, LR_MAF, data_train, data_val, data_test)
@@ -242,7 +242,7 @@ def run_experiment_cifar10():
 
     model = AutoregressiveRatSpn(
         depth=4, n_batch=16, n_sum=16, n_repetitions=32, spn_batch_norm=True,
-        n_mafs=1, hidden_units=[1024], activation='relu', regularization=1e-6,
+        n_mafs=1, hidden_units=[1024, 1024], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
     collect_results('cifar10', 'made', model, LR_MADE, data_train, data_val, data_test)
@@ -250,7 +250,7 @@ def run_experiment_cifar10():
 
     model = AutoregressiveRatSpn(
         depth=4, n_batch=16, n_sum=16, n_repetitions=32, spn_batch_norm=True,
-        n_mafs=5, hidden_units=[1024], activation='relu', regularization=1e-6,
+        n_mafs=5, hidden_units=[1024, 1024], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
     collect_results('cifar10', 'maf5', model, LR_MAF, data_train, data_val, data_test)
@@ -258,7 +258,7 @@ def run_experiment_cifar10():
 
     model = AutoregressiveRatSpn(
         depth=4, n_batch=16, n_sum=16, n_repetitions=32, spn_batch_norm=True,
-        n_mafs=10, hidden_units=[1024], activation='relu', regularization=1e-6,
+        n_mafs=10, hidden_units=[1024, 1024], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
     collect_results('cifar10', 'maf10', model, LR_MAF, data_train, data_val, data_test)

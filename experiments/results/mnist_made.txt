@@ -1,0 +1,3 @@
+mnist
+Avg. Log-Likelihood: -1321.9537
+Two Std. Log-Likelihood: 1.635991973876953
