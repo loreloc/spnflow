@@ -6,7 +6,7 @@ ALPHA = 1e-6
 IMG_SIZE = 28
 
 
-def load_mnist_dataset(rand_state, dequantize=True, logit=True):
+def load_mnist_dataset(rand_state, use_dequantize=True, logit_space=True):
     # Load the dataset
     file = gzip.open('datasets/mnist/mnist.pkl.gz', 'rb')
     data_train, data_val, data_test = pickle.load(file, encoding='latin1')
@@ -16,13 +16,13 @@ def load_mnist_dataset(rand_state, dequantize=True, logit=True):
     data_test = data_test[0]
 
     # Dequantize the dataset
-    if dequantize:
+    if use_dequantize:
         data_train = dequantize(data_train, rand_state)
         data_val = dequantize(data_val, rand_state)
         data_test = dequantize(data_test, rand_state)
 
     # Logit transform
-    if logit:
+    if logit_space:
         data_train = logit(data_train)
         data_val = logit(data_val)
         data_test = logit(data_test)

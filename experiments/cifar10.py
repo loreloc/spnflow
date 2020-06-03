@@ -6,7 +6,7 @@ IMG_SIZE = 32
 IMG_DEPTH = 3
 
 
-def load_cifar10_dataset(rand_state, dequantize=True, logit=True, horizontal_flip=True):
+def load_cifar10_dataset(rand_state, use_dequantize=True, logit_space=True, horizontal_flip=True):
     path = 'datasets/cifar10/'
 
     # Load the train dataset
@@ -35,7 +35,7 @@ def load_cifar10_dataset(rand_state, dequantize=True, logit=True, horizontal_fli
         data_train = dequantize(data_train, rand_state)
         data_val = dequantize(data_val, rand_state)
         data_test = dequantize(data_test, rand_state)
-    if logit:
+    if logit_space:
         data_train = logit(data_train)
         data_val = logit(data_val)
         data_test = logit(data_test)
