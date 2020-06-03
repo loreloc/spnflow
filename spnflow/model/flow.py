@@ -16,8 +16,7 @@ class AutoregressiveRatSpn(tf.keras.Model):
                  hidden_units=[32, 32],
                  activation='relu',
                  regularization=1e-6,
-                 maf_batch_norm=True,
-                 spn_batch_norm=False,
+                 batch_norm=True,
                  rand_state=None,
                  **kwargs
                  ):
@@ -35,8 +34,7 @@ class AutoregressiveRatSpn(tf.keras.Model):
         :param activation: The activation function for the autoregressive network.
         :param regularization: The L2 regularization weight for the autoregressive network.
         :param rand_state: The random state to use to generate the RAT-SPN model.
-        :param maf_batch_norm: Whatever to use batch normalization between MAFs.
-        :param spn_batch_norm: Whatever to use batch normalization between SPN and the first MAF layer.
+        :param batch_norm: Whatever to use batch normalization after each MAF layer.
         :param kwargs: Other arguments.
         """
         super(AutoregressiveRatSpn, self).__init__(**kwargs)
@@ -50,12 +48,12 @@ class AutoregressiveRatSpn(tf.keras.Model):
         self.hidden_units = hidden_units
         self.activation = activation
         self.regularization = regularization
-        self.maf_batch_norm = maf_batch_norm
-        self.spn_batch_norm = spn_batch_norm
+        self.batch_norm = batch_norm
         self.rand_state = rand_state
         self.spn = None
         self.mades = None
         self.mafs = None
+        self.bns = None
         self.bijector = None
 
     def build(self, input_shape):
@@ -111,16 +109,16 @@ class AutoregressiveRatSpn(tf.keras.Model):
             self.mafs.append(maf)
 
         # Build the bijector by chaining multiple MAFs
+        self.bns = []
         bijectors = []
-        for i, maf in enumerate(self.mafs):
+        for maf in self.mafs:
             # Append the maf bijection
             bijectors.append(maf)
             # Append batch normalization bijection, if specified
-            if self.maf_batch_norm and i != len(self.mafs) - 1:
-                bijectors.append(tfp.bijectors.BatchNormalization())
-        # Append the last batch normalization bijection, if specified
-        if self.spn_batch_norm:
-            bijectors.append(tfp.bijectors.BatchNormalization())
+            if self.batch_norm:
+                bn = tfp.bijectors.BatchNormalization()
+                self.bns.append(bn)
+                bijectors.append(bn)
         self.bijector = tfp.bijectors.Chain(bijectors)
 
     @tf.function
