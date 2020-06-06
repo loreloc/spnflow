@@ -47,13 +47,13 @@ class GaussianLayer(tf.keras.layers.Layer):
 
         # Instantiate the mean variable
         self._mean = tf.Variable(
-            tf.random.normal(shape=(n_regions, self.n_batch, dim_gauss), stddev=1e-1), trainable=True
+            tf.random.normal(shape=(n_regions, self.n_batch, dim_gauss)), trainable=True
         )
 
         # Instantiate the scale variable
         if self.optimize_scale:
-            sigma = 1.0 - 2.0 * tf.math.sigmoid(tf.random.normal(shape=(n_regions, self.n_batch, dim_gauss)))
-            self._scale = tf.Variable(1.0 + 1e-1 * sigma, trainable=True)
+            sigma = tf.math.sigmoid(tf.random.normal(shape=(n_regions, self.n_batch, dim_gauss)))
+            self._scale = tf.Variable(0.1 + 0.9 * sigma, trainable=True)
         else:
             sigma = tf.ones(shape=(n_regions, self.n_batch, dim_gauss))
             self._scale = tf.Variable(sigma, trainable=False)
@@ -192,7 +192,7 @@ class SumLayer(tf.keras.layers.Layer):
 
         # Construct the weights
         self.kernel = tf.Variable(
-            initial_value=tf.random.normal(kernel_shape, stddev=1e-1),
+            initial_value=tf.random.normal(kernel_shape),
             trainable=True
         )
 
