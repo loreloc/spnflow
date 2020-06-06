@@ -1,3 +1,3 @@
 miniboone
-Avg. Log-Likelihood: -13.743023
-Two Std. Log-Likelihood: 0.415079775025596
+Avg. Log-Likelihood: -5.9830337
+Two Std. Log-Likelihood: 0.41048353244419544
