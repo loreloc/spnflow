@@ -1,0 +1,1204 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>spnflow.structure package &mdash; spnflow 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="spnflow.tensorflow package" href="spnflow.tensorflow.html" />
+    <link rel="prev" title="spnflow.optimization package" href="spnflow.optimization.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> spnflow
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">spnflow</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="spnflow.html">spnflow package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="spnflow.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="spnflow.algorithms.html">spnflow.algorithms package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.io.html">spnflow.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.learning.html">spnflow.learning package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.optimization.html">spnflow.optimization package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">spnflow.structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.tensorflow.html">spnflow.tensorflow package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.utils.html">spnflow.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spnflow.html#module-spnflow">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">spnflow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">spnflow</a> &raquo;</li>
+        
+          <li><a href="spnflow.html">spnflow package</a> &raquo;</li>
+        
+      <li>spnflow.structure package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/spnflow.structure.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="spnflow-structure-package">
+<h1>spnflow.structure package<a class="headerlink" href="#spnflow-structure-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-spnflow.structure.leaf">
+<span id="spnflow-structure-leaf-module"></span><h2>spnflow.structure.leaf module<a class="headerlink" href="#module-spnflow.structure.leaf" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="spnflow.structure.leaf.LeafType">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.structure.leaf.</code><code class="sig-name descname">LeafType</code><a class="headerlink" href="#spnflow.structure.leaf.LeafType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>The type of the distribution leaf. It can be discrete or continuous.</p>
+<dl class="py attribute">
+<dt id="spnflow.structure.leaf.LeafType.DISCRETE">
+<code class="sig-name descname">DISCRETE</code><em class="property"> = (1,)</em><a class="headerlink" href="#spnflow.structure.leaf.LeafType.DISCRETE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="spnflow.structure.leaf.LeafType.CONTINUOUS">
+<code class="sig-name descname">CONTINUOUS</code><em class="property"> = 2</em><a class="headerlink" href="#spnflow.structure.leaf.LeafType.CONTINUOUS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.structure.leaf.Leaf">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.structure.leaf.</code><code class="sig-name descname">Leaf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scope</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Leaf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spnflow.structure.node.Node" title="spnflow.structure.node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">spnflow.structure.node.Node</span></code></a></p>
+<p>Distribution leaf base class.</p>
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Leaf.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">domain</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Leaf.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the distribution parameters given the domain and some training data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The training data.</p></li>
+<li><p><strong>domain</strong> – The domain of the distribution leaf.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Leaf.likelihood">
+<code class="sig-name descname">likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Leaf.likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the likelihood of the distribution leaf given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Leaf.log_likelihood">
+<code class="sig-name descname">log_likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Leaf.log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the logarithmic likelihood of the distribution leaf given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting log likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Leaf.mode">
+<code class="sig-name descname">mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Leaf.mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the mode of the distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The distribution’s mode.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Leaf.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Leaf.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from the leaf distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>size</strong> – The number of samples.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Some samples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Leaf.params_count">
+<code class="sig-name descname">params_count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Leaf.params_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of parameters of the distribution leaf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The number of parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Leaf.params_dict">
+<code class="sig-name descname">params_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Leaf.params_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dictionary representation of the distribution parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary containing the distribution parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.structure.leaf.Bernoulli">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.structure.leaf.</code><code class="sig-name descname">Bernoulli</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scope</span></em>, <em class="sig-param"><span class="n">p</span><span class="o">=</span><span class="default_value">0.5</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Bernoulli" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spnflow.structure.leaf.Leaf" title="spnflow.structure.leaf.Leaf"><code class="xref py py-class docutils literal notranslate"><span class="pre">spnflow.structure.leaf.Leaf</span></code></a></p>
+<p>The Bernoulli distribution leaf.</p>
+<dl class="py attribute">
+<dt id="spnflow.structure.leaf.Bernoulli.LEAF_TYPE">
+<code class="sig-name descname">LEAF_TYPE</code><em class="property"> = (1,)</em><a class="headerlink" href="#spnflow.structure.leaf.Bernoulli.LEAF_TYPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Bernoulli.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">domain</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Bernoulli.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the distribution parameters given the domain and some training data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The training data.</p></li>
+<li><p><strong>domain</strong> – The domain of the distribution leaf.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Bernoulli.likelihood">
+<code class="sig-name descname">likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Bernoulli.likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the likelihood of the distribution leaf given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Bernoulli.log_likelihood">
+<code class="sig-name descname">log_likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Bernoulli.log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the logarithmic likelihood of the distribution leaf given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting log likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Bernoulli.mode">
+<code class="sig-name descname">mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Bernoulli.mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the mode of the distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The distribution’s mode.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Bernoulli.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Bernoulli.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from the leaf distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>size</strong> – The number of samples.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Some samples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Bernoulli.params_count">
+<code class="sig-name descname">params_count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Bernoulli.params_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of parameters of the distribution leaf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The number of parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Bernoulli.params_dict">
+<code class="sig-name descname">params_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Bernoulli.params_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dictionary representation of the distribution parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary containing the distribution parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.structure.leaf.Multinomial">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.structure.leaf.</code><code class="sig-name descname">Multinomial</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scope</span></em>, <em class="sig-param"><span class="n">p</span><span class="o">=</span><span class="default_value">[0.5, 0.5]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Multinomial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spnflow.structure.leaf.Leaf" title="spnflow.structure.leaf.Leaf"><code class="xref py py-class docutils literal notranslate"><span class="pre">spnflow.structure.leaf.Leaf</span></code></a></p>
+<p>The Multinomial (or Categorical) distribution leaf.</p>
+<dl class="py attribute">
+<dt id="spnflow.structure.leaf.Multinomial.LEAF_TYPE">
+<code class="sig-name descname">LEAF_TYPE</code><em class="property"> = (1,)</em><a class="headerlink" href="#spnflow.structure.leaf.Multinomial.LEAF_TYPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Multinomial.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">domain</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Multinomial.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the distribution parameters given the domain and some training data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The training data.</p></li>
+<li><p><strong>domain</strong> – The domain of the distribution leaf.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Multinomial.likelihood">
+<code class="sig-name descname">likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Multinomial.likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the likelihood of the distribution leaf given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Multinomial.log_likelihood">
+<code class="sig-name descname">log_likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Multinomial.log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the logarithmic likelihood of the distribution leaf given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting log likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Multinomial.mode">
+<code class="sig-name descname">mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Multinomial.mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the mode of the distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The distribution’s mode.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Multinomial.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Multinomial.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from the leaf distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>size</strong> – The number of samples.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Some samples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Multinomial.params_count">
+<code class="sig-name descname">params_count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Multinomial.params_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of parameters of the distribution leaf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The number of parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Multinomial.params_dict">
+<code class="sig-name descname">params_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Multinomial.params_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dictionary representation of the distribution parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary containing the distribution parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.structure.leaf.Poisson">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.structure.leaf.</code><code class="sig-name descname">Poisson</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scope</span></em>, <em class="sig-param"><span class="n">mu</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Poisson" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spnflow.structure.leaf.Leaf" title="spnflow.structure.leaf.Leaf"><code class="xref py py-class docutils literal notranslate"><span class="pre">spnflow.structure.leaf.Leaf</span></code></a></p>
+<p>The Poisson distribution leaf.</p>
+<dl class="py attribute">
+<dt id="spnflow.structure.leaf.Poisson.LEAF_TYPE">
+<code class="sig-name descname">LEAF_TYPE</code><em class="property"> = (1,)</em><a class="headerlink" href="#spnflow.structure.leaf.Poisson.LEAF_TYPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Poisson.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">domain</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Poisson.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the distribution parameters given the domain and some training data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The training data.</p></li>
+<li><p><strong>domain</strong> – The domain of the distribution leaf.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Poisson.likelihood">
+<code class="sig-name descname">likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Poisson.likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the likelihood of the distribution leaf given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Poisson.log_likelihood">
+<code class="sig-name descname">log_likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Poisson.log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the logarithmic likelihood of the distribution leaf given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting log likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Poisson.mode">
+<code class="sig-name descname">mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Poisson.mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the mode of the distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The distribution’s mode.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Poisson.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Poisson.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from the leaf distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>size</strong> – The number of samples.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Some samples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Poisson.params_count">
+<code class="sig-name descname">params_count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Poisson.params_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of parameters of the distribution leaf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The number of parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Poisson.params_dict">
+<code class="sig-name descname">params_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Poisson.params_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dictionary representation of the distribution parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary containing the distribution parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.structure.leaf.Isotonic">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.structure.leaf.</code><code class="sig-name descname">Isotonic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scope</span></em>, <em class="sig-param"><span class="n">meta</span></em>, <em class="sig-param"><span class="n">densities</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">breaks</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">mids</span><span class="o">=</span><span class="default_value">[]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Isotonic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spnflow.structure.leaf.Leaf" title="spnflow.structure.leaf.Leaf"><code class="xref py py-class docutils literal notranslate"><span class="pre">spnflow.structure.leaf.Leaf</span></code></a></p>
+<p>The Isotonic distribution leaf.</p>
+<dl class="py attribute">
+<dt id="spnflow.structure.leaf.Isotonic.LEAF_TYPE">
+<code class="sig-name descname">LEAF_TYPE</code><em class="property"> = (1,)</em><a class="headerlink" href="#spnflow.structure.leaf.Isotonic.LEAF_TYPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Isotonic.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">domain</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Isotonic.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the distribution parameters given the domain and some training data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The training data.</p></li>
+<li><p><strong>domain</strong> – The domain of the distribution leaf.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Isotonic.likelihood">
+<code class="sig-name descname">likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Isotonic.likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the likelihood of the distribution leaf given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Isotonic.log_likelihood">
+<code class="sig-name descname">log_likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Isotonic.log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the logarithmic likelihood of the distribution leaf given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting log likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Isotonic.mode">
+<code class="sig-name descname">mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Isotonic.mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the mode of the distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The distribution’s mode.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Isotonic.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Isotonic.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from the leaf distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>size</strong> – The number of samples.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Some samples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Isotonic.params_count">
+<code class="sig-name descname">params_count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Isotonic.params_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of parameters of the distribution leaf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The number of parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Isotonic.params_dict">
+<code class="sig-name descname">params_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Isotonic.params_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dictionary representation of the distribution parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary containing the distribution parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.structure.leaf.Uniform">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.structure.leaf.</code><code class="sig-name descname">Uniform</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scope</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">width</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Uniform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spnflow.structure.leaf.Leaf" title="spnflow.structure.leaf.Leaf"><code class="xref py py-class docutils literal notranslate"><span class="pre">spnflow.structure.leaf.Leaf</span></code></a></p>
+<p>The Uniform distribution leaf.</p>
+<dl class="py attribute">
+<dt id="spnflow.structure.leaf.Uniform.LEAF_TYPE">
+<code class="sig-name descname">LEAF_TYPE</code><em class="property"> = 2</em><a class="headerlink" href="#spnflow.structure.leaf.Uniform.LEAF_TYPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Uniform.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">domain</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Uniform.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the distribution parameters given the domain and some training data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The training data.</p></li>
+<li><p><strong>domain</strong> – The domain of the distribution leaf.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Uniform.likelihood">
+<code class="sig-name descname">likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Uniform.likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the likelihood of the distribution leaf given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Uniform.log_likelihood">
+<code class="sig-name descname">log_likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Uniform.log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the logarithmic likelihood of the distribution leaf given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting log likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Uniform.mode">
+<code class="sig-name descname">mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Uniform.mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the mode of the distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The distribution’s mode.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Uniform.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Uniform.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from the leaf distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>size</strong> – The number of samples.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Some samples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Uniform.params_count">
+<code class="sig-name descname">params_count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Uniform.params_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of parameters of the distribution leaf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The number of parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Uniform.params_dict">
+<code class="sig-name descname">params_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Uniform.params_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dictionary representation of the distribution parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary containing the distribution parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.structure.leaf.Gaussian">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.structure.leaf.</code><code class="sig-name descname">Gaussian</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scope</span></em>, <em class="sig-param"><span class="n">mean</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">stdev</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Gaussian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spnflow.structure.leaf.Leaf" title="spnflow.structure.leaf.Leaf"><code class="xref py py-class docutils literal notranslate"><span class="pre">spnflow.structure.leaf.Leaf</span></code></a></p>
+<p>The Gaussian distribution leaf.</p>
+<dl class="py attribute">
+<dt id="spnflow.structure.leaf.Gaussian.LEAF_TYPE">
+<code class="sig-name descname">LEAF_TYPE</code><em class="property"> = 2</em><a class="headerlink" href="#spnflow.structure.leaf.Gaussian.LEAF_TYPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Gaussian.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">domain</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Gaussian.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the distribution parameters given the domain and some training data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The training data.</p></li>
+<li><p><strong>domain</strong> – The domain of the distribution leaf.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Gaussian.likelihood">
+<code class="sig-name descname">likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Gaussian.likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the likelihood of the distribution leaf given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Gaussian.log_likelihood">
+<code class="sig-name descname">log_likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Gaussian.log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the logarithmic likelihood of the distribution leaf given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting log likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Gaussian.mode">
+<code class="sig-name descname">mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Gaussian.mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the mode of the distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The distribution’s mode.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Gaussian.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Gaussian.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from the leaf distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>size</strong> – The number of samples.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Some samples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Gaussian.params_count">
+<code class="sig-name descname">params_count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Gaussian.params_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of parameters of the distribution leaf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The number of parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Gaussian.params_dict">
+<code class="sig-name descname">params_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Gaussian.params_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dictionary representation of the distribution parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary containing the distribution parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.structure.leaf.Gamma">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.structure.leaf.</code><code class="sig-name descname">Gamma</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scope</span></em>, <em class="sig-param"><span class="n">alpha</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">loc</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">beta</span><span class="o">=</span><span class="default_value">2.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spnflow.structure.leaf.Leaf" title="spnflow.structure.leaf.Leaf"><code class="xref py py-class docutils literal notranslate"><span class="pre">spnflow.structure.leaf.Leaf</span></code></a></p>
+<p>The Gamma distribution leaf.</p>
+<dl class="py attribute">
+<dt id="spnflow.structure.leaf.Gamma.LEAF_TYPE">
+<code class="sig-name descname">LEAF_TYPE</code><em class="property"> = 2</em><a class="headerlink" href="#spnflow.structure.leaf.Gamma.LEAF_TYPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Gamma.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">domain</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Gamma.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the distribution parameters given the domain and some training data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The training data.</p></li>
+<li><p><strong>domain</strong> – The domain of the distribution leaf.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Gamma.likelihood">
+<code class="sig-name descname">likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Gamma.likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the likelihood of the distribution leaf given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Gamma.log_likelihood">
+<code class="sig-name descname">log_likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Gamma.log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the logarithmic likelihood of the distribution leaf given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting log likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Gamma.mode">
+<code class="sig-name descname">mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Gamma.mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the mode of the distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The distribution’s mode.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Gamma.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Gamma.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from the leaf distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>size</strong> – The number of samples.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Some samples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Gamma.params_count">
+<code class="sig-name descname">params_count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Gamma.params_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of parameters of the distribution leaf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The number of parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.leaf.Gamma.params_dict">
+<code class="sig-name descname">params_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.leaf.Gamma.params_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dictionary representation of the distribution parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary containing the distribution parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.structure.node">
+<span id="spnflow-structure-node-module"></span><h2>spnflow.structure.node module<a class="headerlink" href="#module-spnflow.structure.node" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="spnflow.structure.node.Node">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.structure.node.</code><code class="sig-name descname">Node</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">children</span></em>, <em class="sig-param"><span class="n">scope</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.node.Node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>SPN node base class.</p>
+<dl class="py method">
+<dt id="spnflow.structure.node.Node.likelihood">
+<code class="sig-name descname">likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.node.Node.likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the likelihood of the node given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.node.Node.log_likelihood">
+<code class="sig-name descname">log_likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.node.Node.log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the logarithmic likelihood of the node given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting log likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.structure.node.Sum">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.structure.node.</code><code class="sig-name descname">Sum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weights</span></em>, <em class="sig-param"><span class="n">children</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">scope</span><span class="o">=</span><span class="default_value">[]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.node.Sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spnflow.structure.node.Node" title="spnflow.structure.node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">spnflow.structure.node.Node</span></code></a></p>
+<p>The sum node class.</p>
+<dl class="py method">
+<dt id="spnflow.structure.node.Sum.likelihood">
+<code class="sig-name descname">likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.node.Sum.likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the likelihood of the sum node given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.node.Sum.log_likelihood">
+<code class="sig-name descname">log_likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.node.Sum.log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the logarithmic likelihood of the node given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting log likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.structure.node.Mul">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.structure.node.</code><code class="sig-name descname">Mul</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">children</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">scope</span><span class="o">=</span><span class="default_value">[]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.node.Mul" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spnflow.structure.node.Node" title="spnflow.structure.node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">spnflow.structure.node.Node</span></code></a></p>
+<p>The multiplication node class.</p>
+<dl class="py method">
+<dt id="spnflow.structure.node.Mul.likelihood">
+<code class="sig-name descname">likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.node.Mul.likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the likelihood of the multiplication node given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.structure.node.Mul.log_likelihood">
+<code class="sig-name descname">log_likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.node.Mul.log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the logarithmic likelihood of the multiplication node given some input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting log likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.structure.node.assign_ids">
+<code class="sig-prename descclassname">spnflow.structure.node.</code><code class="sig-name descname">assign_ids</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.node.assign_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign the ids to the nodes of a SPN.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>root</strong> – The root of the SPN.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The same SPN with each node having modified ids.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.structure.node.bfs">
+<code class="sig-prename descclassname">spnflow.structure.node.</code><code class="sig-name descname">bfs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em>, <em class="sig-param"><span class="n">func</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.node.bfs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Breadth First Search (BFS) for SPN.
+For each node execute a given function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> – The root of the SPN.</p></li>
+<li><p><strong>func</strong> – The function to evaluate for each node.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.structure.node.dfs_post_order">
+<code class="sig-prename descclassname">spnflow.structure.node.</code><code class="sig-name descname">dfs_post_order</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em>, <em class="sig-param"><span class="n">func</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.structure.node.dfs_post_order" title="Permalink to this definition">¶</a></dt>
+<dd><p>Depth First Search (DFS) Post-Order for SPN.
+For each node execute a given function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> – The root of the SPN.</p></li>
+<li><p><strong>func</strong> – The function to evaluate for each node.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.structure">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-spnflow.structure" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="spnflow.tensorflow.html" class="btn btn-neutral float-right" title="spnflow.tensorflow package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="spnflow.optimization.html" class="btn btn-neutral float-left" title="spnflow.optimization package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Lorenzo Loconte
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

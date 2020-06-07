@@ -1,0 +1,337 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>spnflow.tensorflow.model package &mdash; spnflow 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="spnflow.utils package" href="spnflow.utils.html" />
+    <link rel="prev" title="spnflow.tensorflow.layers package" href="spnflow.tensorflow.layers.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> spnflow
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">spnflow</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="spnflow.html">spnflow package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="spnflow.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="spnflow.algorithms.html">spnflow.algorithms package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.io.html">spnflow.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.learning.html">spnflow.learning package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.optimization.html">spnflow.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.structure.html">spnflow.structure package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="spnflow.tensorflow.html">spnflow.tensorflow package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.utils.html">spnflow.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spnflow.html#module-spnflow">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">spnflow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">spnflow</a> &raquo;</li>
+        
+          <li><a href="spnflow.html">spnflow package</a> &raquo;</li>
+        
+          <li><a href="spnflow.tensorflow.html">spnflow.tensorflow package</a> &raquo;</li>
+        
+      <li>spnflow.tensorflow.model package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/spnflow.tensorflow.model.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="spnflow-tensorflow-model-package">
+<h1>spnflow.tensorflow.model package<a class="headerlink" href="#spnflow-tensorflow-model-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-spnflow.tensorflow.model.flow">
+<span id="spnflow-tensorflow-model-flow-module"></span><h2>spnflow.tensorflow.model.flow module<a class="headerlink" href="#module-spnflow.tensorflow.model.flow" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="spnflow.tensorflow.model.flow.AutoregressiveRatSpn">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.tensorflow.model.flow.</code><code class="sig-name descname">AutoregressiveRatSpn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">depth</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">n_batch</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">n_sum</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">n_repetitions</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">dropout</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">optimize_scale</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">n_mafs</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">hidden_units</span><span class="o">=</span><span class="default_value">[32, 32]</span></em>, <em class="sig-param"><span class="n">activation</span><span class="o">=</span><span class="default_value">'relu'</span></em>, <em class="sig-param"><span class="n">regularization</span><span class="o">=</span><span class="default_value">1e-06</span></em>, <em class="sig-param"><span class="n">batch_norm</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">rand_state</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.model.flow.AutoregressiveRatSpn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.training.Model</span></code></p>
+<p>RAT-SPN base distribution improved with Autoregressive Normalizing Flows.</p>
+<dl class="py method">
+<dt id="spnflow.tensorflow.model.flow.AutoregressiveRatSpn.build">
+<code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_shape</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.model.flow.AutoregressiveRatSpn.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_shape</strong> – The input shape.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.tensorflow.model.flow.AutoregressiveRatSpn.call">
+<code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">training</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.model.flow.AutoregressiveRatSpn.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> – The inputs tensor.</p></li>
+<li><p><strong>training</strong> – Whatever the model is training or not.</p></li>
+<li><p><strong>kwargs</strong> – Other arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The output of the model.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.tensorflow.model.flow.AutoregressiveRatSpn.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_samples</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.model.flow.AutoregressiveRatSpn.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from the modeled distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n_samples</strong> – The number of samples.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The samples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.tensorflow.model.rat">
+<span id="spnflow-tensorflow-model-rat-module"></span><h2>spnflow.tensorflow.model.rat module<a class="headerlink" href="#module-spnflow.tensorflow.model.rat" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="spnflow.tensorflow.model.rat.RatSpn">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.tensorflow.model.rat.</code><code class="sig-name descname">RatSpn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_features</span></em>, <em class="sig-param"><span class="n">depth</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">n_batch</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">n_sum</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">n_repetitions</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">dropout</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">optimize_scale</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">rand_state</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.model.rat.RatSpn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.training.Model</span></code></p>
+<p>RAT-SPN Keras model class.</p>
+<dl class="py method">
+<dt id="spnflow.tensorflow.model.rat.RatSpn.build">
+<code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_shape</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.model.rat.RatSpn.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_shape</strong> – The input shape.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.tensorflow.model.rat.RatSpn.call">
+<code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">training</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.model.rat.RatSpn.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> – The inputs tensor.</p></li>
+<li><p><strong>training</strong> – Whatever the model is training or not.</p></li>
+<li><p><strong>kwargs</strong> – Other arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The output of the model.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.tensorflow.model.rat.RatSpn.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_samples</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.model.rat.RatSpn.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from the modeled distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n_samples</strong> – The number of samples.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The samples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.tensorflow.model">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-spnflow.tensorflow.model" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="spnflow.utils.html" class="btn btn-neutral float-right" title="spnflow.utils package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="spnflow.tensorflow.layers.html" class="btn btn-neutral float-left" title="spnflow.tensorflow.layers package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Lorenzo Loconte
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,30 @@
+spnflow.structure package
+=========================
+
+Submodules
+----------
+
+spnflow.structure.leaf module
+-----------------------------
+
+.. automodule:: spnflow.structure.leaf
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spnflow.structure.node module
+-----------------------------
+
+.. automodule:: spnflow.structure.node
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: spnflow.structure
+   :members:
+   :undoc-members:
+   :show-inheritance:
