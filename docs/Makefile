@@ -22,6 +22,8 @@ html: api
 # Make the Github Pages stsatic site
 github: html
 	cp -a "$(BUILDDIR)/html/." "$(SOURCEDIR)"
+	mv "$(SOURCEDIR)/_sources" "$(SOURCEDIR)/sources"
+	mv "$(SOURCEDIR)/_static" "$(SOURCEDIR)/static"
 
 # Clean
 clean:
