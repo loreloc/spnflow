@@ -12,6 +12,9 @@ In this repository it is also present a novel model that combines **RAT-SPNs** a
 - Implementation of RAT-SPN using Keras and Tensorflow 2.0. [5]
 - Implementation of RAT-SPN combined with MAFs using Keras and Tensorflow 2.0. [5] [6] [7]
 
+## Documentation
+The online documentation is hosted using Github Pages at [SPNFlow](https://loreloc.github.io/spnflow/).
+
 ## Related Repositories
 - [SPFlow](https://github.com/SPFlow/SPFlow)
 - [RAT-SPN](https://github.com/cambridge-mlg/RAT-SPN)
