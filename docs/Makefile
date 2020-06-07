@@ -9,7 +9,7 @@ APIDIR        = api
 .PHONY: all clean
 
 # Build all
-all: api html
+all: api html github
 
 # Make the API pages
 api:
@@ -18,6 +18,10 @@ api:
 # Make the HTML static site
 html: api
 	$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS)
+
+# Make the Github Pages stsatic site
+github: html
+	cp -a "$(BUILDDIR)/html/." "$(SOURCEDIR)"
 
 # Clean
 clean:
