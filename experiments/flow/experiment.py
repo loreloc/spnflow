@@ -16,9 +16,9 @@ from experiments.cifar10 import load_cifar10_dataset
 from experiments.cifar10 import delogit as cifar10_delogit
 from experiments.cifar10 import plot as cifar10_plot
 
-from spnflow.model.rat import RatSpn
-from spnflow.model.flow import AutoregressiveRatSpn
-from spnflow.utils.log_loss import log_loss
+from spnflow.tensorflow.model.rat import RatSpn
+from spnflow.tensorflow.model.flow import AutoregressiveRatSpn
+from spnflow.tensorflow.utils import log_loss
 
 EPOCHS = 500
 BATCH_SIZE = 100

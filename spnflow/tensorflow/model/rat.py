@@ -1,6 +1,7 @@
 import numpy as np
-from spnflow.layers.rat import *
+import tensorflow as tf
 from spnflow.utils.region import RegionGraph
+from spnflow.tensorflow.layers.rat import GaussianLayer, ProductLayer, SumLayer, RootLayer, DropoutLayer
 
 
 class RatSpn(tf.keras.Model):

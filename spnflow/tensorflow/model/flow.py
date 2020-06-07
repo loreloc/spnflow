@@ -1,6 +1,6 @@
 import tensorflow as tf
 import tensorflow_probability as tfp
-from spnflow.model.rat import RatSpn
+from spnflow.tensorflow.model.rat import RatSpn
 
 
 class AutoregressiveRatSpn(tf.keras.Model):
