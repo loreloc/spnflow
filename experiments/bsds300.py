@@ -1,9 +1,11 @@
+import os
 import h5py
 
 
 def load_bsds300_dataset(rand_state):
     # Load the dataset
-    file = h5py.File('datasets/BSDS300/BSDS300.hdf5', 'r')
+    filepath = os.path.join(os.environ['DATAPATH'], 'datasets/BSDS300/BSDS300.hdf5')
+    file = h5py.File(filepath, 'r')
     data_train = file['train'][:]
     data_val = file['validation'][:]
     data_test = file['test'][:]

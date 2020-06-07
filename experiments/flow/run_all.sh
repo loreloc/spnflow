@@ -1,5 +1,6 @@
 #!/bin/bash
-export PYTHONPATH=../
+export PYTHONPATH=../../
+export DATAPATH=../
 python experiment.py power
 python experiment.py gas
 python experiment.py hepmass

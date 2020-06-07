@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from experiments.utils import log_loss
+
 from experiments.power import load_power_dataset
 from experiments.gas import load_gas_dataset
 from experiments.hepmass import load_hepmass_dataset
@@ -15,8 +15,10 @@ from experiments.mnist import plot as mnist_plot
 from experiments.cifar10 import load_cifar10_dataset
 from experiments.cifar10 import delogit as cifar10_delogit
 from experiments.cifar10 import plot as cifar10_plot
+
 from spnflow.model.rat import RatSpn
 from spnflow.model.flow import AutoregressiveRatSpn
+from spnflow.utils.log_loss import log_loss
 
 EPOCHS = 500
 BATCH_SIZE = 100

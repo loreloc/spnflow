@@ -1,10 +1,12 @@
+import os
 import numpy as np
 import pandas as pd
 
 
 def load_gas_dataset(rand_state=None):
     # Load the dataset and remove useless features
-    data = pd.read_pickle('datasets/gas/ethylene_CO.pickle')
+    filepath = os.path.join(os.environ['DATAPATH'], 'datasets/gas/ethylene_CO.pickle')
+    data = pd.read_pickle(filepath)
     data.drop('Meth', axis=1, inplace=True)
     data.drop('Eth', axis=1, inplace=True)
     data.drop('Time', axis=1, inplace=True)

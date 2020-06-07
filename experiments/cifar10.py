@@ -1,3 +1,4 @@
+import os
 import pickle
 import numpy as np
 
@@ -7,12 +8,12 @@ IMG_DEPTH = 3
 
 
 def load_cifar10_dataset(rand_state, use_dequantize=True, logit_space=True, horizontal_flip=True):
-    path = 'datasets/cifar10/'
+    filepath = os.path.join(os.environ['DATAPATH'], 'datasets/cifar10/')
 
     # Load the train dataset
     x = []
     for i in range(1, 6):
-        file = open(path + 'data_batch_' + str(i), 'rb')
+        file = open(filepath + 'data_batch_' + str(i), 'rb')
         data = pickle.load(file, encoding='latin1')
         x.append(data['data'])
         file.close()
@@ -25,7 +26,7 @@ def load_cifar10_dataset(rand_state, use_dequantize=True, logit_space=True, hori
     data_train = data[0:-n_val]
 
     # Load the test dataset
-    file = open(path + 'test_batch', 'rb')
+    file = open(filepath + 'test_batch', 'rb')
     data = pickle.load(file, encoding='latin1')
     data_test = data['data']
     file.close()

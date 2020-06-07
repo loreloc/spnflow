@@ -1,9 +1,11 @@
+import os
 import numpy as np
 
 
 def load_miniboone_dataset(rand_state):
     # Load the dataset
-    data = np.load('datasets/miniboone/data.npy')
+    filepath = os.path.join(os.environ['DATAPATH'], 'datasets/miniboone/data.npy')
+    data = np.load(filepath)
     rand_state.shuffle(data)
 
     # Split the dataset in train, validation and test set

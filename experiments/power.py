@@ -1,9 +1,11 @@
+import os
 import numpy as np
 
 
 def load_power_dataset(rand_state):
     # Load the dataset and remove useless features
-    data = np.load('datasets/power/data.npy')
+    filepath = os.path.join(os.environ['DATAPATH'], 'datasets/power/data.npy')
+    data = np.load(filepath)
     data = np.delete(data, 3, axis=1)
     data = np.delete(data, 1, axis=1)
     rand_state.shuffle(data)

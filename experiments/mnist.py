@@ -1,3 +1,4 @@
+import os
 import gzip
 import pickle
 import numpy as np
@@ -8,7 +9,8 @@ IMG_SIZE = 28
 
 def load_mnist_dataset(rand_state, use_dequantize=True, logit_space=True):
     # Load the dataset
-    file = gzip.open('datasets/mnist/mnist.pkl.gz', 'rb')
+    filepath = os.path.join(os.environ['DATAPATH'], 'datasets/mnist/mnist.pkl.gz')
+    file = gzip.open(filepath, 'rb')
     data_train, data_val, data_test = pickle.load(file, encoding='latin1')
     file.close()
     data_train = data_train[0]
