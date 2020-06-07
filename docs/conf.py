@@ -5,7 +5,7 @@ sys.path.insert(0, os.path.abspath('../'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'spnflow'
+project = 'SPNFlow'
 copyright = '2020, Lorenzo Loconte'
 author = 'Lorenzo Loconte'
 
@@ -19,6 +19,7 @@ release = '0.1.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "recommonmark",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.githubpages"

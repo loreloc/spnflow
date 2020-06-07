@@ -22,6 +22,7 @@ html: api
 # Make the Github Pages stsatic site
 github: html
 	cp -a "$(BUILDDIR)/html/." "$(SOURCEDIR)"
+	cp "$(SOURCEDIR)/../README.md" "$(SOURCEDIR)"
 
 # Clean
 clean:
