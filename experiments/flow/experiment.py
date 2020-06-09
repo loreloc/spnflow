@@ -22,9 +22,10 @@ from spnflow.tensorflow.utils import log_loss
 
 EPOCHS = 100
 BATCH_SIZE = 100
-DECAY_RATE = 0.96
-PATIENCE = 10
-LEARNING_RATE = 0.001
+DECAY_RATE = 0.95
+PATIENCE = 20
+LR_RAT = 1e-2
+LR_MAF = 1e-3
 
 
 def run_experiment_power():
@@ -36,28 +37,28 @@ def run_experiment_power():
     _, n_features = data_train.shape
 
     model = RatSpn(n_features, depth=1, n_batch=8, n_sum=8, n_repetitions=8, rand_state=rand_state)
-    collect_results('power', 'rat-spn', model, data_train, data_val, data_test)
+    collect_results('power', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=1, n_batch=8, n_sum=8, n_repetitions=8,
         n_mafs=1, hidden_units=[128, 128], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('power', 'rat-spn-maf1', model, data_train, data_val, data_test)
+    collect_results('power', 'rat-spn-maf1', model, LR_MAF, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=1, n_batch=8, n_sum=8, n_repetitions=8,
         n_mafs=5, hidden_units=[128, 128], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('power', 'rat-spn-maf5', model, data_train, data_val, data_test)
+    collect_results('power', 'rat-spn-maf5', model, LR_MAF, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=1, n_batch=8, n_sum=8, n_repetitions=8,
         n_mafs=10, hidden_units=[128, 128], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('power', 'rat-spn-maf10', model, data_train, data_val, data_test)
+    collect_results('power', 'rat-spn-maf10', model, LR_MAF, data_train, data_val, data_test)
 
 
 def run_experiment_gas():
@@ -69,28 +70,28 @@ def run_experiment_gas():
     _, n_features = data_train.shape
 
     model = RatSpn(n_features, depth=1, n_batch=8, n_sum=8, n_repetitions=8, rand_state=rand_state)
-    collect_results('gas', 'rat-spn', model, data_train, data_val, data_test)
+    collect_results('gas', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=1, n_batch=8, n_sum=8, n_repetitions=8,
         n_mafs=1, hidden_units=[128, 128], activation='tanh', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('gas', 'rat-spn-maf1', model, data_train, data_val, data_test)
+    collect_results('gas', 'rat-spn-maf1', model, LR_MAF, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=1, n_batch=8, n_sum=8, n_repetitions=8,
         n_mafs=5, hidden_units=[128, 128], activation='tanh', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('gas', 'rat-spn-maf5', model, data_train, data_val, data_test)
+    collect_results('gas', 'rat-spn-maf5', model, LR_MAF, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=1, n_batch=8, n_sum=8, n_repetitions=8,
         n_mafs=10, hidden_units=[128, 128], activation='tanh', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('gas', 'rat-spn-maf10', model, data_train, data_val, data_test)
+    collect_results('gas', 'rat-spn-maf10', model, LR_MAF, data_train, data_val, data_test)
 
 
 def run_experiment_hepmass():
@@ -102,28 +103,28 @@ def run_experiment_hepmass():
     _, n_features = data_train.shape
 
     model = RatSpn(n_features, depth=2, n_batch=16, n_sum=16, n_repetitions=16, rand_state=rand_state)
-    collect_results('hepmass', 'rat-spn', model, data_train, data_val, data_test)
+    collect_results('hepmass', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=2, n_batch=16, n_sum=16, n_repetitions=16,
         n_mafs=1, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('hepmass', 'rat-spn-maf1', model, data_train, data_val, data_test)
+    collect_results('hepmass', 'rat-spn-maf1', model, LR_MAF, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=2, n_batch=16, n_sum=16, n_repetitions=16,
         n_mafs=5, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('hepmass', 'rat-spn-maf5', model, data_train, data_val, data_test)
+    collect_results('hepmass', 'rat-spn-maf5', model, LR_MAF, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=2, n_batch=16, n_sum=16, n_repetitions=16,
         n_mafs=10, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('hepmass', 'rat-spn-maf10', model, data_train, data_val, data_test)
+    collect_results('hepmass', 'rat-spn-maf10', model, LR_MAF, data_train, data_val, data_test)
 
 
 def run_experiment_miniboone():
@@ -135,28 +136,28 @@ def run_experiment_miniboone():
     _, n_features = data_train.shape
 
     model = RatSpn(n_features, depth=2, n_batch=16, n_sum=16, n_repetitions=16, rand_state=rand_state)
-    collect_results('miniboone', 'rat-spn', model, data_train, data_val, data_test)
+    collect_results('miniboone', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=2, n_batch=16, n_sum=16, n_repetitions=16,
         n_mafs=1, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('miniboone', 'rat-spn-maf1', model, data_train, data_val, data_test)
+    collect_results('miniboone', 'rat-spn-maf1', model, LR_MAF, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=2, n_batch=16, n_sum=16, n_repetitions=16,
         n_mafs=5, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('miniboone', 'rat-spn-maf5', model, data_train, data_val, data_test)
+    collect_results('miniboone', 'rat-spn-maf5', model, LR_MAF, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=2, n_batch=16, n_sum=16, n_repetitions=16,
         n_mafs=10, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('miniboone', 'rat-spn-maf10', model, data_train, data_val, data_test)
+    collect_results('miniboone', 'rat-spn-maf10', model, LR_MAF, data_train, data_val, data_test)
 
 
 def run_experiment_bsds300():
@@ -168,28 +169,28 @@ def run_experiment_bsds300():
     _, n_features = data_train.shape
 
     model = RatSpn(n_features, depth=2, n_batch=16, n_sum=16, n_repetitions=16, rand_state=rand_state)
-    collect_results('bsds300', 'rat-spn', model, data_train, data_val, data_test)
+    collect_results('bsds300', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=2, n_batch=16, n_sum=16, n_repetitions=16,
         n_mafs=1, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('bsds300', 'rat-spn-maf1', model, data_train, data_val, data_test)
+    collect_results('bsds300', 'rat-spn-maf1', model, LR_MAF, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=2, n_batch=16, n_sum=16, n_repetitions=16,
         n_mafs=5, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('bsds300', 'rat-spn-maf5', model, data_train, data_val, data_test)
+    collect_results('bsds300', 'rat-spn-maf5', model, LR_MAF, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=2, n_batch=16, n_sum=16, n_repetitions=16,
         n_mafs=10, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('bsds300', 'rat-spn-maf10', model, data_train, data_val, data_test)
+    collect_results('bsds300', 'rat-spn-maf10', model, LR_MAF, data_train, data_val, data_test)
 
 
 def run_experiment_mnist():
@@ -201,7 +202,7 @@ def run_experiment_mnist():
     _, n_features = data_train.shape
 
     model = RatSpn(n_features, depth=3, n_batch=16, n_sum=16, n_repetitions=32, rand_state=rand_state)
-    collect_results('mnist', 'rat-spn', model, data_train, data_val, data_test)
+    collect_results('mnist', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
     collect_samples('mnist', 'rat-spn', model, 36, mnist_plot, mnist_delogit)
 
     model = AutoregressiveRatSpn(
@@ -209,7 +210,7 @@ def run_experiment_mnist():
         n_mafs=1, hidden_units=[1024, 1024], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('mnist', 'rat-spn-maf1', model, data_train, data_val, data_test)
+    collect_results('mnist', 'rat-spn-maf1', model, LR_MAF, data_train, data_val, data_test)
     collect_samples('mnist', 'rat-spn-maf1', model, 36, mnist_plot, mnist_delogit)
 
     model = AutoregressiveRatSpn(
@@ -217,7 +218,7 @@ def run_experiment_mnist():
         n_mafs=5, hidden_units=[1024, 1024], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('mnist', 'rat-spn-maf5', model, data_train, data_val, data_test)
+    collect_results('mnist', 'rat-spn-maf5', model, LR_MAF, data_train, data_val, data_test)
     collect_samples('mnist', 'rat-spn-maf5', model, 36, mnist_plot, mnist_delogit)
 
     model = AutoregressiveRatSpn(
@@ -225,7 +226,7 @@ def run_experiment_mnist():
         n_mafs=10, hidden_units=[1024, 1024], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('mnist', 'rat-spn-maf10', model, data_train, data_val, data_test)
+    collect_results('mnist', 'rat-spn-maf10', model, LR_MAF, data_train, data_val, data_test)
     collect_samples('mnist', 'rat-spn-maf10', model, 36, mnist_plot, mnist_delogit)
 
 
@@ -238,7 +239,7 @@ def run_experiment_cifar10():
     _, n_features = data_train.shape
 
     model = RatSpn(n_features, depth=4, n_batch=16, n_sum=16, n_repetitions=32, rand_state=rand_state)
-    collect_results('cifar10', 'rat-spn', model, data_train, data_val, data_test)
+    collect_results('cifar10', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
     collect_samples('cifar10', 'rat-spn', model, 36, cifar10_plot, cifar10_delogit)
 
     model = AutoregressiveRatSpn(
@@ -246,7 +247,7 @@ def run_experiment_cifar10():
         n_mafs=1, hidden_units=[1024, 1024], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('cifar10', 'rat-spn-maf1', model, data_train, data_val, data_test)
+    collect_results('cifar10', 'rat-spn-maf1', model, LR_MAF, data_train, data_val, data_test)
     collect_samples('cifar10', 'rat-spn-maf1', model, 36, cifar10_plot, cifar10_delogit)
 
     model = AutoregressiveRatSpn(
@@ -254,7 +255,7 @@ def run_experiment_cifar10():
         n_mafs=5, hidden_units=[1024, 1024], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('cifar10', 'rat-spn-maf5', model, data_train, data_val, data_test)
+    collect_results('cifar10', 'rat-spn-maf5', model, LR_MAF, data_train, data_val, data_test)
     collect_samples('cifar10', 'rat-spn-maf5', model, 36, cifar10_plot, cifar10_delogit)
 
     model = AutoregressiveRatSpn(
@@ -262,13 +263,13 @@ def run_experiment_cifar10():
         n_mafs=10, hidden_units=[1024, 1024], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
-    collect_results('cifar10', 'rat-spn-maf10', model, data_train, data_val, data_test)
+    collect_results('cifar10', 'rat-spn-maf10', model, LR_MAF, data_train, data_val, data_test)
     collect_samples('cifar10', 'rat-spn-maf10', model, 36, cifar10_plot, cifar10_delogit)
 
 
-def collect_results(dataset, info, model, data_train, data_val, data_test):
+def collect_results(dataset, info, model, lr, data_train, data_val, data_test):
     # Run the experiment and get the results
-    mu_ll, sigma_ll = experiment_log_likelihood(model, data_train, data_val, data_test)
+    mu_ll, sigma_ll = experiment_log_likelihood(model, lr, data_train, data_val, data_test)
 
     # Save the results to file
     with open(os.path.join('results', dataset + '_' + info + '.txt'), 'w') as file:
@@ -295,11 +296,11 @@ def collect_samples(dataset, info, model, n_samples, plot_fn, post_fn=None):
     fig.savefig(os.path.join('results', dataset + '_' + info + '.png'))
 
 
-def experiment_log_likelihood(model, data_train, data_val, data_test):
+def experiment_log_likelihood(model, lr, data_train, data_val, data_test):
     # Instantiate the learning rate schedule
     steps_per_epoch = len(data_train) // BATCH_SIZE
     lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-        LEARNING_RATE, decay_steps=steps_per_epoch, decay_rate=DECAY_RATE, staircase=True
+        lr, decay_steps=steps_per_epoch, decay_rate=DECAY_RATE, staircase=True
     )
 
     # Instantiate the optimizer
