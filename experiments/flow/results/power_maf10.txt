@@ -1,3 +1,0 @@
-power
-Avg. Log-Likelihood: 0.23513013
-Two Std. Log-Likelihood: 0.013242106998055395
