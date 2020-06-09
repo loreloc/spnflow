@@ -20,12 +20,13 @@ from spnflow.tensorflow.model.rat import RatSpn
 from spnflow.tensorflow.model.flow import AutoregressiveRatSpn
 from spnflow.tensorflow.utils import log_loss
 
-EPOCHS = 100
+EPOCHS = 500
 BATCH_SIZE = 100
-DECAY_RATE = 0.95
-PATIENCE = 20
-LR_RAT = 1e-2
-LR_MAF = 1e-3
+PATIENCE = 30
+BETA_1 = 0.8
+BETA_2 = 0.99
+LR_RAT = 1e-3
+LR_MAF = 1e-4
 
 
 def run_experiment_power():
@@ -269,13 +270,24 @@ def run_experiment_cifar10():
 
 def collect_results(dataset, info, model, lr, data_train, data_val, data_test):
     # Run the experiment and get the results
-    mu_ll, sigma_ll = experiment_log_likelihood(model, lr, data_train, data_val, data_test)
+    history, (mu_ll, sigma_ll) = experiment_log_likelihood(model, lr, data_train, data_val, data_test)
 
     # Save the results to file
-    with open(os.path.join('results', dataset + '_' + info + '.txt'), 'w') as file:
+    filepath = os.path.join('results', dataset + '_' + info + '.txt')
+    with open(filepath, 'w') as file:
         file.write(dataset + ': ' + info + '\n')
         file.write('Avg. Log-Likelihood: ' + str(mu_ll) + '\n')
         file.write('Two Std. Log-Likelihood: ' + str(2.0 * sigma_ll) + '\n')
+
+    # Plot the training history
+    filepath = os.path.join('histories', dataset + '_' + info + '.png')
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('Loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['Train', 'Val'])
+    plt.savefig(filename + '.png')
 
 
 def collect_samples(dataset, info, model, n_samples, plot_fn, post_fn=None):
@@ -297,20 +309,16 @@ def collect_samples(dataset, info, model, n_samples, plot_fn, post_fn=None):
 
 
 def experiment_log_likelihood(model, lr, data_train, data_val, data_test):
-    # Instantiate the learning rate schedule
-    steps_per_epoch = len(data_train) // BATCH_SIZE
-    lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-        lr, decay_steps=steps_per_epoch, decay_rate=DECAY_RATE, staircase=True
-    )
-
     # Instantiate the optimizer
-    optimizer = tf.keras.optimizers.Adam(lr_schedule)
+    optimizer = tf.keras.optimizers.Adam(
+        lr=lr, beta_1=BETA_1, beta_2=BETA_2
+    )
 
     # Compile the model
     model.compile(optimizer=optimizer, loss=log_loss)
 
     # Fit the model
-    model.fit(
+    history = model.fit(
         x=data_train,
         y=np.zeros((data_train.shape[0], 0), dtype=np.float32),
         validation_data=(data_val, np.zeros((data_val.shape[0], 0), dtype=np.float32)),
@@ -323,7 +331,7 @@ def experiment_log_likelihood(model, lr, data_train, data_val, data_test):
     mu_log_likelihood = np.mean(y_pred)
     sigma_log_likelihood = np.std(y_pred) / np.sqrt(data_test.shape[0])
 
-    return mu_log_likelihood, sigma_log_likelihood
+    return history, (mu_log_likelihood, sigma_log_likelihood)
 
 
 if __name__ == '__main__':
