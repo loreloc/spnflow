@@ -288,6 +288,7 @@ def collect_results(dataset, info, model, lr, data_train, data_val, data_test):
     plt.xlabel('epoch')
     plt.legend(['Train', 'Val'])
     plt.savefig(filepath)
+    plt.clf()
 
 
 def collect_samples(dataset, info, model, n_samples, plot_fn, post_fn=None):
