@@ -102,25 +102,25 @@ def run_experiment_hepmass():
     data_train, data_val, data_test = load_hepmass_dataset(rand_state)
     _, n_features = data_train.shape
 
-    model = RatSpn(n_features, depth=2, n_batch=8, n_sum=8, n_repetitions=16, rand_state=rand_state)
+    model = RatSpn(n_features, depth=2, n_batch=8, n_sum=8, n_repetitions=32, rand_state=rand_state)
     collect_results('hepmass', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
-        depth=2, n_batch=8, n_sum=8, n_repetitions=16,
+        depth=2, n_batch=8, n_sum=8, n_repetitions=32,
         n_mafs=1, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
     collect_results('hepmass', 'rat-spn-maf1', model, LR_MAF, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
-        depth=2, n_batch=8, n_sum=8, n_repetitions=16,
+        depth=2, n_batch=8, n_sum=8, n_repetitions=32,
         n_mafs=3, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
     collect_results('hepmass', 'rat-spn-maf3', model, LR_MAF, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
-        depth=2, n_batch=8, n_sum=8, n_repetitions=16,
+        depth=2, n_batch=8, n_sum=8, n_repetitions=32,
         n_mafs=5, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
@@ -135,25 +135,25 @@ def run_experiment_miniboone():
     data_train, data_val, data_test = load_miniboone_dataset(rand_state)
     _, n_features = data_train.shape
 
-    model = RatSpn(n_features, depth=2, n_batch=8, n_sum=8, n_repetitions=16, rand_state=rand_state)
+    model = RatSpn(n_features, depth=2, n_batch=8, n_sum=8, n_repetitions=32, rand_state=rand_state)
     collect_results('miniboone', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
-        depth=2, n_batch=8, n_sum=8, n_repetitions=16,
+        depth=2, n_batch=8, n_sum=8, n_repetitions=32,
         n_mafs=1, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
     collect_results('miniboone', 'rat-spn-maf1', model, LR_MAF, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
-        depth=2, n_batch=8, n_sum=8, n_repetitions=16,
+        depth=2, n_batch=8, n_sum=8, n_repetitions=32,
         n_mafs=3, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
     collect_results('miniboone', 'rat-spn-maf3', model, LR_MAF, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
-        depth=2, n_batch=8, n_sum=8, n_repetitions=16,
+        depth=2, n_batch=8, n_sum=8, n_repetitions=32,
         n_mafs=5, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
@@ -168,25 +168,25 @@ def run_experiment_bsds300():
     data_train, data_val, data_test = load_bsds300_dataset(rand_state)
     _, n_features = data_train.shape
 
-    model = RatSpn(n_features, depth=2, n_batch=8, n_sum=8, n_repetitions=16, rand_state=rand_state)
+    model = RatSpn(n_features, depth=2, n_batch=8, n_sum=8, n_repetitions=32, rand_state=rand_state)
     collect_results('bsds300', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
-        depth=2, n_batch=8, n_sum=8, n_repetitions=16,
+        depth=2, n_batch=8, n_sum=8, n_repetitions=32,
         n_mafs=1, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
     collect_results('bsds300', 'rat-spn-maf1', model, LR_MAF, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
-        depth=2, n_batch=8, n_sum=8, n_repetitions=16,
+        depth=2, n_batch=8, n_sum=8, n_repetitions=32,
         n_mafs=3, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
     collect_results('bsds300', 'rat-spn-maf3', model, LR_MAF, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
-        depth=2, n_batch=8, n_sum=8, n_repetitions=16,
+        depth=2, n_batch=8, n_sum=8, n_repetitions=32,
         n_mafs=5, hidden_units=[512, 512], activation='relu', regularization=1e-6,
         rand_state=rand_state
     )
