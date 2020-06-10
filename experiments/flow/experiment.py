@@ -22,7 +22,7 @@ from spnflow.tensorflow.utils import log_loss
 
 EPOCHS = 1000
 BATCH_SIZE = 100
-DECAY_RATE = 0.999
+DECAY_RATE = 0.998
 PATIENCE = 30
 LR_RAT = 1e-3
 LR_MAF = 1e-4
