@@ -22,7 +22,7 @@ from spnflow.tensorflow.utils import log_loss
 
 EPOCHS = 1000
 BATCH_SIZE = 100
-DECAY_RATE = 0.995
+EPSILON = 1e-4
 PATIENCE = 30
 LR_RAT = 1e-3
 LR_MAF = 1e-4
@@ -37,7 +37,7 @@ def run_experiment_power():
     _, n_features = data_train.shape
 
     model = RatSpn(n_features, depth=1, n_batch=8, n_sum=8, n_repetitions=16, rand_state=rand_state)
-    collect_results('power', 'rat-spn', model, LR_RAT, data_train, data_val, data_test, use_decay=False)
+    collect_results('power', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=1, n_batch=8, n_sum=8, n_repetitions=16,
@@ -70,7 +70,7 @@ def run_experiment_gas():
     _, n_features = data_train.shape
 
     model = RatSpn(n_features, depth=1, n_batch=8, n_sum=8, n_repetitions=16, rand_state=rand_state)
-    collect_results('gas', 'rat-spn', model, LR_RAT, data_train, data_val, data_test, use_decay=False)
+    collect_results('gas', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=1, n_batch=8, n_sum=8, n_repetitions=16,
@@ -103,7 +103,7 @@ def run_experiment_hepmass():
     _, n_features = data_train.shape
 
     model = RatSpn(n_features, depth=2, n_batch=8, n_sum=8, n_repetitions=32, rand_state=rand_state)
-    collect_results('hepmass', 'rat-spn', model, LR_RAT, data_train, data_val, data_test, use_decay=False)
+    collect_results('hepmass', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=2, n_batch=8, n_sum=8, n_repetitions=32,
@@ -135,8 +135,8 @@ def run_experiment_miniboone():
     data_train, data_val, data_test = load_miniboone_dataset(rand_state)
     _, n_features = data_train.shape
 
-    model = RatSpn(n_features, depth=2, n_batch=8, n_sum=8, n_repetitions=32, rand_state=rand_state)
-    collect_results('miniboone', 'rat-spn', model, LR_RAT, data_train, data_val, data_test, use_decay=False)
+    #model = RatSpn(n_features, depth=2, n_batch=8, n_sum=8, n_repetitions=32, rand_state=rand_state)
+    #collect_results('miniboone', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=2, n_batch=8, n_sum=8, n_repetitions=32,
@@ -169,7 +169,7 @@ def run_experiment_bsds300():
     _, n_features = data_train.shape
 
     model = RatSpn(n_features, depth=2, n_batch=8, n_sum=8, n_repetitions=32, rand_state=rand_state)
-    collect_results('bsds300', 'rat-spn', model, LR_RAT, data_train, data_val, data_test, use_decay=False)
+    collect_results('bsds300', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=2, n_batch=8, n_sum=8, n_repetitions=32,
@@ -202,7 +202,7 @@ def run_experiment_mnist():
     _, n_features = data_train.shape
 
     model = RatSpn(n_features, depth=3, n_batch=16, n_sum=16, n_repetitions=32, rand_state=rand_state)
-    collect_results('mnist', 'rat-spn', model, LR_RAT, data_train, data_val, data_test, use_decay=False)
+    collect_results('mnist', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
     collect_samples('mnist', 'rat-spn', model, 36, mnist_plot, mnist_delogit)
 
     model = AutoregressiveRatSpn(
@@ -239,7 +239,7 @@ def run_experiment_cifar10():
     _, n_features = data_train.shape
 
     model = RatSpn(n_features, depth=4, n_batch=16, n_sum=16, n_repetitions=32, rand_state=rand_state)
-    collect_results('cifar10', 'rat-spn', model, LR_RAT, data_train, data_val, data_test, use_decay=False)
+    collect_results('cifar10', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
     collect_samples('cifar10', 'rat-spn', model, 36, cifar10_plot, cifar10_delogit)
 
     model = AutoregressiveRatSpn(
@@ -267,11 +267,9 @@ def run_experiment_cifar10():
     collect_samples('cifar10', 'rat-spn-maf5', model, 36, cifar10_plot, cifar10_delogit)
 
 
-def collect_results(dataset, info, model, lr, data_train, data_val, data_test, use_decay=True):
+def collect_results(dataset, info, model, lr, data_train, data_val, data_test):
     # Run the experiment and get the results
-    history, (mu_ll, sigma_ll) = experiment_log_likelihood(
-        model, lr, data_train, data_val, data_test, use_decay=use_decay
-    )
+    history, (mu_ll, sigma_ll) = experiment_log_likelihood(model, lr, data_train, data_val, data_test)
 
     # Save the results to file
     filepath = os.path.join('results', dataset + '_' + info + '.txt')
@@ -311,19 +309,9 @@ def collect_samples(dataset, info, model, n_samples, plot_fn, post_fn=None):
     fig.savefig(os.path.join('results', dataset + '_' + info + '.png'))
 
 
-def experiment_log_likelihood(model, lr, data_train, data_val, data_test, use_decay=True):
-    # Instantiate the exponential learning rate decay, if specified
-    lr_schedule = None
-    if use_decay:
-        decay_steps = len(data_train) // BATCH_SIZE
-        lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-            lr, decay_steps=decay_steps, decay_rate=DECAY_RATE, staircase=True
-        )
-    else:
-        lr_schedule = lr
-
+def experiment_log_likelihood(model, lr, data_train, data_val, data_test):
     # Instantiate the optimizer
-    optimizer = tf.keras.optimizers.Adam(lr_schedule)
+    optimizer = tf.keras.optimizers.Adam(lr, epsilon=EPSILON)
 
     # Compile the model
     model.compile(optimizer=optimizer, loss=log_loss)
