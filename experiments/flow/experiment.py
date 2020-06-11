@@ -135,8 +135,8 @@ def run_experiment_miniboone():
     data_train, data_val, data_test = load_miniboone_dataset(rand_state)
     _, n_features = data_train.shape
 
-    #model = RatSpn(n_features, depth=2, n_batch=8, n_sum=8, n_repetitions=32, rand_state=rand_state)
-    #collect_results('miniboone', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
+    model = RatSpn(n_features, depth=2, n_batch=8, n_sum=8, n_repetitions=32, rand_state=rand_state)
+    collect_results('miniboone', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
     model = AutoregressiveRatSpn(
         depth=2, n_batch=8, n_sum=8, n_repetitions=32,
