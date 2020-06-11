@@ -22,7 +22,6 @@ from spnflow.tensorflow.utils import log_loss
 
 EPOCHS = 1000
 BATCH_SIZE = 100
-EPSILON = 1e-3
 PATIENCE = 30
 LR_RAT = 1e-3
 LR_MAF = 1e-4
@@ -311,7 +310,7 @@ def collect_samples(dataset, info, model, n_samples, plot_fn, post_fn=None):
 
 def experiment_log_likelihood(model, lr, data_train, data_val, data_test):
     # Instantiate the optimizer
-    optimizer = tf.keras.optimizers.Adam(lr, epsilon=EPSILON)
+    optimizer = tf.keras.optimizers.RMSprop(lr)
 
     # Compile the model
     model.compile(optimizer=optimizer, loss=log_loss)
