@@ -62,8 +62,12 @@ class GaussianLayer(tf.keras.layers.Layer):
                 trainable=True
             )
         else:
-            sigma = tf.ones(shape=(n_regions, self.n_batch, dim_gauss))
-            self._scale = tf.Variable(sigma, trainable=False)
+            self._scale = self.add_weight(
+                'scale',
+                shape=[n_regions, self.n_batch, dim_gauss],
+                initializer='ones',
+                trainable=False
+            )
 
         # Create the multi-batch multivariate distribution
         self._distribution = tfp.distributions.MultivariateNormalDiag(self._mean, self._scale)

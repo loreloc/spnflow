@@ -83,6 +83,7 @@ class AutoregressiveRatSpn(tf.keras.Model):
             self.optimize_scale,
             self.rand_state
         )
+        self.spn.build(input_shape)
 
         # Build the MADE models
         self.mades = []
