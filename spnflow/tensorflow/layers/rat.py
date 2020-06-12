@@ -49,7 +49,7 @@ class GaussianLayer(tf.keras.layers.Layer):
         self._mean = self.add_weight(
             'mean',
             shape=[n_regions, self.n_batch, dim_gauss],
-            initializer=tf.keras.initializers.RandomNormal(mean=0.0, stddev=1e-1),
+            initializer=tf.keras.initializers.RandomNormal(mean=0.0, stddev=5e-1),
             trainable=True
         )
 
