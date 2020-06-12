@@ -121,6 +121,9 @@ class AutoregressiveRatSpn(tf.keras.Model):
                 bijectors.append(bn)
         self.bijector = tfp.bijectors.Chain(bijectors)
 
+        # Call the parent class build method
+        super(AutoregressiveRatSpn, self).build(input_shape)
+
     @tf.function
     def call(self, inputs, training=None, **kwargs):
         """

@@ -46,14 +46,21 @@ class GaussianLayer(tf.keras.layers.Layer):
         self.regions = np.asarray(self.regions)
 
         # Instantiate the mean variable
-        self._mean = tf.Variable(
-            tf.random.normal(shape=(n_regions, self.n_batch, dim_gauss)), trainable=True
+        self._mean = self.add_weight(
+            'mean',
+            shape=[n_regions, self.n_batch, dim_gauss],
+            initializer='glorot_uniform',
+            trainable=True
         )
 
         # Instantiate the scale variable
         if self.optimize_scale:
-            sigma = tf.math.sigmoid(tf.random.normal(shape=(n_regions, self.n_batch, dim_gauss)))
-            self._scale = tf.Variable(0.1 + 0.9 * sigma, trainable=True)
+            self._scale = self.add_weight(
+                'scale',
+                shape=[n_regions, self.n_batch, dim_gauss],
+                initializer=tf.keras.initializers.TruncatedNormal(mean=0.5, stddev=0.2),
+                trainable=True
+            )
         else:
             sigma = tf.ones(shape=(n_regions, self.n_batch, dim_gauss))
             self._scale = tf.Variable(sigma, trainable=False)
@@ -187,12 +194,13 @@ class SumLayer(tf.keras.layers.Layer):
 
         :param input_shape: The input shape.
         """
-        # Set the kernel shape
-        kernel_shape = (input_shape[1], self.n_sum, input_shape[2])
-
         # Construct the weights
-        self.kernel = tf.Variable(
-            initial_value=tf.random.normal(kernel_shape),
+        n_nodes = input_shape[-1]
+        n_regions = input_shape[-2]
+        self.kernel = self.add_weight(
+            'kernel',
+            shape=[n_regions, self.n_sum, n_nodes],
+            initializer='glorot_uniform',
             trainable=True
         )
 
@@ -251,9 +259,11 @@ class RootLayer(tf.keras.layers.Layer):
         :param input_shape: The input shape.
         """
         # Construct the weights
-        kernel_shape = (1, input_shape[1])
-        self.kernel = tf.Variable(
-            initial_value=tf.random.normal(kernel_shape, stddev=1e-1),
+        n_nodes = input_shape[-1]
+        self.kernel = self.add_weight(
+            'kernel',
+            shape=[1, n_nodes],
+            initializer='glorot_uniform',
             trainable=True
         )
 

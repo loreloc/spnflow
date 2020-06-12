@@ -80,6 +80,9 @@ class RatSpn(tf.keras.Model):
         # Add the sum root layer
         self.root_layer = RootLayer()
 
+        # Call the parent class build method
+        super(RatSpn, self).build(input_shape)
+
     @tf.function
     def call(self, inputs, training=None, **kwargs):
         """
