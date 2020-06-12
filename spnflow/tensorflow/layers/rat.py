@@ -49,7 +49,7 @@ class GaussianLayer(tf.keras.layers.Layer):
         self._mean = self.add_weight(
             'mean',
             shape=[n_regions, self.n_batch, dim_gauss],
-            initializer='glorot_uniform',
+            initializer=tf.keras.initializers.RandomNormal(mean=0.0, stddev=1e-1),
             trainable=True
         )
 
@@ -58,14 +58,14 @@ class GaussianLayer(tf.keras.layers.Layer):
             self._scale = self.add_weight(
                 'scale',
                 shape=[n_regions, self.n_batch, dim_gauss],
-                initializer=tf.keras.initializers.TruncatedNormal(mean=0.5, stddev=0.2),
+                initializer=tf.keras.initializers.TruncatedNormal(mean=0.5, stddev=1e-1),
                 trainable=True
             )
         else:
             self._scale = self.add_weight(
                 'scale',
                 shape=[n_regions, self.n_batch, dim_gauss],
-                initializer='ones',
+                initializer=tf.keras.initializers.Ones(),
                 trainable=False
             )
 
@@ -204,7 +204,7 @@ class SumLayer(tf.keras.layers.Layer):
         self.kernel = self.add_weight(
             'kernel',
             shape=[n_regions, self.n_sum, n_nodes],
-            initializer='glorot_uniform',
+            initializer=tf.keras.initializers.RandomNormal(mean=0.0, stddev=5e-1),
             trainable=True
         )
 
@@ -267,7 +267,7 @@ class RootLayer(tf.keras.layers.Layer):
         self.kernel = self.add_weight(
             'kernel',
             shape=[1, n_nodes],
-            initializer='glorot_uniform',
+            initializer=tf.keras.initializers.RandomNormal(mean=0.0, stddev=5e-1),
             trainable=True
         )
 
