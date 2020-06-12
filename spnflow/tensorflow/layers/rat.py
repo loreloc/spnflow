@@ -58,7 +58,7 @@ class GaussianLayer(tf.keras.layers.Layer):
             self._scale = self.add_weight(
                 'scale',
                 shape=[n_regions, self.n_batch, dim_gauss],
-                initializer=tf.keras.initializers.TruncatedNormal(mean=0.5, stddev=1e-1),
+                initializer=tf.keras.initializers.TruncatedNormal(mean=0.5, stddev=5e-2),
                 trainable=True
             )
         else:
