@@ -55,8 +55,8 @@ class RegionGraph:
                 if mid == 0:
                     return layers
                 permutation = self._rand_state.permutation(r).tolist()
-                p0 = tuple(permutation[:mid])
-                p1 = tuple(permutation[mid:])
+                p0 = tuple(sorted(permutation[:mid]))
+                p1 = tuple(sorted(permutation[mid:]))
                 regions.append(p0)
                 regions.append(p1)
                 partitions.append((p0, p1))

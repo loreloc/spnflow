@@ -1,6 +1,7 @@
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
+from spnflow.tensorflow.constraints import Positive
 
 
 class GaussianLayer(tf.keras.layers.Layer):
@@ -20,7 +21,9 @@ class GaussianLayer(tf.keras.layers.Layer):
         self.regions = regions
         self.n_batch = n_batch
         self.optimize_scale = optimize_scale
+        self._mask = None
         self._pad = None
+        self._pad_mask = None
         self._mean = None
         self._scale = None
         self._distribution = None
@@ -38,18 +41,23 @@ class GaussianLayer(tf.keras.layers.Layer):
         self._pad = -n_features % (2 ** self.depth)
         dim_gauss = (n_features + self._pad) // (2 ** self.depth)
 
-        # Append dummy variables to regions orderings
+        # Append dummy variables to regions orderings and update the pad mask
+        self._mask = self.regions.copy()
+        self._pad_mask = np.ones(shape=(n_regions, 1, dim_gauss), dtype=np.float32)
         if self._pad > 0:
             for i in range(n_regions):
                 n_dummy = dim_gauss - len(self.regions[i])
-                self.regions[i] = list(self.regions[i]) + list(self.regions[i])[:n_dummy]
-        self.regions = np.asarray(self.regions)
+                if n_dummy > 0:
+                    self._pad_mask[i, :, -n_dummy:] = 0.0
+                    self._mask[i] = list(self._mask[i]) + [list(self._mask[i])[-1]] * n_dummy
+        self._mask = tf.constant(self._mask)
+        self._pad_mask = tf.constant(self._pad_mask)
 
         # Instantiate the mean variable
         self._mean = self.add_weight(
             'mean',
             shape=[n_regions, self.n_batch, dim_gauss],
-            initializer=tf.keras.initializers.RandomNormal(mean=0.0, stddev=5e-1),
+            initializer=tf.keras.initializers.RandomNormal(mean=0.0, stddev=1e-1),
             trainable=True
         )
 
@@ -59,6 +67,7 @@ class GaussianLayer(tf.keras.layers.Layer):
                 'scale',
                 shape=[n_regions, self.n_batch, dim_gauss],
                 initializer=tf.keras.initializers.TruncatedNormal(mean=0.5, stddev=5e-2),
+                constraint=Positive(),
                 trainable=True
             )
         else:
@@ -69,8 +78,8 @@ class GaussianLayer(tf.keras.layers.Layer):
                 trainable=False
             )
 
-        # Create the multi-batch multivariate distribution
-        self._distribution = tfp.distributions.MultivariateNormalDiag(self._mean, self._scale)
+        # Instantiate the multi-batch normal distribution
+        self._distribution = tfp.distributions.Normal(self._mean, self._scale)
 
         # Call the parent class's build method
         super(GaussianLayer, self).build(input_shape)
@@ -83,10 +92,14 @@ class GaussianLayer(tf.keras.layers.Layer):
         :param kwargs: Other arguments.
         :return: The log likelihood of each distribution leaf.
         """
-        # Compute the log-likelihoods
-        x = tf.gather(inputs, self.regions, axis=1)
+        # Gather the inputs
+        x = tf.gather(inputs, self._mask, axis=1)
         x = tf.expand_dims(x, axis=2)
+
+        # Compute the log-likelihoods
         x = self._distribution.log_prob(x)
+        x = x * self._pad_mask
+        x = tf.math.reduce_sum(x, axis=-1)
         return x
 
     def sample(self, n_samples, idx_partition, idx_offset):
@@ -198,9 +211,10 @@ class SumLayer(tf.keras.layers.Layer):
 
         :param input_shape: The input shape.
         """
-        # Construct the weights
-        n_nodes = input_shape[-1]
-        n_regions = input_shape[-2]
+        n_regions = input_shape[1]
+        n_nodes = input_shape[2]
+
+        # Instantiate the weights
         self.kernel = self.add_weight(
             'kernel',
             shape=[n_regions, self.n_sum, n_nodes],
@@ -262,8 +276,9 @@ class RootLayer(tf.keras.layers.Layer):
 
         :param input_shape: The input shape.
         """
-        # Construct the weights
-        n_nodes = input_shape[-1]
+        n_nodes = input_shape[1]
+
+        # Instantiate the weights
         self.kernel = self.add_weight(
             'kernel',
             shape=[1, n_nodes],
