@@ -20,7 +20,7 @@ from spnflow.tensorflow.model.rat import RatSpn
 from spnflow.tensorflow.model.flow import AutoregressiveRatSpn
 from spnflow.tensorflow.utils import log_loss
 
-EPOCHS = 1000
+EPOCHS = 500
 BATCH_SIZE = 100
 PATIENCE = 30
 LR_RAT = 1e-3
@@ -310,7 +310,7 @@ def collect_samples(dataset, info, model, n_samples, plot_fn, post_fn=None):
 
 def experiment_log_likelihood(model, lr, data_train, data_val, data_test):
     # Instantiate the optimizer
-    optimizer = tf.keras.optimizers.RMSprop(lr)
+    optimizer = tf.keras.optimizers.Adam(lr)
 
     # Compile the model
     model.compile(optimizer=optimizer, loss=log_loss)

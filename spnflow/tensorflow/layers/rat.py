@@ -54,29 +54,26 @@ class GaussianLayer(tf.keras.layers.Layer):
         self._pad_mask = tf.constant(self._pad_mask)
 
         # Instantiate the mean variable
+        mean_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=1e-1)
         self._mean = self.add_weight(
-            'mean',
-            shape=[n_regions, self.n_batch, dim_gauss],
-            initializer=tf.keras.initializers.RandomNormal(mean=0.0, stddev=1e-1),
-            trainable=True
+            'mean', shape=[n_regions, self.n_batch, dim_gauss],
+            initializer=mean_initializer, trainable=True
         )
 
         # Instantiate the scale variable
         if self.optimize_scale:
-            self._scale = self.add_weight(
-                'scale',
-                shape=[n_regions, self.n_batch, dim_gauss],
-                initializer=tf.keras.initializers.TruncatedNormal(mean=0.5, stddev=5e-2),
-                constraint=Positive(),
-                trainable=True
-            )
+            scale_initializer = tf.keras.initializers.TruncatedNormal(mean=0.5, stddev=5e-2)
+            scale_constraint = Positive()
+            scale_trainable = True
         else:
-            self._scale = self.add_weight(
-                'scale',
-                shape=[n_regions, self.n_batch, dim_gauss],
-                initializer=tf.keras.initializers.Ones(),
-                trainable=False
-            )
+            scale_initializer = tf.keras.initializers.Ones()
+            scale_constraint = None
+            scale_trainable = False
+        self._scale = self.add_weight(
+            'scale', shape=[n_regions, self.n_batch, dim_gauss],
+            initializer=scale_initializer, constraint=scale_constraint,
+            trainable=scale_trainable
+        )
 
         # Instantiate the multi-batch normal distribution
         self._distribution = tfp.distributions.Normal(self._mean, self._scale)
@@ -215,11 +212,10 @@ class SumLayer(tf.keras.layers.Layer):
         n_nodes = input_shape[2]
 
         # Instantiate the weights
+        kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=5e-1)
         self.kernel = self.add_weight(
-            'kernel',
-            shape=[n_regions, self.n_sum, n_nodes],
-            initializer=tf.keras.initializers.RandomNormal(mean=0.0, stddev=5e-1),
-            trainable=True
+            'kernel', shape=[n_regions, self.n_sum, n_nodes],
+            initializer=kernel_initializer, trainable=True
         )
 
         # Call the parent class build method
@@ -279,11 +275,10 @@ class RootLayer(tf.keras.layers.Layer):
         n_nodes = input_shape[1]
 
         # Instantiate the weights
+        kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=5e-1)
         self.kernel = self.add_weight(
-            'kernel',
-            shape=[1, n_nodes],
-            initializer=tf.keras.initializers.RandomNormal(mean=0.0, stddev=5e-1),
-            trainable=True
+            'kernel', shape=[1, n_nodes],
+            initializer=kernel_initializer, trainable=True
         )
 
         # Call the parent class build method
