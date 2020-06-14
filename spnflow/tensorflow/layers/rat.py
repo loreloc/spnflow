@@ -43,15 +43,15 @@ class GaussianLayer(tf.keras.layers.Layer):
 
         # Append dummy variables to regions orderings and update the pad mask
         self._mask = self.regions.copy()
-        self._pad_mask = np.ones(shape=(n_regions, 1, dim_gauss), dtype=np.float32)
         if self._pad > 0:
+            self._pad_mask = np.ones(shape=(n_regions, 1, dim_gauss), dtype=np.float32)
             for i in range(n_regions):
                 n_dummy = dim_gauss - len(self.regions[i])
                 if n_dummy > 0:
                     self._pad_mask[i, :, -n_dummy:] = 0.0
                     self._mask[i] = list(self._mask[i]) + [list(self._mask[i])[-1]] * n_dummy
+            self._pad_mask = tf.constant(self._pad_mask)
         self._mask = tf.constant(self._mask)
-        self._pad_mask = tf.constant(self._pad_mask)
 
         # Instantiate the mean variable
         mean_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=1e-1)
@@ -95,7 +95,8 @@ class GaussianLayer(tf.keras.layers.Layer):
 
         # Compute the log-likelihoods
         x = self._distribution.log_prob(x)
-        x = x * self._pad_mask
+        if self._pad > 0:
+            x = x * self._pad_mask
         x = tf.math.reduce_sum(x, axis=-1)
         return x
 
