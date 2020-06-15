@@ -16,7 +16,7 @@ class RatSpnFlow(tf.keras.Model):
                  optimize_scale=True,
                  flow='maf',
                  n_flows=5,
-                 hidden_units=[32, 32],
+                 hidden_units=[128],
                  activation='relu',
                  regularization=1e-6,
                  batch_norm=True,
