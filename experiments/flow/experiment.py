@@ -12,19 +12,15 @@ from experiments.bsds300 import load_bsds300_dataset
 from experiments.mnist import load_mnist_dataset
 from experiments.mnist import delogit as mnist_delogit
 from experiments.mnist import plot as mnist_plot
-from experiments.cifar10 import load_cifar10_dataset
-from experiments.cifar10 import delogit as cifar10_delogit
-from experiments.cifar10 import plot as cifar10_plot
 
-from spnflow.tensorflow.model.rat import RatSpn
-from spnflow.tensorflow.model.flow import AutoregressiveRatSpn
 from spnflow.tensorflow.utils import log_loss
+from spnflow.tensorflow.models import RatSpn, RatSpnFlow
 
 EPOCHS = 500
 BATCH_SIZE = 100
 PATIENCE = 30
-LR_RAT = 1e-3
-LR_MAF = 1e-4
+LR_RAT = 5e-4
+LR_FLOW = 1e-4
 
 
 def run_experiment_power():
@@ -35,29 +31,30 @@ def run_experiment_power():
     data_train, data_val, data_test = load_power_dataset(rand_state)
     _, n_features = data_train.shape
 
-    model = RatSpn(n_features, depth=1, n_batch=8, n_sum=8, n_repetitions=16, rand_state=rand_state)
+    # Set the parameters for the RAT-SPNs
+    ratspn_kwargs = {
+        'depth': 1, 'n_batch': 8, 'n_sum': 8, 'n_repetitions': 8, 'rand_state': rand_state
+    }
+
+    # Set the parameters for the normalizing flows conditioners
+    flow_kwargs = {
+        'hidden_units': [128], 'activation': 'relu', 'regularization': 1e-6
+    }
+
+    model = RatSpn(**ratspn_kwargs)
     collect_results('power', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
-    model = AutoregressiveRatSpn(
-        depth=1, n_batch=8, n_sum=8, n_repetitions=16,
-        n_mafs=1, hidden_units=[128, 128], activation='relu', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('power', 'rat-spn-maf1', model, LR_MAF, data_train, data_val, data_test)
+    model = RatSpnFlow(flow='nvp', n_flows=5, **ratspn_kwargs, **flow_kwargs)
+    collect_results('power', 'rat-spn-nvp5', model, LR_FLOW, data_train, data_val, data_test)
 
-    model = AutoregressiveRatSpn(
-        depth=1, n_batch=8, n_sum=8, n_repetitions=16,
-        n_mafs=3, hidden_units=[128, 128], activation='relu', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('power', 'rat-spn-maf3', model, LR_MAF, data_train, data_val, data_test)
+    model = RatSpnFlow(flow='nvp', n_flows=10, **ratspn_kwargs, **flow_kwargs)
+    collect_results('power', 'rat-spn-nvp10', model, LR_FLOW, data_train, data_val, data_test)
 
-    model = AutoregressiveRatSpn(
-        depth=1, n_batch=8, n_sum=8, n_repetitions=16,
-        n_mafs=5, hidden_units=[128, 128], activation='relu', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('power', 'rat-spn-maf5', model, LR_MAF, data_train, data_val, data_test)
+    model = RatSpnFlow(flow='maf', n_flows=5, **ratspn_kwargs, **flow_kwargs)
+    collect_results('power', 'rat-spn-maf5', model, LR_FLOW, data_train, data_val, data_test)
+
+    model = RatSpnFlow(flow='maf', n_flows=10, **ratspn_kwargs, **flow_kwargs)
+    collect_results('power', 'rat-spn-maf10', model, LR_FLOW, data_train, data_val, data_test)
 
 
 def run_experiment_gas():
@@ -68,29 +65,30 @@ def run_experiment_gas():
     data_train, data_val, data_test = load_gas_dataset(rand_state)
     _, n_features = data_train.shape
 
-    model = RatSpn(n_features, depth=1, n_batch=8, n_sum=8, n_repetitions=16, rand_state=rand_state)
+    # Set the parameters for the RAT-SPNs
+    ratspn_kwargs = {
+        'depth': 1, 'n_batch': 8, 'n_sum': 8, 'n_repetitions': 8, 'rand_state': rand_state
+    }
+
+    # Set the parameters for the normalizing flows conditioners
+    flow_kwargs = {
+        'hidden_units': [128], 'activation': 'tanh', 'regularization': 1e-6
+    }
+
+    model = RatSpn(**ratspn_kwargs)
     collect_results('gas', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
-    model = AutoregressiveRatSpn(
-        depth=1, n_batch=8, n_sum=8, n_repetitions=16,
-        n_mafs=1, hidden_units=[128, 128], activation='tanh', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('gas', 'rat-spn-maf1', model, LR_MAF, data_train, data_val, data_test)
+    model = RatSpnFlow(flow='nvp', n_flows=5, **ratspn_kwargs, **flow_kwargs)
+    collect_results('gas', 'rat-spn-nvp5', model, LR_FLOW, data_train, data_val, data_test)
 
-    model = AutoregressiveRatSpn(
-        depth=1, n_batch=8, n_sum=8, n_repetitions=16,
-        n_mafs=3, hidden_units=[128, 128], activation='tanh', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('gas', 'rat-spn-maf3', model, LR_MAF, data_train, data_val, data_test)
+    model = RatSpnFlow(flow='nvp', n_flows=10, **ratspn_kwargs, **flow_kwargs)
+    collect_results('gas', 'rat-spn-nvp10', model, LR_FLOW, data_train, data_val, data_test)
 
-    model = AutoregressiveRatSpn(
-        depth=1, n_batch=8, n_sum=8, n_repetitions=16,
-        n_mafs=5, hidden_units=[128, 128], activation='tanh', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('gas', 'rat-spn-maf5', model, LR_MAF, data_train, data_val, data_test)
+    model = RatSpnFlow(flow='maf', n_flows=5, **ratspn_kwargs, **flow_kwargs)
+    collect_results('gas', 'rat-spn-maf5', model, LR_FLOW, data_train, data_val, data_test)
+
+    model = RatSpnFlow(flow='maf', n_flows=10, **ratspn_kwargs, **flow_kwargs)
+    collect_results('gas', 'rat-spn-maf10', model, LR_FLOW, data_train, data_val, data_test)
 
 
 def run_experiment_hepmass():
@@ -101,29 +99,30 @@ def run_experiment_hepmass():
     data_train, data_val, data_test = load_hepmass_dataset(rand_state)
     _, n_features = data_train.shape
 
-    model = RatSpn(n_features, depth=2, n_batch=8, n_sum=8, n_repetitions=32, rand_state=rand_state)
+    # Set the parameters for the RAT-SPNs
+    ratspn_kwargs = {
+        'depth': 2, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 16, 'rand_state': rand_state
+    }
+
+    # Set the parameters for the normalizing flows conditioners
+    flow_kwargs = {
+        'hidden_units': [512], 'activation': 'relu', 'regularization': 1e-6
+    }
+
+    model = RatSpn(**ratspn_kwargs)
     collect_results('hepmass', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
-    model = AutoregressiveRatSpn(
-        depth=2, n_batch=8, n_sum=8, n_repetitions=32,
-        n_mafs=1, hidden_units=[512, 512], activation='relu', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('hepmass', 'rat-spn-maf1', model, LR_MAF, data_train, data_val, data_test)
+    model = RatSpnFlow(flow='nvp', n_flows=5, **ratspn_kwargs, **flow_kwargs)
+    collect_results('hepmass', 'rat-spn-nvp5', model, LR_FLOW, data_train, data_val, data_test)
 
-    model = AutoregressiveRatSpn(
-        depth=2, n_batch=8, n_sum=8, n_repetitions=32,
-        n_mafs=3, hidden_units=[512, 512], activation='relu', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('hepmass', 'rat-spn-maf3', model, LR_MAF, data_train, data_val, data_test)
+    model = RatSpnFlow(flow='nvp', n_flows=10, **ratspn_kwargs, **flow_kwargs)
+    collect_results('hepmass', 'rat-spn-nvp10', model, LR_FLOW, data_train, data_val, data_test)
 
-    model = AutoregressiveRatSpn(
-        depth=2, n_batch=8, n_sum=8, n_repetitions=32,
-        n_mafs=5, hidden_units=[512, 512], activation='relu', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('hepmass', 'rat-spn-maf5', model, LR_MAF, data_train, data_val, data_test)
+    model = RatSpnFlow(flow='maf', n_flows=5, **ratspn_kwargs, **flow_kwargs)
+    collect_results('hepmass', 'rat-spn-maf5', model, LR_FLOW, data_train, data_val, data_test)
+
+    model = RatSpnFlow(flow='maf', n_flows=10, **ratspn_kwargs, **flow_kwargs)
+    collect_results('hepmass', 'rat-spn-maf10', model, LR_FLOW, data_train, data_val, data_test)
 
 
 def run_experiment_miniboone():
@@ -134,29 +133,30 @@ def run_experiment_miniboone():
     data_train, data_val, data_test = load_miniboone_dataset(rand_state)
     _, n_features = data_train.shape
 
-    model = RatSpn(n_features, depth=2, n_batch=8, n_sum=8, n_repetitions=32, rand_state=rand_state)
+    # Set the parameters for the RAT-SPNs
+    ratspn_kwargs = {
+        'depth': 2, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 16, 'rand_state': rand_state
+    }
+
+    # Set the parameters for the normalizing flows conditioners
+    flow_kwargs = {
+        'hidden_units': [512], 'activation': 'relu', 'regularization': 1e-6
+    }
+
+    model = RatSpn(**ratspn_kwargs)
     collect_results('miniboone', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
-    model = AutoregressiveRatSpn(
-        depth=2, n_batch=8, n_sum=8, n_repetitions=32,
-        n_mafs=1, hidden_units=[512, 512], activation='relu', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('miniboone', 'rat-spn-maf1', model, LR_MAF, data_train, data_val, data_test)
+    model = RatSpnFlow(flow='nvp', n_flows=5, **ratspn_kwargs, **flow_kwargs)
+    collect_results('miniboone', 'rat-spn-nvp5', model, LR_FLOW, data_train, data_val, data_test)
 
-    model = AutoregressiveRatSpn(
-        depth=2, n_batch=8, n_sum=8, n_repetitions=32,
-        n_mafs=3, hidden_units=[512, 512], activation='relu', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('miniboone', 'rat-spn-maf3', model, LR_MAF, data_train, data_val, data_test)
+    model = RatSpnFlow(flow='nvp', n_flows=10, **ratspn_kwargs, **flow_kwargs)
+    collect_results('miniboone', 'rat-spn-nvp10', model, LR_FLOW, data_train, data_val, data_test)
 
-    model = AutoregressiveRatSpn(
-        depth=2, n_batch=8, n_sum=8, n_repetitions=32,
-        n_mafs=5, hidden_units=[512, 512], activation='relu', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('miniboone', 'rat-spn-maf5', model, LR_MAF, data_train, data_val, data_test)
+    model = RatSpnFlow(flow='maf', n_flows=5, **ratspn_kwargs, **flow_kwargs)
+    collect_results('miniboone', 'rat-spn-maf5', model, LR_FLOW, data_train, data_val, data_test)
+
+    model = RatSpnFlow(flow='maf', n_flows=10, **ratspn_kwargs, **flow_kwargs)
+    collect_results('miniboone', 'rat-spn-maf10', model, LR_FLOW, data_train, data_val, data_test)
 
 
 def run_experiment_bsds300():
@@ -167,29 +167,30 @@ def run_experiment_bsds300():
     data_train, data_val, data_test = load_bsds300_dataset(rand_state)
     _, n_features = data_train.shape
 
-    model = RatSpn(n_features, depth=2, n_batch=8, n_sum=8, n_repetitions=32, rand_state=rand_state)
+    # Set the parameters for the RAT-SPNs
+    ratspn_kwargs = {
+        'depth': 2, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 16, 'rand_state': rand_state
+    }
+
+    # Set the parameters for the normalizing flows conditioners
+    flow_kwargs = {
+        'hidden_units': [512], 'activation': 'relu', 'regularization': 1e-6
+    }
+
+    model = RatSpn(**ratspn_kwargs)
     collect_results('bsds300', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
-    model = AutoregressiveRatSpn(
-        depth=2, n_batch=8, n_sum=8, n_repetitions=32,
-        n_mafs=1, hidden_units=[512, 512], activation='relu', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('bsds300', 'rat-spn-maf1', model, LR_MAF, data_train, data_val, data_test)
+    model = RatSpnFlow(flow='nvp', n_flows=5, **ratspn_kwargs, **flow_kwargs)
+    collect_results('bsds300', 'rat-spn-nvp5', model, LR_FLOW, data_train, data_val, data_test)
 
-    model = AutoregressiveRatSpn(
-        depth=2, n_batch=8, n_sum=8, n_repetitions=32,
-        n_mafs=3, hidden_units=[512, 512], activation='relu', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('bsds300', 'rat-spn-maf3', model, LR_MAF, data_train, data_val, data_test)
+    model = RatSpnFlow(flow='nvp', n_flows=10, **ratspn_kwargs, **flow_kwargs)
+    collect_results('bsds300', 'rat-spn-nvp10', model, LR_FLOW, data_train, data_val, data_test)
 
-    model = AutoregressiveRatSpn(
-        depth=2, n_batch=8, n_sum=8, n_repetitions=32,
-        n_mafs=5, hidden_units=[512, 512], activation='relu', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('bsds300', 'rat-spn-maf5', model, LR_MAF, data_train, data_val, data_test)
+    model = RatSpnFlow(flow='maf', n_flows=5, **ratspn_kwargs, **flow_kwargs)
+    collect_results('bsds300', 'rat-spn-maf5', model, LR_FLOW, data_train, data_val, data_test)
+
+    model = RatSpnFlow(flow='maf', n_flows=10, **ratspn_kwargs, **flow_kwargs)
+    collect_results('bsds300', 'rat-spn-maf10', model, LR_FLOW, data_train, data_val, data_test)
 
 
 def run_experiment_mnist():
@@ -200,70 +201,30 @@ def run_experiment_mnist():
     data_train, data_val, data_test = load_mnist_dataset(rand_state)
     _, n_features = data_train.shape
 
-    model = RatSpn(n_features, depth=3, n_batch=16, n_sum=16, n_repetitions=32, rand_state=rand_state)
+    # Set the parameters for the RAT-SPNs
+    ratspn_kwargs = {
+        'depth': 2, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 32, 'rand_state': rand_state
+    }
+
+    # Set the parameters for the normalizing flows conditioners
+    flow_kwargs = {
+        'hidden_units': [1024], 'activation': 'relu', 'regularization': 1e-6
+    }
+
+    model = RatSpn(**ratspn_kwargs)
     collect_results('mnist', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
-    collect_samples('mnist', 'rat-spn', model, 36, mnist_plot, mnist_delogit)
 
-    model = AutoregressiveRatSpn(
-        depth=3, n_batch=16, n_sum=16, n_repetitions=32,
-        n_mafs=1, hidden_units=[1024, 1024], activation='relu', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('mnist', 'rat-spn-maf1', model, LR_MAF, data_train, data_val, data_test)
-    collect_samples('mnist', 'rat-spn-maf1', model, 36, mnist_plot, mnist_delogit)
+    model = RatSpnFlow(flow='nvp', n_flows=5, **ratspn_kwargs, **flow_kwargs)
+    collect_results('mnist', 'rat-spn-nvp5', model, LR_FLOW, data_train, data_val, data_test)
 
-    model = AutoregressiveRatSpn(
-        depth=3, n_batch=16, n_sum=16, n_repetitions=32,
-        n_mafs=3, hidden_units=[1024, 1024], activation='relu', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('mnist', 'rat-spn-maf3', model, LR_MAF, data_train, data_val, data_test)
-    collect_samples('mnist', 'rat-spn-maf3', model, 36, mnist_plot, mnist_delogit)
+    model = RatSpnFlow(flow='nvp', n_flows=10, **ratspn_kwargs, **flow_kwargs)
+    collect_results('mnist', 'rat-spn-nvp10', model, LR_FLOW, data_train, data_val, data_test)
 
-    model = AutoregressiveRatSpn(
-        depth=3, n_batch=16, n_sum=16, n_repetitions=32,
-        n_mafs=5, hidden_units=[1024, 1024], activation='relu', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('mnist', 'rat-spn-maf5', model, LR_MAF, data_train, data_val, data_test)
-    collect_samples('mnist', 'rat-spn-maf5', model, 36, mnist_plot, mnist_delogit)
+    model = RatSpnFlow(flow='maf', n_flows=5, **ratspn_kwargs, **flow_kwargs)
+    collect_results('mnist', 'rat-spn-maf5', model, LR_FLOW, data_train, data_val, data_test)
 
-
-def run_experiment_cifar10():
-    # Instantiate a random state, used for reproducibility
-    rand_state = np.random.RandomState(42)
-
-    # Load the cifar10 dataset
-    data_train, data_val, data_test = load_cifar10_dataset(rand_state)
-    _, n_features = data_train.shape
-
-    model = RatSpn(n_features, depth=4, n_batch=16, n_sum=16, n_repetitions=32, rand_state=rand_state)
-    collect_results('cifar10', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
-    collect_samples('cifar10', 'rat-spn', model, 36, cifar10_plot, cifar10_delogit)
-
-    model = AutoregressiveRatSpn(
-        depth=4, n_batch=16, n_sum=16, n_repetitions=32,
-        n_mafs=1, hidden_units=[1024, 1024], activation='relu', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('cifar10', 'rat-spn-maf1', model, LR_MAF, data_train, data_val, data_test)
-    collect_samples('cifar10', 'rat-spn-maf1', model, 36, cifar10_plot, cifar10_delogit)
-
-    model = AutoregressiveRatSpn(
-        depth=4, n_batch=16, n_sum=16, n_repetitions=32,
-        n_mafs=3, hidden_units=[1024, 1024], activation='relu', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('cifar10', 'rat-spn-maf3', model, LR_MAF, data_train, data_val, data_test)
-    collect_samples('cifar10', 'rat-spn-maf3', model, 36, cifar10_plot, cifar10_delogit)
-
-    model = AutoregressiveRatSpn(
-        depth=4, n_batch=16, n_sum=16, n_repetitions=32,
-        n_mafs=5, hidden_units=[1024, 1024], activation='relu', regularization=1e-6,
-        rand_state=rand_state
-    )
-    collect_results('cifar10', 'rat-spn-maf5', model, LR_MAF, data_train, data_val, data_test)
-    collect_samples('cifar10', 'rat-spn-maf5', model, 36, cifar10_plot, cifar10_delogit)
+    model = RatSpnFlow(flow='maf', n_flows=10, **ratspn_kwargs, **flow_kwargs)
+    collect_results('mnist', 'rat-spn-maf10', model, LR_FLOW, data_train, data_val, data_test)
 
 
 def collect_results(dataset, info, model, lr, data_train, data_val, data_test):
