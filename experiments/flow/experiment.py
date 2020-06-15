@@ -20,7 +20,7 @@ EPOCHS = 500
 BATCH_SIZE = 100
 PATIENCE = 30
 LR_RAT = 5e-4
-LR_FLOW = 1e-4
+LR_FLOW = 2e-4
 
 
 def run_experiment_power():
