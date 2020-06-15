@@ -55,7 +55,6 @@ class RatSpnFlow(tf.keras.Model):
         self.regularization = regularization
         self.batch_norm = batch_norm
         self.rand_state = rand_state
-        self.n_features = None
         self._spn = None
         self._bns = None
         self._conds = None
@@ -83,16 +82,16 @@ class RatSpnFlow(tf.keras.Model):
         # Build the normalizing flows layers
         self.flow = self.flow.lower()
         if self.flow == 'nvp':
-            self._build_nvp()
+            self._build_nvp(input_shape)
         elif self.flow == 'maf':
-            self._build_maf()
+            self._build_maf(input_shape)
         else:
             raise NotImplementedError('Normalizing flow ' + self.flow + ' not implemented')
 
         # Call the parent class build method
         super(RatSpnFlow, self).build(input_shape)
 
-    def _build_nvp(self):
+    def _build_nvp(self, input_shape):
         """
         Build RealNVP normalizing flows.
         """
@@ -114,12 +113,14 @@ class RatSpnFlow(tf.keras.Model):
             )
             self._flows.append(nvp)
 
+        _, n_features = input_shape
+        perm_flag = True
+        even_perm = list(range(0, n_features, 2))
+        odd_perm = list(range(1, n_features, 2))
+
         # Build the bijector by chaining multiple flows
         self._bns = []
         bijectors = []
-        perm_flag = True
-        even_perm = list(range(0, self.n_features, 2))
-        odd_perm = list(range(1, self.n_features, 2))
         for flow in self._flows:
             # Append a checkboard-like input permutation bijector
             if perm_flag:
@@ -138,7 +139,7 @@ class RatSpnFlow(tf.keras.Model):
                 bijectors.append(bn)
         self._bijector = tfp.bijectors.Chain(bijectors)
 
-    def _build_maf(self):
+    def _build_maf(self, input_shape):
         """
         Build MAFs normalizing flows.
         """
