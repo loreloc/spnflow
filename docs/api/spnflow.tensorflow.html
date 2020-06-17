@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="spnflow.tensorflow.layers package" href="spnflow.tensorflow.layers.html" />
+    <link rel="next" title="spnflow.utils package" href="spnflow.utils.html" />
     <link rel="prev" title="spnflow.structure package" href="spnflow.structure.html" /> 
 </head>
 
@@ -170,28 +170,369 @@
             
   <div class="section" id="spnflow-tensorflow-package">
 <h1>spnflow.tensorflow package<a class="headerlink" href="#spnflow-tensorflow-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="spnflow.tensorflow.layers.html">spnflow.tensorflow.layers package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="spnflow.tensorflow.layers.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="spnflow.tensorflow.layers.html#module-spnflow.tensorflow.layers.rat">spnflow.tensorflow.layers.rat module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="spnflow.tensorflow.layers.html#module-spnflow.tensorflow.layers">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="spnflow.tensorflow.model.html">spnflow.tensorflow.model package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="spnflow.tensorflow.model.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="spnflow.tensorflow.model.html#module-spnflow.tensorflow.model.flow">spnflow.tensorflow.model.flow module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="spnflow.tensorflow.model.html#module-spnflow.tensorflow.model.rat">spnflow.tensorflow.model.rat module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="spnflow.tensorflow.model.html#module-spnflow.tensorflow.model">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-spnflow.tensorflow.constraints">
+<span id="spnflow-tensorflow-constraints-module"></span><h2>spnflow.tensorflow.constraints module<a class="headerlink" href="#module-spnflow.tensorflow.constraints" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="spnflow.tensorflow.constraints.Positive">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.tensorflow.constraints.</code><code class="sig-name descname">Positive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">epsilon</span><span class="o">=</span><span class="default_value">1e-05</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.constraints.Positive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.constraints.Constraint</span></code></p>
+<p>Constrains the weights to be positive.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.tensorflow.layers">
+<span id="spnflow-tensorflow-layers-module"></span><h2>spnflow.tensorflow.layers module<a class="headerlink" href="#module-spnflow.tensorflow.layers" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="spnflow.tensorflow.layers.GaussianLayer">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.tensorflow.layers.</code><code class="sig-name descname">GaussianLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">depth</span></em>, <em class="sig-param"><span class="n">regions</span></em>, <em class="sig-param"><span class="n">n_batch</span></em>, <em class="sig-param"><span class="n">optimize_scale</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.layers.GaussianLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
+<p>The Gaussian distributions input layer class.</p>
+<dl class="py method">
+<dt id="spnflow.tensorflow.layers.GaussianLayer.build">
+<code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_shape</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.layers.GaussianLayer.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_shape</strong> – The input shape.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.tensorflow.layers.GaussianLayer.call">
+<code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.layers.GaussianLayer.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the layer on some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> – The inputs.</p></li>
+<li><p><strong>kwargs</strong> – Other arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The log likelihood of each distribution leaf.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.tensorflow.layers.GaussianLayer.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_samples</span></em>, <em class="sig-param"><span class="n">idx_partition</span></em>, <em class="sig-param"><span class="n">idx_offset</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.layers.GaussianLayer.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from the modeled distribution.</p>
+<p>TODO: remove dummy variables padding from generated samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_samples</strong> – The number of samples.</p></li>
+<li><p><strong>idx_partiton</strong> – The indices of the partitions.</p></li>
+<li><p><strong>idx_offset</strong> – The indices of the nodes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The indices of the modeled sub-distributions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.tensorflow.layers.ProductLayer">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.tensorflow.layers.</code><code class="sig-name descname">ProductLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.layers.ProductLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
+<p>Product node layer class.</p>
+<dl class="py method">
+<dt id="spnflow.tensorflow.layers.ProductLayer.build">
+<code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_shape</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.layers.ProductLayer.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_shape</strong> – The input shape.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.tensorflow.layers.ProductLayer.call">
+<code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.layers.ProductLayer.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> – The inputs.</p></li>
+<li><p><strong>kwargs</strong> – Other arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.tensorflow.layers.ProductLayer.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_samples</span></em>, <em class="sig-param"><span class="n">idx_partition</span></em>, <em class="sig-param"><span class="n">idx_offset</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.layers.ProductLayer.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from the modeled distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_samples</strong> – The number of samples.</p></li>
+<li><p><strong>idx_partition</strong> – The indices of the partitions.</p></li>
+<li><p><strong>idx_offset</strong> – The indices of the nodes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The indices of the modeled sub-distributions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.tensorflow.layers.SumLayer">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.tensorflow.layers.</code><code class="sig-name descname">SumLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_sum</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.layers.SumLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
+<p>Sum node layer.</p>
+<dl class="py method">
+<dt id="spnflow.tensorflow.layers.SumLayer.build">
+<code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_shape</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.layers.SumLayer.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_shape</strong> – The input shape.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.tensorflow.layers.SumLayer.call">
+<code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.layers.SumLayer.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> – The inputs.</p></li>
+<li><p><strong>kwargs</strong> – Other arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.tensorflow.layers.SumLayer.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_samples</span></em>, <em class="sig-param"><span class="n">idx_region</span></em>, <em class="sig-param"><span class="n">idx_offset</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.layers.SumLayer.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from the modeled distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_samples</strong> – The number of samples.</p></li>
+<li><p><strong>idx_region</strong> – The indices of the regions.</p></li>
+<li><p><strong>idx_offset</strong> – The indices of the nodes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The indices of the modeled sub-distributions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.tensorflow.layers.RootLayer">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.tensorflow.layers.</code><code class="sig-name descname">RootLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.layers.RootLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
+<p>Root sum node layer.</p>
+<dl class="py method">
+<dt id="spnflow.tensorflow.layers.RootLayer.build">
+<code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_shape</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.layers.RootLayer.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_shape</strong> – The input shape.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.tensorflow.layers.RootLayer.call">
+<code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.layers.RootLayer.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> – The inputs.</p></li>
+<li><p><strong>kwargs</strong> – Other arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.tensorflow.layers.RootLayer.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_samples</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.layers.RootLayer.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from the modeled distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n_samples</strong> – The number of samples.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The indices of the modeled sub-distributions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.tensorflow.layers.DropoutLayer">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.tensorflow.layers.</code><code class="sig-name descname">DropoutLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rate</span><span class="o">=</span><span class="default_value">0.2</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.layers.DropoutLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
+<p>Dropout layer.</p>
+<dl class="py method">
+<dt id="spnflow.tensorflow.layers.DropoutLayer.build">
+<code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_shape</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.layers.DropoutLayer.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_shape</strong> – The input shape.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.tensorflow.layers.DropoutLayer.call">
+<code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">training</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.layers.DropoutLayer.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> – The inputs.</p></li>
+<li><p><strong>training</strong> – An boolean indicating if the layer must be used in training mode or not.</p></li>
+<li><p><strong>kwargs</strong> – Other arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.tensorflow.models">
+<span id="spnflow-tensorflow-models-module"></span><h2>spnflow.tensorflow.models module<a class="headerlink" href="#module-spnflow.tensorflow.models" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="spnflow.tensorflow.models.RatSpnFlow">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.tensorflow.models.</code><code class="sig-name descname">RatSpnFlow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">depth</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">n_batch</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">n_sum</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">n_repetitions</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">dropout</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">optimize_scale</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">flow</span><span class="o">=</span><span class="default_value">'maf'</span></em>, <em class="sig-param"><span class="n">n_flows</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">hidden_units</span><span class="o">=</span><span class="default_value">[128]</span></em>, <em class="sig-param"><span class="n">activation</span><span class="o">=</span><span class="default_value">'relu'</span></em>, <em class="sig-param"><span class="n">regularization</span><span class="o">=</span><span class="default_value">1e-06</span></em>, <em class="sig-param"><span class="n">batch_norm</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">rand_state</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.models.RatSpnFlow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.training.Model</span></code></p>
+<p>RAT-SPN base distribution improved with Normalizing Flows.</p>
+<dl class="py method">
+<dt id="spnflow.tensorflow.models.RatSpnFlow.build">
+<code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_shape</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.models.RatSpnFlow.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_shape</strong> – The input shape.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.tensorflow.models.RatSpnFlow.call">
+<code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">training</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.models.RatSpnFlow.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> – The inputs tensor.</p></li>
+<li><p><strong>training</strong> – Whatever the model is training or not.</p></li>
+<li><p><strong>kwargs</strong> – Other arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The output of the model.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.tensorflow.models.RatSpnFlow.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_samples</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.models.RatSpnFlow.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from the modeled distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n_samples</strong> – The number of samples.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The samples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.tensorflow.models.RatSpn">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.tensorflow.models.</code><code class="sig-name descname">RatSpn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">depth</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">n_batch</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">n_sum</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">n_repetitions</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">dropout</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">optimize_scale</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">rand_state</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.models.RatSpn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.training.Model</span></code></p>
+<p>RAT-SPN Keras model class.</p>
+<dl class="py method">
+<dt id="spnflow.tensorflow.models.RatSpn.build">
+<code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_shape</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.models.RatSpn.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_shape</strong> – The input shape.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.tensorflow.models.RatSpn.call">
+<code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">training</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.models.RatSpn.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> – The inputs tensor.</p></li>
+<li><p><strong>training</strong> – Whatever the model is training or not.</p></li>
+<li><p><strong>kwargs</strong> – Other arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The output of the model.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.tensorflow.models.RatSpn.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_samples</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.tensorflow.models.RatSpn.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from the modeled distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n_samples</strong> – The number of samples.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The samples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-spnflow.tensorflow.utils">
 <span id="spnflow-tensorflow-utils-module"></span><h2>spnflow.tensorflow.utils module<a class="headerlink" href="#module-spnflow.tensorflow.utils" title="Permalink to this headline">¶</a></h2>
@@ -226,7 +567,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="spnflow.tensorflow.layers.html" class="btn btn-neutral float-right" title="spnflow.tensorflow.layers package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="spnflow.utils.html" class="btn btn-neutral float-right" title="spnflow.utils package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="spnflow.structure.html" class="btn btn-neutral float-left" title="spnflow.structure package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

@@ -1,17 +1,32 @@
 spnflow.tensorflow package
 ==========================
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   spnflow.tensorflow.layers
-   spnflow.tensorflow.model
-
 Submodules
 ----------
+
+spnflow.tensorflow.constraints module
+-------------------------------------
+
+.. automodule:: spnflow.tensorflow.constraints
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spnflow.tensorflow.layers module
+--------------------------------
+
+.. automodule:: spnflow.tensorflow.layers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spnflow.tensorflow.models module
+--------------------------------
+
+.. automodule:: spnflow.tensorflow.models
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 spnflow.tensorflow.utils module
 -------------------------------
