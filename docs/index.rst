@@ -1,5 +1,5 @@
-SPNs and RAT-SPNs with MAFs for Density Estimation.
-===================================================
+Sum-Product Networks and Normalizing Flows for Tractable Density Estimation 
+===========================================================================
 
 .. toctree::
    :maxdepth: 2
