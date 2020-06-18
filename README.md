@@ -18,7 +18,7 @@ In this repository it is also present novel models that combines **RAT-SPNs** an
 - Optimization of the structure of SPNs. [4]
 - JSON I/O operations for SPNs. [4]
 - Implementation of RAT-SPN using Keras and Tensorflow 2.0. [5]
-- Implementation of RAT-SPN combined with MAFs and RealNVP using Keras and Tensorflow 2.0. [5] [6] [7]
+- Implementation of RAT-SPN combined with MAFs and RealNVP using Keras and Tensorflow 2.0. [5] [6] [7] [8]
 
 ## Documentation
 The online documentation is hosted using Github Pages at [SPNFlow](https://loreloc.github.io/spnflow/).
