@@ -1,0 +1,146 @@
+import os
+import sys
+import numpy as np
+
+from experiments.power import load_power_dataset
+from experiments.gas import load_gas_dataset
+from experiments.hepmass import load_hepmass_dataset
+from experiments.miniboone import load_miniboone_dataset
+from experiments.bsds300 import load_bsds300_dataset
+
+from spnflow.structure.leaf import Gaussian
+from spnflow.learning.wrappers import learn_estimator
+from spnflow.algorithms.inference import log_likelihood
+
+
+def run_experiment_power():
+    # Instantiate a random state, used for reproducibility
+    rand_state = np.random.RandomState(42)
+
+    # Load the power dataset
+    data_train, data_val, data_test = load_power_dataset(rand_state)
+    _, n_features = data_train.shape
+
+    # Set the parameters for the SPN
+    spn_kwargs = {
+        'distributions': [Gaussian] * n_features,
+        'learn_leaf': 'mle', 'split_rows': 'kmeans', 'split_cols': 'rdc',
+        'min_rows_slice': 128, 'min_cols_slice': 2
+    }
+
+    # Learn the density estimator structure and parameters
+    spn = learn_estimator(data_train, **spn_kwargs)
+    collect_results('power', 'spn', spn, data_test)
+
+
+def run_experiment_gas():
+    # Instantiate a random state, used for reproducibility
+    rand_state = np.random.RandomState(42)
+
+    # Load the gas dataset
+    data_train, data_val, data_test = load_gas_dataset(rand_state)
+    _, n_features = data_train.shape
+
+    # Set the parameters for the SPN
+    spn_kwargs = {
+        'distributions': [Gaussian] * n_features,
+        'learn_leaf': 'mle', 'split_rows': 'kmeans', 'split_cols': 'rdc',
+        'min_rows_slice': 128, 'min_cols_slice': 2
+    }
+
+    # Learn the density estimator structure and parameters
+    spn = learn_estimator(data_train, **spn_kwargs)
+    collect_results('gas', 'spn', spn, data_test)
+
+
+def run_experiment_hepmass():
+    # Instantiate a random state, used for reproducibility
+    rand_state = np.random.RandomState(42)
+
+    # Load the hepmass dataset
+    data_train, data_val, data_test = load_hepmass_dataset(rand_state)
+    _, n_features = data_train.shape
+
+    # Set the parameters for the SPN
+    spn_kwargs = {
+        'distributions': [Gaussian] * n_features,
+        'learn_leaf': 'mle', 'split_rows': 'kmeans', 'split_cols': 'rdc',
+        'min_rows_slice': 128, 'min_cols_slice': 2
+    }
+
+    # Learn the density estimator structure and parameters
+    spn = learn_estimator(data_train, **spn_kwargs)
+    collect_results('hepmass', 'spn', spn, data_test)
+
+
+def run_experiment_miniboone():
+    # Instantiate a random state, used for reproducibility
+    rand_state = np.random.RandomState(42)
+
+    # Load the miniboone dataset
+    data_train, data_val, data_test = load_miniboone_dataset(rand_state)
+    _, n_features = data_train.shape
+
+    # Set the parameters for the SPN
+    spn_kwargs = {
+        'distributions': [Gaussian] * n_features,
+        'learn_leaf': 'mle', 'split_rows': 'kmeans', 'split_cols': 'rdc',
+        'min_rows_slice': 128, 'min_cols_slice': 2
+    }
+
+    # Learn the density estimator structure and parameters
+    spn = learn_estimator(data_train, **spn_kwargs)
+    collect_results('miniboone', 'spn', spn, data_test)
+
+
+def run_experiment_bsds300():
+    # Instantiate a random state, used for reproducibility
+    rand_state = np.random.RandomState(42)
+
+    # Load the BSDS300 dataset
+    data_train, data_val, data_test = load_bsds300_dataset(rand_state)
+    _, n_features = data_train.shape
+
+    # Set the parameters for the SPN
+    spn_kwargs = {
+        'distributions': [Gaussian] * n_features,
+        'learn_leaf': 'mle', 'split_rows': 'kmeans', 'split_cols': 'rdc',
+        'min_rows_slice': 128, 'min_cols_slice': 2
+    }
+
+    # Learn the density estimator structure and parameters
+    spn = learn_estimator(data_train, **spn_kwargs)
+    collect_results('bsds300', 'spn', spn, data_test)
+
+
+def collect_results(dataset, info, spn, data_test):
+    # Compute the log-likelihoods for the test set
+    ll = log_likelihood(spn, data_test)
+    mu_ll = np.mean(ll)
+    sigma_ll = np.std(ll) / np.sqrt(data_test.shape[0])
+
+    # Save the results to file
+    filepath = os.path.join('results', dataset + '_' + info + '.txt')
+    with open(filepath, 'w') as file:
+        file.write(dataset + ': ' + info + '\n')
+        file.write('Avg. Log-Likelihood: ' + str(mu_ll) + '\n')
+        file.write('Two Std. Log-Likelihood: ' + str(2.0 * sigma_ll) + '\n')
+
+
+if __name__ == '__main__':
+    if len(sys.argv) <= 1:
+        print("Usage:\n\tpython experiment.py <dataset>")
+
+    dataset = sys.argv[1]
+    if dataset == 'power':
+        run_experiment_power()
+    elif dataset == 'gas':
+        run_experiment_gas()
+    elif dataset == 'hepmass':
+        run_experiment_hepmass()
+    elif dataset == 'miniboone':
+        run_experiment_miniboone()
+    elif dataset == 'bsds300':
+        run_experiment_bsds300()
+    else:
+        raise NotImplementedError("Unknown dataset: " + dataset)

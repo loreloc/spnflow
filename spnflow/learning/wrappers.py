@@ -5,6 +5,26 @@ from spnflow.learning.structure import learn_structure
 from spnflow.utils.data import get_data_domains
 
 
+def learn_estimator(data, distributions, domains=None, **kwargs):
+    """
+    Learn a SPN density estimator given some training data, the features distributions and domains.
+
+    :param data: The training data.
+    :param distributions: A list of distribution classes (one for each feature).
+    :param domains: A list of domains (one for each feature).
+    :param kwargs: Other parameters for structure learning.
+    :return: A learned valid SPN.
+    """
+    assert data is not None
+    assert distributions is not None
+
+    if domains is None:
+        domains = get_data_domains(data, distributions)
+
+    root = learn_structure(data, distributions, domains, **kwargs)
+    return assign_ids(root)
+
+
 def learn_classifier(data, distributions, domains=None, class_idx=-1, n_jobs=1, **kwargs):
     """
     Learn a SPN classifier given some training data, the features distributions and domains and
@@ -14,8 +34,8 @@ def learn_classifier(data, distributions, domains=None, class_idx=-1, n_jobs=1, 
 
     :param data: The training data.
     :param distributions: A list of distribution classes (one for each feature).
-    :param class_idx: The index of the class feature in the training data.
     :param domains: A list of domains (one for each feature).
+    :param class_idx: The index of the class feature in the training data.
     :param n_jobs: The number of jobs.
     :param kwargs: Other parameters for structure learning.
     :return: A learned valid SPN.
@@ -44,4 +64,3 @@ def learn_classifier(data, distributions, domains=None, class_idx=-1, n_jobs=1, 
     children = [b[1] for b in branches]
     root = Sum(weights, children)
     return assign_ids(root)
-
