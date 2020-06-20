@@ -21,6 +21,7 @@ BATCH_SIZE = 100
 PATIENCE = 30
 LR_RAT = 5e-4
 LR_FLOW = 1e-4
+N_SAMPLES = 36
 
 
 def run_experiment_power():
@@ -37,24 +38,23 @@ def run_experiment_power():
     }
 
     # Set the parameters for the normalizing flows conditioners
-    flow_kwargs = {
-        'hidden_units': [128], 'activation': 'relu', 'regularization': 1e-6
-    }
+    flow_kwargs = [
+        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [128] * 1},
+        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [128] * 1},
+        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [128] * 2},
+        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [128] * 2},
+        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [128] * 1},
+        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [128] * 1},
+        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [128] * 2},
+        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [128] * 2}
+    ]
 
     model = RatSpn(**ratspn_kwargs)
     collect_results('power', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
-    model = RatSpnFlow(flow='nvp', n_flows=5, **ratspn_kwargs, **flow_kwargs)
-    collect_results('power', 'rat-spn-nvp5', model, LR_FLOW, data_train, data_val, data_test)
-
-    model = RatSpnFlow(flow='nvp', n_flows=10, **ratspn_kwargs, **flow_kwargs)
-    collect_results('power', 'rat-spn-nvp10', model, LR_FLOW, data_train, data_val, data_test)
-
-    model = RatSpnFlow(flow='maf', n_flows=5, **ratspn_kwargs, **flow_kwargs)
-    collect_results('power', 'rat-spn-maf5', model, LR_FLOW, data_train, data_val, data_test)
-
-    model = RatSpnFlow(flow='maf', n_flows=10, **ratspn_kwargs, **flow_kwargs)
-    collect_results('power', 'rat-spn-maf10', model, LR_FLOW, data_train, data_val, data_test)
+    for kwargs in flow_kwargs:
+        model = RatSpnFlow(**ratspn_kwargs, **kwargs, activation='relu', regularization=1e-6)
+        collect_results('power', ratspn_flow_info(kwargs), model, LR_FLOW, data_train, data_val, data_test)
 
 
 def run_experiment_gas():
@@ -71,24 +71,23 @@ def run_experiment_gas():
     }
 
     # Set the parameters for the normalizing flows conditioners
-    flow_kwargs = {
-        'hidden_units': [128], 'activation': 'tanh', 'regularization': 1e-6
-    }
+    flow_kwargs = [
+        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [128] * 1},
+        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [128] * 1},
+        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [128] * 2},
+        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [128] * 2},
+        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [128] * 1},
+        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [128] * 1},
+        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [128] * 2},
+        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [128] * 2}
+    ]
 
     model = RatSpn(**ratspn_kwargs)
     collect_results('gas', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
-    model = RatSpnFlow(flow='nvp', n_flows=5, **ratspn_kwargs, **flow_kwargs)
-    collect_results('gas', 'rat-spn-nvp5', model, LR_FLOW, data_train, data_val, data_test)
-
-    model = RatSpnFlow(flow='nvp', n_flows=10, **ratspn_kwargs, **flow_kwargs)
-    collect_results('gas', 'rat-spn-nvp10', model, LR_FLOW, data_train, data_val, data_test)
-
-    model = RatSpnFlow(flow='maf', n_flows=5, **ratspn_kwargs, **flow_kwargs)
-    collect_results('gas', 'rat-spn-maf5', model, LR_FLOW, data_train, data_val, data_test)
-
-    model = RatSpnFlow(flow='maf', n_flows=10, **ratspn_kwargs, **flow_kwargs)
-    collect_results('gas', 'rat-spn-maf10', model, LR_FLOW, data_train, data_val, data_test)
+    for kwargs in flow_kwargs:
+        model = RatSpnFlow(**ratspn_kwargs, **kwargs, activation='tanh', regularization=1e-6)
+        collect_results('gas', ratspn_flow_info(kwargs), model, LR_FLOW, data_train, data_val, data_test)
 
 
 def run_experiment_hepmass():
@@ -105,24 +104,23 @@ def run_experiment_hepmass():
     }
 
     # Set the parameters for the normalizing flows conditioners
-    flow_kwargs = {
-        'hidden_units': [512], 'activation': 'relu', 'regularization': 1e-6
-    }
+    flow_kwargs = [
+        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [512] * 1},
+        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [512] * 1},
+        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [512] * 2},
+        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [512] * 2},
+        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [512] * 1},
+        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [512] * 1},
+        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [512] * 2},
+        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [512] * 2}
+    ]
 
     model = RatSpn(**ratspn_kwargs)
     collect_results('hepmass', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
-    model = RatSpnFlow(flow='nvp', n_flows=5, **ratspn_kwargs, **flow_kwargs)
-    collect_results('hepmass', 'rat-spn-nvp5', model, LR_FLOW, data_train, data_val, data_test)
-
-    model = RatSpnFlow(flow='nvp', n_flows=10, **ratspn_kwargs, **flow_kwargs)
-    collect_results('hepmass', 'rat-spn-nvp10', model, LR_FLOW, data_train, data_val, data_test)
-
-    model = RatSpnFlow(flow='maf', n_flows=5, **ratspn_kwargs, **flow_kwargs)
-    collect_results('hepmass', 'rat-spn-maf5', model, LR_FLOW, data_train, data_val, data_test)
-
-    model = RatSpnFlow(flow='maf', n_flows=10, **ratspn_kwargs, **flow_kwargs)
-    collect_results('hepmass', 'rat-spn-maf10', model, LR_FLOW, data_train, data_val, data_test)
+    for kwargs in flow_kwargs:
+        model = RatSpnFlow(**ratspn_kwargs, **kwargs, activation='relu', regularization=1e-6)
+        collect_results('hepmass', ratspn_flow_info(kwargs), model, LR_FLOW, data_train, data_val, data_test)
 
 
 def run_experiment_miniboone():
@@ -139,24 +137,23 @@ def run_experiment_miniboone():
     }
 
     # Set the parameters for the normalizing flows conditioners
-    flow_kwargs = {
-        'hidden_units': [512], 'activation': 'relu', 'regularization': 1e-6
-    }
+    flow_kwargs = [
+        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [512] * 1},
+        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [512] * 1},
+        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [512] * 2},
+        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [512] * 2},
+        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [512] * 1},
+        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [512] * 1},
+        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [512] * 2},
+        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [512] * 2}
+    ]
 
     model = RatSpn(**ratspn_kwargs)
     collect_results('miniboone', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
-    model = RatSpnFlow(flow='nvp', n_flows=5, **ratspn_kwargs, **flow_kwargs)
-    collect_results('miniboone', 'rat-spn-nvp5', model, LR_FLOW, data_train, data_val, data_test)
-
-    model = RatSpnFlow(flow='nvp', n_flows=10, **ratspn_kwargs, **flow_kwargs)
-    collect_results('miniboone', 'rat-spn-nvp10', model, LR_FLOW, data_train, data_val, data_test)
-
-    model = RatSpnFlow(flow='maf', n_flows=5, **ratspn_kwargs, **flow_kwargs)
-    collect_results('miniboone', 'rat-spn-maf5', model, LR_FLOW, data_train, data_val, data_test)
-
-    model = RatSpnFlow(flow='maf', n_flows=10, **ratspn_kwargs, **flow_kwargs)
-    collect_results('miniboone', 'rat-spn-maf10', model, LR_FLOW, data_train, data_val, data_test)
+    for kwargs in flow_kwargs:
+        model = RatSpnFlow(**ratspn_kwargs, **kwargs, activation='relu', regularization=1e-6)
+        collect_results('miniboone', ratspn_flow_info(kwargs), model, LR_FLOW, data_train, data_val, data_test)
 
 
 def run_experiment_bsds300():
@@ -173,24 +170,23 @@ def run_experiment_bsds300():
     }
 
     # Set the parameters for the normalizing flows conditioners
-    flow_kwargs = {
-        'hidden_units': [512], 'activation': 'relu', 'regularization': 1e-6
-    }
+    flow_kwargs = [
+        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [512] * 1},
+        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [512] * 1},
+        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [512] * 2},
+        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [512] * 2},
+        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [512] * 1},
+        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [512] * 1},
+        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [512] * 2},
+        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [512] * 2}
+    ]
 
     model = RatSpn(**ratspn_kwargs)
     collect_results('bsds300', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
-    model = RatSpnFlow(flow='nvp', n_flows=5, **ratspn_kwargs, **flow_kwargs)
-    collect_results('bsds300', 'rat-spn-nvp5', model, LR_FLOW, data_train, data_val, data_test)
-
-    model = RatSpnFlow(flow='nvp', n_flows=10, **ratspn_kwargs, **flow_kwargs)
-    collect_results('bsds300', 'rat-spn-nvp10', model, LR_FLOW, data_train, data_val, data_test)
-
-    model = RatSpnFlow(flow='maf', n_flows=5, **ratspn_kwargs, **flow_kwargs)
-    collect_results('bsds300', 'rat-spn-maf5', model, LR_FLOW, data_train, data_val, data_test)
-
-    model = RatSpnFlow(flow='maf', n_flows=10, **ratspn_kwargs, **flow_kwargs)
-    collect_results('bsds300', 'rat-spn-maf10', model, LR_FLOW, data_train, data_val, data_test)
+    for kwargs in flow_kwargs:
+        model = RatSpnFlow(**ratspn_kwargs, **kwargs, activation='relu', regularization=1e-6)
+        collect_results('bsds300', ratspn_flow_info(kwargs), model, LR_FLOW, data_train, data_val, data_test)
 
 
 def run_experiment_mnist():
@@ -207,24 +203,21 @@ def run_experiment_mnist():
     }
 
     # Set the parameters for the normalizing flows conditioners
-    flow_kwargs = {
-        'hidden_units': [1024], 'activation': 'relu', 'regularization': 1e-6
-    }
+    flow_kwargs = [
+        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [1024] * 1},
+        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [1024] * 1},
+        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [1024] * 1},
+        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [1024] * 1},
+    ]
 
     model = RatSpn(**ratspn_kwargs)
     collect_results('mnist', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
-    model = RatSpnFlow(flow='nvp', n_flows=5, **ratspn_kwargs, **flow_kwargs)
-    collect_results('mnist', 'rat-spn-nvp5', model, LR_FLOW, data_train, data_val, data_test)
-
-    model = RatSpnFlow(flow='nvp', n_flows=10, **ratspn_kwargs, **flow_kwargs)
-    collect_results('mnist', 'rat-spn-nvp10', model, LR_FLOW, data_train, data_val, data_test)
-
-    model = RatSpnFlow(flow='maf', n_flows=5, **ratspn_kwargs, **flow_kwargs)
-    collect_results('mnist', 'rat-spn-maf5', model, LR_FLOW, data_train, data_val, data_test)
-
-    model = RatSpnFlow(flow='maf', n_flows=10, **ratspn_kwargs, **flow_kwargs)
-    collect_results('mnist', 'rat-spn-maf10', model, LR_FLOW, data_train, data_val, data_test)
+    for kwargs in flow_kwargs:
+        info = ratspn_flow_info(kwargs)
+        model = RatSpnFlow(**ratspn_kwargs, **kwargs, activation='relu', regularization=1e-6)
+        collect_results('mnist', info, model, LR_FLOW, data_train, data_val, data_test)
+        collect_samples('mnist', info, model, N_SAMPLES, plot_fn=mnist_plot, post_fn=mnist_delogit)
 
 
 def collect_results(dataset, info, model, lr, data_train, data_val, data_test):
@@ -293,6 +286,10 @@ def experiment_log_likelihood(model, lr, data_train, data_val, data_test):
     return history, (mu_log_likelihood, sigma_log_likelihood)
 
 
+def ratspn_flow_info(kwargs):
+    return 'rat-spn-' + kwargs['flow'] + str(kwargs['n_flows']) + '-d' + str(len(kwargs['hidden_units']))
+
+
 if __name__ == '__main__':
     if len(sys.argv) <= 1:
         print("Usage:\n\tpython experiment.py <dataset>")
@@ -310,7 +307,5 @@ if __name__ == '__main__':
         run_experiment_bsds300()
     elif dataset == 'mnist':
         run_experiment_mnist()
-    elif dataset == 'cifar10':
-        run_experiment_cifar10()
     else:
         raise NotImplementedError("Unknown dataset: " + dataset)

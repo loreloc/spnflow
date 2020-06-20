@@ -50,4 +50,4 @@ def dequantize(data, rand_state):
 
 
 def plot(ax, sample):
-    ax.imshow(np.reshape(sample, (IMG_SIZE, IMG_SIZE)), cmap='gray', interpolation='nearest')
+    ax.imshow(np.reshape(sample, (IMG_SIZE, IMG_SIZE)), vmin=0.0, vmax=1.0, cmap='gray', interpolation='nearest')
