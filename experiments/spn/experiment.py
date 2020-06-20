@@ -24,13 +24,15 @@ def run_experiment_power():
     # Set the parameters for the SPN
     spn_kwargs = {
         'distributions': [Gaussian] * n_features,
-        'learn_leaf': 'mle', 'split_rows': 'kmeans', 'split_cols': 'rdc',
-        'min_rows_slice': 128, 'min_cols_slice': 2
+        'learn_leaf': 'mle',
+        'split_rows': 'kmeans',
+        'split_cols': 'rdc',
     }
 
     # Learn the density estimator structure and parameters
-    spn = learn_estimator(data_train, **spn_kwargs)
-    collect_results('power', 'spn', spn, data_test)
+    for mrs in [128, 256, 512]:
+        spn = learn_estimator(data_train, **spn_kwargs, min_rows_slice=mrs)
+        collect_results('power', 'spn-' + str(mrs), spn, data_test)
 
 
 def run_experiment_gas():
@@ -44,13 +46,15 @@ def run_experiment_gas():
     # Set the parameters for the SPN
     spn_kwargs = {
         'distributions': [Gaussian] * n_features,
-        'learn_leaf': 'mle', 'split_rows': 'kmeans', 'split_cols': 'rdc',
-        'min_rows_slice': 128, 'min_cols_slice': 2
+        'learn_leaf': 'mle',
+        'split_rows': 'kmeans',
+        'split_cols': 'rdc',
     }
 
     # Learn the density estimator structure and parameters
-    spn = learn_estimator(data_train, **spn_kwargs)
-    collect_results('gas', 'spn', spn, data_test)
+    for mrs in [128, 256, 512]:
+        spn = learn_estimator(data_train, **spn_kwargs, min_rows_slice=mrs)
+        collect_results('gas', 'spn-' + str(mrs), spn, data_test)
 
 
 def run_experiment_hepmass():
@@ -64,13 +68,15 @@ def run_experiment_hepmass():
     # Set the parameters for the SPN
     spn_kwargs = {
         'distributions': [Gaussian] * n_features,
-        'learn_leaf': 'mle', 'split_rows': 'kmeans', 'split_cols': 'rdc',
-        'min_rows_slice': 128, 'min_cols_slice': 2
+        'learn_leaf': 'mle',
+        'split_rows': 'kmeans',
+        'split_cols': 'rdc',
     }
 
     # Learn the density estimator structure and parameters
-    spn = learn_estimator(data_train, **spn_kwargs)
-    collect_results('hepmass', 'spn', spn, data_test)
+    for mrs in [64, 128, 256]:
+        spn = learn_estimator(data_train, **spn_kwargs, min_rows_slice=mrs)
+        collect_results('hepmass', 'spn-' + str(mrs), spn, data_test)
 
 
 def run_experiment_miniboone():
@@ -84,13 +90,15 @@ def run_experiment_miniboone():
     # Set the parameters for the SPN
     spn_kwargs = {
         'distributions': [Gaussian] * n_features,
-        'learn_leaf': 'mle', 'split_rows': 'kmeans', 'split_cols': 'rdc',
-        'min_rows_slice': 128, 'min_cols_slice': 2
+        'learn_leaf': 'mle',
+        'split_rows': 'kmeans',
+        'split_cols': 'rdc',
     }
 
     # Learn the density estimator structure and parameters
-    spn = learn_estimator(data_train, **spn_kwargs)
-    collect_results('miniboone', 'spn', spn, data_test)
+    for mrs in [64, 128, 256]:
+        spn = learn_estimator(data_train, **spn_kwargs, min_rows_slice=mrs)
+        collect_results('miniboone', 'spn-' + str(mrs), spn, data_test)
 
 
 def run_experiment_bsds300():
@@ -104,13 +112,15 @@ def run_experiment_bsds300():
     # Set the parameters for the SPN
     spn_kwargs = {
         'distributions': [Gaussian] * n_features,
-        'learn_leaf': 'mle', 'split_rows': 'kmeans', 'split_cols': 'rdc',
-        'min_rows_slice': 128, 'min_cols_slice': 2
+        'learn_leaf': 'mle',
+        'split_rows': 'kmeans',
+        'split_cols': 'rdc',
     }
 
     # Learn the density estimator structure and parameters
-    spn = learn_estimator(data_train, **spn_kwargs)
-    collect_results('bsds300', 'spn', spn, data_test)
+    for mrs in [128, 256, 512]:
+        spn = learn_estimator(data_train, **spn_kwargs, min_rows_slice=mrs)
+        collect_results('bsds300', 'spn-' + str(mrs), spn, data_test)
 
 
 def collect_results(dataset, info, spn, data_test):
