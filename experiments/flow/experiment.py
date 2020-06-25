@@ -16,7 +16,7 @@ from experiments.mnist import plot as mnist_plot
 from spnflow.tensorflow.utils import log_loss
 from spnflow.tensorflow.models import RatSpn, RatSpnFlow
 
-EPOCHS = 500
+EPOCHS = 1000
 BATCH_SIZE = 100
 PATIENCE = 30
 LR_RAT = 5e-4
@@ -181,12 +181,14 @@ def run_experiment_bsds300():
         {'flow': 'maf', 'n_flows': 10, 'hidden_units': [512] * 2}
     ]
 
+    lr_rat = LR_RAT / 2.0
     model = RatSpn(**ratspn_kwargs)
-    collect_results('bsds300', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
+    collect_results('bsds300', 'rat-spn', model, lr_rat, data_train, data_val, data_test)
 
+    lr_flow = LR_FLOW / 2.0
     for kwargs in flow_kwargs:
         model = RatSpnFlow(**ratspn_kwargs, **kwargs, activation='relu', regularization=1e-6)
-        collect_results('bsds300', ratspn_flow_info(kwargs), model, LR_FLOW, data_train, data_val, data_test)
+        collect_results('bsds300', ratspn_flow_info(kwargs), model, lr_flow, data_train, data_val, data_test)
 
 
 def run_experiment_mnist():
@@ -199,15 +201,19 @@ def run_experiment_mnist():
 
     # Set the parameters for the RAT-SPNs
     ratspn_kwargs = {
-        'depth': 2, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 32, 'rand_state': rand_state
+        'depth': 3, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 32, 'rand_state': rand_state
     }
 
     # Set the parameters for the normalizing flows conditioners
     flow_kwargs = [
         {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [1024] * 1},
         {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [1024] * 1},
+        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [1024] * 2},
+        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [1024] * 2},
         {'flow': 'maf', 'n_flows':  5, 'hidden_units': [1024] * 1},
         {'flow': 'maf', 'n_flows': 10, 'hidden_units': [1024] * 1},
+        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [1024] * 2},
+        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [1024] * 2}
     ]
 
     model = RatSpn(**ratspn_kwargs)
