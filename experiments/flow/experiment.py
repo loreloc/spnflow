@@ -34,7 +34,7 @@ def run_experiment_power():
 
     # Set the parameters for the RAT-SPNs
     ratspn_kwargs = {
-        'depth': 1, 'n_batch': 8, 'n_sum': 8, 'n_repetitions': 8, 'rand_state': rand_state
+        'depth': 1, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 8, 'rand_state': rand_state
     }
 
     # Set the parameters for the normalizing flows conditioners
@@ -67,7 +67,7 @@ def run_experiment_gas():
 
     # Set the parameters for the RAT-SPNs
     ratspn_kwargs = {
-        'depth': 1, 'n_batch': 8, 'n_sum': 8, 'n_repetitions': 8, 'rand_state': rand_state
+        'depth': 1, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 8, 'rand_state': rand_state
     }
 
     # Set the parameters for the normalizing flows conditioners
