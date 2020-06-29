@@ -169,16 +169,12 @@ def run_experiment_bsds300():
         'depth': 2, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 16, 'rand_state': rand_state
     }
 
-    # Set the parameters for the nvp conditioners
-    nvp_kwargs = [
+    # Set the parameters for the normalizing flows conditioners
+    flow_kwargs = [
         {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [512] * 1},
         {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [512] * 1},
         {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [512] * 2},
         {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [512] * 2},
-    ]
-
-    # Set the parameters for the maf conditioners
-    maf_kwargs = [
         {'flow': 'maf', 'n_flows':  5, 'hidden_units': [512] * 1},
         {'flow': 'maf', 'n_flows': 10, 'hidden_units': [512] * 1},
         {'flow': 'maf', 'n_flows':  5, 'hidden_units': [512] * 2},
@@ -190,12 +186,7 @@ def run_experiment_bsds300():
     collect_results('bsds300', 'rat-spn', model, lr_rat, data_train, data_val, data_test)
 
     lr_flow = LR_FLOW * 5e-1
-    for kwargs in nvp_kwargs:
-        model = RatSpnFlow(**ratspn_kwargs, **kwargs, activation='relu', regularization=1e-6)
-        collect_results('bsds300', ratspn_flow_info(kwargs), model, lr_flow, data_train, data_val, data_test)
-
-    lr_flow = LR_FLOW * 2e-1
-    for kwargs in maf_kwargs:
+    for kwargs in flow_kwargs:
         model = RatSpnFlow(**ratspn_kwargs, **kwargs, activation='relu', regularization=1e-6)
         collect_results('bsds300', ratspn_flow_info(kwargs), model, lr_flow, data_train, data_val, data_test)
 
