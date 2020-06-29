@@ -131,12 +131,6 @@ def choose_next_operation(task, min_rows_slice, min_cols_slice, is_first):
         else:
             return Operation.SPLIT_NAIVE, None
 
-    zero_var_idx = np.isclose(np.var(local_data, axis=0), 0.0)
-    if np.all(zero_var_idx):
-        return Operation.SPLIT_NAIVE, None
-    if np.any(zero_var_idx):
-        return Operation.REM_FEATURE, zero_var_idx
-
     if min_samples or (no_rows_split and no_cols_split):
         return Operation.SPLIT_NAIVE, None
 
@@ -144,6 +138,12 @@ def choose_next_operation(task, min_rows_slice, min_cols_slice, is_first):
         return Operation.SPLIT_ROWS, None
     if no_rows_split:
         return Operation.SPLIT_COLS, None
+
+    zero_var_idx = np.isclose(np.var(local_data, axis=0), 0.0)
+    if np.all(zero_var_idx):
+        return Operation.SPLIT_NAIVE, None
+    if np.any(zero_var_idx):
+        return Operation.REM_FEATURE, zero_var_idx
 
     if is_first:
         return Operation.SPLIT_ROWS, None

@@ -22,7 +22,7 @@ def learn_estimator(data, distributions, domains=None, **kwargs):
         domains = get_data_domains(data, distributions)
 
     root = learn_structure(data, distributions, domains, **kwargs)
-    return assign_ids(root)
+    return root
 
 
 def learn_classifier(data, distributions, domains=None, class_idx=-1, n_jobs=1, **kwargs):

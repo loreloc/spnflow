@@ -30,7 +30,7 @@ def run_experiment_power():
     }
 
     # Learn the density estimator structure and parameters
-    for mrs in [64, 128, 256, 512, 1024]:
+    for mrs in [128, 256, 512]:
         spn = learn_estimator(data_train, **spn_kwargs, min_rows_slice=mrs)
         collect_results('power', 'spn-' + str(mrs), spn, data_test)
 
@@ -52,7 +52,7 @@ def run_experiment_gas():
     }
 
     # Learn the density estimator structure and parameters
-    for mrs in [64, 128, 256, 512, 1024]:
+    for mrs in [128, 256, 512]:
         spn = learn_estimator(data_train, **spn_kwargs, min_rows_slice=mrs)
         collect_results('gas', 'spn-' + str(mrs), spn, data_test)
 
@@ -74,7 +74,7 @@ def run_experiment_hepmass():
     }
 
     # Learn the density estimator structure and parameters
-    for mrs in [32, 64, 128, 256, 512]:
+    for mrs in [64, 128, 256]:
         spn = learn_estimator(data_train, **spn_kwargs, min_rows_slice=mrs)
         collect_results('hepmass', 'spn-' + str(mrs), spn, data_test)
 
@@ -96,7 +96,7 @@ def run_experiment_miniboone():
     }
 
     # Learn the density estimator structure and parameters
-    for mrs in [32, 64, 128, 256, 512]:
+    for mrs in [64, 128, 256]:
         spn = learn_estimator(data_train, **spn_kwargs, min_rows_slice=mrs)
         collect_results('miniboone', 'spn-' + str(mrs), spn, data_test)
 
@@ -118,7 +118,7 @@ def run_experiment_bsds300():
     }
 
     # Learn the density estimator structure and parameters
-    for mrs in [128, 256, 512]:
+    for mrs in [256, 512]:
         spn = learn_estimator(data_train, **spn_kwargs, min_rows_slice=mrs)
         collect_results('bsds300', 'spn-' + str(mrs), spn, data_test)
 
