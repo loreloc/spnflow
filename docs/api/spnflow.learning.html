@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,12 +11,18 @@
   
 
   
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
   
   
   
 
   
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -29,10 +34,6 @@
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="spnflow.learning.splitting package" href="spnflow.learning.splitting.html" />
@@ -50,7 +51,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> SPNFlow
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> SPNFlow
           
 
           
@@ -73,6 +74,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -105,6 +107,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -143,7 +146,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">spnflow</a> &raquo;</li>
         
@@ -250,7 +253,7 @@
 <span id="spnflow-learning-structure-module"></span><h2>spnflow.learning.structure module<a class="headerlink" href="#module-spnflow.learning.structure" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="spnflow.learning.structure.Operation">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.learning.structure.</code><code class="sig-name descname">Operation</code><a class="headerlink" href="#spnflow.learning.structure.Operation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.learning.structure.</code><code class="sig-name descname">Operation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.structure.Operation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
 <p>The possible operation to execute for SPN structure learning.</p>
 <dl class="py attribute">
@@ -329,6 +332,25 @@ indicating if rows and columns splitting have failed or not respectively.</p></l
 <div class="section" id="module-spnflow.learning.wrappers">
 <span id="spnflow-learning-wrappers-module"></span><h2>spnflow.learning.wrappers module<a class="headerlink" href="#module-spnflow.learning.wrappers" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
+<dt id="spnflow.learning.wrappers.learn_estimator">
+<code class="sig-prename descclassname">spnflow.learning.wrappers.</code><code class="sig-name descname">learn_estimator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">distributions</span></em>, <em class="sig-param"><span class="n">domains</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.wrappers.learn_estimator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Learn a SPN density estimator given some training data, the features distributions and domains.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The training data.</p></li>
+<li><p><strong>distributions</strong> – A list of distribution classes (one for each feature).</p></li>
+<li><p><strong>domains</strong> – A list of domains (one for each feature).</p></li>
+<li><p><strong>kwargs</strong> – Other parameters for structure learning.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A learned valid SPN.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt id="spnflow.learning.wrappers.learn_classifier">
 <code class="sig-prename descclassname">spnflow.learning.wrappers.</code><code class="sig-name descname">learn_classifier</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">distributions</span></em>, <em class="sig-param"><span class="n">domains</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">class_idx</span><span class="o">=</span><span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.wrappers.learn_classifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Learn a SPN classifier given some training data, the features distributions and domains and
@@ -339,8 +361,8 @@ the class index in the training data.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> – The training data.</p></li>
 <li><p><strong>distributions</strong> – A list of distribution classes (one for each feature).</p></li>
-<li><p><strong>class_idx</strong> – The index of the class feature in the training data.</p></li>
 <li><p><strong>domains</strong> – A list of domains (one for each feature).</p></li>
+<li><p><strong>class_idx</strong> – The index of the class feature in the training data.</p></li>
 <li><p><strong>n_jobs</strong> – The number of jobs.</p></li>
 <li><p><strong>kwargs</strong> – Other parameters for structure learning.</p></li>
 </ul>
@@ -377,11 +399,19 @@ the class index in the training data.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2020, Lorenzo Loconte
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -392,7 +422,6 @@ the class index in the training data.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
