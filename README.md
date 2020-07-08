@@ -2,10 +2,10 @@
 
 ## Abstract
 Sum-product networks (SPNs) are models that, under some constraints, guarantee tractability for probabilistic inference and sampling.
-Recent works show that it's possible to treat SPNs as multiple layers neural models with distributions as inputs and log-likelihoods as outputs.
+Recent works show that it's possible to treat SPNs as multiple layers neural models with density distributions as input units and log-likelihoods as outputs.
 A lot of work have been done on normalizing flows as density estimators.
 Like sum-product networks, some normalizing flows guarantee tractability and have been successfully used to build efficient models for probabilistic inference.
-In this work I exploit the potentiality of normalizing flows using SPNs as base distributions.
+In this work I exploit the potentiality of normalizing flows combined with SPNs for both tractable and expressive density estimation.
 
 ## Introduction
 **SPNFlow** is a python implementation of **Sum-Product Networks** (SPNs) learning and inference.
