@@ -9,7 +9,7 @@ pip_make: $(SETUP_SRC)
 	$(PYTHON) $< sdist bdist_wheel
 
 pip_upload:
-	$(PYTHON) -m twine upload --repository pypi dist/*
+	$(PYTHON) -m twine upload dist/*
 
 clean:
 	rm -rf dist

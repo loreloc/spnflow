@@ -1,5 +1,7 @@
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
+[![PyPI version](https://badge.fury.io/py/spnflow.svg)](https://badge.fury.io/py/spnflow)
+
 # SPNFlow
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Abstract
 Sum-product networks (SPNs) are models that, under some constraints, guarantee tractability for probabilistic inference and sampling.
