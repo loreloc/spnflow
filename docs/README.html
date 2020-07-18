@@ -85,6 +85,7 @@
               <p class="caption"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">SPNFlow</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#abstract">Abstract</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#features">Features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a></li>
@@ -160,11 +161,20 @@
             
   <div class="section" id="spnflow">
 <h1>SPNFlow<a class="headerlink" href="#spnflow" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" /></a></p>
+<div class="section" id="abstract">
+<h2>Abstract<a class="headerlink" href="#abstract" title="Permalink to this headline">¶</a></h2>
+<p>Sum-product networks (SPNs) are models that, under some constraints, guarantee tractability for probabilistic inference and sampling.
+Recent works show that it’s possible to treat SPNs as multiple layers neural models with density distributions as input units and log-likelihoods as outputs.
+A lot of work have been done on normalizing flows as density estimators.
+Like sum-product networks, some normalizing flows guarantee tractability and have been successfully used to build efficient models for probabilistic inference.
+In this work I exploit the potentiality of normalizing flows combined with SPNs for both tractable and expressive density estimation.</p>
+</div>
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
 <p><strong>SPNFlow</strong> is a python implementation of <strong>Sum-Product Networks</strong> (SPNs) learning and inference.
 It also contains an implementation of <strong>Randomized and Tensorized SPNs</strong> (RAT-SPNs) using Tensorflow 2.0.
-In this repository it is also present a novel model that combines <strong>RAT-SPNs</strong> and <strong>Masked Autoregressive Flows</strong> (MAFs) for density estimation.</p>
+In this repository it is also present novel models that combines <strong>RAT-SPNs</strong> and <strong>Normalizing Flows</strong> for tractable density estimation.</p>
 </div>
 <div class="section" id="features">
 <h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
@@ -174,7 +184,7 @@ In this repository it is also present a novel model that combines <strong>RAT-SP
 <li><p>Optimization of the structure of SPNs. [4]</p></li>
 <li><p>JSON I/O operations for SPNs. [4]</p></li>
 <li><p>Implementation of RAT-SPN using Keras and Tensorflow 2.0. [5]</p></li>
-<li><p>Implementation of RAT-SPN combined with MAFs using Keras and Tensorflow 2.0. [5] [6] [7]</p></li>
+<li><p>Implementation of RAT-SPN combined with MAFs and RealNVP using Keras and Tensorflow 2.0. [5] [6] [7] [8]</p></li>
 </ul>
 </div>
 <div class="section" id="documentation">
@@ -198,6 +208,7 @@ In this repository it is also present a novel model that combines <strong>RAT-SP
 <li><p>SPFLOW : An easy and extensible library for deep probabilistic learning using Sum-Product Networks (Molina, Vergari et al.).</p></li>
 <li><p>Probabilistic Deep Learning using Random Sum-Product Networks (Peharz et al.).</p></li>
 <li><p>Masked Autoregressive Flow for Density Estimation (Papamakarios et al.).</p></li>
+<li><p>Density Estimation using RealNVP (Dinh et al.).</p></li>
 <li><p>Normalizing Flows for Probabilistic Modeling and Inference (Papamakarios, Nalisnick et al.).</p></li>
 </ol>
 </div>
