@@ -1,7 +1,7 @@
 import os
 import sys
+import torch
 import numpy as np
-import tensorflow as tf
 import matplotlib.pyplot as plt
 
 from experiments.power import load_power_dataset
@@ -10,18 +10,16 @@ from experiments.hepmass import load_hepmass_dataset
 from experiments.miniboone import load_miniboone_dataset
 from experiments.bsds300 import load_bsds300_dataset
 from experiments.mnist import load_mnist_dataset
-from experiments.mnist import delogit as mnist_delogit
-from experiments.mnist import plot as mnist_plot
 
-from spnflow.tensorflow.utils import log_loss
-from spnflow.tensorflow.models import RatSpn, RatSpnFlow
+from spnflow.torch.models import RatSpn
+from spnflow.torch.callbacks import EarlyStopping
+from spnflow.torch.constraints import ScaleClipper
 
 EPOCHS = 1000
 BATCH_SIZE = 100
 PATIENCE = 30
 LR_RAT = 5e-4
 LR_FLOW = 1e-4
-N_SAMPLES = 36
 
 
 def run_experiment_power():
@@ -34,7 +32,7 @@ def run_experiment_power():
 
     # Set the parameters for the RAT-SPNs
     ratspn_kwargs = {
-        'depth': 1, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 8, 'rand_state': rand_state
+        'n_features': n_features, 'depth': 1, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 8, 'rand_state': rand_state
     }
 
     # Set the parameters for the normalizing flows conditioners
@@ -67,7 +65,7 @@ def run_experiment_gas():
 
     # Set the parameters for the RAT-SPNs
     ratspn_kwargs = {
-        'depth': 1, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 8, 'rand_state': rand_state
+        'n_features': n_features, 'depth': 1, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 8, 'rand_state': rand_state
     }
 
     # Set the parameters for the normalizing flows conditioners
@@ -100,7 +98,7 @@ def run_experiment_hepmass():
 
     # Set the parameters for the RAT-SPNs
     ratspn_kwargs = {
-        'depth': 2, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 16, 'rand_state': rand_state
+        'n_features': n_features, 'depth': 2, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 16, 'rand_state': rand_state
     }
 
     # Set the parameters for the normalizing flows conditioners
@@ -133,7 +131,7 @@ def run_experiment_miniboone():
 
     # Set the parameters for the RAT-SPNs
     ratspn_kwargs = {
-        'depth': 2, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 16, 'rand_state': rand_state
+        'n_features': n_features, 'depth': 2, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 16, 'rand_state': rand_state
     }
 
     # Set the parameters for the normalizing flows conditioners
@@ -166,7 +164,7 @@ def run_experiment_bsds300():
 
     # Set the parameters for the RAT-SPNs
     ratspn_kwargs = {
-        'depth': 2, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 16, 'rand_state': rand_state
+        'n_features': n_features, 'depth': 2, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 16, 'rand_state': rand_state
     }
 
     # Set the parameters for the normalizing flows conditioners
@@ -201,7 +199,7 @@ def run_experiment_mnist():
 
     # Set the parameters for the RAT-SPNs
     ratspn_kwargs = {
-        'depth': 3, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 32, 'rand_state': rand_state
+        'n_features': n_features, 'depth': 3, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 32, 'rand_state': rand_state
     }
 
     # Set the parameters for the normalizing flows conditioners
@@ -220,10 +218,8 @@ def run_experiment_mnist():
     collect_results('mnist', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
 
     for kwargs in flow_kwargs:
-        info = ratspn_flow_info(kwargs)
         model = RatSpnFlow(**ratspn_kwargs, **kwargs, activation='relu', regularization=1e-6)
-        collect_results('mnist', info, model, LR_FLOW, data_train, data_val, data_test)
-        collect_samples('mnist', info, model, N_SAMPLES, plot_fn=mnist_plot, post_fn=mnist_delogit)
+        collect_results('mnist', ratspn_flow_info(kwargs), model, LR_FLOW, data_train, data_val, data_test)
 
 
 def collect_results(dataset, info, model, lr, data_train, data_val, data_test):
@@ -234,62 +230,88 @@ def collect_results(dataset, info, model, lr, data_train, data_val, data_test):
     filepath = os.path.join('results', dataset + '_' + info + '.txt')
     with open(filepath, 'w') as file:
         file.write(dataset + ': ' + info + '\n')
-        file.write('Avg. Log-Likelihood: ' + str(mu_ll) + '\n')
-        file.write('Two Std. Log-Likelihood: ' + str(2.0 * sigma_ll) + '\n')
+        file.write('Mean Log-Likelihood: ' + str(mu_ll) + '\n')
+        file.write('Two StdDev. Log-Likelihood: ' + str(2.0 * sigma_ll) + '\n')
 
     # Plot the training history
     filepath = os.path.join('histories', dataset + '_' + info + '.png')
     plt.xlim(0, EPOCHS)
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
-    plt.title('Loss')
+    plt.plot(history['train'])
+    plt.plot(history['validation'])
+    plt.title('Log-Loss')
     plt.ylabel('loss')
     plt.xlabel('epoch')
-    plt.legend(['Train', 'Val'])
+    plt.legend(['Train', 'Validation'])
     plt.savefig(filepath)
     plt.clf()
 
 
-def collect_samples(dataset, info, model, n_samples, plot_fn, post_fn=None):
-    # Get some samples
-    samples = model.sample(n_samples)
-
-    # Post process the samples
-    if post_fn != None:
-        samples = post_fn(samples)
-
-    # Plot the samples
-    fig, axs = plt.subplots(1, n_samples, figsize=(n_samples, 1))
-    fig.subplots_adjust(top=1.0, bottom=0.0, right=1.0, left=0.0, wspace=0.0, hspace=0.0)
-    for i in range(n_samples):
-        axs[i].axis('off')
-        plot_fn(axs[i], samples[i])
-
-    fig.savefig(os.path.join('results', dataset + '_' + info + '.png'))
-
-
 def experiment_log_likelihood(model, lr, data_train, data_val, data_test):
+    # Print the model
+    print(model)
+
+    # Instantiate the train history
+    history = {
+        'train': [], 'validation': []
+    }
+
+    # Setup the data loaders
+    train_loader = torch.utils.data.DataLoader(data_train, batch_size=BATCH_SIZE, shuffle=True)
+    val_loader = torch.utils.data.DataLoader(data_val, batch_size=BATCH_SIZE, shuffle=False)
+    test_loader = torch.utils.data.DataLoader(data_test, batch_size=BATCH_SIZE, shuffle=False)
+
     # Instantiate the optimizer
-    optimizer = tf.keras.optimizers.Adam(lr)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-    # Compile the model
-    model.compile(optimizer=optimizer, loss=log_loss)
+    # Instantiate the early stopping callback
+    early_stopping = EarlyStopping(patience=PATIENCE)
 
-    # Fit the model
-    history = model.fit(
-        x=data_train,
-        y=np.zeros((data_train.shape[0], 0), dtype=np.float32),
-        validation_data=(data_val, np.zeros((data_val.shape[0], 0), dtype=np.float32)),
-        epochs=EPOCHS, batch_size=BATCH_SIZE,
-        callbacks=[tf.keras.callbacks.EarlyStopping(patience=PATIENCE)]
-    )
+    # Instantiate the scale constraint
+    constraint = ScaleClipper()
 
-    # Compute the test set mean log likelihood
-    y_pred = model.predict(data_test)
-    mu_log_likelihood = np.mean(y_pred)
-    sigma_log_likelihood = np.std(y_pred) / np.sqrt(data_test.shape[0])
+    # Train the model
+    for epoch in range(EPOCHS):
+        train_loss = 0.0
+        for inputs in train_loader:
+            optimizer.zero_grad()
+            log_likelihoods = model(inputs)
+            loss = -torch.mean(log_likelihoods)
+            train_loss += loss.item()
+            loss.backward()
+            optimizer.step()
+            constraint(model.base_layer)
 
-    return history, (mu_log_likelihood, sigma_log_likelihood)
+        train_loss /= len(train_loader)
+
+        # Compute the validation loss
+        val_loss = 0.0
+        with torch.no_grad():
+            for inputs in val_loader:
+                log_likelihoods = model(inputs)
+                loss = -torch.mean(log_likelihoods)
+                val_loss += loss.item()
+            val_loss /= len(val_loader)
+
+        history['train'].append(train_loss)
+        history['validation'].append(val_loss)
+        print('[%4d] train_loss: %.4f, validation_loss: %.4f' % (epoch + 1, train_loss, val_loss))
+
+        # Check if training should stop
+        early_stopping(val_loss)
+        if early_stopping.should_stop:
+            print('Early Stopping... Best Loss: %.4f' % early_stopping.best_loss)
+            break
+
+    # Test the model
+    test_ll = np.array([])
+    with torch.no_grad():
+        for inputs in test_loader:
+            ll = model(inputs)
+            test_ll = np.hstack((test_ll, torch.mean(ll).numpy()))
+
+    mu_ll = np.mean(test_ll)
+    sigma_ll = np.std(test_ll) / np.sqrt(len(test_ll))
+    return history, (mu_ll, sigma_ll)
 
 
 def ratspn_flow_info(kwargs):

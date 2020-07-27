@@ -1,6 +1,4 @@
 numpy
 pandas
 scikit-learn
-tensorflow
-tensorflow-probability
 matplotlib
