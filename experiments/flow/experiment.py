@@ -248,12 +248,12 @@ def collect_results(dataset, info, model, lr, data_train, data_val, data_test):
 
 
 def experiment_log_likelihood(model, lr, data_train, data_val, data_test):
-    # Print the model
-    print(model)
-
     # Get the device to use
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     print('Using device: ' + str(device))
+
+    # Print the model
+    print(model)
 
     # Move the model to the device
     model.to(device)
