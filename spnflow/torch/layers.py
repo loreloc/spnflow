@@ -35,8 +35,8 @@ class GaussianLayer(torch.nn.Module):
                 if n_dummy > 0:
                     pad_mask[i, :, -n_dummy:] = 0.0
                     mask[i] = list(mask[i]) + [list(mask[i])[-1]] * n_dummy
-            self.pad_mask = torch.nn.Parameter(torch.tensor(pad_mask), requires_grad=False)
-        self.mask = torch.nn.Parameter(torch.tensor(mask), requires_grad=False)
+            self.register_buffer('pad_mask', torch.tensor(pad_mask))
+        self.register_buffer('mask', torch.tensor(mask))
 
         # Instantiate the location variable
         self.loc = torch.nn.Parameter(
