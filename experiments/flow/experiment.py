@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
@@ -250,6 +251,13 @@ def experiment_log_likelihood(model, lr, data_train, data_val, data_test):
     # Print the model
     print(model)
 
+    # Get the device to use
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    print('Using device: ' + str(device))
+
+    # Move the model to the device
+    model.to(device)
+
     # Instantiate the train history
     history = {
         'train': [], 'validation': []
@@ -268,11 +276,16 @@ def experiment_log_likelihood(model, lr, data_train, data_val, data_test):
 
     # Instantiate the scale constraint
     constraint = ScaleClipper()
+    constraint.to(device)
 
     # Train the model
     for epoch in range(EPOCHS):
+        start_time = time.time()
+
+        # Training phase
         train_loss = 0.0
         for inputs in train_loader:
+            inputs = inputs.to(device)
             optimizer.zero_grad()
             log_likelihoods = model(inputs)
             loss = -torch.mean(log_likelihoods)
@@ -287,14 +300,18 @@ def experiment_log_likelihood(model, lr, data_train, data_val, data_test):
         val_loss = 0.0
         with torch.no_grad():
             for inputs in val_loader:
+                inputs = inputs.to(device)
                 log_likelihoods = model(inputs)
                 loss = -torch.mean(log_likelihoods)
                 val_loss += loss.item()
             val_loss /= len(val_loader)
 
+        end_time = time.time()
+
         history['train'].append(train_loss)
         history['validation'].append(val_loss)
-        print('[%4d] train_loss: %.4f, validation_loss: %.4f' % (epoch + 1, train_loss, val_loss))
+        elapsed_time = end_time - start_time
+        print('[%4d] train_loss: %.4f, validation_loss: %.4f - %ds' % (epoch + 1, train_loss, val_loss, elapsed_time))
 
         # Check if training should stop
         early_stopping(val_loss)

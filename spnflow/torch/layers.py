@@ -27,16 +27,16 @@ class GaussianLayer(torch.nn.Module):
         self.dim_gauss = (self.n_features + self.pad) // (2 ** self.depth)
 
         # Append dummy variables to regions orderings and update the pad mask
-        self.mask = self.regions.copy()
+        mask = self.regions.copy()
         if self.pad > 0:
-            self.pad_mask = np.ones(shape=(self.n_regions, 1, self.dim_gauss), dtype=np.float32)
+            pad_mask = np.ones(shape=(self.n_regions, 1, self.dim_gauss), dtype=np.float32)
             for i in range(self.n_regions):
                 n_dummy = self.dim_gauss - len(self.regions[i])
                 if n_dummy > 0:
-                    self.pad_mask[i, :, -n_dummy:] = 0.0
-                    self.mask[i] = list(self.mask[i]) + [list(self.mask[i])[-1]] * n_dummy
-            self.pad_mask = torch.tensor(self.pad_mask)
-        self.mask = torch.tensor(self.mask)
+                    pad_mask[i, :, -n_dummy:] = 0.0
+                    mask[i] = list(mask[i]) + [list(mask[i])[-1]] * n_dummy
+            self.pad_mask = torch.nn.Parameter(torch.tensor(pad_mask), requires_grad=False)
+        self.mask = torch.nn.Parameter(torch.tensor(mask), requires_grad=False)
 
         # Instantiate the location variable
         self.loc = torch.nn.Parameter(
@@ -51,7 +51,10 @@ class GaussianLayer(torch.nn.Module):
                 requires_grad=True
             )
         else:
-            self.scale = torch.ones(size=(self.n_regions, self.n_batch, self.dim_gauss))
+            self.scale = torch.nn.Parameter(
+                torch.ones(size=(self.n_regions, self.n_batch, self.dim_gauss)),
+                requires_grad=False
+            )
 
         # Instantiate the multi-batch normal distribution
         self.distribution = torch.distributions.Normal(self.loc, self.scale)
