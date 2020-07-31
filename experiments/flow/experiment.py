@@ -12,7 +12,7 @@ from experiments.miniboone import load_miniboone_dataset
 from experiments.bsds300 import load_bsds300_dataset
 from experiments.mnist import load_mnist_dataset
 
-from spnflow.torch.models import RatSpn
+from spnflow.torch.models import RatSpn, RatSpnFlow
 from spnflow.torch.callbacks import EarlyStopping
 from spnflow.torch.constraints import ScaleClipper
 
@@ -33,27 +33,26 @@ def run_experiment_power():
 
     # Set the parameters for the RAT-SPNs
     ratspn_kwargs = {
-        'n_features': n_features, 'depth': 1, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 8, 'rand_state': rand_state
+        'in_features': n_features, 'rg_depth': 1, 'rg_repetitions': 8,
+        'n_batch': 16, 'n_sum': 16, 'rand_state': rand_state
     }
 
     # Set the parameters for the normalizing flows conditioners
     flow_kwargs = [
-        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [128] * 1},
-        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [128] * 1},
-        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [128] * 2},
-        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [128] * 2},
-        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [128] * 1},
-        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [128] * 1},
-        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [128] * 2},
-        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [128] * 2}
+        {'flow': 'nvp', 'n_flows':  5, 'depth': 1, 'units': 128, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows': 10, 'depth': 1, 'units': 128, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows':  5, 'depth': 2, 'units': 128, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows': 10, 'depth': 2, 'units': 128, 'activation': torch.nn.ReLU},
     ]
 
     model = RatSpn(**ratspn_kwargs)
-    collect_results('power', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
+    info = ratspn_experiment_info(ratspn_kwargs)
+    collect_results('power', info, model, LR_RAT, data_train, data_val, data_test)
 
     for kwargs in flow_kwargs:
-        model = RatSpnFlow(**ratspn_kwargs, **kwargs, activation='relu', regularization=1e-6)
-        collect_results('power', ratspn_flow_info(kwargs), model, LR_FLOW, data_train, data_val, data_test)
+        model = RatSpnFlow(**ratspn_kwargs, **kwargs)
+        info = ratspn_flow_experiment_info(kwargs)
+        collect_results('power', info, model, LR_FLOW, data_train, data_val, data_test)
 
 
 def run_experiment_gas():
@@ -66,28 +65,26 @@ def run_experiment_gas():
 
     # Set the parameters for the RAT-SPNs
     ratspn_kwargs = {
-        'n_features': n_features, 'depth': 1, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 8, 'rand_state': rand_state
+        'in_features': n_features, 'rg_depth': 1, 'rg_repetitions': 8,
+        'n_batch': 16, 'n_sum': 16, 'rand_state': rand_state
     }
 
     # Set the parameters for the normalizing flows conditioners
     flow_kwargs = [
-        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [128] * 1},
-        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [128] * 1},
-        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [128] * 2},
-        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [128] * 2},
-        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [128] * 1},
-        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [128] * 1},
-        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [128] * 2},
-        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [128] * 2}
+        {'flow': 'nvp', 'n_flows':  5, 'depth': 1, 'units': 128, 'activation': torch.nn.Tanh},
+        {'flow': 'nvp', 'n_flows': 10, 'depth': 1, 'units': 128, 'activation': torch.nn.Tanh},
+        {'flow': 'nvp', 'n_flows':  5, 'depth': 2, 'units': 128, 'activation': torch.nn.Tanh},
+        {'flow': 'nvp', 'n_flows': 10, 'depth': 2, 'units': 128, 'activation': torch.nn.Tanh},
     ]
 
     model = RatSpn(**ratspn_kwargs)
-    collect_results('gas', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
+    info = ratspn_experiment_info(ratspn_kwargs)
+    collect_results('gas', info, model, LR_RAT, data_train, data_val, data_test)
 
     for kwargs in flow_kwargs:
-        model = RatSpnFlow(**ratspn_kwargs, **kwargs, activation='tanh', regularization=1e-6)
-        collect_results('gas', ratspn_flow_info(kwargs), model, LR_FLOW, data_train, data_val, data_test)
-
+        model = RatSpnFlow(**ratspn_kwargs, **kwargs)
+        info = ratspn_flow_experiment_info(kwargs)
+        collect_results('gas', info, model, LR_FLOW, data_train, data_val, data_test)
 
 def run_experiment_hepmass():
     # Instantiate a random state, used for reproducibility
@@ -99,27 +96,26 @@ def run_experiment_hepmass():
 
     # Set the parameters for the RAT-SPNs
     ratspn_kwargs = {
-        'n_features': n_features, 'depth': 2, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 16, 'rand_state': rand_state
+        'in_features': n_features, 'rg_depth': 2, 'rg_repetitions': 16,
+        'n_batch': 16, 'n_sum': 16, 'rand_state': rand_state
     }
 
     # Set the parameters for the normalizing flows conditioners
     flow_kwargs = [
-        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [512] * 1},
-        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [512] * 1},
-        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [512] * 2},
-        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [512] * 2},
-        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [512] * 1},
-        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [512] * 1},
-        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [512] * 2},
-        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [512] * 2}
+        {'flow': 'nvp', 'n_flows':  5, 'depth': 1, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows': 10, 'depth': 1, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows':  5, 'depth': 2, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows': 10, 'depth': 2, 'units': 512, 'activation': torch.nn.ReLU},
     ]
 
     model = RatSpn(**ratspn_kwargs)
-    collect_results('hepmass', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
+    info = ratspn_experiment_info(ratspn_kwargs)
+    collect_results('hepmass', info, model, LR_RAT, data_train, data_val, data_test)
 
     for kwargs in flow_kwargs:
-        model = RatSpnFlow(**ratspn_kwargs, **kwargs, activation='relu', regularization=1e-6)
-        collect_results('hepmass', ratspn_flow_info(kwargs), model, LR_FLOW, data_train, data_val, data_test)
+        model = RatSpnFlow(**ratspn_kwargs, **kwargs)
+        info = ratspn_flow_experiment_info(kwargs)
+        collect_results('hepmass', info, model, LR_FLOW, data_train, data_val, data_test)
 
 
 def run_experiment_miniboone():
@@ -132,27 +128,26 @@ def run_experiment_miniboone():
 
     # Set the parameters for the RAT-SPNs
     ratspn_kwargs = {
-        'n_features': n_features, 'depth': 2, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 16, 'rand_state': rand_state
+        'in_features': n_features, 'rg_depth': 2, 'rg_repetitions': 16,
+        'n_batch': 16, 'n_sum': 16, 'rand_state': rand_state
     }
 
     # Set the parameters for the normalizing flows conditioners
     flow_kwargs = [
-        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [512] * 1},
-        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [512] * 1},
-        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [512] * 2},
-        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [512] * 2},
-        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [512] * 1},
-        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [512] * 1},
-        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [512] * 2},
-        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [512] * 2}
+        {'flow': 'nvp', 'n_flows':  5, 'depth': 1, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows': 10, 'depth': 1, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows':  5, 'depth': 2, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows': 10, 'depth': 2, 'units': 512, 'activation': torch.nn.ReLU},
     ]
 
     model = RatSpn(**ratspn_kwargs)
-    collect_results('miniboone', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
+    info = ratspn_experiment_info(ratspn_kwargs)
+    collect_results('miniboone', info, model, LR_RAT, data_train, data_val, data_test)
 
     for kwargs in flow_kwargs:
-        model = RatSpnFlow(**ratspn_kwargs, **kwargs, activation='relu', regularization=1e-6)
-        collect_results('miniboone', ratspn_flow_info(kwargs), model, LR_FLOW, data_train, data_val, data_test)
+        model = RatSpnFlow(**ratspn_kwargs, **kwargs)
+        info = ratspn_flow_experiment_info(kwargs)
+        collect_results('miniboone', info, model, LR_FLOW, data_train, data_val, data_test)
 
 
 def run_experiment_bsds300():
@@ -165,29 +160,28 @@ def run_experiment_bsds300():
 
     # Set the parameters for the RAT-SPNs
     ratspn_kwargs = {
-        'n_features': n_features, 'depth': 2, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 16, 'rand_state': rand_state
+        'in_features': n_features, 'rg_depth': 2, 'rg_repetitions': 16,
+        'n_batch': 16, 'n_sum': 16, 'rand_state': rand_state
     }
 
     # Set the parameters for the normalizing flows conditioners
     flow_kwargs = [
-        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [512] * 1},
-        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [512] * 1},
-        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [512] * 2},
-        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [512] * 2},
-        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [512] * 1},
-        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [512] * 1},
-        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [512] * 2},
-        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [512] * 2}
+        {'flow': 'nvp', 'n_flows':  5, 'depth': 1, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows': 10, 'depth': 1, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows':  5, 'depth': 2, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows': 10, 'depth': 2, 'units': 512, 'activation': torch.nn.ReLU},
     ]
 
-    lr_rat = LR_RAT * 5e-1
+    lr_rat = LR_RAT * 1e-1
     model = RatSpn(**ratspn_kwargs)
-    collect_results('bsds300', 'rat-spn', model, lr_rat, data_train, data_val, data_test)
+    info = ratspn_experiment_info(ratspn_kwargs)
+    collect_results('bsds300', info, model, lr_rat, data_train, data_val, data_test)
 
-    lr_flow = LR_FLOW * 5e-1
+    lr_flow = LR_FLOW * 1e-1
     for kwargs in flow_kwargs:
-        model = RatSpnFlow(**ratspn_kwargs, **kwargs, activation='relu', regularization=1e-6)
-        collect_results('bsds300', ratspn_flow_info(kwargs), model, lr_flow, data_train, data_val, data_test)
+        model = RatSpnFlow(**ratspn_kwargs, **kwargs)
+        info = ratspn_flow_experiment_info(kwargs)
+        collect_results('bsds300', info, model, lr_flow, data_train, data_val, data_test)
 
 
 def run_experiment_mnist():
@@ -200,27 +194,26 @@ def run_experiment_mnist():
 
     # Set the parameters for the RAT-SPNs
     ratspn_kwargs = {
-        'n_features': n_features, 'depth': 3, 'n_batch': 16, 'n_sum': 16, 'n_repetitions': 32, 'rand_state': rand_state
+        'in_features': n_features, 'rg_depth': 3, 'rg_repetitions': 32,
+        'n_batch': 16, 'n_sum': 16, 'rand_state': rand_state
     }
 
     # Set the parameters for the normalizing flows conditioners
     flow_kwargs = [
-        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [1024] * 1},
-        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [1024] * 1},
-        {'flow': 'nvp', 'n_flows':  5, 'hidden_units': [1024] * 2},
-        {'flow': 'nvp', 'n_flows': 10, 'hidden_units': [1024] * 2},
-        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [1024] * 1},
-        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [1024] * 1},
-        {'flow': 'maf', 'n_flows':  5, 'hidden_units': [1024] * 2},
-        {'flow': 'maf', 'n_flows': 10, 'hidden_units': [1024] * 2}
+        {'flow': 'nvp', 'n_flows':  5, 'depth': 1, 'units': 1024, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows': 10, 'depth': 1, 'units': 1024, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows':  5, 'depth': 2, 'units': 1024, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows': 10, 'depth': 2, 'units': 1024, 'activation': torch.nn.ReLU},
     ]
 
     model = RatSpn(**ratspn_kwargs)
-    collect_results('mnist', 'rat-spn', model, LR_RAT, data_train, data_val, data_test)
+    info = ratspn_experiment_info(ratspn_kwargs)
+    collect_results('mnist', info, model, LR_RAT, data_train, data_val, data_test)
 
     for kwargs in flow_kwargs:
-        model = RatSpnFlow(**ratspn_kwargs, **kwargs, activation='relu', regularization=1e-6)
-        collect_results('mnist', ratspn_flow_info(kwargs), model, LR_FLOW, data_train, data_val, data_test)
+        model = RatSpnFlow(**ratspn_kwargs, **kwargs)
+        info = ratspn_flow_experiment_info(kwargs)
+        collect_results('mnist', info, model, LR_FLOW, data_train, data_val, data_test)
 
 
 def collect_results(dataset, info, model, lr, data_train, data_val, data_test):
@@ -292,7 +285,7 @@ def experiment_log_likelihood(model, lr, data_train, data_val, data_test):
             train_loss += loss.item()
             loss.backward()
             optimizer.step()
-            constraint(model.base_layer)
+            constraint(model.constrained_module)
 
         train_loss /= len(train_loader)
 
@@ -331,8 +324,14 @@ def experiment_log_likelihood(model, lr, data_train, data_val, data_test):
     return history, (mu_ll, sigma_ll)
 
 
-def ratspn_flow_info(kwargs):
-    return 'rat-spn-' + kwargs['flow'] + str(kwargs['n_flows']) + '-d' + str(len(kwargs['hidden_units']))
+def ratspn_experiment_info(kwargs):
+    return 'rat-spn-d' + str(kwargs['rg_depth']) + '-r' + str(kwargs['rg_repetitions']) +\
+           '-b' + str(kwargs['n_batch']) + '-s' + str(kwargs['n_sum'])
+
+
+def ratspn_flow_experiment_info(kwargs):
+    return 'rat-spn-' + kwargs['flow'] + '-n' + str(kwargs['n_flows']) +\
+           '-d' + str(kwargs['depth']) + '-u' + str(kwargs['units'])
 
 
 if __name__ == '__main__':

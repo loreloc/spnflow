@@ -14,7 +14,7 @@ class EarlyStopping:
         self.epsilon = epsilon
         self.best_loss = np.Inf
         self.should_stop = False
-        self._counter = 0
+        self.counter = 0
 
     def __call__(self, loss):
         """

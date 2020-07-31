@@ -4,55 +4,55 @@ import torch
 
 class GaussianLayer(torch.nn.Module):
     """The Gaussian distributions input layer class."""
-    def __init__(self, n_features, depth, regions, n_batch, optimize_scale):
+    def __init__(self, in_features, out_channels, regions, rg_depth, optimize_scale):
         """
         Initialize a Gaussian distributions input layer.
 
-        :param n_features: The number of features.
-        :param depth: The depth of the RAT-SPN.
+        :param in_features: The number of input features.
+        :param out_channels: The number of channels for each base distribution layer.
         :param regions: The regions of the distributions.
-        :param n_batch: The number of distributions.
-        :param optimize_scale: Whatever to train scale and mean jointly.
+        :param rg_depth: The depth of the region graph.
+        :param optimize_scale: Whether to optimize scale and location jointly.
         """
         super(GaussianLayer, self).__init__()
-        self.n_features = n_features
-        self.depth = depth
+        self.in_features = in_features
+        self.in_regions = len(regions)
+        self.out_channels = out_channels
         self.regions = regions
-        self.n_batch = n_batch
+        self.rg_depth = rg_depth
         self.optimize_scale = optimize_scale
-        self.n_regions = len(self.regions)
 
-        # Compute the padding
-        self.pad = -self.n_features % (2 ** self.depth)
-        self.dim_gauss = (self.n_features + self.pad) // (2 ** self.depth)
+        # Compute the padding and the number of features for each base distribution batch
+        self.pad = -self.in_features % (2 ** self.rg_depth)
+        self.dimension = (self.in_features + self.pad) // (2 ** self.rg_depth)
 
         # Append dummy variables to regions orderings and update the pad mask
         mask = self.regions.copy()
         if self.pad > 0:
-            pad_mask = np.ones(shape=(self.n_regions, 1, self.dim_gauss), dtype=np.float32)
-            for i in range(self.n_regions):
-                n_dummy = self.dim_gauss - len(self.regions[i])
+            pad_mask = np.ones(shape=(self.in_regions, 1, self.dimension), dtype=np.float32)
+            for i in range(self.in_regions):
+                n_dummy = self.dimension - len(self.regions[i])
                 if n_dummy > 0:
                     pad_mask[i, :, -n_dummy:] = 0.0
-                    mask[i] = list(mask[i]) + [list(mask[i])[-1]] * n_dummy
+                    mask[i] = list(mask[i]) + [mask[i][-1]] * n_dummy
             self.register_buffer('pad_mask', torch.tensor(pad_mask))
         self.register_buffer('mask', torch.tensor(mask))
 
         # Instantiate the location variable
         self.loc = torch.nn.Parameter(
-            torch.normal(0.0, 1e-1, size=(self.n_regions, self.n_batch, self.dim_gauss)),
+            torch.normal(0.0, 1e-1, size=(self.in_regions, self.out_channels, self.dimension)),
             requires_grad=True
         )
 
         # Instantiate the scale variable
         if self.optimize_scale:
             self.scale = torch.nn.Parameter(
-                torch.normal(0.5, 5e-2, size=(self.n_regions, self.n_batch, self.dim_gauss)),
+                torch.normal(0.5, 5e-2, size=(self.in_regions, self.out_channels, self.dimension)),
                 requires_grad=True
             )
         else:
             self.scale = torch.nn.Parameter(
-                torch.ones(size=(self.n_regions, self.n_batch, self.dim_gauss)),
+                torch.ones(size=(self.in_regions, self.out_channels, self.dimension)),
                 requires_grad=False
             )
 
@@ -71,22 +71,23 @@ class GaussianLayer(torch.nn.Module):
         x = self.distribution.log_prob(x)
         if self.pad > 0:
             x = x * self.pad_mask
-        x = x.sum(dim=-1)
-        return x
+        return torch.sum(x, dim=-1)
 
 
 class ProductLayer(torch.nn.Module):
     """Product node layer class."""
-    def __init__(self, n_partitions, n_nodes):
+    def __init__(self, in_regions, in_nodes):
         """
         Initialize the Product layer.
 
-        :param n_partitions: The number of partitions.
-        :param n_nodes: The number of child nodes for each region.
+        :param in_regions: The number of input regions.
+        :param in_nodes: The number of input nodes per region.
         """
         super(ProductLayer, self).__init__()
-        self.n_partitions = n_partitions
-        self.n_nodes = n_nodes
+        self.in_regions = in_regions
+        self.in_nodes = in_nodes
+        self.out_partitions = in_regions // 2
+        self.out_nodes = in_nodes ** 2
 
     def forward(self, x):
         """
@@ -96,34 +97,35 @@ class ProductLayer(torch.nn.Module):
         :return: The tensor result of the layer.
         """
         # Compute the outer product (the "outer sum" in log domain)
-        x = torch.reshape(x, (-1, self.n_partitions, 2, self.n_nodes))  # (n, p, 2, s)
-        x0 = torch.unsqueeze(x[:, :, 0], dim=3)  # (n, p, s, 1)
-        x1 = torch.unsqueeze(x[:, :, 1], dim=2)  # (n, p, 1, s)
-        x = x0 + x1  # (n, p, s, s)
-        x = torch.reshape(x, [-1, self.n_partitions, self.n_nodes ** 2])  # (n, p, s * s)
+        x = x.view(-1, self.out_partitions, 2, self.in_nodes)  # (-1, out_partitions, 2, in_nodes)
+        x0 = torch.unsqueeze(x[:, :, 0], dim=3)                # (-1, out_partitions, in_nodes, 1)
+        x1 = torch.unsqueeze(x[:, :, 1], dim=2)                # (-1, out_partitions, 1, in_nodes)
+        x = x0 + x1                                            # (-1, out_partitions, in_nodes, in_nodes)
+        x = x.view(-1, self.out_partitions, self.out_nodes)    # (-1, out_partitions, out_nodes)
         return x
 
 
 class SumLayer(torch.nn.Module):
     """Sum node layer."""
-    def __init__(self, n_regions, n_nodes, n_sum, dropout=None):
+    def __init__(self, in_partitions, in_nodes, out_nodes, dropout=None):
         """
         Initialize the sum layer.
 
-        :param n_regions: The number of regions.
-        :param n_nodes: The number of child nodes for each region.
-        :param n_sum: The number of sum node per region.
+        :param in_partitions: The number of input partitions.
+        :param in_nodes: The number of input nodes per partition.
+        :param out_nodes: The number of output nodes per region.
         :param dropout: The input nodes dropout rate (can be None).
         """
         super(SumLayer, self).__init__()
-        self.n_regions = n_regions
-        self.n_nodes = n_nodes
-        self.n_sum = n_sum
+        self.in_partitions = in_partitions
+        self.in_nodes = in_nodes
+        self.out_regions = in_partitions
+        self.out_nodes = out_nodes
         self.dropout = dropout
 
         # Instantiate the weights
         self.weight = torch.nn.Parameter(
-            torch.normal(0.0, 5e-1, size=(self.n_regions, self.n_sum, self.n_nodes)),
+            torch.normal(0.0, 5e-1, size=(self.out_regions, self.out_nodes, self.in_nodes)),
             requires_grad=True
         )
 
@@ -136,32 +138,34 @@ class SumLayer(torch.nn.Module):
         """
         # Apply the dropout, if specified
         if self.training and self.dropout is not None:
-            mask = torch.rand(size=(self.n_regions, self.n_nodes))
+            mask = torch.rand(size=(self.out_regions, self.in_nodes))
             x = x + torch.log(torch.floor(self.dropout + mask))
 
         # Calculate the log likelihood using the "logsumexp" trick
-        x = torch.unsqueeze(x, dim=2)
-        w = torch.log_softmax(self.weight, dim=2)  # (p, s)
-        x = torch.logsumexp(x + w, dim=-1)  # (n, p, s)
+        w = torch.log_softmax(self.weight, dim=2)  # (out_regions, out_nodes, in_nodes)
+        x = torch.unsqueeze(x, dim=2)              # (-1, in_partitions, 1, in_nodes) with in_partitions = out_regions
+        x = torch.logsumexp(x + w, dim=-1)         # (-1, out_regions, out_nodes)
         return x
 
 
 class RootLayer(torch.nn.Module):
     """Root sum node layer."""
-    def __init__(self, n_sum, n_nodes):
+    def __init__(self, in_partitions, in_nodes, out_classes):
         """
         Initialize the root layer.
 
-        :param n_sum: The number of sum nodes.
-        :param n_nodes: The number of input nodes.
+        :param in_partitions: The number of input partitions.
+        :param in_nodes: The number of input nodes per partition.
+        :param out_classes: The number of output nodes.
         """
         super(RootLayer, self).__init__()
-        self.n_sum = n_sum
-        self.n_nodes = n_nodes
+        self.in_partitions = in_partitions
+        self.in_nodes = in_nodes
+        self.out_classes = out_classes
 
         # Instantiate the weights
-        self.kernel = torch.nn.Parameter(
-            torch.normal(0.0, 5e-1, size=(self.n_sum, self.n_nodes)),
+        self.weight = torch.nn.Parameter(
+            torch.normal(0.0, 5e-1, size=(self.out_classes, self.in_partitions * self.in_nodes)),
             requires_grad=True
         )
 
@@ -172,8 +176,74 @@ class RootLayer(torch.nn.Module):
         :param x: The inputs.
         :return: The tensor result of the layer.
         """
+        # Flatten the input
+        x = torch.flatten(x, start_dim=1)
+
         # Calculate the log likelihood using the "logsumexp" trick
-        x = torch.unsqueeze(x, dim=1)
-        w = torch.log_softmax(self.kernel, dim=1)
-        x = torch.logsumexp(x + w, dim=-1)
+        w = torch.log_softmax(self.weight, dim=1)  # (out_classes, in_partitions * in_nodes)
+        x = torch.unsqueeze(x, dim=1)              # (-1, 1, in_partitions * in_nodes)
+        x = torch.logsumexp(x + w, dim=-1)         # (-1, out_classes)
         return x
+
+
+class CouplingLayer(torch.nn.Module):
+    """Real-NVP coupling layer."""
+    def __init__(self, in_features, depth, units, activation, reverse=False):
+        """
+        Build a coupling layer as specified in Real-NVP paper.
+
+        :param in_features: The number of input features.
+        :param depth: The number of hidden layers of the conditioner.
+        :param units: The number of units of each hidden layer of the conditioner.
+        :param activation: The activation class used for inner layers of the conditioner.
+        :param reverse: Whether to reverse the mask used in the coupling layer. Useful for alternating masks.
+        """
+        super(CouplingLayer, self).__init__()
+        self.in_features = in_features
+        self.depth = depth
+        self.units = units
+        self.activation = activation
+        self.reverse = reverse
+        self.layers = torch.nn.ModuleList()
+
+        # Build the conditioner neural network
+        in_cond_features = self.in_features // 2
+        if self.reverse and self.in_features % 2 != 0:
+            in_cond_features += 1
+        in_features = in_cond_features
+        out_features = self.units
+        for _ in range(depth):
+            self.layers.append(torch.nn.Linear(in_features, out_features))
+            self.layers.append(self.activation())
+            in_features = out_features
+        out_features = (self.in_features - in_cond_features) * 2
+        self.layers.append(torch.nn.Linear(in_features, out_features))
+
+    def forward(self, x):
+        """
+        Evaluate the layer given some inputs.
+
+        :param x: The inputs.
+        :return: The tensor result of the layer.
+        """
+        # Split the input
+        if self.reverse:
+            v, u = torch.chunk(x, chunks=2, dim=1)
+        else:
+            u, v = torch.chunk(x, chunks=2, dim=1)
+
+        # Get the parameters and apply the affine transformation
+        z = v
+        for layer in self.layers:
+            z = layer(z)
+        mu, sigma = torch.chunk(z, chunks=2, dim=1)
+        neg_exp_sigma = torch.exp(-sigma)
+        u = (u - mu) * neg_exp_sigma
+        inv_log_det_jacobian = torch.sum(neg_exp_sigma, dim=-1, keepdim=True)
+
+        # Concatenate the data
+        if self.reverse:
+            x = torch.cat((u, v), dim=1)
+        else:
+            x = torch.cat((v, u), dim=1)
+        return x, inv_log_det_jacobian
