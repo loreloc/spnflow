@@ -86,6 +86,7 @@ def run_experiment_gas():
         info = ratspn_flow_experiment_info(kwargs)
         collect_results('gas', info, model, LR_FLOW, data_train, data_val, data_test)
 
+
 def run_experiment_hepmass():
     # Instantiate a random state, used for reproducibility
     rand_state = np.random.RandomState(42)

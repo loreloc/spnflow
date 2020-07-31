@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 from spnflow.utils.region import RegionGraph
-from spnflow.torch.layers import GaussianLayer, ProductLayer, SumLayer, RootLayer, CouplingLayer
+from spnflow.torch.layers import GaussianLayer, ProductLayer, SumLayer, RootLayer, CouplingLayer, BatchNormLayer
 
 
 class RatSpn(torch.nn.Module):
@@ -119,6 +119,7 @@ class RatSpnFlow(torch.nn.Module):
                  rand_state=None,
                  flow='real_nvp',
                  n_flows=5,
+                 batch_norm=True,
                  depth=1,
                  units=128,
                  activation=torch.nn.ReLU
@@ -136,6 +137,7 @@ class RatSpnFlow(torch.nn.Module):
         :param rand_state: The random state used to generate the random graph.
         :param flow: The normalizing flow kind. At the moment, only 'nvp' is supported.
         :param n_flows: The number of sequential normalizing flows.
+        :param batch_norm: Whether to apply batch normalization after each normalizing flow layer.
         :param depth: The number of hidden layers of flows conditioners.
         :param units: The number of hidden units per layer of flows conditioners.
         :param activation: The activation class to use for the flows conditioners hidden layers.
@@ -151,6 +153,7 @@ class RatSpnFlow(torch.nn.Module):
         self.rand_state = rand_state
         self.flow = flow.lower()
         self.n_flows = n_flows
+        self.batch_norm = batch_norm
         self.depth = depth
         self.units = units
         self.activation = activation
@@ -177,6 +180,10 @@ class RatSpnFlow(torch.nn.Module):
             self.flows.append(
                 CouplingLayer(self.in_features, self.depth, self.units, self.activation, reverse=reverse)
             )
+            if self.batch_norm:
+                self.flows.append(
+                    BatchNormLayer(self.in_features)
+                )
             reverse = not reverse
 
     def forward(self, x):
@@ -187,7 +194,7 @@ class RatSpnFlow(torch.nn.Module):
         :return: The output of the model.
         """
         # Compute the log-likelihood of the model given complete evidence
-        inv_log_det_jacobian = torch.zeros(size=(x.size(0), 1), device=x.device)
+        inv_log_det_jacobian = 0.0
         for flow in self.flows:
             x, dj = flow(x)
             inv_log_det_jacobian += dj

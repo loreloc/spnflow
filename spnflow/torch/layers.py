@@ -239,11 +239,59 @@ class CouplingLayer(torch.nn.Module):
         mu, sigma = torch.chunk(z, chunks=2, dim=1)
         neg_exp_sigma = torch.exp(-sigma)
         u = (u - mu) * neg_exp_sigma
-        inv_log_det_jacobian = torch.sum(neg_exp_sigma, dim=-1, keepdim=True)
+        inv_log_det_jacobian = torch.sum(neg_exp_sigma, dim=1, keepdim=True)
 
         # Concatenate the data
         if self.reverse:
             x = torch.cat((u, v), dim=1)
         else:
             x = torch.cat((v, u), dim=1)
+        return x, inv_log_det_jacobian
+
+
+class BatchNormLayer(torch.nn.Module):
+    """Batch Normalization layer."""
+    def __init__(self, in_features, momentum=0.1, epsilon=1e-5):
+        """
+        Build a Batch Normalization layer.
+
+        :param in_features: The number of input features.
+        :param momentum: The momentum used to update the running parameters.
+        :param epsilon: An arbitrarily small value.
+        """
+        super(BatchNormLayer, self).__init__()
+        self.in_features = in_features
+        self.out_features = in_features
+        self.momentum = momentum
+        self.epsilon = epsilon
+
+        # Initialize the running parameters (used for inference)
+        self.register_buffer('weight', torch.ones(self.in_features))
+        self.register_buffer('bias', torch.zeros(self.in_features))
+
+    def forward(self, x):
+        """
+        Evaluate the layer given some inputs.
+
+        :param x: The inputs.
+        :return: The tensor result of the layer.
+        """
+        # Check if the module is training
+        if not self.training:
+            x = self.weight * x + self.bias
+            inv_log_det_jacobian = torch.sum(torch.log(self.weight))
+            return x, inv_log_det_jacobian
+
+        # Get the minibatch statistics
+        var, mean = torch.var_mean(x, dim=0, unbiased=False)
+
+        # Apply the transformation
+        sqrt_var = torch.sqrt(var + self.epsilon)
+        x = (x - mean) / sqrt_var
+        inv_log_det_jacobian = -0.5 * torch.sum(torch.log(sqrt_var))
+
+        # Update the running parameters
+        self.weight = self.momentum * var + (1.0 - self.momentum) * self.weight
+        self.bias = self.momentum * mean + (1.0 - self.momentum) * self.bias
+
         return x, inv_log_det_jacobian
