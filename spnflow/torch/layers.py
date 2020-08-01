@@ -237,9 +237,8 @@ class CouplingLayer(torch.nn.Module):
         for layer in self.layers:
             z = layer(z)
         mu, sigma = torch.chunk(z, chunks=2, dim=1)
-        neg_exp_sigma = torch.exp(-sigma)
-        u = (u - mu) * neg_exp_sigma
-        inv_log_det_jacobian = torch.sum(neg_exp_sigma, dim=1, keepdim=True)
+        u = (u - mu) * torch.exp(sigma)  # equivalent to torch.exp(-sigma) due to linear activation function
+        inv_log_det_jacobian = torch.sum(sigma, dim=1, keepdim=True)
 
         # Concatenate the data
         if self.reverse:
@@ -265,9 +264,13 @@ class BatchNormLayer(torch.nn.Module):
         self.momentum = momentum
         self.epsilon = epsilon
 
+        # Initialize the learnable parameters (used for training)
+        self.weight = torch.nn.Parameter(torch.zeros(self.in_features), requires_grad=True)
+        self.bias = torch.nn.Parameter(torch.zeros(self.in_features), requires_grad=True)
+
         # Initialize the running parameters (used for inference)
-        self.register_buffer('weight', torch.ones(self.in_features))
-        self.register_buffer('bias', torch.zeros(self.in_features))
+        self.register_buffer('running_var', torch.ones(self.in_features))
+        self.register_buffer('running_mean', torch.zeros(self.in_features))
 
     def forward(self, x):
         """
@@ -278,20 +281,21 @@ class BatchNormLayer(torch.nn.Module):
         """
         # Check if the module is training
         if not self.training:
-            x = self.weight * x + self.bias
-            inv_log_det_jacobian = torch.sum(torch.log(self.weight))
+            x = (x - self.running_mean) / self.running_var
+            inv_log_det_jacobian = torch.sum(torch.log(self.running_var))
             return x, inv_log_det_jacobian
 
         # Get the minibatch statistics
         var, mean = torch.var_mean(x, dim=0, unbiased=False)
+        var = var + self.epsilon
 
         # Apply the transformation
-        sqrt_var = torch.sqrt(var + self.epsilon)
-        x = (x - mean) / sqrt_var
-        inv_log_det_jacobian = -0.5 * torch.sum(torch.log(sqrt_var))
+        x = (x - mean) / torch.sqrt(var)
+        x = x * torch.exp(self.weight) + self.bias
+        inv_log_det_jacobian = torch.sum(self.weight - 0.5 * torch.log(var))
 
         # Update the running parameters
-        self.weight = self.momentum * var + (1.0 - self.momentum) * self.weight
-        self.bias = self.momentum * mean + (1.0 - self.momentum) * self.bias
+        self.running_var = self.momentum * var + (1.0 - self.momentum) * self.running_var
+        self.running_mean = self.momentum * mean + (1.0 - self.momentum) * self.running_mean
 
         return x, inv_log_det_jacobian

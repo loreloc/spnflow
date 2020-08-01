@@ -196,8 +196,8 @@ class RatSpnFlow(torch.nn.Module):
         # Compute the log-likelihood of the model given complete evidence
         inv_log_det_jacobian = 0.0
         for flow in self.flows:
-            x, dj = flow(x)
-            inv_log_det_jacobian += dj
+            x, ildj = flow(x)
+            inv_log_det_jacobian += ildj
         return self.ratspn(x) + inv_log_det_jacobian
 
     @property

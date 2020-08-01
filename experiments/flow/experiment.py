@@ -317,8 +317,10 @@ def experiment_log_likelihood(model, lr, data_train, data_val, data_test):
     test_ll = np.array([])
     with torch.no_grad():
         for inputs in test_loader:
+            inputs = inputs.to(device)
             ll = model(inputs)
-            test_ll = np.hstack((test_ll, torch.mean(ll).numpy()))
+            mean_ll = torch.mean(ll).cpu().numpy()
+            test_ll = np.hstack((test_ll, mean_ll))
 
     mu_ll = np.mean(test_ll)
     sigma_ll = np.std(test_ll) / np.sqrt(len(test_ll))
