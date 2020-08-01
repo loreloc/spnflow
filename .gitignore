@@ -3,6 +3,9 @@ venv
 __pycache__
 docs/_build
 experiments/datasets
+experiments/spn/results/*.txt
+experiments/flow/results/*.txt
+experiments/flow/histories/*.png
 build
 dist
 *.egg-info
