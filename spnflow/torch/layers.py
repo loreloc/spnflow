@@ -191,6 +191,29 @@ class RootLayer(torch.nn.Module):
         return x
 
 
+class MaskedLinear(torch.nn.Linear):
+    """Masked version of linear layer."""
+    def __init__(self, in_features, out_features, mask):
+        """
+        Build a masked linear layer.
+
+        :param in_features: The number of input features.
+        :param out_features: The number of output_features.
+        :param mask: The mask to apply to the weights of the layer.
+        """
+        super(MaskedLinear, self).__init__(in_features, out_features)
+        self.register_buffer('mask', torch.tensor(mask))
+
+    def forward(self, x):
+        """
+        Evaluate the layer given some inputs.
+
+        :param x: The inputs.
+        :return: The tensor result of the layer.
+        """
+        return torch.nn.functional.linear(x, self.mask * self.weight, self.bias)
+
+
 class CouplingLayer(torch.nn.Module):
     """Real-NVP coupling layer."""
     def __init__(self, in_features, depth, units, activation, reverse=False):
@@ -252,6 +275,82 @@ class CouplingLayer(torch.nn.Module):
         else:
             x = torch.cat((u, v), dim=1)
         return x, inv_log_det_jacobian
+
+
+class AutoregressiveLayer(torch.nn.Module):
+    """Masked Autoregressive Flow autoregressive layer."""
+    def __init__(self, in_features, depth, units, activation, reverse=False):
+        """
+        Build an autoregressive layer as specified in Masked Autoregressive Flow paper.
+
+        :param in_features: The number of input features.
+        :param depth: The number of hidden layers of the conditioner.
+        :param units: The number of units of each hidden layer of the conditioner.
+        :param activation: The activation class used for inner layers of the conditioner.
+        :param reverse: Whether to reverse the mask used in the autoregressive layer. Useful for alternating orders.
+        """
+        super(AutoregressiveLayer, self).__init__()
+        self.in_features = in_features
+        self.out_features = in_features
+        self.depth = depth
+        self.units = units
+        self.activation = activation
+        self.reverse = reverse
+        self.layers = torch.nn.ModuleList()
+
+        # Create the masks of the masked linear layers
+        masks = self._create_masks()
+
+        # Initialize the conditioner neural network
+        out_features = self.units
+        for mask in masks[:-1]:
+            self.layers.append(MaskedLinear(in_features, out_features, mask))
+            self.layers.append(self.activation())
+            in_features = out_features
+        out_features = self.in_features * 2
+        self.layers.append(MaskedLinear(in_features, out_features, np.tile(masks[-1], reps=(2, 1))))
+
+    def forward(self, x):
+        """
+        Evaluate the layer given some inputs.
+
+        :param x: The inputs.
+        :return: The tensor result of the layer.
+        """
+        # Get the parameters and apply the affine transformation
+        z = x
+        for layer in self.layers:
+            z = layer(z)
+        mu, sigma = torch.chunk(z, chunks=2, dim=1)
+        x = (x - mu) * torch.exp(-sigma)
+        inv_log_det_jacobian = -torch.sum(sigma, dim=1, keepdim=True)
+        return x, inv_log_det_jacobian
+
+    def _create_masks(self):
+        """
+        Create the masks for the linear layers of the autoregressive network.
+
+        :return: The masks to use for each hidden layer of the autoregressive network.
+        """
+        # Initialize the input degrees sequentially
+        degrees = [np.arange(self.in_features)]
+        if self.reverse:
+            degrees[0] = np.flip(degrees[0])
+
+        # Add the degrees of the hidden layers
+        for _ in range(self.depth):
+            degrees += [np.arange(self.units) % (self.in_features - 1)]
+
+        # Add the degrees of the output layer
+        degrees += [degrees[0] % self.in_features - 1]
+
+        # Construct the masks
+        masks = []
+        for (d1, d2) in zip(degrees[:-1], degrees[1:]):
+            d1 = np.expand_dims(d1, axis=0)
+            d2 = np.expand_dims(d2, axis=1)
+            masks += [np.greater_equal(d2, d1).astype('float32')]
+        return masks
 
 
 class BatchNormLayer(torch.nn.Module):

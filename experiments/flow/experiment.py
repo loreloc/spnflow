@@ -41,6 +41,8 @@ def run_experiment_power():
     flow_kwargs = [
         {'flow': 'nvp', 'n_flows':  5, 'units': 128, 'activation': torch.nn.ReLU},
         {'flow': 'nvp', 'n_flows': 10, 'units': 128, 'activation': torch.nn.ReLU},
+        {'flow': 'maf', 'n_flows':  5, 'units': 128, 'activation': torch.nn.ReLU},
+        {'flow': 'maf', 'n_flows': 10, 'units': 128, 'activation': torch.nn.ReLU},
     ]
 
     model = RatSpn(**ratspn_kwargs)
@@ -71,6 +73,8 @@ def run_experiment_gas():
     flow_kwargs = [
         {'flow': 'nvp', 'n_flows':  5, 'units': 128, 'activation': torch.nn.Tanh},
         {'flow': 'nvp', 'n_flows': 10, 'units': 128, 'activation': torch.nn.Tanh},
+        {'flow': 'maf', 'n_flows':  5, 'units': 128, 'activation': torch.nn.Tanh},
+        {'flow': 'maf', 'n_flows': 10, 'units': 128, 'activation': torch.nn.Tanh},
     ]
 
     model = RatSpn(**ratspn_kwargs)
@@ -101,6 +105,8 @@ def run_experiment_hepmass():
     flow_kwargs = [
         {'flow': 'nvp', 'n_flows':  5, 'units': 512, 'activation': torch.nn.ReLU},
         {'flow': 'nvp', 'n_flows': 10, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'maf', 'n_flows':  5, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'maf', 'n_flows': 10, 'units': 512, 'activation': torch.nn.ReLU},
     ]
 
     model = RatSpn(**ratspn_kwargs)
@@ -131,6 +137,8 @@ def run_experiment_miniboone():
     flow_kwargs = [
         {'flow': 'nvp', 'n_flows':  5, 'units': 512, 'activation': torch.nn.ReLU},
         {'flow': 'nvp', 'n_flows': 10, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'maf', 'n_flows':  5, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'maf', 'n_flows': 10, 'units': 512, 'activation': torch.nn.ReLU},
     ]
 
     model = RatSpn(**ratspn_kwargs)
@@ -161,6 +169,8 @@ def run_experiment_bsds300():
     flow_kwargs = [
         {'flow': 'nvp', 'n_flows':  5, 'units': 512, 'activation': torch.nn.ReLU},
         {'flow': 'nvp', 'n_flows': 10, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'maf', 'n_flows':  5, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'maf', 'n_flows': 10, 'units': 512, 'activation': torch.nn.ReLU},
     ]
 
     model = RatSpn(**ratspn_kwargs)
@@ -191,6 +201,8 @@ def run_experiment_mnist():
     flow_kwargs = [
         {'flow': 'nvp', 'n_flows':  5, 'units': 1024, 'activation': torch.nn.ReLU},
         {'flow': 'nvp', 'n_flows': 10, 'units': 1024, 'activation': torch.nn.ReLU},
+        {'flow': 'maf', 'n_flows':  5, 'units': 1024, 'activation': torch.nn.ReLU},
+        {'flow': 'maf', 'n_flows': 10, 'units': 1024, 'activation': torch.nn.ReLU},
     ]
 
     model = RatSpn(**ratspn_kwargs)

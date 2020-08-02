@@ -1,7 +1,8 @@
 import numpy as np
 import torch
 from spnflow.utils.region import RegionGraph
-from spnflow.torch.layers import GaussianLayer, ProductLayer, SumLayer, RootLayer, CouplingLayer, BatchNormLayer
+from spnflow.torch.layers import GaussianLayer, ProductLayer, SumLayer, RootLayer,\
+                                 CouplingLayer, AutoregressiveLayer, BatchNormLayer
 
 
 class RatSpn(torch.nn.Module):
@@ -117,7 +118,7 @@ class RatSpnFlow(torch.nn.Module):
                  dropout=None,
                  optimize_scale=True,
                  rand_state=None,
-                 flow='real_nvp',
+                 flow='nvp',
                  n_flows=5,
                  batch_norm=True,
                  depth=1,
@@ -135,7 +136,7 @@ class RatSpnFlow(torch.nn.Module):
         :param dropout: The dropout rate for probabilistic dropout at sum layer inputs (can be None).
         :param optimize_scale: Whether to train scale and location jointly.
         :param rand_state: The random state used to generate the random graph.
-        :param flow: The normalizing flow kind. At the moment, only 'nvp' is supported.
+        :param flow: The normalizing flow kind. At the moment, only 'nvp' and 'maf' are supported.
         :param n_flows: The number of sequential normalizing flows.
         :param batch_norm: Whether to apply batch normalization after each normalizing flow layer.
         :param depth: The number of hidden layers of flows conditioners.
@@ -169,16 +170,32 @@ class RatSpnFlow(torch.nn.Module):
         # Build the normalizing flow layers
         if self.flow == 'nvp':
             self._build_real_nvp()
+        elif self.flow == 'maf':
+            self._build_maf()
         else:
             raise NotImplementedError('Unknown normalizing flow named \'' + self.flow + '\'')
 
     def _build_real_nvp(self):
-        # Build the normalizing flows
+        # Build the normalizing flows layers
         self.flows = torch.nn.ModuleList()
         reverse = False
         for _ in range(self.n_flows):
             self.flows.append(
                 CouplingLayer(self.in_features, self.depth, self.units, self.activation, reverse=reverse)
+            )
+            if self.batch_norm:
+                self.flows.append(
+                    BatchNormLayer(self.in_features)
+                )
+            reverse = not reverse
+
+    def _build_maf(self):
+        # Build the normalizing flows layers
+        self.flows = torch.nn.ModuleList()
+        reverse = False
+        for _ in range(self.n_flows):
+            self.flows.append(
+                AutoregressiveLayer(self.in_features, self.depth, self.units, self.activation, reverse=reverse)
             )
             if self.batch_norm:
                 self.flows.append(
