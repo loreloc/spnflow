@@ -287,7 +287,7 @@ class BatchNormLayer(torch.nn.Module):
         """
         # Check if the module is training
         if not self.training:
-            x = (x - self.running_mean) / self.running_var
+            x = (x - self.running_mean) / torch.sqrt(self.running_var + self.epsilon)
             inv_log_det_jacobian = -torch.sum(torch.log(self.running_var), dim=0, keepdim=True)
             return x, inv_log_det_jacobian
 
