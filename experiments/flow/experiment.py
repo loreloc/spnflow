@@ -39,10 +39,8 @@ def run_experiment_power():
 
     # Set the parameters for the normalizing flows conditioners
     flow_kwargs = [
-        {'flow': 'nvp', 'n_flows':  5, 'depth': 1, 'units': 128, 'activation': torch.nn.ReLU},
-        {'flow': 'nvp', 'n_flows': 10, 'depth': 1, 'units': 128, 'activation': torch.nn.ReLU},
-        {'flow': 'nvp', 'n_flows':  5, 'depth': 2, 'units': 128, 'activation': torch.nn.ReLU},
-        {'flow': 'nvp', 'n_flows': 10, 'depth': 2, 'units': 128, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows':  5, 'units': 128, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows': 10, 'units': 128, 'activation': torch.nn.ReLU},
     ]
 
     model = RatSpn(**ratspn_kwargs)
@@ -71,10 +69,8 @@ def run_experiment_gas():
 
     # Set the parameters for the normalizing flows conditioners
     flow_kwargs = [
-        {'flow': 'nvp', 'n_flows':  5, 'depth': 1, 'units': 128, 'activation': torch.nn.Tanh},
-        {'flow': 'nvp', 'n_flows': 10, 'depth': 1, 'units': 128, 'activation': torch.nn.Tanh},
-        {'flow': 'nvp', 'n_flows':  5, 'depth': 2, 'units': 128, 'activation': torch.nn.Tanh},
-        {'flow': 'nvp', 'n_flows': 10, 'depth': 2, 'units': 128, 'activation': torch.nn.Tanh},
+        {'flow': 'nvp', 'n_flows':  5, 'units': 128, 'activation': torch.nn.Tanh},
+        {'flow': 'nvp', 'n_flows': 10, 'units': 128, 'activation': torch.nn.Tanh},
     ]
 
     model = RatSpn(**ratspn_kwargs)
@@ -103,10 +99,8 @@ def run_experiment_hepmass():
 
     # Set the parameters for the normalizing flows conditioners
     flow_kwargs = [
-        {'flow': 'nvp', 'n_flows':  5, 'depth': 1, 'units': 512, 'activation': torch.nn.ReLU},
-        {'flow': 'nvp', 'n_flows': 10, 'depth': 1, 'units': 512, 'activation': torch.nn.ReLU},
-        {'flow': 'nvp', 'n_flows':  5, 'depth': 2, 'units': 512, 'activation': torch.nn.ReLU},
-        {'flow': 'nvp', 'n_flows': 10, 'depth': 2, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows':  5, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows': 10, 'units': 512, 'activation': torch.nn.ReLU},
     ]
 
     model = RatSpn(**ratspn_kwargs)
@@ -135,10 +129,8 @@ def run_experiment_miniboone():
 
     # Set the parameters for the normalizing flows conditioners
     flow_kwargs = [
-        {'flow': 'nvp', 'n_flows':  5, 'depth': 1, 'units': 512, 'activation': torch.nn.ReLU},
-        {'flow': 'nvp', 'n_flows': 10, 'depth': 1, 'units': 512, 'activation': torch.nn.ReLU},
-        {'flow': 'nvp', 'n_flows':  5, 'depth': 2, 'units': 512, 'activation': torch.nn.ReLU},
-        {'flow': 'nvp', 'n_flows': 10, 'depth': 2, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows':  5, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows': 10, 'units': 512, 'activation': torch.nn.ReLU},
     ]
 
     model = RatSpn(**ratspn_kwargs)
@@ -167,22 +159,18 @@ def run_experiment_bsds300():
 
     # Set the parameters for the normalizing flows conditioners
     flow_kwargs = [
-        {'flow': 'nvp', 'n_flows':  5, 'depth': 1, 'units': 512, 'activation': torch.nn.ReLU},
-        {'flow': 'nvp', 'n_flows': 10, 'depth': 1, 'units': 512, 'activation': torch.nn.ReLU},
-        {'flow': 'nvp', 'n_flows':  5, 'depth': 2, 'units': 512, 'activation': torch.nn.ReLU},
-        {'flow': 'nvp', 'n_flows': 10, 'depth': 2, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows':  5, 'units': 512, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows': 10, 'units': 512, 'activation': torch.nn.ReLU},
     ]
 
-    lr_rat = LR_RAT * 1e-1
     model = RatSpn(**ratspn_kwargs)
     info = ratspn_experiment_info(ratspn_kwargs)
-    collect_results('bsds300', info, model, lr_rat, data_train, data_val, data_test)
+    collect_results('bsds300', info, model, LR_RAT, data_train, data_val, data_test)
 
-    lr_flow = LR_FLOW * 1e-1
     for kwargs in flow_kwargs:
         model = RatSpnFlow(**ratspn_kwargs, **kwargs)
         info = ratspn_flow_experiment_info(kwargs)
-        collect_results('bsds300', info, model, lr_flow, data_train, data_val, data_test)
+        collect_results('bsds300', info, model, LR_FLOW, data_train, data_val, data_test)
 
 
 def run_experiment_mnist():
@@ -201,10 +189,8 @@ def run_experiment_mnist():
 
     # Set the parameters for the normalizing flows conditioners
     flow_kwargs = [
-        {'flow': 'nvp', 'n_flows':  5, 'depth': 1, 'units': 1024, 'activation': torch.nn.ReLU},
-        {'flow': 'nvp', 'n_flows': 10, 'depth': 1, 'units': 1024, 'activation': torch.nn.ReLU},
-        {'flow': 'nvp', 'n_flows':  5, 'depth': 2, 'units': 1024, 'activation': torch.nn.ReLU},
-        {'flow': 'nvp', 'n_flows': 10, 'depth': 2, 'units': 1024, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows':  5, 'units': 1024, 'activation': torch.nn.ReLU},
+        {'flow': 'nvp', 'n_flows': 10, 'units': 1024, 'activation': torch.nn.ReLU},
     ]
 
     model = RatSpn(**ratspn_kwargs)
