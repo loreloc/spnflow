@@ -286,17 +286,17 @@ class BatchNormLayer(torch.nn.Module):
         :return: The tensor result of the layer.
         """
         # Check if the module is training
-        if not self.training:
-            x = (x - self.running_mean) / torch.sqrt(self.running_var + self.epsilon)
-            inv_log_det_jacobian = -torch.sum(torch.log(self.running_var), dim=0, keepdim=True)
-            return x, inv_log_det_jacobian
+        if self.training:
+            # Get the minibatch statistics
+            var, mean = torch.var_mean(x, dim=0)
 
-        # Get the minibatch statistics
-        var, mean = torch.var_mean(x, dim=0, unbiased=False)
-
-        # Update the running parameters
-        self.running_var = self.momentum * var + (1.0 - self.momentum) * self.running_var
-        self.running_mean = self.momentum * mean + (1.0 - self.momentum) * self.running_mean
+            # Update the running parameters
+            self.running_var = self.momentum * var + (1.0 - self.momentum) * self.running_var
+            self.running_mean = self.momentum * mean + (1.0 - self.momentum) * self.running_mean
+        else:
+            # Get the running parameters as batch mean and variance
+            mean = self.running_mean
+            var = self.running_var
 
         # Apply the transformation
         var = var + self.epsilon

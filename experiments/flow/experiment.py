@@ -319,8 +319,7 @@ def ratspn_experiment_info(kwargs):
 
 
 def ratspn_flow_experiment_info(kwargs):
-    return 'rat-spn-' + kwargs['flow'] + '-n' + str(kwargs['n_flows']) +\
-           '-d' + str(kwargs['depth']) + '-u' + str(kwargs['units'])
+    return 'rat-spn-' + kwargs['flow'] + '-n' + str(kwargs['n_flows']) + '-u' + str(kwargs['units'])
 
 
 if __name__ == '__main__':
