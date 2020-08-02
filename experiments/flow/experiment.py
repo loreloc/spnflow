@@ -309,7 +309,7 @@ def experiment_log_likelihood(model, lr, data_train, data_val, data_test):
             test_ll = np.hstack((test_ll, mean_ll))
 
     mu_ll = np.mean(test_ll)
-    sigma_ll = np.std(test_ll) / np.sqrt(len(test_ll))
+    sigma_ll = 2.0 * np.std(test_ll) / np.sqrt(len(test_ll))
     return history, (mu_ll, sigma_ll)
 
 
