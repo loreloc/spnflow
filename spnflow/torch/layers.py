@@ -89,6 +89,10 @@ class ProductLayer(torch.nn.Module):
         self.out_partitions = in_regions // 2
         self.out_nodes = in_nodes ** 2
 
+        # Initialize the mask used to compute the outer product
+        mask = [True, False] * self.out_partitions
+        self.register_buffer('mask', torch.tensor(mask))
+
     def forward(self, x):
         """
         Evaluate the layer given some inputs.
@@ -97,10 +101,11 @@ class ProductLayer(torch.nn.Module):
         :return: The tensor result of the layer.
         """
         # Compute the outer product (the "outer sum" in log domain)
-        x = x.view(-1, self.out_partitions, 2, self.in_nodes)  # (-1, out_partitions, 2, in_nodes)
-        x0 = torch.unsqueeze(x[:, :, 0], dim=3)                # (-1, out_partitions, in_nodes, 1)
-        x1 = torch.unsqueeze(x[:, :, 1], dim=2)                # (-1, out_partitions, 1, in_nodes)
-        x = x0 + x1                                            # (-1, out_partitions, in_nodes, in_nodes)
+        x1 = x[:,  self.mask]                                  # (-1, out_partitions, in_nodes)
+        x2 = x[:, ~self.mask]                                  # (-1, out_partitions, in_nodes)
+        x1 = torch.unsqueeze(x1, dim=3)                        # (-1, out_partitions, in_nodes, 1)
+        x2 = torch.unsqueeze(x2, dim=2)                        # (-1, out_partitions, 1, in_nodes)
+        x = x1 + x2                                            # (-1, out_partitions, in_nodes, in_nodes)
         x = x.view(-1, self.out_partitions, self.out_nodes)    # (-1, out_partitions, out_nodes)
         return x
 
@@ -125,7 +130,7 @@ class SumLayer(torch.nn.Module):
 
         # Instantiate the weights
         self.weight = torch.nn.Parameter(
-            torch.normal(0.0, 5e-1, size=(self.out_regions, self.out_nodes, self.in_nodes)),
+            torch.normal(0.0, 1e-1, size=(self.out_regions, self.out_nodes, self.in_nodes)),
             requires_grad=True
         )
 
@@ -165,7 +170,7 @@ class RootLayer(torch.nn.Module):
 
         # Instantiate the weights
         self.weight = torch.nn.Parameter(
-            torch.normal(0.0, 5e-1, size=(self.out_classes, self.in_partitions * self.in_nodes)),
+            torch.normal(0.0, 1e-1, size=(self.out_classes, self.in_partitions * self.in_nodes)),
             requires_grad=True
         )
 
