@@ -8,7 +8,7 @@ with open("requirements.txt", "r") as fh:
 
 setuptools.setup(
     name="spnflow",
-    version="0.1",
+    version="0.2",
     author="loreloc",
     author_email="lorenzoloconte@outlook.it",
     description="Sum-Product Networks and Normalizing Flows for Tractable Density Estimation",
