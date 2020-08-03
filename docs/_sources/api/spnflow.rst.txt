@@ -12,7 +12,7 @@ Subpackages
    spnflow.learning
    spnflow.optimization
    spnflow.structure
-   spnflow.tensorflow
+   spnflow.torch
    spnflow.utils
 
 Module contents

@@ -12,7 +12,7 @@ In this work I exploit the potentiality of normalizing flows combined with SPNs 
 
 ## Introduction
 **SPNFlow** is a python implementation of **Sum-Product Networks** (SPNs) learning and inference.
-It also contains an implementation of **Randomized and Tensorized SPNs** (RAT-SPNs) using Tensorflow 2.0.
+It also contains an implementation of **Randomized and Tensorized SPNs** (RAT-SPNs) using PyTorch.
 In this repository there are also present novel models that combine **RAT-SPNs** and **Normalizing Flows** for tractable density estimation.
 
 ## Features
@@ -20,8 +20,8 @@ In this repository there are also present novel models that combine **RAT-SPNs**
 - Learning algorithms for SPNs structure. [1] [2] [3] [4]
 - Optimization of the structure of SPNs. [4]
 - JSON I/O operations for SPNs. [4]
-- Implementation of RAT-SPN using Keras and Tensorflow 2.0. [5]
-- Implementation of RAT-SPN combined with MAFs and RealNVP using Keras and Tensorflow 2.0. [5] [6] [7] [8]
+- Implementation of RAT-SPN using PyTorch. [5]
+- Implementation of RAT-SPN combined with MAFs and RealNVP using PyTorch. [5] [6] [7] [8]
 
 ## Documentation
 The online documentation is hosted using Github Pages at [SPNFlow](https://loreloc.github.io/spnflow/).
