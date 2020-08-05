@@ -229,7 +229,5 @@ if __name__ == '__main__':
         run_experiment_miniboone()
     elif dataset == 'bsds300':
         run_experiment_bsds300()
-    elif dataset == 'mnist':
-        run_experiment_mnist()
     else:
         raise NotImplementedError("Unknown dataset: " + dataset)
