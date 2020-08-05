@@ -70,7 +70,7 @@ class SpatialGaussianLayer(torch.nn.Module):
 
 class SpatialProductLayer(torch.nn.Module):
     """Spatial Product layer class."""
-    def __init__(self, in_size, out_channels, kernel_size, padding, dilation):
+    def __init__(self, in_size, out_channels, kernel_size, padding, dilation, rand_state):
         """
         Initialize a Spatial Product layer.
 
@@ -79,6 +79,7 @@ class SpatialProductLayer(torch.nn.Module):
         :param kernel_size: The size of the kernels.
         :param padding: The padding mode do use. It can be 'full' or 'final'.
         :param dilation: The space between the kernel points.
+        :param rand_state: The random state used to generate the weight mask.
         """
         super(SpatialProductLayer, self).__init__()
         self.in_size = in_size
@@ -93,14 +94,14 @@ class SpatialProductLayer(torch.nn.Module):
         # Compute the effective kernel size (due to dilation)
         dh, dw = self.dilation
         kh, kw = self.kernel_size
-        kah, kaw = (kh - 1) * dh, (kw - 1) * dw
+        kah, kaw = (kh - 1) * dh + 1, (kw - 1) * dw + 1
         self.effective_kernel_size = (kah, kaw)
 
         # Compute the padding to apply
         if self.padding == 'full':
-            self.pad = (kaw, kaw, kah, kah)
+            self.pad = (kaw - 1, kaw - 1, kah - 1, kah - 1)
         elif self.padding == 'final':
-            self.pad = (kaw * 2 - in_width, 0, kah * 2 - in_height, 0)
+            self.pad = ((kaw - 1) * 2 - in_width, 0, (kah - 1) * 2 - in_height, 0)
         else:
             raise NotImplementedError('Unknown padding mode named ' + self.padding)
 
@@ -108,7 +109,7 @@ class SpatialProductLayer(torch.nn.Module):
         kernels_idx = []
         for _ in range(kh * kw):
             idx = np.arange(self.out_channels) % in_channels
-            np.random.shuffle(idx)
+            rand_state.shuffle(idx)
             kernels_idx.append(idx)
         kernels_idx = np.stack(kernels_idx, axis=1)
         kernels_idx = np.reshape(kernels_idx, (self.out_channels, 1, kh, kw))
@@ -154,7 +155,9 @@ class SpatialProductLayer(torch.nn.Module):
         :return: The output size tuple.
         """
         kah, kaw = self.effective_kernel_size
-        return self.out_channels, self.in_height + kah, self.in_width + kaw
+        out_height = self.pad[2] + self.pad[3] + self.in_height - kah + 1
+        out_width = self.pad[0] + self.pad[1] + self.in_width - kaw + 1
+        return self.out_channels, out_height, out_width
 
 
 class SpatialSumLayer(torch.nn.Module):
@@ -187,9 +190,9 @@ class SpatialSumLayer(torch.nn.Module):
         norm_weight = torch.softmax(self.weight, dim=1)
 
         # Apply plain convolution on exp(x)
-        y = torch.nn.functional.conv2d(x, norm_weight)
+        y = torch.nn.functional.conv2d(torch.exp(x), norm_weight)
 
-        # Return to log space
+        # Return back to log space
         return torch.log(y)
 
     @property

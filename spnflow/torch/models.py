@@ -255,25 +255,34 @@ class SpatialSpn(torch.nn.Module):
         self.sum_channels = sum_channels
         self.optimize_scale = optimize_scale
         self.rand_state = rand_state
-        self.layers = torch.nn.ModuleList()
 
         # Instantiate the base layer
         self.base_layer = SpatialGaussianLayer(self.in_size, self.n_batch, self.optimize_scale)
 
         # Instantiate the inner layers
         in_size = self.base_layer.output_size()
-        depth = np.max(np.ceil(np.log2(self.in_size)))
+        depth = int(np.max(np.ceil(np.log2(self.in_size))).item())
+        self.layers = torch.nn.ModuleList()
         for k in range(depth):
             # Add a spatial product layer
             self.layers.append(SpatialProductLayer(
                 in_size, self.prod_channels, (2, 2),
-                padding='full', dilation=(2 ** k, 2 ** k)
+                padding='full', dilation=(2 ** k, 2 ** k),
+                rand_state=self.rand_state
             ))
             in_size = self.layers[-1].output_size()
 
             # Add a spatial sum layer
             self.layers.append(SpatialSumLayer(in_size, self.sum_channels))
             in_size = self.layers[-1].output_size()
+
+        # Add the last product layer
+        self.layers.append(SpatialProductLayer(
+            in_size, self.prod_channels, (2, 2),
+            padding='final', dilation=(2 ** depth, 2 ** depth),
+            rand_state=self.rand_state
+        ))
+        in_size = self.layers[-1].output_size()
 
         # Instantiate the spatial root layer
         self.root_layer = SpatialRootLayer(in_size, out_channels=1)
