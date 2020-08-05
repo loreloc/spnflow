@@ -10,7 +10,7 @@ from spnflow.torch.utils import torch_train_generative, torch_test_generative
 EPOCHS = 1000
 BATCH_SIZE = 100
 PATIENCE = 30
-LR = 1e-6
+LR = 1e-3
 
 
 def run_experiment_mnist():
@@ -18,12 +18,12 @@ def run_experiment_mnist():
     rand_state = np.random.RandomState(42)
 
     # Load the mnist dataset
-    data_train, data_val, data_test = load_mnist_dataset(rand_state, logit_space=False, flatten=False)
+    data_train, data_val, data_test = load_mnist_dataset(rand_state, flatten=False)
     in_size = data_train.shape[1:]
 
     # Set the parameters for the DGC-SPN
     dgcspn_kwargs = [
-        {'in_size': in_size, 'n_batch': 16, 'prod_channels': 32, 'sum_channels': 16, 'rand_state': rand_state},
+        {'in_size': in_size, 'n_batch': 16, 'prod_channels': 32, 'sum_channels': 8, 'rand_state': rand_state},
     ]
 
     for kwargs in dgcspn_kwargs:

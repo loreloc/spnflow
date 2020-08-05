@@ -88,9 +88,6 @@ class SpatialProductLayer(torch.nn.Module):
         self.padding = padding
         self.dilation = dilation
 
-        # Get the input tensor size dimensions
-        in_channels, in_height, in_width = self.in_size
-
         # Compute the effective kernel size (due to dilation)
         dh, dw = self.dilation
         kh, kw = self.kernel_size
@@ -101,22 +98,22 @@ class SpatialProductLayer(torch.nn.Module):
         if self.padding == 'full':
             self.pad = (kaw - 1, kaw - 1, kah - 1, kah - 1)
         elif self.padding == 'final':
-            self.pad = ((kaw - 1) * 2 - in_width, 0, (kah - 1) * 2 - in_height, 0)
+            self.pad = ((kaw - 1) * 2 - self.in_width, 0, (kah - 1) * 2 - self.in_height, 0)
         else:
             raise NotImplementedError('Unknown padding mode named ' + self.padding)
 
         # Generate a sparse representation of weight
         kernels_idx = []
         for _ in range(kh * kw):
-            idx = np.arange(self.out_channels) % in_channels
+            idx = np.arange(self.out_channels) % self.in_channels
             rand_state.shuffle(idx)
             kernels_idx.append(idx)
         kernels_idx = np.stack(kernels_idx, axis=1)
         kernels_idx = np.reshape(kernels_idx, (self.out_channels, 1, kh, kw))
 
         # Generate a dense representation of weight, given the sparse representation
-        weight = np.ones((self.out_channels, in_channels, kh, kw))
-        weight = weight * np.arange(in_channels).reshape((1, in_channels, 1, 1))
+        weight = np.ones((self.out_channels, self.in_channels, kh, kw))
+        weight = weight * np.arange(self.in_channels).reshape((1, self.in_channels, 1, 1))
         weight = np.equal(weight, kernels_idx)
         weight = weight.astype(np.float32)
 
@@ -187,13 +184,20 @@ class SpatialSumLayer(torch.nn.Module):
         :return: The tensor result of the layer.
         """
         # Normalize the weight
-        norm_weight = torch.softmax(self.weight, dim=1)
+        w = torch.log_softmax(self.weight, dim=1)
 
-        # Apply plain convolution on exp(x)
-        y = torch.nn.functional.conv2d(torch.exp(x), norm_weight)
+        # Subtract the max of the inputs (this is used for numerical stability during backward)
+        w_max, _ = torch.max(w, dim=1, keepdim=True)
+        x_max, _ = torch.max(x, dim=1, keepdim=True)
+        w_max = torch.detach(w_max)
+        x_max = torch.detach(x_max)
+        w = w - w_max
+        x = x - x_max
 
-        # Return back to log space
-        return torch.log(y)
+        # Apply plain convolution on exp(x) and return back to log space
+        y = torch.nn.functional.conv2d(torch.exp(x), torch.exp(w))
+        y = torch.log(y) + x_max + torch.transpose(w_max, 0, 1)
+        return y
 
     @property
     def in_channels(self):
@@ -214,6 +218,10 @@ class SpatialSumLayer(torch.nn.Module):
         :return: The output size tuple.
         """
         return self.out_channels, self.in_height, self.in_width
+
+    @staticmethod
+    def _replace_infs_with_zero(x):
+        return torch.where(torch.isinf(x), torch.zeros_like(x), x)
 
 
 class SpatialRootLayer(torch.nn.Module):
