@@ -1,20 +1,15 @@
 import os
 import sys
-import time
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
-
 from experiments.power import load_power_dataset
 from experiments.gas import load_gas_dataset
 from experiments.hepmass import load_hepmass_dataset
 from experiments.miniboone import load_miniboone_dataset
 from experiments.bsds300 import load_bsds300_dataset
-from experiments.mnist import load_mnist_dataset
-
 from spnflow.torch.models import RatSpn, RatSpnFlow
-from spnflow.torch.callbacks import EarlyStopping
-from spnflow.torch.constraints import ScaleClipper
+from spnflow.torch.utils import torch_train_generative, torch_test_generative
 
 EPOCHS = 1000
 BATCH_SIZE = 100
@@ -183,41 +178,12 @@ def run_experiment_bsds300():
         collect_results('bsds300', info, model, LR_FLOW, data_train, data_val, data_test)
 
 
-def run_experiment_mnist():
-    # Instantiate a random state, used for reproducibility
-    rand_state = np.random.RandomState(42)
-
-    # Load the mnist dataset
-    data_train, data_val, data_test = load_mnist_dataset(rand_state)
-    _, n_features = data_train.shape
-
-    # Set the parameters for the RAT-SPNs
-    ratspn_kwargs = {
-        'in_features': n_features, 'rg_depth': 3, 'rg_repetitions': 32,
-        'n_batch': 16, 'n_sum': 16, 'rand_state': rand_state
-    }
-
-    # Set the parameters for the normalizing flows conditioners
-    flow_kwargs = [
-        {'flow': 'nvp', 'n_flows':  5, 'units': 1024, 'activation': torch.nn.ReLU},
-        {'flow': 'nvp', 'n_flows': 10, 'units': 1024, 'activation': torch.nn.ReLU},
-        {'flow': 'maf', 'n_flows':  5, 'units': 1024, 'activation': torch.nn.ReLU},
-        {'flow': 'maf', 'n_flows': 10, 'units': 1024, 'activation': torch.nn.ReLU},
-    ]
-
-    model = RatSpn(**ratspn_kwargs)
-    info = ratspn_experiment_info(ratspn_kwargs)
-    collect_results('mnist', info, model, LR_RAT, data_train, data_val, data_test)
-
-    for kwargs in flow_kwargs:
-        model = RatSpnFlow(**ratspn_kwargs, **kwargs)
-        info = ratspn_flow_experiment_info(kwargs)
-        collect_results('mnist', info, model, LR_FLOW, data_train, data_val, data_test)
-
-
 def collect_results(dataset, info, model, lr, data_train, data_val, data_test):
-    # Run the experiment and get the results
-    history, (mu_ll, sigma_ll) = experiment_log_likelihood(model, lr, data_train, data_val, data_test)
+    # Train the model
+    history = torch_train_generative(model, data_train, data_val, torch.optim.Adam, lr, BATCH_SIZE, PATIENCE, EPOCHS)
+
+    # Test the model
+    (mu_ll, sigma_ll) = torch_test_generative(model, data_test, BATCH_SIZE)
 
     # Save the results to file
     filepath = os.path.join('results', dataset + '_' + info + '.txt')
@@ -239,99 +205,13 @@ def collect_results(dataset, info, model, lr, data_train, data_val, data_test):
     plt.clf()
 
 
-def experiment_log_likelihood(model, lr, data_train, data_val, data_test):
-    # Get the device to use
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    print('Using device: ' + str(device))
-
-    # Print the model
-    print(model)
-
-    # Move the model to the device
-    model.to(device)
-
-    # Instantiate the train history
-    history = {
-        'train': [], 'validation': []
-    }
-
-    # Setup the data loaders
-    train_loader = torch.utils.data.DataLoader(data_train, batch_size=BATCH_SIZE, shuffle=True)
-    val_loader = torch.utils.data.DataLoader(data_val, batch_size=BATCH_SIZE, shuffle=False)
-    test_loader = torch.utils.data.DataLoader(data_test, batch_size=BATCH_SIZE, shuffle=False)
-
-    # Instantiate the optimizer
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-
-    # Instantiate the early stopping callback
-    early_stopping = EarlyStopping(patience=PATIENCE)
-
-    # Instantiate the scale constraint
-    constraint = ScaleClipper()
-    constraint.to(device)
-
-    # Train the model
-    for epoch in range(EPOCHS):
-        start_time = time.time()
-
-        # Training phase
-        train_loss = 0.0
-        for inputs in train_loader:
-            inputs = inputs.to(device)
-            optimizer.zero_grad()
-            log_likelihoods = model(inputs)
-            loss = -torch.mean(log_likelihoods)
-            train_loss += loss.item()
-            loss.backward()
-            optimizer.step()
-            constraint(model.constrained_module)
-
-        train_loss /= len(train_loader)
-
-        # Compute the validation loss
-        val_loss = 0.0
-        with torch.no_grad():
-            for inputs in val_loader:
-                inputs = inputs.to(device)
-                log_likelihoods = model(inputs)
-                loss = -torch.mean(log_likelihoods)
-                val_loss += loss.item()
-            val_loss /= len(val_loader)
-
-        end_time = time.time()
-
-        history['train'].append(train_loss)
-        history['validation'].append(val_loss)
-        elapsed_time = end_time - start_time
-        print('[%4d] train_loss: %.4f, validation_loss: %.4f - %ds' % (epoch + 1, train_loss, val_loss, elapsed_time))
-
-        # Check if training should stop
-        early_stopping(val_loss)
-        if early_stopping.should_stop:
-            print('Early Stopping... Best Loss: %.4f' % early_stopping.best_loss)
-            break
-
-    # Test the model
-    test_ll = np.array([])
-    with torch.no_grad():
-        for inputs in test_loader:
-            inputs = inputs.to(device)
-            ll = model(inputs)
-            mean_ll = torch.mean(ll).cpu().numpy()
-            test_ll = np.hstack((test_ll, mean_ll))
-
-    mu_ll = np.mean(test_ll)
-    sigma_ll = 2.0 * np.std(test_ll) / np.sqrt(len(test_ll))
-    return history, (mu_ll, sigma_ll)
-
-
 def ratspn_experiment_info(kwargs):
-    return 'rat-spn-d' + str(kwargs['rg_depth']) + '-r' + str(kwargs['rg_repetitions']) +\
+    return 'ratspn-d' + str(kwargs['rg_depth']) + '-r' + str(kwargs['rg_repetitions']) +\
            '-b' + str(kwargs['n_batch']) + '-s' + str(kwargs['n_sum'])
 
 
 def ratspn_flow_experiment_info(kwargs):
-    return 'rat-spn-' + kwargs['flow'] + '-n' + str(kwargs['n_flows']) + '-u' + str(kwargs['units'])
+    return 'ratspn-' + kwargs['flow'] + '-n' + str(kwargs['n_flows']) + '-u' + str(kwargs['units'])
 
 
 if __name__ == '__main__':

@@ -1,12 +1,13 @@
-import numpy as np
 import torch
+import numpy as np
 from spnflow.utils.region import RegionGraph
-from spnflow.torch.layers import GaussianLayer, ProductLayer, SumLayer, RootLayer,\
-                                 CouplingLayer, AutoregressiveLayer, BatchNormLayer
+from spnflow.torch.layers.ratspn import GaussianLayer, ProductLayer, SumLayer, RootLayer
+from spnflow.torch.layers.flows import CouplingLayer, AutoregressiveLayer, BatchNormLayer
+from spnflow.torch.layers.dgcspn import SpatialGaussianLayer, SpatialProductLayer, SpatialSumLayer, SpatialRootLayer
 
 
 class RatSpn(torch.nn.Module):
-    """RAT-SPN Keras model class."""
+    """RAT-SPN model class."""
     def __init__(self,
                  in_features,
                  out_classes=1,
@@ -225,3 +226,80 @@ class RatSpnFlow(torch.nn.Module):
         :return: The base distribution layer.
         """
         return self.ratspn.base_layer
+
+
+class SpatialSpn(torch.nn.Module):
+    """Deep Generalized Convolutional SPN model class."""
+    def __init__(self,
+                 in_size,
+                 n_batch=8,
+                 prod_channels=16,
+                 sum_channels=8,
+                 optimize_scale=True,
+                 rand_state=None,
+                 ):
+        """
+        Initialize a SpatialSpn.
+
+        :param in_size: The input size.
+        :param n_batch: The number of output channels of the base layer.
+        :param prod_channels: The number of output channels of spatial product layers.
+        :param sum_channels: The number of output channels of spatial sum layers.
+        :param optimize_scale: Whether to train scale and location jointly.
+        :param rand_state: The random state used to initialize the spatial product layers weights.
+        """
+        super(SpatialSpn, self).__init__()
+        self.in_size = in_size
+        self.n_batch = n_batch
+        self.prod_channels = prod_channels
+        self.sum_channels = sum_channels
+        self.optimize_scale = optimize_scale
+        self.rand_state = rand_state
+        self.layers = torch.nn.ModuleList()
+
+        # Instantiate the base layer
+        self.base_layer = SpatialGaussianLayer(self.in_size, self.n_batch, self.optimize_scale)
+
+        # Instantiate the inner layers
+        in_size = self.base_layer.output_size()
+        depth = np.max(np.ceil(np.log2(self.in_size)))
+        for k in range(depth):
+            # Add a spatial product layer
+            self.layers.append(SpatialProductLayer(
+                in_size, self.prod_channels, (2, 2),
+                padding='full', dilation=(2 ** k, 2 ** k)
+            ))
+            in_size = self.layers[-1].output_size()
+
+            # Add a spatial sum layer
+            self.layers.append(SpatialSumLayer(in_size, self.sum_channels))
+            in_size = self.layers[-1].output_size()
+
+        # Instantiate the spatial root layer
+        self.root_layer = SpatialRootLayer(in_size, out_channels=1)
+
+    def forward(self, x):
+        """
+        Call the model.
+
+        :param x: The inputs tensor.
+        :return: The output of the model.
+        """
+        # Compute the base distributions log-likelihoods
+        x = self.base_layer(x)
+
+        # Forward through the inner layers
+        for layer in self.layers:
+            x = layer(x)
+
+        # Forward through the root layer
+        return self.root_layer(x)
+
+    @property
+    def constrained_module(self):
+        """
+        Get the constrained module.
+
+        :return: The base distribution layer.
+        """
+        return self.base_layer
