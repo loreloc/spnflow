@@ -42,12 +42,12 @@ def run_experiment_power():
 
     model = RatSpn(**ratspn_kwargs)
     info = ratspn_experiment_info(ratspn_kwargs)
-    collect_results('power', info, model, LR_RAT, data_train, data_val, data_test)
+    collect_results('power', info, model, data_train, data_val, data_test, LR_RAT)
 
     for kwargs in flow_kwargs:
         model = RatSpnFlow(**ratspn_kwargs, **kwargs)
         info = ratspn_flow_experiment_info(kwargs)
-        collect_results('power', info, model, LR_FLOW, data_train, data_val, data_test)
+        collect_results('power', info, model, data_train, data_val, data_test, LR_FLOW)
 
 
 def run_experiment_gas():
@@ -74,12 +74,12 @@ def run_experiment_gas():
 
     model = RatSpn(**ratspn_kwargs)
     info = ratspn_experiment_info(ratspn_kwargs)
-    collect_results('gas', info, model, LR_RAT, data_train, data_val, data_test)
+    collect_results('gas', info, model, data_train, data_val, data_test, LR_RAT)
 
     for kwargs in flow_kwargs:
         model = RatSpnFlow(**ratspn_kwargs, **kwargs)
         info = ratspn_flow_experiment_info(kwargs)
-        collect_results('gas', info, model, LR_FLOW, data_train, data_val, data_test)
+        collect_results('gas', info, model, data_train, data_val, data_test, LR_FLOW)
 
 
 def run_experiment_hepmass():
@@ -106,12 +106,12 @@ def run_experiment_hepmass():
 
     model = RatSpn(**ratspn_kwargs)
     info = ratspn_experiment_info(ratspn_kwargs)
-    collect_results('hepmass', info, model, LR_RAT, data_train, data_val, data_test)
+    collect_results('hepmass', info, model, data_train, data_val, data_test, LR_RAT)
 
     for kwargs in flow_kwargs:
         model = RatSpnFlow(**ratspn_kwargs, **kwargs)
         info = ratspn_flow_experiment_info(kwargs)
-        collect_results('hepmass', info, model, LR_FLOW, data_train, data_val, data_test)
+        collect_results('hepmass', info, model, data_train, data_val, data_test, LR_FLOW)
 
 
 def run_experiment_miniboone():
@@ -138,12 +138,12 @@ def run_experiment_miniboone():
 
     model = RatSpn(**ratspn_kwargs)
     info = ratspn_experiment_info(ratspn_kwargs)
-    collect_results('miniboone', info, model, LR_RAT, data_train, data_val, data_test)
+    collect_results('miniboone', info, model, data_train, data_val, data_test, LR_RAT)
 
     for kwargs in flow_kwargs:
         model = RatSpnFlow(**ratspn_kwargs, **kwargs)
         info = ratspn_flow_experiment_info(kwargs)
-        collect_results('miniboone', info, model, LR_FLOW, data_train, data_val, data_test)
+        collect_results('miniboone', info, model, data_train, data_val, data_test, LR_FLOW)
 
 
 def run_experiment_bsds300():
@@ -170,15 +170,15 @@ def run_experiment_bsds300():
 
     model = RatSpn(**ratspn_kwargs)
     info = ratspn_experiment_info(ratspn_kwargs)
-    collect_results('bsds300', info, model, LR_RAT, data_train, data_val, data_test)
+    collect_results('bsds300', info, model, data_train, data_val, data_test, LR_RAT)
 
     for kwargs in flow_kwargs:
         model = RatSpnFlow(**ratspn_kwargs, **kwargs)
         info = ratspn_flow_experiment_info(kwargs)
-        collect_results('bsds300', info, model, LR_FLOW, data_train, data_val, data_test)
+        collect_results('bsds300', info, model, data_train, data_val, data_test, LR_FLOW)
 
 
-def collect_results(dataset, info, model, lr, data_train, data_val, data_test):
+def collect_results(dataset, info, model, data_train, data_val, data_test, lr):
     # Train the model
     history = torch_train_generative(model, data_train, data_val, torch.optim.Adam, lr, BATCH_SIZE, PATIENCE, EPOCHS)
 
