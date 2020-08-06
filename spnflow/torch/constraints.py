@@ -21,4 +21,5 @@ class ScaleClipper(torch.nn.Module):
         :param module: The module.
         """
         # Clip the scale parameter
-        module.scale.data.clamp_(self.epsilon)
+        with torch.no_grad():
+            module.scale.clamp_(self.epsilon)
