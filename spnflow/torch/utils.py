@@ -13,7 +13,8 @@ def torch_train_generative(
         batch_size=100,
         patience=30,
         epochs=1000,
-        device=None
+        device=None,
+        init_args={},
 ):
     """
     Train a Torch model by maximizing the log-likelihood.
@@ -27,7 +28,13 @@ def torch_train_generative(
     :param patience: The number of consecutive epochs to wait until no improvements of the validation loss occurs.
     :param epochs: The number of epochs.
     :param device: The device used for training. If it's None 'cuda:0' will be used, if available.
+    :param init_args: The parameters to pass to the initializers of the model.
     """
+    # Instantiate the train history
+    history = {
+        'train': [], 'validation': []
+    }
+
     # Get the device to use
     if device is None:
         device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -39,10 +46,8 @@ def torch_train_generative(
     # Move the model to the device
     model.to(device)
 
-    # Instantiate the train history
-    history = {
-        'train': [], 'validation': []
-    }
+    # Call the model initializer
+    model.apply_initializers(**init_args)
 
     # Setup the data loaders
     train_loader = torch.utils.data.DataLoader(data_train, batch_size=batch_size, shuffle=True)

@@ -5,6 +5,7 @@ from spnflow.torch.layers.ratspn import GaussianLayer, ProductLayer, SumLayer, R
 from spnflow.torch.layers.flows import CouplingLayer, AutoregressiveLayer, BatchNormLayer
 from spnflow.torch.layers.dgcspn import SpatialGaussianLayer, SpatialProductLayer, SpatialSumLayer, SpatialRootLayer
 from spnflow.torch.constraints import ScaleClipper
+from spnflow.torch.initializers import quantiles_initializer
 
 
 class RatSpn(torch.nn.Module):
@@ -101,6 +102,14 @@ class RatSpn(torch.nn.Module):
 
         # Forward through the root layer
         return self.root_layer(x)
+
+    def apply_initializers(self, **kwargs):
+        """
+        Apply the initializers specified by the model.
+
+        :param kwargs: The arguments to pass to the initializers of the model.
+        """
+        pass
 
     def apply_constraints(self):
         """
@@ -224,6 +233,14 @@ class RatSpnFlow(torch.nn.Module):
             inv_log_det_jacobian += ildj
         return self.ratspn(x) + inv_log_det_jacobian
 
+    def apply_initializers(self, **kwargs):
+        """
+        Apply the initializers specified by the model.
+
+        :param kwargs: The arguments to pass to the initializers of the model.
+        """
+        pass
+
     def apply_constraints(self):
         """
         Apply the constraints specified by the model.
@@ -240,6 +257,7 @@ class SpatialSpn(torch.nn.Module):
                  n_batch=8,
                  prod_channels=16,
                  sum_channels=8,
+                 quantiles_loc=True,
                  optimize_scale=True,
                  rand_state=None,
                  ):
@@ -250,6 +268,7 @@ class SpatialSpn(torch.nn.Module):
         :param n_batch: The number of output channels of the base layer.
         :param prod_channels: The number of output channels of spatial product layers.
         :param sum_channels: The number of output channels of spatial sum layers.
+        :param quantiles_loc: Whether to initialize the base distribution location parameters using data quantiles.
         :param optimize_scale: Whether to train scale and location jointly.
         :param rand_state: The random state used to initialize the spatial product layers weights.
         """
@@ -258,11 +277,12 @@ class SpatialSpn(torch.nn.Module):
         self.n_batch = n_batch
         self.prod_channels = prod_channels
         self.sum_channels = sum_channels
+        self.quantiles_loc = quantiles_loc
         self.optimize_scale = optimize_scale
         self.rand_state = rand_state
 
         # Instantiate the base layer
-        self.base_layer = SpatialGaussianLayer(self.in_size, self.n_batch, self.optimize_scale)
+        self.base_layer = SpatialGaussianLayer(self.in_size, self.n_batch, self.quantiles_loc, self.optimize_scale)
 
         # Instantiate the inner layers
         in_size = self.base_layer.output_size()
@@ -311,6 +331,16 @@ class SpatialSpn(torch.nn.Module):
 
         # Forward through the root layer
         return self.root_layer(x)
+
+    def apply_initializers(self, **kwargs):
+        """
+        Apply the initializers specified by the model.
+
+        :param kwargs: The arguments to pass to the initializers of the model.
+        """
+        # Initialize the location parameters of the base layer using some data, if specified
+        if self.quantiles_loc:
+            quantiles_initializer(self.base_layer.loc, **kwargs)
 
     def apply_constraints(self):
         """

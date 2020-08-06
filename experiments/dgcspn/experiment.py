@@ -34,7 +34,11 @@ def run_experiment_mnist():
 
 def collect_results(dataset, info, model, data_train, data_val, data_test, lr):
     # Train the model
-    history = torch_train_generative(model, data_train, data_val, torch.optim.Adam, lr, BATCH_SIZE, PATIENCE, EPOCHS)
+    history = torch_train_generative(
+        model, data_train, data_val,
+        torch.optim.Adam, lr, BATCH_SIZE, PATIENCE, EPOCHS,
+        init_args={'data': data_train}
+    )
 
     # Test the model
     (mu_ll, sigma_ll) = torch_test_generative(model, data_test, BATCH_SIZE)
@@ -60,7 +64,8 @@ def collect_results(dataset, info, model, data_train, data_val, data_test, lr):
 
 
 def dgcspn_experiment_info(kwargs):
-    return 'dgcspn'
+    return 'dgcspn-b' + str(kwargs['n_batch']) +\
+           '-p' + str(kwargs['prod_channels']) + '-s' + str(kwargs['sum_channels'])
 
 
 if __name__ == '__main__':

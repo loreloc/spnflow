@@ -4,24 +4,31 @@ import numpy as np
 
 class SpatialGaussianLayer(torch.nn.Module):
     """Spatial Gaussian input layer."""
-    def __init__(self, in_size, out_channels, optimize_scale):
+    def __init__(self, in_size, out_channels, zeros_loc, optimize_scale):
         """
         Initialize a Spatial Gaussian input layer.
 
         :param in_size: The size of the input tensor.
         :param out_channels: The number of output channels.
         :param optimize_scale: Whether to optimize scale and location jointly.
+        :param zeros_loc: Whether to initialize the location parameter with zeros.
         """
         super(SpatialGaussianLayer, self).__init__()
         self.in_size = in_size
         self.out_channels = out_channels
+        self.zeros_loc = zeros_loc
         self.optimize_scale = optimize_scale
 
         # Instantiate the location variable
         params_size = (self.out_channels, *self.in_size)
-        self.loc = torch.nn.Parameter(
-            torch.normal(0.0, 1e-1, size=params_size), requires_grad=True
-        )
+        if self.zeros_loc:
+            self.loc = torch.nn.Parameter(
+                torch.zeros(size=params_size), requires_grad=True
+            )
+        else:
+            self.loc = torch.nn.Parameter(
+                torch.normal(0.0, 1e-1, size=params_size), requires_grad=True
+            )
 
         # Instantiate the scale variable
         if self.optimize_scale:
