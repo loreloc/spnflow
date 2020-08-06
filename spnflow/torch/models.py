@@ -4,6 +4,7 @@ from spnflow.utils.region import RegionGraph
 from spnflow.torch.layers.ratspn import GaussianLayer, ProductLayer, SumLayer, RootLayer
 from spnflow.torch.layers.flows import CouplingLayer, AutoregressiveLayer, BatchNormLayer
 from spnflow.torch.layers.dgcspn import SpatialGaussianLayer, SpatialProductLayer, SpatialSumLayer, SpatialRootLayer
+from spnflow.torch.constraints import ScaleClipper
 
 
 class RatSpn(torch.nn.Module):
@@ -81,6 +82,9 @@ class RatSpn(torch.nn.Module):
         # Instantiate the root layer
         self.root_layer = RootLayer(in_groups, in_nodes, self.out_classes)
 
+        # Initialize the scale clipper to apply, if specified
+        self.scale_clipper = ScaleClipper() if self.optimize_scale else None
+
     def forward(self, x):
         """
         Call the model.
@@ -98,14 +102,13 @@ class RatSpn(torch.nn.Module):
         # Forward through the root layer
         return self.root_layer(x)
 
-    @property
-    def constrained_module(self):
+    def apply_constraints(self):
         """
-        Get the constrained module.
-
-        :return: The base distribution layer.
+        Apply the constraints specified by the model.
         """
-        return self.base_layer
+        # Apply the scale clipper to the base layer, if specified
+        if self.optimize_scale:
+            self.scale_clipper(self.base_layer)
 
 
 class RatSpnFlow(torch.nn.Module):
@@ -176,6 +179,9 @@ class RatSpnFlow(torch.nn.Module):
         else:
             raise NotImplementedError('Unknown normalizing flow named \'' + self.flow + '\'')
 
+        # Initialize the scale clipper to apply, if specified
+        self.scale_clipper = ScaleClipper() if self.optimize_scale else None
+
     def _build_real_nvp(self):
         # Build the normalizing flows layers
         self.flows = torch.nn.ModuleList()
@@ -218,14 +224,13 @@ class RatSpnFlow(torch.nn.Module):
             inv_log_det_jacobian += ildj
         return self.ratspn(x) + inv_log_det_jacobian
 
-    @property
-    def constrained_module(self):
+    def apply_constraints(self):
         """
-        Get the constrained module.
-
-        :return: The base distribution layer.
+        Apply the constraints specified by the model.
         """
-        return self.ratspn.base_layer
+        # Apply the scale clipper to the base layer, if specified
+        if self.optimize_scale:
+            self.scale_clipper(self.ratspn.base_layer)
 
 
 class SpatialSpn(torch.nn.Module):
@@ -287,6 +292,9 @@ class SpatialSpn(torch.nn.Module):
         # Instantiate the spatial root layer
         self.root_layer = SpatialRootLayer(in_size, out_channels=1)
 
+        # Initialize the scale clipper to apply, if specified
+        self.scale_clipper = ScaleClipper() if self.optimize_scale else None
+
     def forward(self, x):
         """
         Call the model.
@@ -304,11 +312,10 @@ class SpatialSpn(torch.nn.Module):
         # Forward through the root layer
         return self.root_layer(x)
 
-    @property
-    def constrained_module(self):
+    def apply_constraints(self):
         """
-        Get the constrained module.
-
-        :return: The base distribution layer.
+        Apply the constraints specified by the model.
         """
-        return self.base_layer
+        # Apply the scale clipper to the base layer, if specified
+        if self.optimize_scale:
+            self.scale_clipper(self.base_layer)

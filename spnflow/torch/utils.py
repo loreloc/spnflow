@@ -2,7 +2,6 @@ import time
 import torch
 import numpy as np
 from spnflow.torch.callbacks import EarlyStopping
-from spnflow.torch.constraints import ScaleClipper
 
 
 def torch_train_generative(
@@ -14,8 +13,21 @@ def torch_train_generative(
         batch_size=100,
         patience=30,
         epochs=1000,
-        device=None,
+        device=None
 ):
+    """
+    Train a Torch model by maximizing the log-likelihood.
+
+    :param model: The model to train.
+    :param data_train: The train data.
+    :param data_val: The validation data.
+    :param optimizer: The optimizer to use.
+    :param lr: The learning rate to use.
+    :param batch_size: The batch size for both train and validation.
+    :param patience: The number of consecutive epochs to wait until no improvements of the validation loss occurs.
+    :param epochs: The number of epochs.
+    :param device: The device used for training. If it's None 'cuda:0' will be used, if available.
+    """
     # Get the device to use
     if device is None:
         device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -42,10 +54,6 @@ def torch_train_generative(
     # Instantiate the early stopping callback
     early_stopping = EarlyStopping(patience=patience)
 
-    # Instantiate the scale constraint
-    constraint = ScaleClipper()
-    constraint.to(device)
-
     # Train the model
     for epoch in range(epochs):
         start_time = time.time()
@@ -60,8 +68,7 @@ def torch_train_generative(
             train_loss += loss.item()
             loss.backward()
             optimizer.step()
-            constraint(model.constrained_module)
-
+            model.apply_constraints()
         train_loss /= len(train_loader)
 
         # Compute the validation loss
@@ -75,7 +82,6 @@ def torch_train_generative(
             val_loss /= len(val_loader)
 
         end_time = time.time()
-
         history['train'].append(train_loss)
         history['validation'].append(val_loss)
         elapsed_time = end_time - start_time
@@ -96,6 +102,14 @@ def torch_test_generative(
         batch_size=100,
         device=None,
 ):
+    """
+    Test a Torch model by its log-likelihood.
+
+    :param model: The model to test.
+    :param data_test: The test data.
+    :param batch_size: The batch size for testing.
+    :param device: The device used for training. If it's None 'cuda:0' will be used, if available.
+    """
     # Get the device to use
     if device is None:
         device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
