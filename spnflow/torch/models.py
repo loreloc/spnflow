@@ -250,13 +250,14 @@ class RatSpnFlow(torch.nn.Module):
             self.scale_clipper(self.ratspn.base_layer)
 
 
-class SpatialSpn(torch.nn.Module):
+class DgcSpn(torch.nn.Module):
     """Deep Generalized Convolutional SPN model class."""
     def __init__(self,
                  in_size,
                  n_batch=8,
                  prod_channels=16,
                  sum_channels=8,
+                 n_pooling=0,
                  quantiles_loc=True,
                  optimize_scale=True,
                  rand_state=None,
@@ -268,31 +269,43 @@ class SpatialSpn(torch.nn.Module):
         :param n_batch: The number of output channels of the base layer.
         :param prod_channels: The number of output channels of spatial product layers.
         :param sum_channels: The number of output channels of spatial sum layers.
+        :param n_pooling: The number of initial pooling product layers.
         :param quantiles_loc: Whether to initialize the base distribution location parameters using data quantiles.
         :param optimize_scale: Whether to train scale and location jointly.
         :param rand_state: The random state used to initialize the spatial product layers weights.
         """
-        super(SpatialSpn, self).__init__()
+        super(DgcSpn, self).__init__()
         self.in_size = in_size
         self.n_batch = n_batch
         self.prod_channels = prod_channels
         self.sum_channels = sum_channels
+        self.n_pooling = n_pooling
         self.quantiles_loc = quantiles_loc
         self.optimize_scale = optimize_scale
         self.rand_state = rand_state
 
         # Instantiate the base layer
         self.base_layer = SpatialGaussianLayer(self.in_size, self.n_batch, self.quantiles_loc, self.optimize_scale)
+        in_size = self.base_layer.output_size()
+
+        # Add the initial pooling layers
+        self.layers = torch.nn.ModuleList()
+        for _ in range(self.n_pooling):
+            # Add a spatial product layer (but with strides in order to reduce the dimensionality)
+            self.layers.append(SpatialProductLayer(
+                in_size, self.prod_channels, (2, 2), padding='valid',
+                stride=(2, 2), dilation=(1, 1),
+                rand_state=self.rand_state
+            ))
+            in_size = self.layers[-1].output_size()
 
         # Instantiate the inner layers
-        in_size = self.base_layer.output_size()
-        depth = int(np.max(np.ceil(np.log2(self.in_size))).item())
-        self.layers = torch.nn.ModuleList()
+        depth = int(np.max(np.ceil(np.log2(in_size[1:]))).item())
         for k in range(depth):
-            # Add a spatial product layer
+            # Add a spatial product layer (with full padding and no strides)
             self.layers.append(SpatialProductLayer(
-                in_size, self.prod_channels, (2, 2),
-                padding='full', dilation=(2 ** k, 2 ** k),
+                in_size, self.prod_channels, (2, 2), padding='full',
+                stride=(1, 1), dilation=(2 ** k, 2 ** k),
                 rand_state=self.rand_state
             ))
             in_size = self.layers[-1].output_size()
@@ -303,8 +316,8 @@ class SpatialSpn(torch.nn.Module):
 
         # Add the last product layer
         self.layers.append(SpatialProductLayer(
-            in_size, self.prod_channels, (2, 2),
-            padding='final', dilation=(2 ** depth, 2 ** depth),
+            in_size, self.prod_channels, (2, 2), padding='final',
+            stride=(1, 1), dilation=(2 ** depth, 2 ** depth),
             rand_state=self.rand_state
         ))
         in_size = self.layers[-1].output_size()

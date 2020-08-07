@@ -4,7 +4,7 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from experiments.mnist import load_mnist_dataset
-from spnflow.torch.models import SpatialSpn
+from spnflow.torch.models import DgcSpn
 from spnflow.torch.utils import torch_train_generative, torch_test_generative
 
 EPOCHS = 1000
@@ -23,11 +23,25 @@ def run_experiment_mnist():
 
     # Set the parameters for the DGC-SPN
     dgcspn_kwargs = [
-        {'in_size': in_size, 'n_batch': 16, 'prod_channels': 32, 'sum_channels': 8, 'rand_state': rand_state},
+        {
+            'in_size': in_size, 'n_batch': 16,
+            'prod_channels': 32, 'sum_channels': 64, 'n_pooling': 2,
+            'rand_state': rand_state
+        },
+        {
+            'in_size': in_size, 'n_batch': 16,
+            'prod_channels': 32, 'sum_channels': 64, 'n_pooling': 1,
+            'rand_state': rand_state
+        },
+        {
+            'in_size': in_size, 'n_batch': 16,
+            'prod_channels': 32, 'sum_channels': 64, 'n_pooling': 0,
+            'rand_state': rand_state
+        },
     ]
 
     for kwargs in dgcspn_kwargs:
-        model = SpatialSpn(**kwargs)
+        model = DgcSpn(**kwargs)
         info = dgcspn_experiment_info(kwargs)
         collect_results('mnist', info, model, data_train, data_val, data_test, LR)
 
