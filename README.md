@@ -4,16 +4,9 @@
 # SPNFlow
 
 ## Abstract
-Sum-product networks (SPNs) are models that, under some constraints, guarantee tractability for probabilistic inference and sampling.
-Recent works show that it's possible to treat SPNs as multiple layers neural models with density distributions as input units and log-likelihoods as outputs.
-A lot of work have been done on normalizing flows as density estimators.
-Like sum-product networks, some normalizing flows guarantee tractability and have been successfully used to build efficient models for probabilistic inference.
-In this work I exploit the potentiality of normalizing flows combined with SPNs for both tractable and expressive density estimation.
-
-## Introduction
-**SPNFlow** is a python implementation of **Sum-Product Networks** (SPNs) learning and inference.
-It also contains an implementation of **Randomized and Tensorized SPNs** (RAT-SPNs) using PyTorch.
-In this repository there are also present novel models that combine **RAT-SPNs** and **Normalizing Flows** for tractable density estimation.
+SPNFlow is a Python library that implements probabilistic models such as various kinds of **Sum-Product Networks**,
+**Normalizing Flows** and their combinations for tractable probabilistic inference.
+Some models are implemented using **PyTorch** for fast training and inference on GPUs.
 
 ## Features
 - Inference algorithms for SPNs. [1] [2] [4]
@@ -21,7 +14,9 @@ In this repository there are also present novel models that combine **RAT-SPNs**
 - Optimization of the structure of SPNs. [4]
 - JSON I/O operations for SPNs. [4]
 - Implementation of RAT-SPN using PyTorch. [5]
-- Implementation of RAT-SPN combined with MAFs and RealNVP using PyTorch. [5] [6] [7] [8]
+- Implementation of MAFs and Real-NVPs using PyTorch. [6] [7] [8]
+- Implementation of Deep Generalized Convolutional SPNs (DGC-SPNs). [9]
+- Combination of normalizing flows and SPNs for very deep probabilistic models.
 
 ## Documentation
 The online documentation is hosted using Github Pages at [SPNFlow](https://loreloc.github.io/spnflow/).
@@ -30,6 +25,7 @@ The online documentation is hosted using Github Pages at [SPNFlow](https://lorel
 - [SPFlow](https://github.com/SPFlow/SPFlow)
 - [RAT-SPN](https://github.com/cambridge-mlg/RAT-SPN)
 - [MAF](https://github.com/gpapamak/maf)
+- [LibSPN-Keras](https://github.com/pronobis/libspn-keras)
 
 ## References
 1. On Theoretical Properties of Sum-Product Networks (Peharz et al.).
@@ -40,3 +36,4 @@ The online documentation is hosted using Github Pages at [SPNFlow](https://lorel
 6. Masked Autoregressive Flow for Density Estimation (Papamakarios et al.).
 7. Density Estimation using RealNVP (Dinh et al.).
 8. Normalizing Flows for Probabilistic Modeling and Inference (Papamakarios, Nalisnick et al.).
+9. Deep Generalized Convolutional Sum-Product Networks for Probabilistic Image Representations (Van de Wolfshaar and Pronobis).
