@@ -38,23 +38,24 @@ class RealNVP(AbstractProbabilisticModel):
     """Real Non-Volume-Preserving (RealNVP) normalizing flow model."""
     def __init__(self,
                  in_features,
+                 in_base=None,
                  n_flows=5,
                  batch_norm=True,
                  depth=1,
                  units=128,
                  activation=torch.nn.ReLU,
-                 base_dist=torch.distributions.Normal(0.0, 1.0),
                  ):
         """
         Initialize a RealNVP.
 
         :param in_features: The number of input features.
+        :param in_base: The input base distribution to use. If None it is the standard Normal distribution.
         :param n_flows: The number of sequential coupling flows.
         :param batch_norm: Whether to apply batch normalization after each coupling layer.
         :param depth: The number of hidden layers of flows conditioners.
         :param units: The number of hidden units per layer of flows conditioners.
         :param activation: The activation class to use for the flows conditioners hidden layers.
-        :param base_dist: The base distribution to use. Default is standard Normal distribution.
+
         """
         super(RealNVP, self).__init__()
         self.in_features = in_features
@@ -63,7 +64,12 @@ class RealNVP(AbstractProbabilisticModel):
         self.depth = depth
         self.units = units
         self.activation = activation
-        self.base_dist = base_dist
+
+        # Build the base distribution, if necessary
+        if in_base is None:
+            self.in_base = torch.distributions.Normal(0.0, 1.0)
+        else:
+            self.in_base = in_base
 
         # Build the coupling layers
         self.layers = torch.nn.ModuleList()
@@ -91,30 +97,31 @@ class RealNVP(AbstractProbabilisticModel):
         for layer in self.layers:
             x, ildj = layer(x)
             inv_log_det_jacobian += ildj
-        return self.base_dist.log_prob(x) + inv_log_det_jacobian
+        prior = self.in_base.log_prob(x)
+        return torch.sum(prior, dim=1) + inv_log_det_jacobian
 
 
 class MAF(AbstractProbabilisticModel):
     """Masked Autoregressive Flow (MAF) normalizing flow model."""
     def __init__(self,
                  in_features,
+                 in_base=None,
                  n_flows=5,
                  batch_norm=True,
                  depth=1,
                  units=128,
                  activation=torch.nn.ReLU,
-                 base_dist=torch.distributions.Normal(0.0, 1.0)
                  ):
         """
         Initialize a MAF.
 
         :param in_features: The number of input features.
+        :param in_base: The input base distribution to use. If None it is the standard Normal distribution.
         :param n_flows: The number of sequential autoregressive layers.
         :param batch_norm: Whether to apply batch normalization after each autoregressive layer.
         :param depth: The number of hidden layers of flows conditioners.
         :param units: The number of hidden units per layer of flows conditioners.
         :param activation: The activation class to use for the flows conditioners hidden layers.
-        :param base_dist: The base distribution to use. Default is standard Normal distribution.
         """
         super(MAF, self).__init__()
         self.in_features = in_features
@@ -123,7 +130,6 @@ class MAF(AbstractProbabilisticModel):
         self.depth = depth
         self.units = units
         self.activation = activation
-        self.base_dist = base_dist
 
         # Build the autoregressive layers
         self.layers = torch.nn.ModuleList()
@@ -321,13 +327,13 @@ class RatSpnFlow(AbstractProbabilisticModel):
         # Build the normalizing flow layers
         if self.flow == 'nvp':
             self.flows = RealNVP(
-                self.in_features, self.n_flows, self.batch_norm,
-                self.depth, self.units, self.activation, base_dist=self.ratspn
+                self.in_features, self.ratspn, self.n_flows,
+                self.batch_norm, self.depth, self.units, self.activation
             )
         elif self.flow == 'maf':
             self.flows = MAF(
-                self.in_features, self.n_flows, self.batch_norm,
-                self.depth, self.units, self.activation, base_dist=self.ratspn
+                self.in_features, self.ratspn, self.n_flows,
+                self.batch_norm, self.depth, self.units, self.activation
             )
         else:
             raise NotImplementedError('Unknown normalizing flow named \'' + self.flow + '\'')
