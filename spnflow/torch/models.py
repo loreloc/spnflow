@@ -1,3 +1,4 @@
+import abc
 import torch
 import numpy as np
 from spnflow.utils.region import RegionGraph
@@ -8,7 +9,152 @@ from spnflow.torch.constraints import ScaleClipper
 from spnflow.torch.initializers import quantiles_initializer
 
 
-class RatSpn(torch.nn.Module):
+class AbstractProbabilisticModel(abc.ABC, torch.nn.Module):
+    """Abstract class for deep probabilistic models."""
+    def __init__(self):
+        super(AbstractProbabilisticModel, self).__init__()
+
+    @abc.abstractmethod
+    def log_prob(self, x):
+        pass
+
+    def forward(self, x):
+        """
+        Call the model.
+
+        :param x: The inputs tensor.
+        :return: The output of the model.
+        """
+        return self.log_prob(x)
+
+    def apply_initializers(self, **kwargs):
+        pass
+
+    def apply_constraints(self):
+        pass
+
+
+class RealNVP(AbstractProbabilisticModel):
+    """Real Non-Volume-Preserving (RealNVP) normalizing flow model."""
+    def __init__(self,
+                 in_features,
+                 n_flows=5,
+                 batch_norm=True,
+                 depth=1,
+                 units=128,
+                 activation=torch.nn.ReLU,
+                 base_dist=torch.distributions.Normal(0.0, 1.0),
+                 ):
+        """
+        Initialize a RealNVP.
+
+        :param in_features: The number of input features.
+        :param n_flows: The number of sequential coupling flows.
+        :param batch_norm: Whether to apply batch normalization after each coupling layer.
+        :param depth: The number of hidden layers of flows conditioners.
+        :param units: The number of hidden units per layer of flows conditioners.
+        :param activation: The activation class to use for the flows conditioners hidden layers.
+        :param base_dist: The base distribution to use. Default is standard Normal distribution.
+        """
+        super(RealNVP, self).__init__()
+        self.in_features = in_features
+        self.n_flows = n_flows
+        self.batch_norm = batch_norm
+        self.depth = depth
+        self.units = units
+        self.activation = activation
+        self.base_dist = base_dist
+
+        # Build the coupling layers
+        self.layers = torch.nn.ModuleList()
+        reverse = False
+        for _ in range(self.n_flows):
+            self.layers.append(
+                CouplingLayer(self.in_features, self.depth, self.units, self.activation, reverse=reverse)
+            )
+
+            # Append batch normalization after each layer, if specified
+            if self.batch_norm:
+                self.layers.append(BatchNormLayer(self.in_features))
+
+            # Invert the input ordering
+            reverse = not reverse
+
+    def log_prob(self, x):
+        """
+        Compute the log-likelihood given complete evidence.
+
+        :param x: The inputs tensor.
+        :return: The output of the model.
+        """
+        inv_log_det_jacobian = 0.0
+        for layer in self.layers:
+            x, ildj = layer(x)
+            inv_log_det_jacobian += ildj
+        return self.base_dist.log_prob(x) + inv_log_det_jacobian
+
+
+class MAF(AbstractProbabilisticModel):
+    """Masked Autoregressive Flow (MAF) normalizing flow model."""
+    def __init__(self,
+                 in_features,
+                 n_flows=5,
+                 batch_norm=True,
+                 depth=1,
+                 units=128,
+                 activation=torch.nn.ReLU,
+                 base_dist=torch.distributions.Normal(0.0, 1.0)
+                 ):
+        """
+        Initialize a MAF.
+
+        :param in_features: The number of input features.
+        :param n_flows: The number of sequential autoregressive layers.
+        :param batch_norm: Whether to apply batch normalization after each autoregressive layer.
+        :param depth: The number of hidden layers of flows conditioners.
+        :param units: The number of hidden units per layer of flows conditioners.
+        :param activation: The activation class to use for the flows conditioners hidden layers.
+        :param base_dist: The base distribution to use. Default is standard Normal distribution.
+        """
+        super(MAF, self).__init__()
+        self.in_features = in_features
+        self.n_flows = n_flows
+        self.batch_norm = batch_norm
+        self.depth = depth
+        self.units = units
+        self.activation = activation
+        self.base_dist = base_dist
+
+        # Build the autoregressive layers
+        self.layers = torch.nn.ModuleList()
+        reverse = False
+        for _ in range(self.n_flows):
+            self.layers.append(
+                AutoregressiveLayer(self.in_features, self.depth, self.units, self.activation, reverse=reverse)
+            )
+
+            # Append batch normalization after each layer, if specified
+            if self.batch_norm:
+                self.layers.append(BatchNormLayer(self.in_features))
+
+            # Invert the input ordering
+            reverse = not reverse
+
+    def log_prob(self, x):
+        """
+        Compute the log-likelihood given complete evidence.
+
+        :param x: The inputs tensor.
+        :return: The output of the model.
+        """
+        inv_log_det_jacobian = 0.0
+        for layer in self.layers:
+            x, ildj = layer(x)
+            inv_log_det_jacobian += ildj
+        return self.base_dist.log_prob(x) + inv_log_det_jacobian
+
+
+class RatSpn(AbstractProbabilisticModel):
     """RAT-SPN model class."""
     def __init__(self,
                  in_features,
@@ -86,9 +232,9 @@ class RatSpn(torch.nn.Module):
         # Initialize the scale clipper to apply, if specified
         self.scale_clipper = ScaleClipper() if self.optimize_scale else None
 
-    def forward(self, x):
+    def log_prob(self, x):
         """
-        Call the model.
+        Compute the log-likelihood given complete evidence.
 
         :param x: The inputs tensor.
         :return: The output of the model.
@@ -103,14 +249,6 @@ class RatSpn(torch.nn.Module):
         # Forward through the root layer
         return self.root_layer(x)
 
-    def apply_initializers(self, **kwargs):
-        """
-        Apply the initializers specified by the model.
-
-        :param kwargs: The arguments to pass to the initializers of the model.
-        """
-        pass
-
     def apply_constraints(self):
         """
         Apply the constraints specified by the model.
@@ -120,7 +258,7 @@ class RatSpn(torch.nn.Module):
             self.scale_clipper(self.base_layer)
 
 
-class RatSpnFlow(torch.nn.Module):
+class RatSpnFlow(AbstractProbabilisticModel):
     """RAT-SPN base distribution improved with Normalizing Flows."""
     def __init__(self,
                  in_features,
@@ -182,64 +320,29 @@ class RatSpnFlow(torch.nn.Module):
 
         # Build the normalizing flow layers
         if self.flow == 'nvp':
-            self._build_real_nvp()
+            self.flows = RealNVP(
+                self.in_features, self.n_flows, self.batch_norm,
+                self.depth, self.units, self.activation, base_dist=self.ratspn
+            )
         elif self.flow == 'maf':
-            self._build_maf()
+            self.flows = MAF(
+                self.in_features, self.n_flows, self.batch_norm,
+                self.depth, self.units, self.activation, base_dist=self.ratspn
+            )
         else:
             raise NotImplementedError('Unknown normalizing flow named \'' + self.flow + '\'')
 
         # Initialize the scale clipper to apply, if specified
         self.scale_clipper = ScaleClipper() if self.optimize_scale else None
 
-    def _build_real_nvp(self):
-        # Build the normalizing flows layers
-        self.flows = torch.nn.ModuleList()
-        reverse = False
-        for _ in range(self.n_flows):
-            self.flows.append(
-                CouplingLayer(self.in_features, self.depth, self.units, self.activation, reverse=reverse)
-            )
-            if self.batch_norm:
-                self.flows.append(
-                    BatchNormLayer(self.in_features)
-                )
-            reverse = not reverse
-
-    def _build_maf(self):
-        # Build the normalizing flows layers
-        self.flows = torch.nn.ModuleList()
-        reverse = False
-        for _ in range(self.n_flows):
-            self.flows.append(
-                AutoregressiveLayer(self.in_features, self.depth, self.units, self.activation, reverse=reverse)
-            )
-            if self.batch_norm:
-                self.flows.append(
-                    BatchNormLayer(self.in_features)
-                )
-            reverse = not reverse
-
-    def forward(self, x):
+    def log_prob(self, x):
         """
-        Call the model.
+        Compute the log-likelihood given complete evidence.
 
         :param x: The inputs tensor.
         :return: The output of the model.
         """
-        # Compute the log-likelihood of the model given complete evidence
-        inv_log_det_jacobian = 0.0
-        for flow in self.flows:
-            x, ildj = flow(x)
-            inv_log_det_jacobian += ildj
-        return self.ratspn(x) + inv_log_det_jacobian
-
-    def apply_initializers(self, **kwargs):
-        """
-        Apply the initializers specified by the model.
-
-        :param kwargs: The arguments to pass to the initializers of the model.
-        """
-        pass
+        return self.flows(x)
 
     def apply_constraints(self):
         """
@@ -250,7 +353,7 @@ class RatSpnFlow(torch.nn.Module):
             self.scale_clipper(self.ratspn.base_layer)
 
 
-class DgcSpn(torch.nn.Module):
+class DgcSpn(AbstractProbabilisticModel):
     """Deep Generalized Convolutional SPN model class."""
     def __init__(self,
                  in_size,
@@ -328,9 +431,9 @@ class DgcSpn(torch.nn.Module):
         # Initialize the scale clipper to apply, if specified
         self.scale_clipper = ScaleClipper() if self.optimize_scale else None
 
-    def forward(self, x):
+    def log_prob(self, x):
         """
-        Call the model.
+        Compute the log-likelihood given complete evidence.
 
         :param x: The inputs tensor.
         :return: The output of the model.
