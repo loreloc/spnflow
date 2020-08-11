@@ -192,9 +192,9 @@ def run_experiment_miniboone():
     ]
 
     # RAT-SPN experiment
-    #model = RatSpn(n_features, **ratspn_kwargs)
-    #info = ratspn_experiment_info(ratspn_kwargs)
-    #collect_results('miniboone', info, model, data_train, data_val, data_test, LR_RAT)
+    model = RatSpn(n_features, **ratspn_kwargs)
+    info = ratspn_experiment_info(ratspn_kwargs)
+    collect_results('miniboone', info, model, data_train, data_val, data_test, LR_RAT)
 
     # RealNVP experiments
     for kwargs in flow_kwargs:

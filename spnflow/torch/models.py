@@ -131,6 +131,12 @@ class MAF(AbstractProbabilisticModel):
         self.units = units
         self.activation = activation
 
+        # Build the base distribution, if necessary
+        if in_base is None:
+            self.in_base = torch.distributions.Normal(0.0, 1.0)
+        else:
+            self.in_base = in_base
+
         # Build the autoregressive layers
         self.layers = torch.nn.ModuleList()
         reverse = False
@@ -157,7 +163,8 @@ class MAF(AbstractProbabilisticModel):
         for layer in self.layers:
             x, ildj = layer(x)
             inv_log_det_jacobian += ildj
-        return self.base_dist.log_prob(x) + inv_log_det_jacobian
+        prior = self.in_base.log_prob(x)
+        return torch.sum(prior, dim=1) + inv_log_det_jacobian
 
 
 class RatSpn(AbstractProbabilisticModel):
