@@ -59,6 +59,9 @@ class GaussianLayer(torch.nn.Module):
         # Instantiate the multi-batch normal distribution
         self.distribution = torch.distributions.Normal(self.loc, self.scale)
 
+        # Initialize the marginalization constant
+        self.register_buffer('zero', torch.zeros(1))
+
     def forward(self, x):
         """
         Execute the layer on some inputs.
@@ -67,8 +70,10 @@ class GaussianLayer(torch.nn.Module):
         :return: The log likelihood of each distribution leaf.
         """
         # Gather the inputs and compute the log-likelihoods
+        # Also, marginalize random variables (denoted with NaNs)
         x = torch.unsqueeze(x[:, self.mask], dim=2)
         x = self.distribution.log_prob(x)
+        x = torch.where(torch.isnan(x), self.zero, x)
         if self.pad > 0:
             x = x * self.pad_mask
         return torch.sum(x, dim=-1)

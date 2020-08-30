@@ -9,23 +9,14 @@ from spnflow.torch.constraints import ScaleClipper
 from spnflow.torch.initializers import quantiles_initializer
 
 
-class AbstractProbabilisticModel(abc.ABC, torch.nn.Module):
+class AbstractModel(abc.ABC, torch.nn.Module):
     """Abstract class for deep probabilistic models."""
     def __init__(self):
-        super(AbstractProbabilisticModel, self).__init__()
+        super(AbstractModel, self).__init__()
 
     @abc.abstractmethod
-    def log_prob(self, x):
-        pass
-
     def forward(self, x):
-        """
-        Call the model.
-
-        :param x: The inputs tensor.
-        :return: The output of the model.
-        """
-        return self.log_prob(x)
+        pass
 
     def apply_initializers(self, **kwargs):
         pass
@@ -34,7 +25,7 @@ class AbstractProbabilisticModel(abc.ABC, torch.nn.Module):
         pass
 
 
-class RealNVP(AbstractProbabilisticModel):
+class RealNVP(AbstractModel):
     """Real Non-Volume-Preserving (RealNVP) normalizing flow model."""
     def __init__(self,
                  in_features,
@@ -86,7 +77,7 @@ class RealNVP(AbstractProbabilisticModel):
             # Invert the input ordering
             reverse = not reverse
 
-    def log_prob(self, x):
+    def forward(self, x):
         """
         Compute the log-likelihood given complete evidence.
 
@@ -101,7 +92,7 @@ class RealNVP(AbstractProbabilisticModel):
         return torch.sum(prior, dim=1) + inv_log_det_jacobian
 
 
-class MAF(AbstractProbabilisticModel):
+class MAF(AbstractModel):
     """Masked Autoregressive Flow (MAF) normalizing flow model."""
     def __init__(self,
                  in_features,
@@ -152,7 +143,7 @@ class MAF(AbstractProbabilisticModel):
             # Invert the input ordering
             reverse = not reverse
 
-    def log_prob(self, x):
+    def forward(self, x):
         """
         Compute the log-likelihood given complete evidence.
 
@@ -167,7 +158,7 @@ class MAF(AbstractProbabilisticModel):
         return torch.sum(prior, dim=1) + inv_log_det_jacobian
 
 
-class RatSpn(AbstractProbabilisticModel):
+class RatSpn(AbstractModel):
     """RAT-SPN model class."""
     def __init__(self,
                  in_features,
@@ -245,9 +236,10 @@ class RatSpn(AbstractProbabilisticModel):
         # Initialize the scale clipper to apply, if specified
         self.scale_clipper = ScaleClipper() if self.optimize_scale else None
 
-    def log_prob(self, x):
+    def forward(self, x):
         """
-        Compute the log-likelihood given complete evidence.
+        Compute the log-likelihood given some evidence.
+        Random variables can be marginalized using NaN values.
 
         :param x: The inputs tensor.
         :return: The output of the model.
@@ -271,7 +263,7 @@ class RatSpn(AbstractProbabilisticModel):
             self.scale_clipper(self.base_layer)
 
 
-class RatSpnFlow(AbstractProbabilisticModel):
+class RatSpnFlow(AbstractModel):
     """RAT-SPN base distribution improved with Normalizing Flows."""
     def __init__(self,
                  in_features,
@@ -348,7 +340,7 @@ class RatSpnFlow(AbstractProbabilisticModel):
         # Initialize the scale clipper to apply, if specified
         self.scale_clipper = ScaleClipper() if self.optimize_scale else None
 
-    def log_prob(self, x):
+    def forward(self, x):
         """
         Compute the log-likelihood given complete evidence.
 
@@ -366,7 +358,7 @@ class RatSpnFlow(AbstractProbabilisticModel):
             self.scale_clipper(self.ratspn.base_layer)
 
 
-class DgcSpn(AbstractProbabilisticModel):
+class DgcSpn(AbstractModel):
     """Deep Generalized Convolutional SPN model class."""
     def __init__(self,
                  in_size,
@@ -444,9 +436,10 @@ class DgcSpn(AbstractProbabilisticModel):
         # Initialize the scale clipper to apply, if specified
         self.scale_clipper = ScaleClipper() if self.optimize_scale else None
 
-    def log_prob(self, x):
+    def forward(self, x):
         """
-        Compute the log-likelihood given complete evidence.
+        Compute the log-likelihood given some evidence.
+        Random variables can be marginalized using NaN values.
 
         :param x: The inputs tensor.
         :return: The output of the model.

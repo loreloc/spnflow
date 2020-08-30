@@ -43,6 +43,9 @@ class SpatialGaussianLayer(torch.nn.Module):
         # Instantiate the multi-batch normal distribution
         self.distribution = torch.distributions.Normal(self.loc, self.scale)
 
+        # Initialize the marginalization constant
+        self.register_buffer('zero', torch.zeros(1))
+
     def forward(self, x):
         """
         Evaluate the layer given some inputs.
@@ -50,9 +53,13 @@ class SpatialGaussianLayer(torch.nn.Module):
         :param x: The inputs.
         :return: The tensor result of the layer.
         """
-        # Compute the log-likelihoods (assume independence between channels of the same pixel random variables)
+        # Compute the log-likelihoods
+        # This implementation assumes independence between channels of the same pixel random variables
+        # Also, marginalize random variables (denoted with NaNs)
         x = torch.unsqueeze(x, dim=1)
-        return torch.sum(self.distribution.log_prob(x), dim=2)
+        x = self.distribution.log_prob(x)
+        x = torch.where(torch.isnan(x), self.zero, x)
+        return torch.sum(x, dim=2)
 
     @property
     def in_channels(self):
