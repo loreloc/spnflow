@@ -18,6 +18,10 @@ class AbstractModel(abc.ABC, torch.nn.Module):
     def forward(self, x):
         pass
 
+    @abc.abstractmethod
+    def sample(self, n_samples):
+        pass
+
     def apply_initializers(self, **kwargs):
         pass
 
@@ -40,7 +44,7 @@ class RealNVP(AbstractModel):
         Initialize a RealNVP.
 
         :param in_features: The number of input features.
-        :param in_base: The input base distribution to use. If None it is the standard Normal distribution.
+        :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         :param n_flows: The number of sequential coupling flows.
         :param batch_norm: Whether to apply batch normalization after each coupling layer.
         :param depth: The number of hidden layers of flows conditioners.
@@ -86,10 +90,22 @@ class RealNVP(AbstractModel):
         """
         inv_log_det_jacobian = 0.0
         for layer in self.layers:
-            x, ildj = layer(x)
+            x, ildj = layer.inverse(x)
             inv_log_det_jacobian += ildj
         prior = self.in_base.log_prob(x)
         return torch.sum(prior, dim=1) + inv_log_det_jacobian
+
+    def sample(self, n_samples):
+        """
+        Sample some values from the modeled distribution.
+
+        :param n_samples: The number of samples.
+        :return: The samples.
+        """
+        x = self.in_base.sample([n_samples, self.in_features])
+        for layer in reversed(self.layers):
+            x, ldj = layer.forward(x)
+        return x
 
 
 class MAF(AbstractModel):
@@ -107,7 +123,7 @@ class MAF(AbstractModel):
         Initialize a MAF.
 
         :param in_features: The number of input features.
-        :param in_base: The input base distribution to use. If None it is the standard Normal distribution.
+        :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         :param n_flows: The number of sequential autoregressive layers.
         :param batch_norm: Whether to apply batch normalization after each autoregressive layer.
         :param depth: The number of hidden layers of flows conditioners.
@@ -152,10 +168,22 @@ class MAF(AbstractModel):
         """
         inv_log_det_jacobian = 0.0
         for layer in self.layers:
-            x, ildj = layer(x)
+            x, ildj = layer.inverse(x)
             inv_log_det_jacobian += ildj
         prior = self.in_base.log_prob(x)
         return torch.sum(prior, dim=1) + inv_log_det_jacobian
+
+    def sample(self, n_samples):
+        """
+        Sample some values from the modeled distribution.
+
+        :param n_samples: The number of samples.
+        :return: The samples.
+        """
+        x = self.in_base.sample([n_samples, self.in_features])
+        for layer in reversed(self.layers):
+            x, ldj = layer.forward(x)
+        return x
 
 
 class RatSpn(AbstractModel):

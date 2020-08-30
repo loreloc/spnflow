@@ -59,33 +59,61 @@ class CouplingLayer(torch.nn.Module):
         out_features = (self.in_features - in_cond_features) * 2
         self.layers.append(torch.nn.Linear(in_features, out_features))
 
-    def forward(self, x):
+    def inverse(self, x):
         """
-        Evaluate the layer given some inputs.
+        Evaluate the layer given some inputs (backward mode).
 
         :param x: The inputs.
         :return: The tensor result of the layer.
         """
         # Split the input
         if self.reverse:
-            v, u = torch.chunk(x, chunks=2, dim=1)
+            x1, x0 = torch.chunk(x, chunks=2, dim=1)
         else:
-            u, v = torch.chunk(x, chunks=2, dim=1)
+            x0, x1 = torch.chunk(x, chunks=2, dim=1)
 
         # Get the parameters and apply the affine transformation
-        z = v
+        z = x1
         for layer in self.layers:
             z = layer(z)
         mu, sigma = torch.chunk(z, chunks=2, dim=1)
-        u = (u - mu) * torch.exp(-sigma)
+        x0 = (x0 - mu) * torch.exp(-sigma)
         inv_log_det_jacobian = -torch.sum(sigma, dim=1, keepdim=True)
 
         # Concatenate the data
         if self.reverse:
-            x = torch.cat((v, u), dim=1)
+            u = torch.cat((x1, x0), dim=1)
         else:
-            x = torch.cat((u, v), dim=1)
-        return x, inv_log_det_jacobian
+            u = torch.cat((x0, x1), dim=1)
+        return u, inv_log_det_jacobian
+
+    def forward(self, u):
+        """
+        Evaluate the layer given some inputs (forward mode).
+
+        :param u: The inputs.
+        :return: The tensor result of the layer.
+        """
+        # Split the input
+        if self.reverse:
+            u1, u0 = torch.chunk(u, chunks=2, dim=1)
+        else:
+            u0, u1 = torch.chunk(u, chunks=2, dim=1)
+
+        # Get the parameters and apply the affine transformation (inverse mode)
+        z = u1
+        for layer in self.layers:
+            z = layer(z)
+        mu, sigma = torch.chunk(z, chunks=2, dim=1)
+        u0 = u0 * torch.exp(sigma) + mu
+        log_det_jacobian = torch.sum(sigma, dim=1, keepdim=True)
+
+        # Concatenate the data
+        if self.reverse:
+            x = torch.cat((u1, u0), dim=1)
+        else:
+            x = torch.cat((u0, u1), dim=1)
+        return x, log_det_jacobian
 
 
 class AutoregressiveLayer(torch.nn.Module):
@@ -121,9 +149,9 @@ class AutoregressiveLayer(torch.nn.Module):
         out_features = self.in_features * 2
         self.layers.append(MaskedLinear(in_features, out_features, np.tile(masks[-1], reps=(2, 1))))
 
-    def forward(self, x):
+    def inverse(self, x):
         """
-        Evaluate the layer given some inputs.
+        Evaluate the layer given some inputs (backward mode).
 
         :param x: The inputs.
         :return: The tensor result of the layer.
@@ -133,9 +161,36 @@ class AutoregressiveLayer(torch.nn.Module):
         for layer in self.layers:
             z = layer(z)
         mu, sigma = torch.chunk(z, chunks=2, dim=1)
-        x = (x - mu) * torch.exp(-sigma)
+        u = (x - mu) * torch.exp(-sigma)
         inv_log_det_jacobian = -torch.sum(sigma, dim=1, keepdim=True)
-        return x, inv_log_det_jacobian
+        return u, inv_log_det_jacobian
+
+    def forward(self, u):
+        """
+        Evaluate the layer given some inputs (forward mode).
+
+        :param u: The inputs.
+        :return: The tensor result of the layer.
+        """
+        # Initialize z arbitrarily
+        x = torch.zeros_like(u)
+        log_det_jacobian = torch.zeros_like(u)
+
+        # This requires K iterations where K is the number of features
+        ordering = range(self.in_features)
+        if self.reverse:
+            ordering = reversed(ordering)
+
+        # Get the parameters and apply the affine transformation (inverse mode)
+        for i in ordering:
+            z = x
+            for layer in self.layers:
+                z = layer(z)
+            mu, sigma = torch.chunk(z, chunks=2, dim=1)
+            x[:, i] = u[:, i] * torch.exp(sigma[:, i]) + mu[:, i]
+            log_det_jacobian[:, i] = sigma[:, i]
+        log_det_jacobian = torch.sum(log_det_jacobian, dim=1, keepdim=True)
+        return x, log_det_jacobian
 
     def _create_masks(self):
         """
@@ -188,9 +243,9 @@ class BatchNormLayer(torch.nn.Module):
         self.register_buffer('running_var', torch.ones(self.in_features))
         self.register_buffer('running_mean', torch.zeros(self.in_features))
 
-    def forward(self, x):
+    def inverse(self, x):
         """
-        Evaluate the layer given some inputs.
+        Evaluate the layer given some inputs (backward mode).
 
         :param x: The inputs.
         :return: The tensor result of the layer.
@@ -210,8 +265,27 @@ class BatchNormLayer(torch.nn.Module):
 
         # Apply the transformation
         var = var + self.epsilon
-        x = (x - mean) / torch.sqrt(var)
-        x = x * torch.exp(self.weight) + self.bias
+        u = (x - mean) / torch.sqrt(var)
+        u = u * torch.exp(self.weight) + self.bias
         inv_log_det_jacobian = torch.sum(self.weight - 0.5 * torch.log(var), dim=0, keepdim=True)
 
-        return x, inv_log_det_jacobian
+        return u, inv_log_det_jacobian
+
+    def forward(self, u):
+        """
+        Evaluate the layer given some inputs (forward mode).
+
+        :param u: The inputs.
+        :return: The tensor result of the layer.
+        """
+        # Get the running parameters as batch mean and variance
+        mean = self.running_mean
+        var = self.running_var
+
+        # Apply the transformation
+        var = var + self.epsilon
+        x = (u - self.bias) * torch.exp(-self.weight)
+        x = x * torch.sqrt(var) + mean
+        log_det_jacobian = torch.sum(-self.weight + 0.5 * torch.log(var), dim=0, keepdim=True)
+
+        return u, log_det_jacobian
