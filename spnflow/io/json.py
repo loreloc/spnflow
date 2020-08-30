@@ -1,6 +1,6 @@
 import json
-from spnflow.structure.leaf import *
 from spnflow.structure.node import Sum, Mul, assign_ids
+from spnflow.structure.leaf import Leaf, Bernoulli, Multinomial, Poisson, Isotonic, Uniform, Gaussian, Gamma
 
 
 DistributionMapper = {
