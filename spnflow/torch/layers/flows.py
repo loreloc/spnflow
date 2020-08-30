@@ -288,4 +288,4 @@ class BatchNormLayer(torch.nn.Module):
         x = x * torch.sqrt(var) + mean
         log_det_jacobian = torch.sum(-self.weight + 0.5 * torch.log(var), dim=0, keepdim=True)
 
-        return u, log_det_jacobian
+        return x, log_det_jacobian
