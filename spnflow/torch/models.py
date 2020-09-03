@@ -18,6 +18,12 @@ class AbstractModel(abc.ABC, torch.nn.Module):
     def forward(self, x):
         pass
 
+    @torch.no_grad()
+    @abc.abstractmethod
+    def mpe(self, x):
+        pass
+
+    @torch.no_grad()
     @abc.abstractmethod
     def sample(self, n_samples):
         pass
@@ -33,23 +39,23 @@ class RealNVP(AbstractModel):
     """Real Non-Volume-Preserving (RealNVP) normalizing flow model."""
     def __init__(self,
                  in_features,
-                 in_base=None,
                  n_flows=5,
                  batch_norm=True,
                  depth=1,
                  units=128,
                  activation=torch.nn.ReLU,
+                 in_base=None,
                  ):
         """
         Initialize a RealNVP.
 
         :param in_features: The number of input features.
-        :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         :param n_flows: The number of sequential coupling flows.
         :param batch_norm: Whether to apply batch normalization after each coupling layer.
         :param depth: The number of hidden layers of flows conditioners.
         :param units: The number of hidden units per layer of flows conditioners.
         :param activation: The activation class to use for the flows conditioners hidden layers.
+        :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
 
         """
         super(RealNVP, self).__init__()
@@ -95,6 +101,11 @@ class RealNVP(AbstractModel):
         prior = self.in_base.log_prob(x)
         return torch.sum(prior, dim=1) + inv_log_det_jacobian
 
+    @torch.no_grad
+    def mpe(self, x):
+        raise NotImplementedError('Maximum at posteriori estimation is not implemented for RealNVPs')
+
+    @torch.no_grad()
     def sample(self, n_samples):
         """
         Sample some values from the modeled distribution.
@@ -112,23 +123,23 @@ class MAF(AbstractModel):
     """Masked Autoregressive Flow (MAF) normalizing flow model."""
     def __init__(self,
                  in_features,
-                 in_base=None,
                  n_flows=5,
                  batch_norm=True,
                  depth=1,
                  units=128,
                  activation=torch.nn.ReLU,
+                 in_base=None,
                  ):
         """
         Initialize a MAF.
 
         :param in_features: The number of input features.
-        :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         :param n_flows: The number of sequential autoregressive layers.
         :param batch_norm: Whether to apply batch normalization after each autoregressive layer.
         :param depth: The number of hidden layers of flows conditioners.
         :param units: The number of hidden units per layer of flows conditioners.
         :param activation: The activation class to use for the flows conditioners hidden layers.
+        :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         """
         super(MAF, self).__init__()
         self.in_features = in_features
@@ -173,6 +184,11 @@ class MAF(AbstractModel):
         prior = self.in_base.log_prob(x)
         return torch.sum(prior, dim=1) + inv_log_det_jacobian
 
+    @torch.no_grad
+    def mpe(self, x):
+        raise NotImplementedError('Maximum at posteriori estimation is not implemented for RealNVPs')
+
+    @torch.no_grad()
     def sample(self, n_samples):
         """
         Sample some values from the modeled distribution.
@@ -236,11 +252,7 @@ class RatSpn(AbstractModel):
 
         # Instantiate the base distributions layer
         self.base_layer = GaussianLayer(
-            self.in_features,
-            self.n_batch,
-            self.rg_layers[0],
-            self.rg_depth,
-            self.optimize_scale
+            self.in_features, self.n_batch, self.rg_layers[0], self.rg_depth, self.optimize_scale
         )
 
         # Alternate between product and sum layer
@@ -281,6 +293,64 @@ class RatSpn(AbstractModel):
 
         # Forward through the root layer
         return self.root_layer(x)
+
+    @torch.no_grad()
+    def mpe(self, x, y=None):
+        """
+        Compute the maximum at posteriori estimation.
+        Random variables can be marginalized using NaN values.
+
+        :param x: The inputs tensor.
+        :param y: The target classes tensor. It can be None for unlabeled maximum at posteriori estimation.
+        :return: The output of the model.
+        """
+        lls = []
+        inputs = x
+
+        # Compute the base distributions log-likelihoods
+        x = self.base_layer(x)
+
+        # Compute in forward mode and gather the inner log-likelihoods
+        for layer in self.layers:
+            lls.append(x)
+            x = layer(x)
+
+        # Compute in forward mode through the root layer and get the class index
+        y = y if y else torch.argmax(self.root_layer(x), axis=1)
+
+        # Get the first partitions and offset indices pair
+        idx_partition, idx_offset = self.root_layer.mpe(x, y)
+
+        # Compute in top-down mode through the inner layers
+        rev_lls = list(reversed(lls))
+        rev_layers = list(reversed(self.layers))
+        for layer, ll in zip(rev_layers, rev_lls):
+            idx_partition, idx_offset = layer.mpe(ll, idx_partition, idx_offset)
+
+        # Compute the maximum at posteriori inference at the base layer
+        return self.base_layer.mpe(inputs, idx_partition, idx_offset)
+
+    @torch.no_grad()
+    def sample(self, n_samples, y=None):
+        """
+        Sample some values from the modeled distribution.
+
+        :param n_samples: The number of samples.
+        :param y: The target classes. It can be None for unlabeled and uniform sampling.
+        :return: The samples.
+        """
+        # Sample the target classes uniformly, if not specified
+        y = y if y else torch.randint(self.out_classes, [n_samples])
+
+        # Get the first partitions and offset indices pair
+        idx_partition, idx_offset = self.root_layer.sample(n_samples, y)
+
+        # Compute in top-down mode through the inner layers
+        for layer in reversed(self.layers):
+            idx_partition, idx_offset = layer.sample(idx_partition, idx_offset)
+
+        # Sample at the base layer
+        return self.base_layer.sample(idx_partition, idx_offset)
 
     def apply_constraints(self):
         """
@@ -345,25 +415,20 @@ class RatSpnFlow(AbstractModel):
 
         # Build the RAT-SPN that models the base distribution
         self.ratspn = RatSpn(
-            self.in_features, 1,
-            self.rg_depth, self.rg_repetitions,
-            self.n_batch, self.n_sum,
-            self.dropout, self.optimize_scale, self.rand_state
+            self.in_features, 1, self.rg_depth, self.rg_repetitions, self.n_batch, self.n_sum, self.dropout,
+            self.optimize_scale, self.rand_state
         )
 
         # Build the normalizing flow layers
         if self.flow == 'nvp':
-            self.flows = RealNVP(
-                self.in_features, self.ratspn, self.n_flows,
-                self.batch_norm, self.depth, self.units, self.activation
-            )
+            flow_class = RealNVP
         elif self.flow == 'maf':
-            self.flows = MAF(
-                self.in_features, self.ratspn, self.n_flows,
-                self.batch_norm, self.depth, self.units, self.activation
-            )
+            flow_class = MAF
         else:
             raise NotImplementedError('Unknown normalizing flow named \'' + self.flow + '\'')
+        self.flows = flow_class(
+            self.in_features, self.n_flows, self.batch_norm, self.depth, self.units, self.activation, self.ratspn
+        )
 
         # Initialize the scale clipper to apply, if specified
         self.scale_clipper = ScaleClipper() if self.optimize_scale else None
@@ -376,6 +441,20 @@ class RatSpnFlow(AbstractModel):
         :return: The output of the model.
         """
         return self.flows(x)
+
+    @torch.no_grad
+    def mpe(self, x):
+        raise NotImplementedError('Maximum at posteriori estimation is not implemented for RatSpnFlows')
+
+    @torch.no_grad
+    def sample(self, n_samples):
+        """
+        Sample some values from the modeled distribution.
+
+        :param n_samples: The number of samples.
+        :return: The samples.
+        """
+        return self.flows.sample(n_samples)
 
     def apply_constraints(self):
         """
@@ -464,7 +543,7 @@ class DgcSpn(AbstractModel):
         # Initialize the scale clipper to apply, if specified
         self.scale_clipper = ScaleClipper() if self.optimize_scale else None
 
-    def forward(self, x):
+    def log_prob(self, x):
         """
         Compute the log-likelihood given some evidence.
         Random variables can be marginalized using NaN values.
