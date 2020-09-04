@@ -14,6 +14,9 @@ class AbstractModel(abc.ABC, torch.nn.Module):
     def __init__(self):
         super(AbstractModel, self).__init__()
 
+    def log_prob(self, x):
+        return self(x)
+
     @abc.abstractmethod
     def forward(self, x):
         pass
