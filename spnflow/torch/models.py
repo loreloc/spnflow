@@ -120,9 +120,8 @@ class RealNVP(AbstractModel):
         """
         # Sample from the base distribution
         if isinstance(self.in_base, torch.distributions.Distribution):
-            x = self.in_base.sample([n_samples])
-        else:
-            x = self.in_base.sample(n_samples)
+            n_samples = [n_samples]
+        x = self.in_base.sample(n_samples)
 
         # Apply the normalizing flows transformations
         for layer in reversed(self.layers):
@@ -211,9 +210,8 @@ class MAF(AbstractModel):
         """
         # Sample from the base distribution
         if isinstance(self.in_base, torch.distributions.Distribution):
-            x = self.in_base.sample([n_samples])
-        else:
-            x = self.in_base.sample(n_samples)
+            n_samples = [n_samples]
+        x = self.in_base.sample(n_samples)
 
         # Apply the normalizing flows transformations
         for layer in reversed(self.layers):
