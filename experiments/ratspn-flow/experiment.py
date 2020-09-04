@@ -2,12 +2,16 @@ import os
 import sys
 import torch
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from experiments.power import load_power_dataset
 from experiments.gas import load_gas_dataset
 from experiments.hepmass import load_hepmass_dataset
 from experiments.miniboone import load_miniboone_dataset
 from experiments.bsds300 import load_bsds300_dataset
+from experiments.mnist import load_mnist_dataset
+from experiments.mnist import to_image as mnist_to_image
+from experiments.mnist import plot_image as mnist_plot_image
 from spnflow.torch.models import RealNVP, MAF, RatSpn, RatSpnFlow
 from spnflow.torch.utils import torch_train_generative, torch_test_generative
 
@@ -17,6 +21,8 @@ PATIENCE = 30
 LR_FLOW = 1e-3
 LR_RAT = 5e-4
 LR_RAT_FLOW = 1e-4
+N_SAMPLES = 100
+N_SAMPLES_IMAGE = (8, 8)
 
 
 def run_experiment_power():
@@ -274,6 +280,62 @@ def run_experiment_bsds300():
         collect_results('bsds300', info, model, data_train, data_val, data_test, LR_RAT_FLOW)
 
 
+def run_experiment_mnist():
+    # Instantiate a random state, used for reproducibility
+    rand_state = np.random.RandomState(42)
+
+    # Load the MNIST dataset
+    data_train, data_val, data_test = load_mnist_dataset(rand_state)
+    _, n_features = data_train.shape
+
+    # Set the parameters for the RAT-SPNs
+    ratspn_kwargs = {
+        'rg_depth': 3, 'rg_repetitions': 16, 'n_batch': 16, 'n_sum': 16, 'rand_state': rand_state
+    }
+
+    # Set the parameters for the normalizing flows conditioners
+    flow_kwargs = [
+        {'n_flows':  5, 'units': 1024, 'activation': torch.nn.ReLU},
+        {'n_flows': 10, 'units': 1024, 'activation': torch.nn.ReLU},
+    ]
+
+    # RAT-SPN experiment
+    model = RatSpn(n_features, **ratspn_kwargs)
+    info = ratspn_experiment_info(ratspn_kwargs)
+    collect_results('mnist', info, model, data_train, data_val, data_test, LR_RAT)
+    collect_samples('mnist', info, model, mnist_to_image, mnist_plot_image)
+
+    # RealNVP experiments
+    for kwargs in flow_kwargs:
+        model = RealNVP(n_features, **kwargs)
+        info = nvp_experiment_info(kwargs)
+        collect_results('mnist', info, model, data_train, data_val, data_test, LR_FLOW)
+        collect_samples('mnist', info, model, mnist_to_image, mnist_plot_image)
+
+    # MAF experiments
+    for kwargs in flow_kwargs:
+        model = MAF(n_features, **kwargs)
+        info = maf_experiment_info(kwargs)
+        collect_results('mnist', info, model, data_train, data_val, data_test, LR_FLOW)
+        collect_samples('mnist', info, model, mnist_to_image, mnist_plot_image)
+
+    # RAT-SPN + RealNVP experiments
+    for kwargs in flow_kwargs:
+        kwargs = {**ratspn_kwargs, **kwargs}
+        model = RatSpnFlow(n_features, flow='nvp', **kwargs)
+        info = ratspn_nvp_experiment_info(kwargs)
+        collect_results('mnist', info, model, data_train, data_val, data_test, LR_RAT_FLOW)
+        collect_samples('mnist', info, model, mnist_to_image, mnist_plot_image)
+
+    # RAT-SPN + MAF experiments
+    for kwargs in flow_kwargs:
+        kwargs = {**ratspn_kwargs, **kwargs}
+        model = RatSpnFlow(n_features, flow='maf', **kwargs)
+        info = ratspn_maf_experiment_info(kwargs)
+        collect_results('mnist', info, model, data_train, data_val, data_test, LR_RAT_FLOW)
+        collect_samples('mnist', info, model, mnist_to_image, mnist_plot_image)
+
+
 def collect_results(dataset, info, model, data_train, data_val, data_test, lr):
     # Train the model
     history = torch_train_generative(model, data_train, data_val, torch.optim.Adam, lr, BATCH_SIZE, PATIENCE, EPOCHS)
@@ -299,6 +361,31 @@ def collect_results(dataset, info, model, data_train, data_val, data_test, lr):
     plt.legend(['Train', 'Validation'])
     plt.savefig(filepath)
     plt.clf()
+
+
+def collect_samples(dataset, info, model, image_func=None, plot_func=None):
+    # Initialize the results filepath
+    filepath = os.path.join('samples', dataset + '_' + info)
+
+    # If image_func is specified, save the samples as images, otherwise save them in CSV format
+    if not image_func:
+        samples = model.sample(N_SAMPLES).cpu().numpy()
+        pd.DataFrame(samples).to_csv(filepath + '.csv')
+    else:
+        rows, cols = N_SAMPLES_IMAGE
+        n_samples = rows * cols
+        samples = model.sample(n_samples).cpu().numpy()
+        images = np.apply_along_axis(image_func, axis=1, arr=samples)
+        n_samples, height, width = images.shape
+        fig, axs = plt.subplots(rows, cols, figsize=(rows, cols))
+        plt.subplots_adjust(wspace=0.0, hspace=0.0)
+        axs = axs.flatten()
+        for ax, image in zip(axs, images):
+            ax.set_axis_off()
+            ax.set_aspect('equal')
+            plot_func(ax, image)
+        plt.savefig(filepath + '.png', dpi=height)
+        plt.clf()
 
 
 def nvp_experiment_info(kwargs):
@@ -337,5 +424,7 @@ if __name__ == '__main__':
         run_experiment_miniboone()
     elif dataset == 'bsds300':
         run_experiment_bsds300()
+    elif dataset == 'mnist':
+        run_experiment_mnist()
     else:
         raise NotImplementedError("Unknown dataset: " + dataset)
