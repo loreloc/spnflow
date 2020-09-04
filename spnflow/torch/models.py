@@ -70,8 +70,8 @@ class RealNVP(AbstractModel):
         if in_base:
             self.in_base = in_base
         else:
-            self.in_base_loc = torch.nn.Parameter(torch.zeros([1, self.in_features], requires_grad=False))
-            self.in_base_scale = torch.nn.Parameter(torch.ones([1, self.in_features], requires_grad=False))
+            self.in_base_loc = torch.nn.Parameter(torch.zeros([self.in_features], requires_grad=False))
+            self.in_base_scale = torch.nn.Parameter(torch.ones([self.in_features], requires_grad=False))
             self.in_base = torch.distributions.Normal(self.in_base_loc, self.in_base_scale)
 
         # Build the coupling layers
@@ -161,8 +161,8 @@ class MAF(AbstractModel):
         if in_base:
             self.in_base = in_base
         else:
-            self.in_base_loc = torch.nn.Parameter(torch.zeros([1, self.in_features], requires_grad=False))
-            self.in_base_scale = torch.nn.Parameter(torch.ones([1, self.in_features], requires_grad=False))
+            self.in_base_loc = torch.nn.Parameter(torch.zeros([self.in_features], requires_grad=False))
+            self.in_base_scale = torch.nn.Parameter(torch.ones([self.in_features], requires_grad=False))
             self.in_base = torch.distributions.Normal(self.in_base_loc, self.in_base_scale)
 
         # Build the autoregressive layers
