@@ -67,10 +67,12 @@ class RealNVP(AbstractModel):
         self.activation = activation
 
         # Build the base distribution, if necessary
-        if in_base is None:
-            self.in_base = torch.distributions.Normal(0.0, 1.0)
-        else:
+        if in_base:
             self.in_base = in_base
+        else:
+            self.in_base_loc = torch.nn.Parameter(torch.zeros([1, self.in_features], requires_grad=False))
+            self.in_base_scale = torch.nn.Parameter(torch.ones([1, self.in_features], requires_grad=False))
+            self.in_base = torch.distributions.Normal(self.in_base_loc, self.in_base_scale)
 
         # Build the coupling layers
         self.layers = torch.nn.ModuleList()
@@ -113,7 +115,13 @@ class RealNVP(AbstractModel):
         :param n_samples: The number of samples.
         :return: The samples.
         """
-        x = self.in_base.sample(n_samples)
+        # Sample from the base distribution
+        if isinstance(self.in_base, torch.distributions.Distribution):
+            x = self.in_base.sample([n_samples])
+        else:
+            x = self.in_base.sample(n_samples)
+
+        # Apply the normalizing flows transformations
         for layer in reversed(self.layers):
             x, ldj = layer.forward(x)
         return x
@@ -150,10 +158,12 @@ class MAF(AbstractModel):
         self.activation = activation
 
         # Build the base distribution, if necessary
-        if in_base is None:
-            self.in_base = torch.distributions.Normal(0.0, 1.0)
-        else:
+        if in_base:
             self.in_base = in_base
+        else:
+            self.in_base_loc = torch.nn.Parameter(torch.zeros([1, self.in_features], requires_grad=False))
+            self.in_base_scale = torch.nn.Parameter(torch.ones([1, self.in_features], requires_grad=False))
+            self.in_base = torch.distributions.Normal(self.in_base_loc, self.in_base_scale)
 
         # Build the autoregressive layers
         self.layers = torch.nn.ModuleList()
@@ -196,7 +206,13 @@ class MAF(AbstractModel):
         :param n_samples: The number of samples.
         :return: The samples.
         """
-        x = self.in_base.sample(n_samples)
+        # Sample from the base distribution
+        if isinstance(self.in_base, torch.distributions.Distribution):
+            x = self.in_base.sample([n_samples])
+        else:
+            x = self.in_base.sample(n_samples)
+
+        # Apply the normalizing flows transformations
         for layer in reversed(self.layers):
             x, ldj = layer.forward(x)
         return x
