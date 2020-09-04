@@ -48,7 +48,6 @@ class GaussianLayer(torch.nn.Module):
             inv_pad_mask = np.reshape(pad_mask, [-1, in_features_pad])
             inv_pad_mask = inv_pad_mask.take(inv_mask)
             self.register_buffer('inv_pad_mask', torch.tensor(inv_pad_mask))
-            # Moreover, remove the padding
 
         # Instantiate the location variable
         self.loc = torch.nn.Parameter(
