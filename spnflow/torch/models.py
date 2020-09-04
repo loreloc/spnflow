@@ -113,7 +113,7 @@ class RealNVP(AbstractModel):
         :param n_samples: The number of samples.
         :return: The samples.
         """
-        x = self.in_base.sample([n_samples, self.in_features])
+        x = self.in_base.sample(n_samples)
         for layer in reversed(self.layers):
             x, ldj = layer.forward(x)
         return x
@@ -196,7 +196,7 @@ class MAF(AbstractModel):
         :param n_samples: The number of samples.
         :return: The samples.
         """
-        x = self.in_base.sample([n_samples, self.in_features])
+        x = self.in_base.sample(n_samples)
         for layer in reversed(self.layers):
             x, ldj = layer.forward(x)
         return x
