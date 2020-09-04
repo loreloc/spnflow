@@ -101,7 +101,7 @@ class RealNVP(AbstractModel):
         prior = self.in_base.log_prob(x)
         return torch.sum(prior, dim=1) + inv_log_det_jacobian
 
-    @torch.no_grad
+    @torch.no_grad()
     def mpe(self, x):
         raise NotImplementedError('Maximum at posteriori estimation is not implemented for RealNVPs')
 
@@ -184,7 +184,7 @@ class MAF(AbstractModel):
         prior = self.in_base.log_prob(x)
         return torch.sum(prior, dim=1) + inv_log_det_jacobian
 
-    @torch.no_grad
+    @torch.no_grad()
     def mpe(self, x):
         raise NotImplementedError('Maximum at posteriori estimation is not implemented for RealNVPs')
 
@@ -442,11 +442,11 @@ class RatSpnFlow(AbstractModel):
         """
         return self.flows(x)
 
-    @torch.no_grad
+    @torch.no_grad()
     def mpe(self, x):
         raise NotImplementedError('Maximum at posteriori estimation is not implemented for RatSpnFlows')
 
-    @torch.no_grad
+    @torch.no_grad()
     def sample(self, n_samples):
         """
         Sample some values from the modeled distribution.
@@ -543,7 +543,7 @@ class DgcSpn(AbstractModel):
         # Initialize the scale clipper to apply, if specified
         self.scale_clipper = ScaleClipper() if self.optimize_scale else None
 
-    def log_prob(self, x):
+    def forward(self, x):
         """
         Compute the log-likelihood given some evidence.
         Random variables can be marginalized using NaN values.
