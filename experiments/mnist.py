@@ -57,8 +57,7 @@ def dequantize(data, rand_state):
 
 
 def to_image(sample):
-    image = np.reshape(sample, (IMG_SIZE, IMG_SIZE))
-    return delogit(image)
+    return np.reshape(sample, (IMG_SIZE, IMG_SIZE))
 
 
 def plot_image(ax, image):

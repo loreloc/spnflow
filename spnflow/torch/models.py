@@ -333,7 +333,7 @@ class RatSpn(AbstractModel):
             x = layer(x)
 
         # Compute in forward mode through the root layer and get the class index
-        y = y if y else torch.argmax(self.root_layer(x), axis=1)
+        y = y if y else torch.argmax(self.root_layer(x), dim=1)
 
         # Get the first partitions and offset indices pair
         idx_partition, idx_offset = self.root_layer.mpe(x, y)
@@ -360,7 +360,7 @@ class RatSpn(AbstractModel):
         y = y if y else torch.randint(self.out_classes, [n_samples])
 
         # Get the first partitions and offset indices pair
-        idx_partition, idx_offset = self.root_layer.sample(n_samples, y)
+        idx_partition, idx_offset = self.root_layer.sample(y)
 
         # Compute in top-down mode through the inner layers
         for layer in reversed(self.layers):

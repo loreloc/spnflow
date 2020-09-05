@@ -40,14 +40,14 @@ class GaussianLayer(torch.nn.Module):
 
         # Build the flatten inverse mask
         in_features_pad = self.in_features + self.pad
-        inv_mask = np.argsort(np.reshape(mask, [-1, in_features_pad]))
-        self.register_buffer('inv_mask', torch.tensor(inv_mask))
+        inv_mask = torch.argsort(torch.reshape(self.mask, [-1, in_features_pad]))
+        self.register_buffer('inv_mask', inv_mask)
 
         # Build the flatten inverted pad mask
         if self.pad > 0:
-            inv_pad_mask = np.reshape(pad_mask, [-1, in_features_pad])
-            inv_pad_mask = inv_pad_mask.take(inv_mask)
-            self.register_buffer('inv_pad_mask', torch.tensor(inv_pad_mask))
+            inv_pad_mask = torch.reshape(self.pad_mask, [-1, in_features_pad])
+            inv_pad_mask = torch.gather(inv_pad_mask, dim=1, index=self.inv_mask)
+            self.register_buffer('inv_pad_mask', inv_pad_mask)
 
         # Instantiate the location variable
         self.loc = torch.nn.Parameter(
@@ -99,14 +99,14 @@ class GaussianLayer(torch.nn.Module):
         :param idx_offset: The offset indices.
         :return: The samples having maximum at posteriori estimates on marginalized random variables.
         """
-        idx_repetition = idx_region // (2 ** self.rg_depth)
-        idx_repetition = idx_repetition[:, 0]
-        n_samples = idx_region.size(0)
+        # Get the repetition indices
+        idx_repetition = idx_region[:, 0] // (2 ** self.rg_depth)
 
         # Get the maximum at posteriori estimation of the base distribution
         mode = self.loc
 
         # Filter the mode samples by the region and offset indices
+        n_samples = idx_region.size(0)
         samples = torch.zeros([n_samples, self.in_features], device=self.loc.device)
         for i in range(n_samples):
             j = idx_repetition[i]
@@ -117,11 +117,9 @@ class GaussianLayer(torch.nn.Module):
             if self.pad > 0:
                 z = z[self.inv_pad_mask[j]]
             samples[i] = z
-        return samples
 
         # Assign the maximum at posteriori estimation to NaN random variables
-        samples = torch.where(torch.isnan(x), samples, x)
-        return samples
+        return torch.where(torch.isnan(x), samples, x)
 
     @torch.no_grad()
     def sample(self, idx_region, idx_offset):
@@ -132,21 +130,20 @@ class GaussianLayer(torch.nn.Module):
         :param idx_offset: The offset indices.
         :return: The samples.
         """
-        idx_repetition = idx_region // (2 ** self.rg_depth)
-        idx_repetition = idx_repetition[:, 0]
-        n_samples = idx_region.size(0)
+        # Get the repetition indices
+        idx_repetition = idx_region[:, 0] // (2 ** self.rg_depth)
 
         # Samples from the full base distribution and reorder it
+        n_samples = idx_region.size(0)
         x = self.distribution.sample([n_samples])
 
         # Filter the base samples by the region and offset indices
+        # Moreover, remove the padding if required
         samples = torch.zeros([n_samples, self.in_features], device=self.loc.device)
         for i in range(n_samples):
             j = idx_repetition[i]
             z = torch.flatten(x[i, idx_region[i], idx_offset[i]])
             z = z[self.inv_mask[j]]
-
-            # Remove the padding, if required
             if self.pad > 0:
                 z = z[self.inv_pad_mask[j]]
             samples[i] = z
@@ -195,7 +192,7 @@ class ProductLayer(torch.nn.Module):
         This is equivalent to self.sample() because no parameters are involved in product layers.
 
         :param x: The inputs. This parameter is a placeholder and it's not used.
-        :param idx_partition: the partition indices.
+        :param idx_partition: The partition indices.
         :param idx_offset: The offset indices.
         :return: The corresponding region and offset indices.
         """
@@ -206,20 +203,21 @@ class ProductLayer(torch.nn.Module):
         """
         Sample the partition and offset indices.
 
-        :param idx_partition: the partition indices.
+        :param idx_partition: The partition indices.
         :param idx_offset: The offset indices.
         :return: The corresponding region and offset indices.
         """
-        # Split the region indices
+        # Split the partition indices to region indices
         idx1_region = idx_partition * 2 + 0
         idx2_region = idx_partition * 2 + 1
         idx_region = torch.stack([idx1_region, idx2_region], dim=2)
         idx_region = torch.flatten(idx_region, start_dim=1)
 
-        # Compute the region indices
+        # Compute the offset indices
         idx1_offset = idx_offset // self.in_nodes
         idx2_offset = idx_offset % self.in_nodes
-        idx_offset = torch.cat([idx1_offset, idx2_offset], dim=1)
+        idx_offset = torch.stack([idx1_offset, idx2_offset], dim=2)
+        idx_offset = torch.flatten(idx_offset, start_dim=1)
 
         return idx_region, idx_offset
 
@@ -288,7 +286,6 @@ class SumLayer(torch.nn.Module):
 
         # Compute the offset indices evaluating the sum nodes as an argmax
         idx_offset = torch.argmax(u + v, dim=2)
-
         return idx_region, idx_offset
 
     @torch.no_grad()
@@ -310,7 +307,6 @@ class SumLayer(torch.nn.Module):
             v[i] = w[idx_region[i], idx_offset[i]]
         dist = torch.distributions.Categorical(logits=v)
         idx_offset = dist.sample()
-
         return idx_region, idx_offset
 
 
@@ -364,15 +360,13 @@ class RootLayer(torch.nn.Module):
         idx = torch.argmax(x + w[y], dim=1)
         idx_partition = torch.unsqueeze(idx // self.in_nodes, dim=1)
         idx_offset = torch.unsqueeze(idx % self.in_nodes, dim=1)
-
         return idx_partition, idx_offset
 
     @torch.no_grad()
-    def sample(self, n_samples, y):
+    def sample(self, y):
         """
         Sample the partition and offset indices.
 
-        :param n_samples: The number of samples.
         :param y: The target classes.
         :return: The partition and offset indices.
         """
@@ -383,5 +377,4 @@ class RootLayer(torch.nn.Module):
         idx = dist.sample()
         idx_partition = torch.unsqueeze(idx // self.in_nodes, dim=1)
         idx_offset = torch.unsqueeze(idx % self.in_nodes, dim=1)
-
         return idx_partition, idx_offset
