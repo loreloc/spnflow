@@ -56,9 +56,8 @@ def dequantize(data, rand_state):
     return data + rand_state.rand(*data.shape) / 256.0
 
 
-def to_image(sample):
-    return np.reshape(sample, (IMG_SIZE, IMG_SIZE))
-
-
-def plot_image(ax, image):
+def plot_sample(ax, sample, logit_space=True):
+    if logit_space:
+        sample = delogit(sample)
+    image = np.reshape(sample, (IMG_SIZE, IMG_SIZE))
     ax.imshow(image, vmin=0.0, vmax=1.0, cmap='gray', interpolation='nearest')
