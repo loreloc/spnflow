@@ -22,29 +22,37 @@ class SpatialGaussianLayer(torch.nn.Module):
         # Instantiate the location variable
         params_size = (self.out_channels, *self.in_size)
         if self.zeros_loc:
-            self.loc = torch.nn.Parameter(
-                torch.zeros(size=params_size), requires_grad=True
-            )
+            self.loc = torch.nn.Parameter(torch.zeros(size=params_size), requires_grad=True)
         else:
-            self.loc = torch.nn.Parameter(
-                torch.normal(0.0, 1e-1, size=params_size), requires_grad=True
-            )
+            self.loc = torch.nn.Parameter(torch.normal(0.0, 1e-1, size=params_size), requires_grad=True)
 
         # Instantiate the scale variable
         if self.optimize_scale:
-            self.scale = torch.nn.Parameter(
-                torch.normal(0.5, 5e-2, size=params_size), requires_grad=True
-            )
+            self.scale = torch.nn.Parameter(torch.normal(0.5, 5e-2, size=params_size), requires_grad=True)
         else:
-            self.scale = torch.nn.Parameter(
-                torch.ones(size=params_size), requires_grad=False
-            )
+            self.scale = torch.nn.Parameter(torch.ones(size=params_size), requires_grad=False)
 
         # Instantiate the multi-batch normal distribution
         self.distribution = torch.distributions.Normal(self.loc, self.scale)
 
         # Initialize the marginalization constant
         self.register_buffer('zero', torch.zeros(1))
+
+    @property
+    def in_channels(self):
+        return self.in_size[0]
+
+    @property
+    def in_height(self):
+        return self.in_size[1]
+
+    @property
+    def in_width(self):
+        return self.in_size[2]
+
+    @property
+    def out_size(self):
+        return self.out_channels, self.in_height, self.in_width
 
     def forward(self, x):
         """
@@ -60,26 +68,6 @@ class SpatialGaussianLayer(torch.nn.Module):
         x = self.distribution.log_prob(x)
         x = torch.where(torch.isnan(x), self.zero, x)
         return torch.sum(x, dim=2)
-
-    @property
-    def in_channels(self):
-        return self.in_size[0]
-
-    @property
-    def in_height(self):
-        return self.in_size[1]
-
-    @property
-    def in_width(self):
-        return self.in_size[2]
-
-    def output_size(self):
-        """
-        Get the output size of the layer.
-
-        :return: The output size tuple.
-        """
-        return self.out_channels, self.in_height, self.in_width
 
 
 class SpatialProductLayer(torch.nn.Module):
@@ -138,19 +126,6 @@ class SpatialProductLayer(torch.nn.Module):
         # Initialize the weight tensor
         self.weight = torch.nn.Parameter(torch.tensor(weight), requires_grad=False)
 
-    def forward(self, x):
-        """
-        Evaluate the layer given some inputs.
-
-        :param x: The inputs.
-        :return: The tensor result of the layer.
-        """
-        # Pad the input
-        x = torch.nn.functional.pad(x, self.pad)
-
-        # Compute the log-likelihoods
-        return torch.nn.functional.conv2d(x, self.weight, stride=self.stride, dilation=self.dilation)
-
     @property
     def in_channels(self):
         return self.in_size[0]
@@ -163,18 +138,25 @@ class SpatialProductLayer(torch.nn.Module):
     def in_width(self):
         return self.in_size[2]
 
-    def output_size(self):
-        """
-        Get the output size of the layer.
-
-        :return: The output size tuple.
-        """
+    @property
+    def out_size(self):
         kah, kaw = self.effective_kernel_size
         out_height = self.pad[2] + self.pad[3] + self.in_height - kah + 1
         out_width = self.pad[0] + self.pad[1] + self.in_width - kaw + 1
         out_height = int(np.ceil(out_height / self.stride[0]).item())
         out_width = int(np.ceil(out_width / self.stride[1]).item())
         return self.out_channels, out_height, out_width
+
+    def forward(self, x):
+        """
+        Evaluate the layer given some inputs.
+
+        :param x: The inputs.
+        :return: The tensor result of the layer.
+        """
+        # Pad the input and compute the log-likelihoods
+        x = torch.nn.functional.pad(x, self.pad)
+        return torch.nn.functional.conv2d(x, self.weight, stride=self.stride, dilation=self.dilation)
 
 
 class SpatialSumLayer(torch.nn.Module):
@@ -192,9 +174,24 @@ class SpatialSumLayer(torch.nn.Module):
 
         # Initialize the weight tensor
         self.weight = torch.nn.Parameter(
-            torch.normal(0.0, 1e-1, size=(self.out_channels, self.in_channels, 1, 1)),
-            requires_grad=True
+            torch.normal(0.0, 1e-1, size=(self.out_channels, self.in_channels, 1, 1)), requires_grad=True
         )
+
+    @property
+    def in_channels(self):
+        return self.in_size[0]
+
+    @property
+    def in_height(self):
+        return self.in_size[1]
+
+    @property
+    def in_width(self):
+        return self.in_size[2]
+
+    @property
+    def out_size(self):
+        return self.out_channels, self.in_height, self.in_width
 
     def forward(self, x):
         """
@@ -216,26 +213,6 @@ class SpatialSumLayer(torch.nn.Module):
         y = torch.log(y) + x_max
         return y
 
-    @property
-    def in_channels(self):
-        return self.in_size[0]
-
-    @property
-    def in_height(self):
-        return self.in_size[1]
-
-    @property
-    def in_width(self):
-        return self.in_size[2]
-
-    def output_size(self):
-        """
-        Get the output size of the layer.
-
-        :return: The output size tuple.
-        """
-        return self.out_channels, self.in_height, self.in_width
-
 
 class SpatialRootLayer(torch.nn.Module):
     """Spatial Root layer class."""
@@ -253,25 +230,8 @@ class SpatialRootLayer(torch.nn.Module):
         # Initialize the weight tensor
         in_flatten_size = np.prod(self.in_size).item()
         self.weight = torch.nn.Parameter(
-            torch.normal(0.0, 1e-1, size=(self.out_channels, in_flatten_size)),
-            requires_grad=True
+            torch.normal(0.0, 1e-1, size=(self.out_channels, in_flatten_size)), requires_grad=True
         )
-
-    def forward(self, x):
-        """
-        Evaluate the layer given some inputs.
-
-        :param x: The inputs.
-        :return: The tensor result of the layer.
-        """
-        # Flatten the input
-        x = torch.flatten(x, start_dim=1)
-
-        # Calculate the log likelihood using the "logsumexp" trick
-        w = torch.log_softmax(self.weight, dim=1)  # (out_channels, in_flatten_size)
-        x = torch.unsqueeze(x, dim=1)              # (-1, 1, in_flatten_size)
-        x = torch.logsumexp(x + w, dim=-1)         # (-1, out_channels)
-        return x
 
     @property
     def in_channels(self):
@@ -285,10 +245,20 @@ class SpatialRootLayer(torch.nn.Module):
     def in_width(self):
         return self.in_size[2]
 
-    def output_size(self):
-        """
-        Get the output size of the layer.
-
-        :return: The output size tuple.
-        """
+    @property
+    def out_size(self):
         return self.out_channels,
+
+    def forward(self, x):
+        """
+        Evaluate the layer given some inputs.
+
+        :param x: The inputs.
+        :return: The tensor result of the layer.
+        """
+        # Calculate the log likelihood using the "logsumexp" trick
+        x = torch.flatten(x, start_dim=1)
+        x = torch.unsqueeze(x, dim=1)              # (-1, 1, in_flatten_size)
+        w = torch.log_softmax(self.weight, dim=1)  # (out_channels, in_flatten_size)
+        x = torch.logsumexp(x + w, dim=-1)         # (-1, out_channels)
+        return x

@@ -486,6 +486,7 @@ class DgcSpn(AbstractModel):
     """Deep Generalized Convolutional SPN model class."""
     def __init__(self,
                  in_size,
+                 out_classes=1,
                  n_batch=8,
                  prod_channels=16,
                  sum_channels=8,
@@ -498,6 +499,7 @@ class DgcSpn(AbstractModel):
         Initialize a SpatialSpn.
 
         :param in_size: The input size.
+        :param out_classes: The number of output classes. Specify 1 in case of plain density estimation.
         :param n_batch: The number of output channels of the base layer.
         :param prod_channels: The number of output channels of spatial product layers.
         :param sum_channels: The number of output channels of spatial sum layers.
@@ -508,6 +510,7 @@ class DgcSpn(AbstractModel):
         """
         super(DgcSpn, self).__init__()
         self.in_size = in_size
+        self.out_classes = out_classes
         self.n_batch = n_batch
         self.prod_channels = prod_channels
         self.sum_channels = sum_channels
@@ -518,7 +521,7 @@ class DgcSpn(AbstractModel):
 
         # Instantiate the base layer
         self.base_layer = SpatialGaussianLayer(self.in_size, self.n_batch, self.quantiles_loc, self.optimize_scale)
-        in_size = self.base_layer.output_size()
+        in_size = self.base_layer.out_size
 
         # Add the initial pooling layers
         self.layers = torch.nn.ModuleList()
@@ -526,10 +529,9 @@ class DgcSpn(AbstractModel):
             # Add a spatial product layer (but with strides in order to reduce the dimensionality)
             self.layers.append(SpatialProductLayer(
                 in_size, self.prod_channels, (2, 2), padding='valid',
-                stride=(2, 2), dilation=(1, 1),
-                rand_state=self.rand_state
+                stride=(2, 2), dilation=(1, 1), rand_state=self.rand_state
             ))
-            in_size = self.layers[-1].output_size()
+            in_size = self.layers[-1].out_size
 
         # Instantiate the inner layers
         depth = int(np.max(np.ceil(np.log2(in_size[1:]))).item())
@@ -537,14 +539,13 @@ class DgcSpn(AbstractModel):
             # Add a spatial product layer (with full padding and no strides)
             self.layers.append(SpatialProductLayer(
                 in_size, self.prod_channels, (2, 2), padding='full',
-                stride=(1, 1), dilation=(2 ** k, 2 ** k),
-                rand_state=self.rand_state
+                stride=(1, 1), dilation=(2 ** k, 2 ** k), rand_state=self.rand_state
             ))
-            in_size = self.layers[-1].output_size()
+            in_size = self.layers[-1].out_size
 
             # Add a spatial sum layer
             self.layers.append(SpatialSumLayer(in_size, self.sum_channels))
-            in_size = self.layers[-1].output_size()
+            in_size = self.layers[-1].out_size
 
         # Add the last product layer
         self.layers.append(SpatialProductLayer(
@@ -552,10 +553,10 @@ class DgcSpn(AbstractModel):
             stride=(1, 1), dilation=(2 ** depth, 2 ** depth),
             rand_state=self.rand_state
         ))
-        in_size = self.layers[-1].output_size()
+        in_size = self.layers[-1].out_size
 
         # Instantiate the spatial root layer
-        self.root_layer = SpatialRootLayer(in_size, out_channels=1)
+        self.root_layer = SpatialRootLayer(in_size, self.out_classes)
 
         # Initialize the scale clipper to apply, if specified
         self.scale_clipper = ScaleClipper() if self.optimize_scale else None
@@ -577,6 +578,23 @@ class DgcSpn(AbstractModel):
 
         # Forward through the root layer
         return self.root_layer(x)
+
+    @torch.no_grad()
+    def mpe(self, x):
+        raise NotImplementedError('Maximum at posteriori estimation is not implemented for DGC-SPNs')
+
+    @torch.no_grad()
+    def sample(self, n_samples, y=None):
+        """
+        Sample some values from the modeled distribution.
+
+        :param n_samples: The number of samples.
+        :param y: The target classes. It can be None for unlabeled and uniform sampling.
+        :return: The samples.
+        """
+        # Sample the target classes uniformly, if not specified
+        y = y if y else torch.randint(self.out_classes, [n_samples])
+        # TODO <-
 
     def apply_initializers(self, **kwargs):
         """
