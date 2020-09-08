@@ -14,7 +14,7 @@ from experiments.mnist import plot_sample as mnist_plot_sample
 from spnflow.torch.models import RealNVP, MAF, RatSpn, RatSpnFlow
 from spnflow.torch.utils import torch_train_generative, torch_test_generative
 
-EPOCHS = 1
+EPOCHS = 1000
 BATCH_SIZE = 100
 PATIENCE = 30
 LR_FLOW = 1e-3
@@ -289,7 +289,7 @@ def run_experiment_mnist():
 
     # Set the parameters for the RAT-SPNs
     ratspn_kwargs = {
-        'rg_depth': 4, 'rg_repetitions': 16, 'n_batch': 16, 'n_sum': 16, 'rand_state': rand_state
+        'rg_depth': 3, 'rg_repetitions': 16, 'n_batch': 16, 'n_sum': 16, 'rand_state': rand_state
     }
 
     # Set the parameters for the normalizing flows conditioners
