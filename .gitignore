@@ -6,11 +6,3 @@ docs/_build
 build
 dist
 *.egg-info
-
-experiments/datasets
-experiments/spn/results/*.txt
-experiments/ratspn-flow/histories/*.png
-experiments/ratspn-flow/results/*.txt
-experiments/ratspn-flow/samples/*.png
-experiments/dgcspn/histories/*.png
-experiments/dgcspn/results/*.txt

@@ -4,6 +4,7 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from experiments.mnist import load_mnist_dataset
+from experiments.mnist import plot_sample as mnist_plot_sample
 from spnflow.torch.models import DgcSpn
 from spnflow.torch.utils import torch_train_generative, torch_test_generative
 
@@ -11,6 +12,7 @@ EPOCHS = 1000
 BATCH_SIZE = 100
 PATIENCE = 30
 LR = 1e-3
+N_IMG_SAMPLES = (8, 8)
 
 
 def run_experiment_mnist():
@@ -24,8 +26,8 @@ def run_experiment_mnist():
     # Set the parameters for the DGC-SPN
     dgcspn_kwargs = [
         {
-            'in_size': in_size, 'n_batch': 16,
-            'prod_channels': 32, 'sum_channels': 64, 'n_pooling': 2,
+            'in_size': in_size, 'n_batch': 8,
+            'prod_channels': 16, 'sum_channels': 8, 'n_pooling': 2,
             'rand_state': rand_state
         },
         {
@@ -44,6 +46,7 @@ def run_experiment_mnist():
         model = DgcSpn(**kwargs)
         info = dgcspn_experiment_info(kwargs)
         collect_results('mnist', info, model, data_train, data_val, data_test, LR)
+        collect_samples('mnist', info, model, mnist_plot_sample)
 
 
 def collect_results(dataset, info, model, data_train, data_val, data_test, lr):
@@ -74,6 +77,25 @@ def collect_results(dataset, info, model, data_train, data_val, data_test, lr):
     plt.xlabel('epoch')
     plt.legend(['Train', 'Validation'])
     plt.savefig(filepath)
+    plt.clf()
+
+
+def collect_samples(dataset, info, model, plot_func, **plot_kwargs):
+    # Initialize the results filepath
+    filepath = os.path.join('samples', dataset + '_' + info)
+
+    # Save the samples as images
+    rows, cols = N_IMG_SAMPLES
+    samples = model.sample(rows * cols).cpu().numpy()
+    n_samples, n_features = samples.shape
+    fig, axs = plt.subplots(rows, cols, figsize=(rows, cols))
+    plt.subplots_adjust(wspace=0.0, hspace=0.0)
+    axs = axs.flatten()
+    for ax, image in zip(axs, samples):
+        ax.set_axis_off()
+        plot_func(ax, image, **plot_kwargs)
+    dpi = int(np.sqrt(n_features))
+    plt.savefig(filepath + '.png', dpi=dpi)
     plt.clf()
 
 

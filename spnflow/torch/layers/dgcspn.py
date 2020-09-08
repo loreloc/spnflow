@@ -262,3 +262,24 @@ class SpatialRootLayer(torch.nn.Module):
         w = torch.log_softmax(self.weight, dim=1)  # (out_channels, in_flatten_size)
         x = torch.logsumexp(x + w, dim=-1)         # (-1, out_channels)
         return x
+
+    @torch.no_grad()
+    def sample(self, y):
+        """
+        Sample the corresponding indices.
+
+        :param y: The target classes.
+        :return: The sampled indices.
+        """
+        # Get the indices by sampling from a categorical distribution
+        # that is parametrized by root layer's weights
+        w = torch.log_softmax(self.weight, dim=1)
+        dist = torch.distributions.Categorical(logits=w[y])
+        idx = dist.sample()
+        idx_channel = idx // (self.in_height * self.in_width)
+        idx = idx - idx_channel * (self.in_height * self.in_width)
+        idx_height = idx // self.in_height
+        idx_width = idx % self.in_width
+        idx = torch.stack([idx_channel, idx_height, idx_width], dim=-1)
+        return torch.unsqueeze(idx, dim=1)
+

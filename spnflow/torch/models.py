@@ -594,7 +594,9 @@ class DgcSpn(AbstractModel):
         """
         # Sample the target classes uniformly, if not specified
         y = y if y else torch.randint(self.out_classes, [n_samples])
-        # TODO <-
+
+        # Get the first indices
+        idx = self.root_layer.sample(y)
 
     def apply_initializers(self, **kwargs):
         """
