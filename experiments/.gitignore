@@ -1,8 +1,17 @@
 datasets
+
 spn/results/*.txt
+
 ratspn-flow/histories/*.png
 ratspn-flow/results/*.txt
 ratspn-flow/samples/*.png
+
+flow/histories/*.png
+flow/results/*.txt
+flow/samples/*.png
+
 dgcspn/histories/*.png
 dgcspn/results/*.txt
 dgcspn/samples/*.png
+
+
