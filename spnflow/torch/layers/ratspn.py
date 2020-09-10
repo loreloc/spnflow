@@ -233,7 +233,8 @@ class SumLayer(torch.nn.Module):
         self.out_regions = in_partitions
         self.out_nodes = out_nodes
         self.dropout = dropout
-        self.rate = 1.0 - dropout
+        if self.dropout:
+            self._rate = 1.0 - dropout
 
         # Instantiate the weights
         self.weight = torch.nn.Parameter(
@@ -250,7 +251,7 @@ class SumLayer(torch.nn.Module):
         # Apply the dropout, if specified
         if self.training and self.dropout is not None:
             mask = torch.rand(size=(self.out_regions, self.in_nodes), device=x.device)
-            x = x + torch.log(torch.floor(self.rate + mask))
+            x = x + torch.log(torch.floor(self._rate + mask))
 
         # Calculate the log likelihood using the "logsumexp" trick
         w = torch.log_softmax(self.weight, dim=2)  # (out_regions, out_nodes, in_nodes)
