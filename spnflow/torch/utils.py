@@ -8,13 +8,13 @@ def torch_train_generative(
         model,
         data_train,
         data_val,
-        optimizer=torch.optim.Adam,
         lr=1e-3,
         batch_size=100,
-        patience=30,
         epochs=1000,
-        device=None,
+        patience=30,
+        optim=torch.optim.Adam,
         init_args={},
+        device=None,
 ):
     """
     Train a Torch model by maximizing the log-likelihood.
@@ -22,13 +22,13 @@ def torch_train_generative(
     :param model: The model to train.
     :param data_train: The train data.
     :param data_val: The validation data.
-    :param optimizer: The optimizer to use.
     :param lr: The learning rate to use.
     :param batch_size: The batch size for both train and validation.
-    :param patience: The number of consecutive epochs to wait until no improvements of the validation loss occurs.
     :param epochs: The number of epochs.
-    :param device: The device used for training. If it's None 'cuda:0' will be used, if available.
+    :param patience: The number of consecutive epochs to wait until no improvements of the validation loss occurs.
+    :param optim: The optimizer to use.
     :param init_args: The parameters to pass to the initializers of the model.
+    :param device: The device used for training. If it's None 'cuda' will be used, if available.
     """
     # Instantiate the train history
     history = {
@@ -37,7 +37,7 @@ def torch_train_generative(
 
     # Get the device to use
     if device is None:
-        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('Train using device: ' + str(device))
 
     # Print the model
@@ -54,7 +54,7 @@ def torch_train_generative(
     val_loader = torch.utils.data.DataLoader(data_val, batch_size=batch_size, shuffle=False)
 
     # Instantiate the optimizer
-    optimizer = optimizer(model.parameters(), lr=lr)
+    optimizer = optim(model.parameters(), lr=lr)
 
     # Instantiate the early stopping callback
     early_stopping = EarlyStopping(patience=patience)
@@ -105,19 +105,19 @@ def torch_test_generative(
         model,
         data_test,
         batch_size=100,
-        device=None,
-):
+        device=None
+    ):
     """
     Test a Torch model by its log-likelihood.
 
     :param model: The model to test.
     :param data_test: The test data.
     :param batch_size: The batch size for testing.
-    :param device: The device used for training. If it's None 'cuda:0' will be used, if available.
+    :param device: The device used for training. If it's None 'cuda' will be used, if available.
     """
     # Get the device to use
     if device is None:
-        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('Test using device: ' + str(device))
 
     # Setup the data loader
@@ -128,9 +128,8 @@ def torch_test_generative(
     with torch.no_grad():
         for inputs in test_loader:
             inputs = inputs.to(device)
-            ll = model(inputs)
-            mean_ll = torch.mean(ll).cpu().numpy()
-            test_ll = np.hstack((test_ll, mean_ll))
+            ll = model(inputs).cpu().numpy().flatten()
+            test_ll = np.hstack((test_ll, ll))
 
     mu_ll = np.mean(test_ll)
     sigma_ll = 2.0 * np.std(test_ll) / np.sqrt(len(test_ll))

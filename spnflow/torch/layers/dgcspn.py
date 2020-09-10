@@ -20,17 +20,19 @@ class SpatialGaussianLayer(torch.nn.Module):
         self.optimize_scale = optimize_scale
 
         # Instantiate the location variable
-        params_size = (self.out_channels, *self.in_size)
         if self.zeros_loc:
-            self.loc = torch.nn.Parameter(torch.zeros(size=params_size), requires_grad=True)
+            self.loc = torch.nn.Parameter(torch.zeros(self.out_channels, *self.in_size), requires_grad=True)
         else:
-            self.loc = torch.nn.Parameter(torch.normal(0.0, 1e-1, size=params_size), requires_grad=True)
+            self.loc = torch.nn.Parameter(
+                torch.randn(self.in_regions, self.out_channels, self.dimension), requires_grad=True
+            )
 
         # Instantiate the scale variable
         if self.optimize_scale:
-            self.scale = torch.nn.Parameter(torch.normal(0.5, 5e-2, size=params_size), requires_grad=True)
+            sigma = torch.sigmoid(torch.randn(self.out_channels, *self.in_size))
+            self.scale = torch.nn.Parameter(0.25 + sigma * 0.5, requires_grad=True)
         else:
-            self.scale = torch.nn.Parameter(torch.ones(size=params_size), requires_grad=False)
+            self.scale = torch.nn.Parameter(torch.ones(self.out_channels, *self.in_size), requires_grad=False)
 
         # Instantiate the multi-batch normal distribution
         self.distribution = torch.distributions.Normal(self.loc, self.scale)
@@ -173,9 +175,7 @@ class SpatialSumLayer(torch.nn.Module):
         self.out_channels = out_channels
 
         # Initialize the weight tensor
-        self.weight = torch.nn.Parameter(
-            torch.normal(0.0, 1e-1, size=(self.out_channels, self.in_channels, 1, 1)), requires_grad=True
-        )
+        self.weight = torch.nn.Parameter(torch.randn(self.out_channels, self.in_channels, 1, 1), requires_grad=True)
 
     @property
     def in_channels(self):
@@ -229,9 +229,7 @@ class SpatialRootLayer(torch.nn.Module):
 
         # Initialize the weight tensor
         in_flatten_size = np.prod(self.in_size).item()
-        self.weight = torch.nn.Parameter(
-            torch.normal(0.0, 1e-1, size=(self.out_channels, in_flatten_size)), requires_grad=True
-        )
+        self.weight = torch.nn.Parameter(torch.randn(self.out_channels, in_flatten_size), requires_grad=True)
 
     @property
     def in_channels(self):

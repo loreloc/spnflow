@@ -335,17 +335,17 @@ class RatSpn(AbstractModel):
         # Compute in forward mode through the root layer and get the class index
         y = y if y else torch.argmax(self.root_layer(x), dim=1)
 
-        # Get the first partitions and offset indices pair
-        idx_partition, idx_offset = self.root_layer.mpe(x, y)
+        # Get the root layer indices
+        idx = self.root_layer.mpe(x, y)
 
         # Compute in top-down mode through the inner layers
         rev_lls = list(reversed(lls))
         rev_layers = list(reversed(self.layers))
         for layer, ll in zip(rev_layers, rev_lls):
-            idx_partition, idx_offset = layer.mpe(ll, idx_partition, idx_offset)
+            idx = layer.mpe(ll, idx)
 
         # Compute the maximum at posteriori inference at the base layer
-        return self.base_layer.mpe(inputs, idx_partition, idx_offset)
+        return self.base_layer.mpe(inputs, idx)
 
     @torch.no_grad()
     def sample(self, n_samples, y=None):
@@ -359,15 +359,15 @@ class RatSpn(AbstractModel):
         # Sample the target classes uniformly, if not specified
         y = y if y else torch.randint(self.out_classes, [n_samples])
 
-        # Get the first partitions and offset indices pair
-        idx_partition, idx_offset = self.root_layer.sample(y)
+        # Get the root layer indices
+        idx = self.root_layer.sample(y)
 
         # Compute in top-down mode through the inner layers
         for layer in reversed(self.layers):
-            idx_partition, idx_offset = layer.sample(idx_partition, idx_offset)
+            idx = layer.sample(idx)
 
         # Sample at the base layer
-        return self.base_layer.sample(idx_partition, idx_offset)
+        return self.base_layer.sample(idx)
 
     def apply_constraints(self):
         """
@@ -376,110 +376,6 @@ class RatSpn(AbstractModel):
         # Apply the scale clipper to the base layer, if specified
         if self.optimize_scale:
             self.scale_clipper(self.base_layer)
-
-
-class RatSpnFlow(AbstractModel):
-    """RAT-SPN base distribution improved with Normalizing Flows."""
-    def __init__(self,
-                 in_features,
-                 rg_depth=2,
-                 rg_repetitions=1,
-                 n_batch=2,
-                 n_sum=2,
-                 dropout=None,
-                 optimize_scale=True,
-                 rand_state=None,
-                 flow='nvp',
-                 n_flows=5,
-                 batch_norm=True,
-                 depth=1,
-                 units=128,
-                 activation=torch.nn.ReLU
-                 ):
-        """
-        Initialize a RAT-SPN base distribution improved with Normalizing Flows.
-
-        :param in_features: The number of input features.
-        :param rg_depth: The depth of the region graph.
-        :param rg_repetitions: The number of independent repetitions of the region graph.
-        :param n_batch: The number of base distributions batches.
-        :param n_sum: The number of sum nodes per region.
-        :param dropout: The dropout rate for probabilistic dropout at sum layer inputs (can be None).
-        :param optimize_scale: Whether to train scale and location jointly.
-        :param rand_state: The random state used to generate the random graph.
-        :param flow: The normalizing flow kind. At the moment, only 'nvp' and 'maf' are supported.
-        :param n_flows: The number of sequential normalizing flows.
-        :param batch_norm: Whether to apply batch normalization after each normalizing flow layer.
-        :param depth: The number of hidden layers of flows conditioners.
-        :param units: The number of hidden units per layer of flows conditioners.
-        :param activation: The activation class to use for the flows conditioners hidden layers.
-        """
-        super(RatSpnFlow, self).__init__()
-        self.in_features = in_features
-        self.rg_depth = rg_depth
-        self.rg_repetitions = rg_repetitions
-        self.n_batch = n_batch
-        self.n_sum = n_sum
-        self.dropout = dropout
-        self.optimize_scale = optimize_scale
-        self.rand_state = rand_state
-        self.flow = flow.lower()
-        self.n_flows = n_flows
-        self.batch_norm = batch_norm
-        self.depth = depth
-        self.units = units
-        self.activation = activation
-
-        # Build the RAT-SPN that models the base distribution
-        self.ratspn = RatSpn(
-            self.in_features, 1, self.rg_depth, self.rg_repetitions, self.n_batch, self.n_sum, self.dropout,
-            self.optimize_scale, self.rand_state
-        )
-
-        # Build the normalizing flow layers
-        if self.flow == 'nvp':
-            flow_class = RealNVP
-        elif self.flow == 'maf':
-            flow_class = MAF
-        else:
-            raise NotImplementedError('Unknown normalizing flow named \'' + self.flow + '\'')
-        self.flows = flow_class(
-            self.in_features, self.n_flows, self.batch_norm, self.depth, self.units, self.activation, self.ratspn
-        )
-
-        # Initialize the scale clipper to apply, if specified
-        self.scale_clipper = ScaleClipper() if self.optimize_scale else None
-
-    def forward(self, x):
-        """
-        Compute the log-likelihood given complete evidence.
-
-        :param x: The inputs tensor.
-        :return: The output of the model.
-        """
-        return self.flows(x)
-
-    @torch.no_grad()
-    def mpe(self, x):
-        raise NotImplementedError('Maximum at posteriori estimation is not implemented for RatSpnFlows')
-
-    @torch.no_grad()
-    def sample(self, n_samples):
-        """
-        Sample some values from the modeled distribution.
-
-        :param n_samples: The number of samples.
-        :return: The samples.
-        """
-        return self.flows.sample(n_samples)
-
-    def apply_constraints(self):
-        """
-        Apply the constraints specified by the model.
-        """
-        # Apply the scale clipper to the base layer, if specified
-        if self.optimize_scale:
-            self.scale_clipper(self.ratspn.base_layer)
 
 
 class DgcSpn(AbstractModel):

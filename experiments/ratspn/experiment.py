@@ -1,5 +1,4 @@
 import sys
-import torch
 import numpy as np
 
 from experiments.power import load_power_dataset
@@ -11,7 +10,7 @@ from experiments.mnist import load_mnist_dataset
 from experiments.mnist import to_images as mnist_to_images
 
 from experiments.utils import collect_results, collect_samples
-from spnflow.torch.models import RealNVP, MAF, RatSpn
+from spnflow.torch.models import RatSpn
 
 
 def run_experiment_power():
@@ -95,7 +94,7 @@ def run_experiment_miniboone():
     for kwargs in ratspn_kwargs:
         model = RatSpn(n_features, **kwargs)
         info = ratspn_experiment_info(kwargs)
-        collect_results('miniboone', info, model, data_train, data_val, data_test)
+        collect_results('miniboone', info, model, data_train, data_val, data_test, epochs=1)
 
 
 def run_experiment_bsds300():
@@ -131,7 +130,8 @@ def run_experiment_mnist():
     ratspn_kwargs = [
         {'rg_depth': 3, 'rg_repetitions': 16, 'n_batch':  8, 'n_sum':  8, 'rand_state': rand_state},
         {'rg_depth': 3, 'rg_repetitions': 16, 'n_batch': 16, 'n_sum': 16, 'rand_state': rand_state},
-        {'rg_depth': 3, 'rg_repetitions': 16, 'n_batch': 32, 'n_sum': 32, 'rand_state': rand_state},
+        {'rg_depth': 4, 'rg_repetitions': 16, 'n_batch': 16, 'n_sum': 16, 'rand_state': rand_state},
+        {'rg_depth': 4, 'rg_repetitions': 32, 'n_batch': 16, 'n_sum': 16, 'rand_state': rand_state},
     ]
 
     # RAT-SPN experiment
@@ -139,6 +139,7 @@ def run_experiment_mnist():
         model = RatSpn(n_features, **kwargs)
         info = ratspn_experiment_info(kwargs)
         collect_results('mnist', info, model, data_train, data_val, data_test)
+        collect_samples('mnist', info, model, mnist_to_images)
 
 
 def ratspn_experiment_info(kwargs):

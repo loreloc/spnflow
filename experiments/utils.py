@@ -21,20 +21,7 @@ def dequantize(data, rand_state):
     return data + rand_state.rand(*data.shape)
 
 
-def collect_results(
-        dataset,
-        info,
-        model,
-        data_train,
-        data_val,
-        data_test,
-        lr=1e-3,
-        batch_size=100,
-        epochs=1000,
-        patience=30,
-        optim=torch.optim.Adam,
-        init_args={},
-    ):
+def collect_results(dataset, info, model, data_train, data_val, data_test, **kwargs):
     """
     Train and test the model on given data.
 
@@ -44,18 +31,13 @@ def collect_results(
     :param data_train: The train data.
     :param data_val: The validation data.
     :param data_test: The test data.
-    :param lr: The learning rate.
-    :param batch_size: The batch size.
-    :param epochs: The number of epochs.
-    :param patience: The early stopping patience.
-    :param optim: The optimizer class to use.
-    :param init_args: The arguments to pass to the model's parameter initializer.
+    :param kwargs: Other arguments to pass to the train routine. See `torch_train_generative` docs.
     """
     # Train the model
-    history = torch_train_generative(model, data_train, data_val, lr, batch_size, epochs, patience, optim, init_args)
+    history = torch_train_generative(model, data_train, data_val, **kwargs)
 
     # Test the model
-    (mu_ll, sigma_ll) = torch_test_generative(model, data_test, batch_size)
+    (mu_ll, sigma_ll) = torch_test_generative(model, data_test)
 
     # Save the results to file
     filepath = os.path.join('results', dataset + '_' + info + '.txt')
@@ -66,7 +48,7 @@ def collect_results(
 
     # Plot the training history
     filepath = os.path.join('histories', dataset + '_' + info + '.png')
-    plt.xlim(0, epochs)
+    plt.xlim(0, 1000)
     plt.plot(history['train'])
     plt.plot(history['validation'])
     plt.title('Log-Loss')
@@ -77,14 +59,7 @@ def collect_results(
     plt.clf()
 
 
-def collect_samples(
-        dataset,
-        info,
-        model,
-        image_func=None,
-        n_samples=100,
-        n_grid=(8, 8),
-    ):
+def collect_samples(dataset, info, model, image_func=None, n_samples=100, n_grid=(8, 8)):
     """
     Sample some samples from the model.
 
