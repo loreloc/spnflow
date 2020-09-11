@@ -2,9 +2,9 @@ datasets
 
 spn/results/*.txt
 
-ratspn-flow/histories/*.png
-ratspn-flow/results/*.txt
-ratspn-flow/samples/*.png
+ratspn/histories/*.png
+ratspn/results/*.txt
+ratspn/samples/*.png
 
 flow/histories/*.png
 flow/results/*.txt
