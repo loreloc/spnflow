@@ -2,10 +2,10 @@ import os
 import sys
 import torchvision
 import numpy as np
-from experiments.datasets import load_dataset, load_unsupervised_mnist, load_supervised_mnist
+from experiments.datasets import load_unsupervised_mnist, load_supervised_mnist
 
 from spnflow.torch.models import DgcSpn
-from spnflow.torch.transforms import Flatten, Dequantize, Normalize, Logit, Delogit, Reshape
+from spnflow.torch.transforms import Dequantize, Normalize, Logit, Delogit, Reshape
 from experiments.utils import collect_results_generative, collect_results_discriminative, collect_samples
 
 
@@ -38,7 +38,7 @@ def run_experiment_mnist():
         Reshape(*image_size),
         Dequantize(),
         Normalize(255.0),
-        Logit()
+        Logit(),
     ])
 
     # Set the tensor sample to image transformation
@@ -49,33 +49,36 @@ def run_experiment_mnist():
 
     # Load the dataset (generative setting)
     data_train, data_val, data_test = load_unsupervised_mnist(dataroot, transform)
+    init_args = {'dataset': data_train}
 
     # Run the RAT-SPN experiment (generative setting)
     for kwargs in dgcspn_kwargs:
         model = DgcSpn(**kwargs)
         info = dgcspn_experiment_info(kwargs)
-        collect_results_generative('mnist', info, model, data_train, data_val, data_test)
+        collect_results_generative('mnist', info, model, data_train, data_val, data_test, init_args=init_args)
         collect_samples('mnist', info, model, n_samples=(5, 5), transform=sample_transform)
 
     # Set the transformation (discriminative setting)
     transform = torchvision.transforms.Compose([
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize(0.0, 1.0),
+        Reshape(*image_size)
     ])
 
     # Load the dataset (discriminative setting)
     data_train, data_val, data_test = load_supervised_mnist(dataroot, transform)
+    init_args = {'dataset': data_train}
 
     # Run the RAT-SPN experiment (discriminative setting)
     for kwargs in dgcspn_kwargs:
         model = DgcSpn(out_classes=n_classes, **kwargs)
         info = dgcspn_experiment_info(kwargs)
-        collect_results_discriminative('mnist', info, model, data_train, data_val, data_test)
+        collect_results_discriminative('mnist', info, model, data_train, data_val, data_test, init_args=init_args)
 
 
 def dgcspn_experiment_info(kwargs):
-    return 'dgcspn-b' + str(kwargs['n_batch']) +\
-           '-p' + str(kwargs['prod_channels']) + '-s' + str(kwargs['sum_channels'])
+    return 'dgcspn-b' + str(kwargs['n_batch']) + '-p' + str(kwargs['prod_channels']) +\
+           '-s' + str(kwargs['sum_channels']) + '-q' + str(kwargs['n_pooling'])
 
 
 if __name__ == '__main__':
