@@ -1,4 +1,4 @@
 #!/bin/bash
 export PYTHONPATH=../../
-export DATAPATH=../
+export DATAPATH=../datasets/
 python experiment.py mnist

@@ -5,32 +5,19 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from spnflow.torch.utils import torch_train_generative, torch_test_generative
+from spnflow.torch.utils import torch_train_discriminative, torch_test_discriminative
 
 
-def logit(data, alpha=0.05):
-    data = alpha + (1.0 - 2.0 * alpha) * data
-    return np.log(data / (1.0 - data))
-
-
-def delogit(data, alpha=0.05):
-    x = 1.0 / (1.0 + np.exp(-data))
-    return (x - alpha) / (1.0 - 2.0 * alpha)
-
-
-def dequantize(data, rand_state):
-    return data + rand_state.rand(*data.shape)
-
-
-def collect_results(dataset, info, model, data_train, data_val, data_test, **kwargs):
+def collect_results_generative(dataset, info, model, data_train, data_val, data_test, **kwargs):
     """
-    Train and test the model on given data.
+    Train and test the model on given data (generative setting).
 
     :param dataset: The dataset's name.
     :param info: Information string about the experiment.
     :param model: The model to train and test.
-    :param data_train: The train data.
-    :param data_val: The validation data.
-    :param data_test: The test data.
+    :param data_train: The train dataset.
+    :param data_val: The validation dataset.
+    :param data_test: The test dataset.
     :param kwargs: Other arguments to pass to the train routine. See `torch_train_generative` docs.
     """
     # Train the model
@@ -40,7 +27,7 @@ def collect_results(dataset, info, model, data_train, data_val, data_test, **kwa
     (mu_ll, sigma_ll) = torch_test_generative(model, data_test)
 
     # Save the results to file
-    filepath = os.path.join('results', dataset + '_' + info + '.txt')
+    filepath = os.path.join('results', dataset + '_' + info + '_' + 'gen' + '.txt')
     with open(filepath, 'w') as file:
         file.write(dataset + ': ' + info + '\n')
         file.write('Mean Log-Likelihood: ' + str(mu_ll) + '\n')
@@ -48,7 +35,6 @@ def collect_results(dataset, info, model, data_train, data_val, data_test, **kwa
 
     # Plot the training history
     filepath = os.path.join('histories', dataset + '_' + info + '.png')
-    plt.xlim(0, 1000)
     plt.plot(history['train'])
     plt.plot(history['validation'])
     plt.title('Log-Loss')
@@ -59,27 +45,73 @@ def collect_results(dataset, info, model, data_train, data_val, data_test, **kwa
     plt.clf()
 
 
-def collect_samples(dataset, info, model, image_func=None, n_samples=100, n_grid=(8, 8)):
+def collect_results_discriminative(dataset, info, model, data_train, data_val, data_test, **kwargs):
+    """
+    Train and test the model on given data (discriminative setting).
+
+    :param dataset: The dataset's name.
+    :param info: Information string about the experiment.
+    :param model: The model to train and test.
+    :param data_train: The train dataset.
+    :param data_val: The validation dataset.
+    :param data_test: The test dataset.
+    :param kwargs: Other arguments to pass to the train routine. See `torch_train_discriminative` docs.
+    """
+    # Train the model
+    history = torch_train_discriminative(model, data_train, data_val, **kwargs)
+
+    # Test the model
+    (nll, accuracy) = torch_test_discriminative(model, data_test)
+
+    # Save the results to file
+    filepath = os.path.join('results', dataset + '_' + info + '_' + 'dis' + '.txt')
+    with open(filepath, 'w') as file:
+        file.write(dataset + ': ' + info + '\n')
+        file.write('Negative Log-Likelihood: ' + str(nll) + '\n')
+        file.write('Accuracy: ' + str(accuracy) + '\n')
+
+    # Plot the training history (loss and accuracy)
+    filepath = os.path.join('histories', dataset + '_' + info + '.png')
+    plt.subplot(211)
+    plt.plot(history['train']['loss'])
+    plt.plot(history['validation']['loss'])
+    plt.title('Negative Log-Likelihood')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['Train', 'Validation'])
+    plt.subplot(212)
+    plt.plot(history['train']['accuracy'])
+    plt.plot(history['validation']['accuracy'])
+    plt.title('Accuracy')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['Train', 'Validation'])
+    plt.tight_layout()
+    plt.savefig(filepath)
+    plt.clf()
+
+
+def collect_samples(dataset, info, model, n_samples, transform=None):
     """
     Sample some samples from the model.
 
     :param dataset: The dataset's name.
     :param info: The information string about the experiment.
     :param model: The model which to sample from.
-    :param image_func: The function that convert the samples to images.
-    :param n_samples: The number of samples. This is ignored if image_func is not None.
-    :param n_grid: The grid of samples shape. This is ignore if image_func is None.
+    :param n_samples: The number of samples. It can be an integer or a integer pair.
+    :param transform: The function that convert the tensor samples to images.
     """
     # Initialize the results filepath
     filepath = os.path.join('samples', dataset + '_' + info)
 
-    # If image_func is specified, save the samples as images, otherwise save them in CSV format
-    if image_func:
-        rows, cols = n_grid
+    # If transform is specified, save the samples as images, otherwise save them in CSV format
+    if transform:
+        rows, cols = (1, n_samples) if isinstance(n_samples, int) else n_samples
         n_samples = rows * cols
-        samples = model.sample(n_samples).cpu().numpy()
-        images = image_func(samples)
-        torchvision.utils.save_image(torch.tensor(images), filepath + '.png', nrow=cols, padding=0, pad_value=255)
+        samples = model.sample(n_samples).cpu()
+        images = torch.stack(list(map(transform, torch.unbind(samples, dim=0))), dim=0)
+        torchvision.utils.save_image(images, filepath + '.png', nrow=cols, padding=0, pad_value=255)
     else:
+        n_samples = np.prod(n_samples)
         samples = model.sample(n_samples).cpu().numpy()
         pd.DataFrame(samples).to_csv(filepath + '.csv')

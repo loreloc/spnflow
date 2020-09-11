@@ -1,16 +1,13 @@
+import os
 import sys
 import numpy as np
+import torchvision
 
-from experiments.power import load_power_dataset
-from experiments.gas import load_gas_dataset
-from experiments.hepmass import load_hepmass_dataset
-from experiments.miniboone import load_miniboone_dataset
-from experiments.bsds300 import load_bsds300_dataset
-from experiments.mnist import load_mnist_dataset
-from experiments.mnist import to_images as mnist_to_images
+from experiments.datasets import load_dataset, load_unsupervised_mnist, load_supervised_mnist
 
-from experiments.utils import collect_results, collect_samples
 from spnflow.torch.models import RatSpn
+from spnflow.torch.transforms import Flatten, Dequantize, Normalize, Logit, Delogit, Reshape
+from experiments.utils import collect_results_generative, collect_results_discriminative, collect_samples
 
 
 def run_experiment_power():
@@ -18,7 +15,7 @@ def run_experiment_power():
     rand_state = np.random.RandomState(42)
 
     # Load the power dataset
-    data_train, data_val, data_test = load_power_dataset(rand_state)
+    data_train, data_val, data_test = load_dataset(dataroot, 'POWER', rand_state)
     _, n_features = data_train.shape
 
     # Set the parameters for the RAT-SPNs
@@ -31,7 +28,7 @@ def run_experiment_power():
     for kwargs in ratspn_kwargs:
         model = RatSpn(n_features, **kwargs)
         info = ratspn_experiment_info(kwargs)
-        collect_results('power', info, model, data_train, data_val, data_test)
+        collect_results_generative('power', info, model, data_train, data_val, data_test)
 
 
 def run_experiment_gas():
@@ -39,7 +36,7 @@ def run_experiment_gas():
     rand_state = np.random.RandomState(42)
 
     # Load the gas dataset
-    data_train, data_val, data_test = load_gas_dataset(rand_state)
+    data_train, data_val, data_test = load_dataset(dataroot, 'GAS', rand_state)
     _, n_features = data_train.shape
 
     # Set the parameters for the RAT-SPNs
@@ -52,7 +49,7 @@ def run_experiment_gas():
     for kwargs in ratspn_kwargs:
         model = RatSpn(n_features, **kwargs)
         info = ratspn_experiment_info(kwargs)
-        collect_results('gas', info, model, data_train, data_val, data_test)
+        collect_results_generative('gas', info, model, data_train, data_val, data_test)
 
 
 def run_experiment_hepmass():
@@ -60,7 +57,7 @@ def run_experiment_hepmass():
     rand_state = np.random.RandomState(42)
 
     # Load the hepmass dataset
-    data_train, data_val, data_test = load_hepmass_dataset(rand_state)
+    data_train, data_val, data_test = load_dataset(dataroot, 'HEPMASS', rand_state)
     _, n_features = data_train.shape
 
     # Set the parameters for the RAT-SPNs
@@ -73,7 +70,7 @@ def run_experiment_hepmass():
     for kwargs in ratspn_kwargs:
         model = RatSpn(n_features, **kwargs)
         info = ratspn_experiment_info(kwargs)
-        collect_results('hepmass', info, model, data_train, data_val, data_test)
+        collect_results_generative('hepmass', info, model, data_train, data_val, data_test)
 
 
 def run_experiment_miniboone():
@@ -81,7 +78,7 @@ def run_experiment_miniboone():
     rand_state = np.random.RandomState(42)
 
     # Load the miniboone dataset
-    data_train, data_val, data_test = load_miniboone_dataset(rand_state)
+    data_train, data_val, data_test = load_dataset(dataroot, 'MINIBOONE', rand_state)
     _, n_features = data_train.shape
 
     # Set the parameters for the RAT-SPNs
@@ -94,7 +91,7 @@ def run_experiment_miniboone():
     for kwargs in ratspn_kwargs:
         model = RatSpn(n_features, **kwargs)
         info = ratspn_experiment_info(kwargs)
-        collect_results('miniboone', info, model, data_train, data_val, data_test, epochs=1)
+        collect_results_generative('miniboone', info, model, data_train, data_val, data_test)
 
 
 def run_experiment_bsds300():
@@ -102,7 +99,7 @@ def run_experiment_bsds300():
     rand_state = np.random.RandomState(42)
 
     # Load the BSDS300 dataset
-    data_train, data_val, data_test = load_bsds300_dataset(rand_state)
+    data_train, data_val, data_test = load_dataset(dataroot, 'BSDS300', rand_state)
     _, n_features = data_train.shape
 
     # Set the parameters for the RAT-SPNs
@@ -115,16 +112,16 @@ def run_experiment_bsds300():
     for kwargs in ratspn_kwargs:
         model = RatSpn(n_features, **kwargs)
         info = ratspn_experiment_info(kwargs)
-        collect_results('bsds300', info, model, data_train, data_val, data_test)
+        collect_results_generative('bsds300', info, model, data_train, data_val, data_test)
 
 
 def run_experiment_mnist():
+    n_features = 784
+    n_classes = 10
+    image_size = (1, 28, 28)
+
     # Instantiate a random state, used for reproducibility
     rand_state = np.random.RandomState(42)
-
-    # Load the MNIST dataset
-    data_train, data_val, data_test = load_mnist_dataset(rand_state)
-    _, n_features = data_train.shape
 
     # Set the parameters for the RAT-SPNs
     ratspn_kwargs = [
@@ -134,12 +131,46 @@ def run_experiment_mnist():
         {'rg_depth': 4, 'rg_repetitions': 32, 'n_batch': 16, 'n_sum': 16, 'rand_state': rand_state},
     ]
 
-    # RAT-SPN experiment
+    # Set the transformation
+    transform = torchvision.transforms.Compose([
+        torchvision.transforms.ToTensor(),
+        Flatten(),
+        Dequantize(),
+        Normalize(255.0),
+        Logit()
+    ])
+
+    # Set the tensor sample to image transformation
+    sample_transform = torchvision.transforms.Compose([
+        Delogit(),
+        Reshape(*image_size)
+    ])
+
+    # Load the dataset (generative setting)
+    data_train, data_val, data_test = load_unsupervised_mnist(dataroot, transform)
+
+    # Run the RAT-SPN experiment (generative setting)
     for kwargs in ratspn_kwargs:
         model = RatSpn(n_features, **kwargs)
         info = ratspn_experiment_info(kwargs)
-        collect_results('mnist', info, model, data_train, data_val, data_test)
-        collect_samples('mnist', info, model, mnist_to_images)
+        collect_results_generative('mnist', info, model, data_train, data_val, data_test)
+        collect_samples('mnist', info, model, n_samples=(5, 5), transform=sample_transform)
+
+    # Set the transformation (discriminative setting)
+    transform = torchvision.transforms.Compose([
+        torchvision.transforms.ToTensor(),
+        torchvision.transforms.Normalize(0.0, 1.0),
+        Flatten()
+    ])
+
+    # Load the dataset (discriminative setting)
+    data_train, data_val, data_test = load_supervised_mnist(dataroot, transform)
+
+    # Run the RAT-SPN experiment (discriminative setting)
+    for kwargs in ratspn_kwargs:
+        model = RatSpn(n_features, n_classes, dropout=0.2, **kwargs)
+        info = ratspn_experiment_info(kwargs)
+        collect_results_discriminative('mnist', info, model, data_train, data_val, data_test)
 
 
 def ratspn_experiment_info(kwargs):
@@ -150,6 +181,8 @@ def ratspn_experiment_info(kwargs):
 if __name__ == '__main__':
     if len(sys.argv) <= 1:
         print("Usage:\n\tpython experiment.py <dataset>")
+
+    dataroot = os.environ['DATAROOT']
 
     dataset = sys.argv[1]
     if dataset == 'power':
