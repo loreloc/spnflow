@@ -78,12 +78,13 @@ def torch_train_generative(
             inputs = inputs.to(device)
             optimizer.zero_grad()
             log_likelihoods = model(inputs)
-            loss = -torch.mean(log_likelihoods)
+            loss = -log_likelihoods.sum()
             train_loss += loss.item()
+            loss /= batch_size
             loss.backward()
             optimizer.step()
             model.apply_constraints()
-        train_loss /= len(train_loader)
+        train_loss /= len(train_loader) * batch_size
 
         # Compute the validation loss
         val_loss = 0.0
@@ -91,9 +92,8 @@ def torch_train_generative(
             for inputs in val_loader:
                 inputs = inputs.to(device)
                 log_likelihoods = model(inputs)
-                loss = -torch.mean(log_likelihoods)
-                val_loss += loss.item()
-            val_loss /= len(val_loader)
+                val_loss += -log_likelihoods.sum().item()
+            val_loss /= len(val_loader) * batch_size
 
         end_time = time.time()
         history['train'].append(train_loss)
@@ -186,15 +186,16 @@ def torch_train_discriminative(
             inputs, targets = inputs.to(device), targets.to(device)
             optimizer.zero_grad()
             outputs = torch.log_softmax(model(inputs), dim=1)
-            loss = torch.nn.functional.nll_loss(outputs, targets)
+            loss = torch.nn.functional.nll_loss(outputs, targets, reduction='sum')
             train_loss += loss.item()
-            loss.backward()
-            optimizer.step()
             preds = torch.argmax(outputs, dim=1)
             train_hits += torch.eq(preds, targets).sum().item()
+            loss /= batch_size
+            loss.backward()
+            optimizer.step()
             model.apply_constraints()
-        train_loss /= len(train_loader)
-        train_hits /= len(train_loader)
+        train_loss /= len(train_loader) * batch_size
+        train_hits /= len(train_loader) * batch_size
 
         # Compute the validation loss
         val_loss = 0.0
@@ -203,12 +204,11 @@ def torch_train_discriminative(
             for inputs, targets in val_loader:
                 inputs, targets = inputs.to(device), targets.to(device)
                 outputs = torch.log_softmax(model(inputs), dim=1)
-                loss = torch.nn.functional.nll_loss(outputs, targets)
-                val_loss += loss.item()
+                val_loss += torch.nn.functional.nll_loss(outputs, targets, reduction='sum').item()
                 preds = torch.argmax(outputs, dim=1)
                 val_hits += torch.eq(preds, targets).sum().item()
-            val_loss /= len(val_loader)
-            val_hits /= len(val_loader)
+            val_loss /= len(val_loader) * batch_size
+            val_hits /= len(val_loader) * batch_size
 
         end_time = time.time()
         history['train']['loss'].append(train_loss)
@@ -216,8 +216,8 @@ def torch_train_discriminative(
         history['validation']['loss'].append(val_loss)
         history['validation']['accuracy'].append(val_hits)
         elapsed_time = end_time - start_time
-        print('[%4d] train_loss: %.4f, val_loss: %.4f, train_acc %.2f, val_acc: %.2f - %ds' %
-              (epoch + 1, train_loss, val_loss, train_hits, val_hits, elapsed_time))
+        print('[%4d] train_loss: %.4f, val_loss: %.4f, train_acc %.1f, val_acc: %.1f - %ds' %
+              (epoch + 1, train_loss, val_loss, train_hits * 100, val_hits * 100, elapsed_time))
 
         # Check if training should stop
         early_stopping(val_loss)
@@ -292,10 +292,10 @@ def torch_test_discriminative(
         for inputs, targets in test_loader:
             inputs, targets = inputs.to(device), targets.to(device)
             outputs = torch.log_softmax(model(inputs), dim=1)
-            test_loss += torch.nn.functional.nll_loss(outputs, targets).cpu().numpy().item()
+            test_loss += torch.nn.functional.nll_loss(outputs, targets, reduction='sum').item()
             preds = torch.argmax(outputs, dim=1)
             test_hits += torch.eq(preds, targets).sum().item()
-        test_loss /= len(test_loader)
-        test_hits /= len(test_loader)
+        test_loss /= len(test_loader) * batch_size
+        test_hits /= len(test_loader) * batch_size
 
     return test_loss, test_hits
