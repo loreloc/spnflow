@@ -16,10 +16,13 @@ Some models are implemented using **PyTorch** for fast training and inference on
 - Implementation of RAT-SPN using PyTorch. [5]
 - Implementation of MAFs and Real-NVPs using PyTorch. [6] [7] [8]
 - Implementation of Deep Generalized Convolutional SPNs (DGC-SPNs). [9]
-- Combination of normalizing flows and SPNs for very deep probabilistic models.
 
 ## Documentation
 The online documentation is hosted using Github Pages at [SPNFlow](https://loreloc.github.io/spnflow/).
+
+## Experiments
+The datasets required to run the experiments can be found on [GoogleDrive](https://drive.google.com/file/d/1LFQfim0hl1IlUstT8xaHjSQ3FWVZavpK/view?usp=sharing).
+After downloading it, unzip it in `experiments/datasets` to be able to run the experiments.
 
 ## Related Repositories
 - [SPFlow](https://github.com/SPFlow/SPFlow)
