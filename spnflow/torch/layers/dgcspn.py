@@ -23,9 +23,7 @@ class SpatialGaussianLayer(torch.nn.Module):
         if self.zeros_loc:
             self.loc = torch.nn.Parameter(torch.zeros(self.out_channels, *self.in_size), requires_grad=True)
         else:
-            self.loc = torch.nn.Parameter(
-                torch.randn(self.in_regions, self.out_channels, self.dimension), requires_grad=True
-            )
+            self.loc = torch.nn.Parameter(torch.randn(self.out_channels, *self.in_size), requires_grad=True)
 
         # Instantiate the scale variable
         if self.optimize_scale:
