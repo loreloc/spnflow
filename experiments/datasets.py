@@ -10,9 +10,6 @@ class SupervisedMNIST(torchvision.datasets.MNIST):
     def __init__(self, *args, **kwargs):
         super(SupervisedMNIST, self).__init__(*args, **kwargs)
 
-    def mean_quantiles(self, n_quantiles):
-        return compute_mean_quantiles(self.data, n_quantiles, self.transform)
-
 
 class UnsupervisedMNIST(torchvision.datasets.MNIST):
     """Unsupervised MNIST"""

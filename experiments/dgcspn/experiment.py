@@ -53,8 +53,7 @@ def run_experiment_mnist():
 
     # Run the RAT-SPN experiment (discriminative setting)
     for kwargs in dgcspn_kwargs:
-        quantiles = data_train.dataset.mean_quantiles(kwargs['n_batch'])
-        model = DgcSpn(in_size, n_classes, quantiles_loc=True, quantiles=quantiles, **kwargs)
+        model = DgcSpn(in_size, n_classes, **kwargs)
         info = dgcspn_experiment_info(kwargs)
         collect_results_discriminative('mnist', info, model, data_train, data_val, data_test)
 
