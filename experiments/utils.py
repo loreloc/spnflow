@@ -27,14 +27,14 @@ def collect_results_generative(dataset, info, model, data_train, data_val, data_
     (mu_ll, sigma_ll) = torch_test_generative(model, data_test)
 
     # Save the results to file
-    filepath = os.path.join('results', dataset + '_' + 'gen' + '_' + info + '.txt')
+    filepath = os.path.join('results', 'generative', dataset + '_' + info + '.txt')
     with open(filepath, 'w') as file:
         file.write(dataset + ': ' + info + '\n')
         file.write('Mean Log-Likelihood: ' + str(mu_ll) + '\n')
         file.write('Two StdDev. Log-Likelihood: ' + str(2.0 * sigma_ll) + '\n')
 
     # Plot the training history
-    filepath = os.path.join('histories', dataset + '_' + 'gen' + '_' + info + '_' + '.png')
+    filepath = os.path.join('histories', 'generative', dataset + '_' + info + '_' + '.png')
     plt.plot(history['train'])
     plt.plot(history['validation'])
     plt.title('Log-Loss')
@@ -64,14 +64,14 @@ def collect_results_discriminative(dataset, info, model, data_train, data_val, d
     (nll, accuracy) = torch_test_discriminative(model, data_test)
 
     # Save the results to file
-    filepath = os.path.join('results', dataset + '_' + 'dis' + '_' + info + '.txt')
+    filepath = os.path.join('results', 'discriminative', dataset + '_' + info + '.txt')
     with open(filepath, 'w') as file:
         file.write(dataset + ': ' + info + '\n')
         file.write('Negative Log-Likelihood: ' + str(nll) + '\n')
         file.write('Accuracy: ' + str(accuracy) + '\n')
 
     # Plot the training history (loss and accuracy)
-    filepath = os.path.join('histories', dataset + '_' + 'dis' + '_' + info + '.png')
+    filepath = os.path.join('histories', 'discriminative', dataset + '_' + info + '.png')
     plt.subplot(211)
     plt.plot(history['train']['loss'])
     plt.plot(history['validation']['loss'])

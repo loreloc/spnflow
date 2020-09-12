@@ -13,7 +13,6 @@ def torch_train_generative(
         epochs=1000,
         patience=30,
         optim=torch.optim.Adam,
-        init_args=None,
         device=None,
         num_workers=2,
 ):
@@ -28,13 +27,9 @@ def torch_train_generative(
     :param epochs: The number of epochs.
     :param patience: The number of consecutive epochs to wait until no improvements of the validation loss occurs.
     :param optim: The optimizer to use.
-    :param init_args: The parameters to pass to the initializers of the model.
     :param device: The device used for training. If it's None 'cuda' will be used, if available.
     :param num_workers: The number of workers for data loading.
     """
-    if init_args is None:
-        init_args = {}
-
     # Instantiate the train history
     history = {
         'train': [], 'validation': []
@@ -48,11 +43,11 @@ def torch_train_generative(
     # Print the model
     print(model)
 
+    # Call the model initializers
+    model.apply_initializers()
+
     # Move the model to the device
     model.to(device)
-
-    # Call the model initializers
-    model.apply_initializers(**init_args)
 
     # Setup the data loaders
     train_loader = torch.utils.data.DataLoader(
@@ -119,7 +114,6 @@ def torch_train_discriminative(
         epochs=100,
         patience=5,
         optim=torch.optim.Adam,
-        init_args=None,
         device=None,
         num_workers=2,
 ):
@@ -134,13 +128,9 @@ def torch_train_discriminative(
     :param epochs: The number of epochs.
     :param patience: The number of consecutive epochs to wait until no improvements of the validation loss occurs.
     :param optim: The optimizer to use.
-    :param init_args: The parameters to pass to the initializers of the model.
     :param device: The device used for training. If it's None 'cuda' will be used, if available.
     :param num_workers: The number of workers for data loading.
     """
-    if init_args is None:
-        init_args = {}
-
     # Instantiate the train history
     history = {
         'train': {'loss': [], 'accuracy': []},
@@ -155,11 +145,11 @@ def torch_train_discriminative(
     # Print the model
     print(model)
 
+    # Call the model initializer
+    model.apply_initializers()
+
     # Move the model to the device
     model.to(device)
-
-    # Call the model initializer
-    model.apply_initializers(**init_args)
 
     # Setup the data loaders
     train_loader = torch.utils.data.DataLoader(

@@ -4,28 +4,28 @@ import numpy as np
 
 class SpatialGaussianLayer(torch.nn.Module):
     """Spatial Gaussian input layer."""
-    def __init__(self, in_size, out_channels, zeros_loc, optimize_scale):
+    def __init__(self, in_size, out_channels, optimize_loc, optimize_scale):
         """
         Initialize a Spatial Gaussian input layer.
 
         :param in_size: The size of the input tensor.
         :param out_channels: The number of output channels.
-        :param optimize_scale: Whether to optimize scale and location jointly.
-        :param zeros_loc: Whether to initialize the location parameter with zeros.
+        :param optimize_loc: Whether to optimize location.
+        :param optimize_scale: Whether to optimize scale.
         """
         super(SpatialGaussianLayer, self).__init__()
         self.in_size = in_size
         self.out_channels = out_channels
-        self.zeros_loc = zeros_loc
+        self.optimize_loc = optimize_loc
         self.optimize_scale = optimize_scale
 
-        # Instantiate the location variable
-        if self.zeros_loc:
-            self.loc = torch.nn.Parameter(torch.zeros(self.out_channels, *self.in_size), requires_grad=True)
-        else:
+        # Instantiate the location parameter
+        if self.optimize_loc:
             self.loc = torch.nn.Parameter(torch.randn(self.out_channels, *self.in_size), requires_grad=True)
+        else:
+            self.loc = torch.nn.Parameter(torch.zeros(self.out_channels, *self.in_size), requires_grad=False)
 
-        # Instantiate the scale variable
+        # Instantiate the scale parameter
         if self.optimize_scale:
             sigma = torch.sigmoid(torch.randn(self.out_channels, *self.in_size))
             self.scale = torch.nn.Parameter(0.25 + sigma * 0.5, requires_grad=True)
@@ -258,24 +258,3 @@ class SpatialRootLayer(torch.nn.Module):
         w = torch.log_softmax(self.weight, dim=1)  # (out_channels, in_flatten_size)
         x = torch.logsumexp(x + w, dim=-1)         # (-1, out_channels)
         return x
-
-    @torch.no_grad()
-    def sample(self, y):
-        """
-        Sample the corresponding indices.
-
-        :param y: The target classes.
-        :return: The sampled indices.
-        """
-        # Get the indices by sampling from a categorical distribution
-        # that is parametrized by root layer's weights
-        w = torch.log_softmax(self.weight, dim=1)
-        dist = torch.distributions.Categorical(logits=w[y])
-        idx = dist.sample()
-        idx_channel = idx // (self.in_height * self.in_width)
-        idx = idx - idx_channel * (self.in_height * self.in_width)
-        idx_height = idx // self.in_height
-        idx_width = idx % self.in_width
-        idx = torch.stack([idx_channel, idx_height, idx_width], dim=-1)
-        return torch.unsqueeze(idx, dim=1)
-

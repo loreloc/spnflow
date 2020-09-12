@@ -6,7 +6,6 @@ from spnflow.torch.layers.ratspn import GaussianLayer, ProductLayer, SumLayer, R
 from spnflow.torch.layers.flows import CouplingLayer, AutoregressiveLayer, BatchNormLayer
 from spnflow.torch.layers.dgcspn import SpatialGaussianLayer, SpatialProductLayer, SpatialSumLayer, SpatialRootLayer
 from spnflow.torch.constraints import ScaleClipper
-from spnflow.torch.initializers import quantiles_initializer
 
 
 class AbstractModel(abc.ABC, torch.nn.Module):
@@ -14,24 +13,22 @@ class AbstractModel(abc.ABC, torch.nn.Module):
     def __init__(self):
         super(AbstractModel, self).__init__()
 
-    def log_prob(self, x):
-        return self(x)
-
     @abc.abstractmethod
     def forward(self, x):
         pass
 
-    @torch.no_grad()
     @abc.abstractmethod
     def mpe(self, x):
         pass
 
-    @torch.no_grad()
     @abc.abstractmethod
     def sample(self, n_samples):
         pass
 
-    def apply_initializers(self, **kwargs):
+    def log_prob(self, x):
+        return self(x)
+
+    def apply_initializers(self):
         pass
 
     def apply_constraints(self):
@@ -119,9 +116,7 @@ class RealNVP(AbstractModel):
         :return: The samples.
         """
         # Sample from the base distribution
-        if isinstance(self.in_base, torch.distributions.Distribution):
-            n_samples = [n_samples]
-        x = self.in_base.sample(n_samples)
+        x = self.in_base.sample([n_samples])
 
         # Apply the normalizing flows transformations
         for layer in reversed(self.layers):
@@ -209,9 +204,7 @@ class MAF(AbstractModel):
         :return: The samples.
         """
         # Sample from the base distribution
-        if isinstance(self.in_base, torch.distributions.Distribution):
-            n_samples = [n_samples]
-        x = self.in_base.sample(n_samples)
+        x = self.in_base.sample([n_samples])
 
         # Apply the normalizing flows transformations
         for layer in reversed(self.layers):
@@ -387,8 +380,9 @@ class DgcSpn(AbstractModel):
                  prod_channels=16,
                  sum_channels=8,
                  n_pooling=0,
-                 quantiles_loc=True,
-                 optimize_scale=True,
+                 quantiles_loc=False,
+                 optimize_scale=False,
+                 quantiles=None,
                  rand_state=None,
                  ):
         """
@@ -400,8 +394,9 @@ class DgcSpn(AbstractModel):
         :param prod_channels: The number of output channels of spatial product layers.
         :param sum_channels: The number of output channels of spatial sum layers.
         :param n_pooling: The number of initial pooling product layers.
-        :param quantiles_loc: Whether to initialize the base distribution location parameters using data quantiles.
-        :param optimize_scale: Whether to train scale and location jointly.
+        :param quantiles_loc: Whether to initialize the location parameters using quantiles.
+        :param optimize_scale: Whether to train scale.
+        :param quantiles: The mean quantiles tensor. It's used only if quantiles_loc is True.
         :param rand_state: The random state used to initialize the spatial product layers weights.
         """
         super(DgcSpn, self).__init__()
@@ -413,10 +408,13 @@ class DgcSpn(AbstractModel):
         self.n_pooling = n_pooling
         self.quantiles_loc = quantiles_loc
         self.optimize_scale = optimize_scale
+        self.quantiles = quantiles
         self.rand_state = rand_state
 
         # Instantiate the base layer
-        self.base_layer = SpatialGaussianLayer(self.in_size, self.n_batch, self.quantiles_loc, self.optimize_scale)
+        self.base_layer = SpatialGaussianLayer(
+            self.in_size, self.n_batch, not self.quantiles_loc, self.optimize_scale
+        )
         in_size = self.base_layer.out_size
 
         # Add the initial pooling layers
@@ -475,34 +473,45 @@ class DgcSpn(AbstractModel):
         # Forward through the root layer
         return self.root_layer(x)
 
-    @torch.no_grad()
     def mpe(self, x):
-        raise NotImplementedError('Maximum at posteriori estimation is not implemented for DGC-SPNs')
+        """
+        Compute the maximum at posteriori estimation.
+        Random variables can be marginalized using NaN values.
 
-    @torch.no_grad()
+        :param x: The inputs tensor.
+        :return: The output of the model.
+        """
+        # Compute the base distribution log-likelihoods
+        z = self.base_layer(x)
+
+        # Forward through the inner layers
+        y = z
+        for layer in self.layers:
+            y = layer(y)
+
+        # Forward through the root layer
+        y = self.root_layer(y)
+
+        # Compute the gradients at leaves
+        (d,) = torch.autograd.grad(y, z)
+
+        with torch.no_grad():
+            # Compute the maximum at posteriori estimate using leaves gradients
+            mode = self.base_layer.loc
+            estimates = torch.sum(torch.unsqueeze(d, dim=2) * mode, dim=1)
+            return torch.where(torch.isnan(x), estimates, x)
+
     def sample(self, n_samples, y=None):
-        """
-        Sample some values from the modeled distribution.
+        raise NotImplementedError('Sampling is not implemented for DGC-SPNs')
 
-        :param n_samples: The number of samples.
-        :param y: The target classes. It can be None for unlabeled and uniform sampling.
-        :return: The samples.
-        """
-        # Sample the target classes uniformly, if not specified
-        y = y if y else torch.randint(self.out_classes, [n_samples])
-
-        # Get the first indices
-        idx = self.root_layer.sample(y)
-
-    def apply_initializers(self, **kwargs):
+    def apply_initializers(self):
         """
         Apply the initializers specified by the model.
-
-        :param kwargs: The arguments to pass to the initializers of the model.
         """
-        # Initialize the location parameters of the base layer using some data, if specified
+        # Initialize the location parameters of the base layer using quantiles, if specified
         if self.quantiles_loc:
-            quantiles_initializer(self.base_layer.loc, **kwargs)
+            with torch.no_grad():
+                self.base_layer.loc.copy_(self.quantiles)
 
     def apply_constraints(self):
         """
