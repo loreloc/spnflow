@@ -15,7 +15,7 @@ def torch_train_generative(
         optim=torch.optim.Adam,
         init_args=None,
         device=None,
-        num_workers=0,
+        num_workers=2,
 ):
     """
     Train a Torch model by maximizing the log-likelihood.
@@ -121,7 +121,7 @@ def torch_train_discriminative(
         optim=torch.optim.Adam,
         init_args=None,
         device=None,
-        num_workers=0,
+        num_workers=2,
 ):
     """
     Train a Torch model by minimizing the categorical cross entropy.
@@ -232,8 +232,9 @@ def torch_test_generative(
         model,
         data_test,
         batch_size=100,
-        device=None
-    ):
+        device=None,
+        num_workers=2,
+):
     """
     Test a Torch model by its log-likelihood.
 
@@ -241,6 +242,7 @@ def torch_test_generative(
     :param data_test: The test dataset.
     :param batch_size: The batch size for testing.
     :param device: The device used for training. If it's None 'cuda' will be used, if available.
+    :param num_workers: The number of workers for data loading.
     """
     # Get the device to use
     if device is None:
@@ -248,7 +250,9 @@ def torch_test_generative(
     print('Test using device: ' + str(device))
 
     # Setup the data loader
-    test_loader = torch.utils.data.DataLoader(data_test, batch_size=batch_size, shuffle=False)
+    test_loader = torch.utils.data.DataLoader(
+        data_test, batch_size=batch_size, shuffle=False, num_workers=num_workers
+    )
 
     # Test the model
     test_ll = np.array([])
@@ -267,8 +271,9 @@ def torch_test_discriminative(
         model,
         dataset,
         batch_size=100,
-        device=None
-    ):
+        device=None,
+        num_workers=2,
+):
     """
     Test a Torch model by its log-likelihood.
 
@@ -276,6 +281,7 @@ def torch_test_discriminative(
     :param dataset: The test dataset.
     :param batch_size: The batch size for testing.
     :param device: The device used for training. If it's None 'cuda' will be used, if available.
+    :param num_workers: The number of workers for data loading.
     """
     # Get the device to use
     if device is None:
@@ -283,7 +289,9 @@ def torch_test_discriminative(
     print('Test using device: ' + str(device))
 
     # Setup the data loader
-    test_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    test_loader = torch.utils.data.DataLoader(
+        dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers
+    )
 
     # Test the model
     test_loss = 0.0
