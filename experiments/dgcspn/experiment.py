@@ -22,6 +22,7 @@ def run_experiment_mnist():
         {'n_batch': 16, 'prod_channels': 32, 'sum_channels': 64, 'n_pooling': 1, 'rand_state': rand_state},
         {'n_batch': 16, 'prod_channels': 32, 'sum_channels': 64, 'n_pooling': 0, 'rand_state': rand_state},
     ]
+
     # Set the transformation
     transform = torchvision.transforms.Compose([
         torchvision.transforms.ToTensor(),
