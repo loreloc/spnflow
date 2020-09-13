@@ -15,7 +15,7 @@ def run_experiment_mnist():
 
     # Instantiate a random state, used for reproducibility
     rand_state = np.random.RandomState(42)
-    """
+
     # Set the parameters for the DGC-SPN (generative setting)
     dgcspn_kwargs = [
         {'n_batch': 8, 'sum_channels':  4, 'prod_channels': 16, 'rand_state': rand_state},
@@ -41,7 +41,7 @@ def run_experiment_mnist():
         model = DgcSpn(in_size, quantiles_loc=quantiles_loc, **kwargs)
         info = dgcspn_experiment_info(kwargs)
         collect_results_generative('mnist', info, model, data_train, data_val, data_test)
-    """
+
     # Set the parameters for the DGC-SPN (discriminative setting)
     dgcspn_kwargs = [
         {'n_batch': 32, 'sum_channels': 64, 'depthwise': True, 'n_pooling': 2},

@@ -174,8 +174,16 @@ def run_experiment_mnist():
 
 
 def ratspn_experiment_info(kwargs):
-    return 'ratspn' + '-d' + str(kwargs['rg_depth']) + '-r' + str(kwargs['rg_repetitions']) +\
-           '-b' + str(kwargs['n_batch']) + '-s' + str(kwargs['n_sum'])
+    info = 'ratspn'
+    if 'rg_depth' in kwargs:
+        info += '-d' + str(kwargs['rg_depth'])
+    if 'rg_repetitions' in kwargs:
+        info += '-r' + str(kwargs['rg_repetitions'])
+    if 'n_batch' in kwargs:
+        info += '-b' + str(kwargs['n_batch'])
+    if 'n_sum' in kwargs:
+        info += '-s' + str(kwargs['n_sum'])
+    return sum
 
 
 if __name__ == '__main__':

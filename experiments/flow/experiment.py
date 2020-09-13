@@ -202,13 +202,29 @@ def run_experiment_mnist():
 
 
 def nvp_experiment_info(kwargs):
-    return 'nvp' + '-n' + str(kwargs['n_flows']) + '-d' + str(kwargs['depth']) +\
-           '-u' + str(kwargs['units']) + '-a' + kwargs['activation'].__name__
+    info = 'nvp'
+    if 'n_flows' in kwargs:
+        info += '-n' + str(kwargs['n_flows'])
+    if 'depth' in kwargs:
+        info += '-d' + str(kwargs['depth'])
+    if 'units' in kwargs:
+        info += '-u' + str(kwargs['units'])
+    if 'activation' in kwargs:
+        info += '-a' + kwargs['activation'].__name__
+    return info
 
 
 def maf_experiment_info(kwargs):
-    return 'maf' + '-n' + str(kwargs['n_flows']) + '-d' + str(kwargs['depth']) +\
-           '-u' + str(kwargs['units']) + '-a' + kwargs['activation'].__name__
+    info = 'maf'
+    if 'n_flows' in kwargs:
+        info += '-n' + str(kwargs['n_flows'])
+    if 'depth' in kwargs:
+        info += '-d' + str(kwargs['depth'])
+    if 'units' in kwargs:
+        info += '-u' + str(kwargs['units'])
+    if 'activation' in kwargs:
+        info += '-a' + kwargs['activation'].__name__
+    return info
 
 
 if __name__ == '__main__':
