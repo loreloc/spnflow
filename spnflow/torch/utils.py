@@ -43,9 +43,6 @@ def torch_train_generative(
     # Print the model
     print(model)
 
-    # Call the model initializers
-    model.apply_initializers()
-
     # Move the model to the device
     model.to(device)
 
@@ -111,8 +108,8 @@ def torch_train_discriminative(
         data_val,
         lr=1e-3,
         batch_size=100,
-        epochs=100,
-        patience=5,
+        epochs=250,
+        patience=10,
         optim=torch.optim.Adam,
         device=None,
         num_workers=2,
@@ -144,9 +141,6 @@ def torch_train_discriminative(
 
     # Print the model
     print(model)
-
-    # Call the model initializer
-    model.apply_initializers()
 
     # Move the model to the device
     model.to(device)

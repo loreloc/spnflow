@@ -28,9 +28,6 @@ class AbstractModel(abc.ABC, torch.nn.Module):
     def log_prob(self, x):
         return self(x)
 
-    def apply_initializers(self):
-        pass
-
     def apply_constraints(self):
         pass
 
@@ -382,9 +379,8 @@ class DgcSpn(AbstractModel):
                  depthwise=False,
                  n_pooling=0,
                  dropout=None,
-                 quantiles_loc=False,
-                 optimize_scale=False,
-                 quantiles=None,
+                 optimize_scale=True,
+                 quantiles_loc=None,
                  rand_state=None,
                  ):
         """
@@ -398,9 +394,8 @@ class DgcSpn(AbstractModel):
         :param depthwise: Whether to use depthwise convolutions as product layers.
         :param n_pooling: The number of initial pooling product layers.
         :param dropout: The dropout rate for probabilistic dropout at sum layer inputs. It can be None.
-        :param quantiles_loc: Whether to initialize the location parameters using quantiles.
         :param optimize_scale: Whether to train scale.
-        :param quantiles: The mean quantiles tensor. It's used only if quantiles_loc is True.
+        :param quantiles_loc: The mean quantiles for location initialization. It can be None.
         :param rand_state: The random state used to initialize the spatial product layers weights.
                            It can be None if depthwise is True.
         """
@@ -413,14 +408,12 @@ class DgcSpn(AbstractModel):
         self.depthwise = depthwise
         self.n_pooling = n_pooling
         self.dropout = dropout
-        self.quantiles_loc = quantiles_loc
         self.optimize_scale = optimize_scale
-        self.quantiles = quantiles
+        self.quantiles_loc = quantiles_loc
         self.rand_state = rand_state
-        self.optimize_loc = self.quantiles_loc is False
 
         # Instantiate the base layer
-        self.base_layer = SpatialGaussianLayer(self.in_size, self.n_batch, self.optimize_loc, self.optimize_scale)
+        self.base_layer = SpatialGaussianLayer(self.in_size, self.n_batch, self.optimize_scale, self.quantiles_loc)
         in_size = self.base_layer.out_size
 
         # Add the initial pooling layers, if specified
@@ -514,15 +507,6 @@ class DgcSpn(AbstractModel):
 
     def sample(self, n_samples, y=None):
         raise NotImplementedError('Sampling is not implemented for DGC-SPNs')
-
-    def apply_initializers(self):
-        """
-        Apply the initializers specified by the model.
-        """
-        with torch.no_grad():
-            # Initialize the location parameters of the base layer using quantiles, if specified
-            if self.quantiles_loc:
-                self.base_layer.loc.copy_(self.quantiles)
 
     def apply_constraints(self):
         """
