@@ -72,25 +72,28 @@ class SpatialGaussianLayer(torch.nn.Module):
 
 class SpatialProductLayer(torch.nn.Module):
     """Spatial Product layer class."""
-    def __init__(self, in_size, out_channels, kernel_size, padding, stride, dilation, rand_state):
+    def __init__(self, in_size, out_channels, kernel_size, padding, stride, dilation, rand_state=None):
         """
         Initialize a Spatial Product layer.
 
         :param in_size: The input tensor size. It should be (in_channels, in_height, in_width).
-        :param out_channels: The number of output channels.
+        :param out_channels: The number of output channels. It can be None for depthwise convolutions.
         :param kernel_size: The size of the kernels.
         :param stride: The strides to use.
         :param padding: The padding mode to use. It can be 'valid', 'full' or 'final'.
         :param dilation: The space between the kernel points.
-        :param rand_state: The random state used to generate the weight mask.
+        :param rand_state: The random state used to generate the weight mask. It can be None if out_channels is None.
         """
         super(SpatialProductLayer, self).__init__()
         self.in_size = in_size
-        self.out_channels = out_channels
+        self.depthwise = out_channels is None
+        self.out_channels = self.in_channels if self.depthwise else out_channels
         self.kernel_size = kernel_size
         self.padding = padding
         self.stride = stride
         self.dilation = dilation
+        self.rand_state = rand_state
+        self.groups = self.in_channels if self.depthwise else 1
 
         # Compute the effective kernel size (due to dilation)
         dh, dw = self.dilation
@@ -108,20 +111,11 @@ class SpatialProductLayer(torch.nn.Module):
         else:
             raise NotImplementedError('Unknown padding mode named ' + self.padding)
 
-        # Generate a sparse representation of weight
-        kernels_idx = []
-        for _ in range(kh * kw):
-            idx = np.arange(self.out_channels) % self.in_channels
-            rand_state.shuffle(idx)
-            kernels_idx.append(idx)
-        kernels_idx = np.stack(kernels_idx, axis=1)
-        kernels_idx = np.reshape(kernels_idx, (self.out_channels, 1, kh, kw))
-
-        # Generate a dense representation of weight, given the sparse representation
-        weight = np.ones((self.out_channels, self.in_channels, kh, kw))
-        weight = weight * np.arange(self.in_channels).reshape((1, self.in_channels, 1, 1))
-        weight = np.equal(weight, kernels_idx)
-        weight = weight.astype(np.float32)
+        # Build the convolution kernels
+        if self.depthwise:
+            weight = self._build_depthwise_kernels()
+        else:
+            weight = self._build_sparse_kernels(rand_state)
 
         # Initialize the weight tensor
         self.weight = torch.nn.Parameter(torch.tensor(weight), requires_grad=False)
@@ -156,7 +150,42 @@ class SpatialProductLayer(torch.nn.Module):
         """
         # Pad the input and compute the log-likelihoods
         x = torch.nn.functional.pad(x, self.pad)
-        return torch.nn.functional.conv2d(x, self.weight, stride=self.stride, dilation=self.dilation)
+        return torch.nn.functional.conv2d(
+            x, self.weight, stride=self.stride, dilation=self.dilation, groups=self.groups
+        )
+
+    def _build_sparse_kernels(self, rand_state):
+        """
+        Generate sparse (and non-depthwise) convolution kernels randomly.
+
+        :param rand_state: The random state used to generate the weight mask.
+        :return: The convolution kernels.
+        """
+        kernels_idx = []
+        kh, kw = self.kernel_size
+
+        # Generate a sparse representation of weight
+        for _ in range(kh * kw):
+            idx = np.arange(self.out_channels) % self.in_channels
+            rand_state.shuffle(idx)
+            kernels_idx.append(idx)
+        kernels_idx = np.stack(kernels_idx, axis=1)
+        kernels_idx = np.reshape(kernels_idx, (self.out_channels, 1, kh, kw))
+
+        # Generate a dense representation of weight, given the sparse representation
+        weight = np.ones((self.out_channels, self.in_channels, kh, kw))
+        weight = weight * np.arange(self.in_channels).reshape((1, self.in_channels, 1, 1))
+        weight = np.equal(weight, kernels_idx)
+        return weight.astype(np.float32)
+
+    def _build_depthwise_kernels(self):
+        """
+        Generate depthwise convolution kernels.
+
+        :return: The convolution kernels.
+        """
+        kh, kw = self.kernel_size
+        return np.ones((self.out_channels, 1, kh, kw)).astype(np.float32)
 
 
 class SpatialSumLayer(torch.nn.Module):

@@ -16,14 +16,14 @@ def run_experiment_mnist():
     # Instantiate a random state, used for reproducibility
     rand_state = np.random.RandomState(42)
 
-    # Set the parameters for the DGC-SPN
+    # Set the parameters for the DGC-SPN (generative setting)
     dgcspn_kwargs = [
         {'n_batch': 16, 'prod_channels': 32, 'sum_channels': 64, 'n_pooling': 2, 'rand_state': rand_state},
         {'n_batch': 16, 'prod_channels': 32, 'sum_channels': 64, 'n_pooling': 1, 'rand_state': rand_state},
         {'n_batch': 16, 'prod_channels': 32, 'sum_channels': 64, 'n_pooling': 0, 'rand_state': rand_state},
     ]
 
-    # Set the transformation
+    # Set the transformation (generative setting)
     transform = torchvision.transforms.Compose([
         torchvision.transforms.ToTensor(),
         Reshape(*in_size),
@@ -41,6 +41,15 @@ def run_experiment_mnist():
         model = DgcSpn(in_size, quantiles_loc=True, quantiles=quantiles, **kwargs)
         info = dgcspn_experiment_info(kwargs)
         collect_results_generative('mnist', info, model, data_train, data_val, data_test)
+
+    # ----------------------------------------------------------------------------------------------------------- #
+
+    # Set the parameters for the DGC-SPN (discriminative setting)
+    dgcspn_kwargs = [
+        {'n_batch': 32, 'prod_channels': None, 'sum_channels': 64, 'n_pooling': 2, 'rand_state': rand_state},
+        {'n_batch': 32, 'prod_channels': None, 'sum_channels': 64, 'n_pooling': 1, 'rand_state': rand_state},
+        {'n_batch': 32, 'prod_channels': None, 'sum_channels': 64, 'n_pooling': 0, 'rand_state': rand_state},
+    ]
 
     # Set the transformation (discriminative setting)
     transform = torchvision.transforms.Compose([

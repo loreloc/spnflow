@@ -377,8 +377,8 @@ class DgcSpn(AbstractModel):
                  in_size,
                  out_classes=1,
                  n_batch=8,
-                 prod_channels=16,
                  sum_channels=8,
+                 prod_channels=None,
                  n_pooling=0,
                  quantiles_loc=False,
                  optimize_scale=False,
@@ -391,63 +391,67 @@ class DgcSpn(AbstractModel):
         :param in_size: The input size.
         :param out_classes: The number of output classes. Specify 1 in case of plain density estimation.
         :param n_batch: The number of output channels of the base layer.
-        :param prod_channels: The number of output channels of spatial product layers.
         :param sum_channels: The number of output channels of spatial sum layers.
+        :param prod_channels: The number of output channels of spatial product layers.
+                              If None depthwise convolutions are used.
         :param n_pooling: The number of initial pooling product layers.
         :param quantiles_loc: Whether to initialize the location parameters using quantiles.
         :param optimize_scale: Whether to train scale.
         :param quantiles: The mean quantiles tensor. It's used only if quantiles_loc is True.
         :param rand_state: The random state used to initialize the spatial product layers weights.
+                           It can be None if prod_channels is None.
         """
         super(DgcSpn, self).__init__()
         self.in_size = in_size
         self.out_classes = out_classes
         self.n_batch = n_batch
-        self.prod_channels = prod_channels
         self.sum_channels = sum_channels
+        self.prod_channels = prod_channels
         self.n_pooling = n_pooling
         self.quantiles_loc = quantiles_loc
         self.optimize_scale = optimize_scale
         self.quantiles = quantiles
         self.rand_state = rand_state
+        self.optimize_loc = self.quantiles_loc is False
 
         # Instantiate the base layer
-        self.base_layer = SpatialGaussianLayer(
-            self.in_size, self.n_batch, not self.quantiles_loc, self.optimize_scale
-        )
+        self.base_layer = SpatialGaussianLayer(self.in_size, self.n_batch, self.optimize_loc, self.optimize_scale)
         in_size = self.base_layer.out_size
 
-        # Add the initial pooling layers
+        # Add the initial pooling layers, if specified
         self.layers = torch.nn.ModuleList()
         for _ in range(self.n_pooling):
             # Add a spatial product layer (but with strides in order to reduce the dimensionality)
-            self.layers.append(SpatialProductLayer(
-                in_size, self.prod_channels, (2, 2), padding='valid',
-                stride=(2, 2), dilation=(1, 1), rand_state=self.rand_state
-            ))
-            in_size = self.layers[-1].out_size
+            # Also, use depthwise convolutions for pooling
+            pooling = SpatialProductLayer(
+                in_size, out_channels=None, kernel_size=(2, 2), padding='valid', stride=(2, 2), dilation=(1, 1)
+            )
+            self.layers.append(pooling)
+            in_size = pooling.out_size
 
         # Instantiate the inner layers
         depth = int(np.max(np.ceil(np.log2(in_size[1:]))).item())
         for k in range(depth):
             # Add a spatial product layer (with full padding and no strides)
-            self.layers.append(SpatialProductLayer(
-                in_size, self.prod_channels, (2, 2), padding='full',
-                stride=(1, 1), dilation=(2 ** k, 2 ** k), rand_state=self.rand_state
-            ))
-            in_size = self.layers[-1].out_size
+            spatial_prod = SpatialProductLayer(
+                in_size, out_channels=self.prod_channels, kernel_size=(2, 2),
+                padding='full', stride=(1, 1), dilation=(2 ** k, 2 ** k), rand_state=self.rand_state
+            )
+            self.layers.append(spatial_prod)
+            in_size = spatial_prod.out_size
 
             # Add a spatial sum layer
-            self.layers.append(SpatialSumLayer(in_size, self.sum_channels))
-            in_size = self.layers[-1].out_size
+            spatial_sum = SpatialSumLayer(in_size, self.sum_channels)
+            self.layers.append(spatial_sum)
+            in_size = spatial_sum.out_size
 
         # Add the last product layer
-        self.layers.append(SpatialProductLayer(
-            in_size, self.prod_channels, (2, 2), padding='final',
-            stride=(1, 1), dilation=(2 ** depth, 2 ** depth),
-            rand_state=self.rand_state
-        ))
-        in_size = self.layers[-1].out_size
+        spatial_prod = SpatialProductLayer(
+            in_size, out_channels=self.prod_channels, kernel_size=(2, 2),
+            padding='final', stride=(1, 1), dilation=(2 ** depth, 2 ** depth), rand_state=self.rand_state
+        )
+        self.layers.append(spatial_prod)
+        in_size = spatial_prod.out_size
 
         # Instantiate the spatial root layer
         self.root_layer = SpatialRootLayer(in_size, self.out_classes)
@@ -508,9 +512,9 @@ class DgcSpn(AbstractModel):
         """
         Apply the initializers specified by the model.
         """
-        # Initialize the location parameters of the base layer using quantiles, if specified
-        if self.quantiles_loc:
-            with torch.no_grad():
+        with torch.no_grad():
+            # Initialize the location parameters of the base layer using quantiles, if specified
+            if self.quantiles_loc:
                 self.base_layer.loc.copy_(self.quantiles)
 
     def apply_constraints(self):
