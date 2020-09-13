@@ -42,13 +42,11 @@ def run_experiment_mnist():
         info = dgcspn_experiment_info(kwargs)
         collect_results_generative('mnist', info, model, data_train, data_val, data_test)
 
-    # ----------------------------------------------------------------------------------------------------------- #
-
     # Set the parameters for the DGC-SPN (discriminative setting)
     dgcspn_kwargs = [
-        {'n_batch': 32, 'prod_channels': None, 'sum_channels': 64, 'n_pooling': 2, 'rand_state': rand_state},
-        {'n_batch': 32, 'prod_channels': None, 'sum_channels': 64, 'n_pooling': 1, 'rand_state': rand_state},
-        {'n_batch': 32, 'prod_channels': None, 'sum_channels': 64, 'n_pooling': 0, 'rand_state': rand_state},
+        {'n_batch': 32, 'sum_channels': 64, 'depthwise': True, 'n_pooling': 2, 'rand_state': rand_state},
+        {'n_batch': 32, 'sum_channels': 64, 'depthwise': True, 'n_pooling': 1, 'rand_state': rand_state},
+        {'n_batch': 32, 'sum_channels': 64, 'depthwise': True, 'n_pooling': 0, 'rand_state': rand_state},
     ]
 
     # Set the transformation (discriminative setting)
@@ -69,8 +67,10 @@ def run_experiment_mnist():
 
 
 def dgcspn_experiment_info(kwargs):
-    return 'dgcspn-b' + str(kwargs['n_batch']) + '-p' + str(kwargs['prod_channels']) +\
-           '-s' + str(kwargs['sum_channels']) + '-q' + str(kwargs['n_pooling'])
+    prod_info = '-d' if 'depthwise' in kwargs else ('-p' + str(kwargs['prod_channels']))
+    info = 'dgcspn-b' + str(kwargs['n_batch']) + '-s' + str(kwargs['sum_channels']) + prod_info +\
+           '-q' + str(kwargs['n_pooling'])
+    return info
 
 
 if __name__ == '__main__':

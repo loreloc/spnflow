@@ -378,7 +378,8 @@ class DgcSpn(AbstractModel):
                  out_classes=1,
                  n_batch=8,
                  sum_channels=8,
-                 prod_channels=None,
+                 prod_channels=8,
+                 depthwise=False,
                  n_pooling=0,
                  quantiles_loc=False,
                  optimize_scale=False,
@@ -392,14 +393,14 @@ class DgcSpn(AbstractModel):
         :param out_classes: The number of output classes. Specify 1 in case of plain density estimation.
         :param n_batch: The number of output channels of the base layer.
         :param sum_channels: The number of output channels of spatial sum layers.
-        :param prod_channels: The number of output channels of spatial product layers.
-                              If None depthwise convolutions are used.
+        :param prod_channels: The number of output channels of spatial product layers. Used only if depthwise is False.
+        :param depthwise: Whether to use depthwise convolutions as product layers.
         :param n_pooling: The number of initial pooling product layers.
         :param quantiles_loc: Whether to initialize the location parameters using quantiles.
         :param optimize_scale: Whether to train scale.
         :param quantiles: The mean quantiles tensor. It's used only if quantiles_loc is True.
         :param rand_state: The random state used to initialize the spatial product layers weights.
-                           It can be None if prod_channels is None.
+                           It can be None if depthwise is True.
         """
         super(DgcSpn, self).__init__()
         self.in_size = in_size
@@ -407,6 +408,7 @@ class DgcSpn(AbstractModel):
         self.n_batch = n_batch
         self.sum_channels = sum_channels
         self.prod_channels = prod_channels
+        self.depthwise = depthwise
         self.n_pooling = n_pooling
         self.quantiles_loc = quantiles_loc
         self.optimize_scale = optimize_scale
@@ -424,7 +426,7 @@ class DgcSpn(AbstractModel):
             # Add a spatial product layer (but with strides in order to reduce the dimensionality)
             # Also, use depthwise convolutions for pooling
             pooling = SpatialProductLayer(
-                in_size, out_channels=None, kernel_size=(2, 2), padding='valid', stride=(2, 2), dilation=(1, 1)
+                in_size, in_size[0], kernel_size=(2, 2), padding='valid', stride=(2, 2), dilation=(1, 1), depthwise=True
             )
             self.layers.append(pooling)
             in_size = pooling.out_size
@@ -433,9 +435,10 @@ class DgcSpn(AbstractModel):
         depth = int(np.max(np.ceil(np.log2(in_size[1:]))).item())
         for k in range(depth):
             # Add a spatial product layer (with full padding and no strides)
+            out_channels = in_size[0] if self.depthwise else self.prod_channels
             spatial_prod = SpatialProductLayer(
-                in_size, out_channels=self.prod_channels, kernel_size=(2, 2),
-                padding='full', stride=(1, 1), dilation=(2 ** k, 2 ** k), rand_state=self.rand_state
+                in_size, out_channels, kernel_size=(2, 2), padding='full', stride=(1, 1),
+                dilation=(2 ** k, 2 ** k), depthwise=self.depthwise, rand_state=self.rand_state
             )
             self.layers.append(spatial_prod)
             in_size = spatial_prod.out_size
@@ -446,9 +449,10 @@ class DgcSpn(AbstractModel):
             in_size = spatial_sum.out_size
 
         # Add the last product layer
+        out_channels = in_size[0] if self.depthwise else self.prod_channels
         spatial_prod = SpatialProductLayer(
-            in_size, out_channels=self.prod_channels, kernel_size=(2, 2),
-            padding='final', stride=(1, 1), dilation=(2 ** depth, 2 ** depth), rand_state=self.rand_state
+            in_size, out_channels, kernel_size=(2, 2), padding='final', stride=(1, 1),
+            dilation=(2 ** depth, 2 ** depth), depthwise=self.depthwise, rand_state=self.rand_state
         )
         self.layers.append(spatial_prod)
         in_size = spatial_prod.out_size

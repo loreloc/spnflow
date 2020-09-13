@@ -72,7 +72,7 @@ class SpatialGaussianLayer(torch.nn.Module):
 
 class SpatialProductLayer(torch.nn.Module):
     """Spatial Product layer class."""
-    def __init__(self, in_size, out_channels, kernel_size, padding, stride, dilation, rand_state=None):
+    def __init__(self, in_size, out_channels, kernel_size, padding, stride, dilation, depthwise, rand_state=None):
         """
         Initialize a Spatial Product layer.
 
@@ -82,18 +82,19 @@ class SpatialProductLayer(torch.nn.Module):
         :param stride: The strides to use.
         :param padding: The padding mode to use. It can be 'valid', 'full' or 'final'.
         :param dilation: The space between the kernel points.
-        :param rand_state: The random state used to generate the weight mask. It can be None if out_channels is None.
+        :param depthwise: Whether to use depthwise convolutions.
+        :param rand_state: The random state used to generate the weight mask. It can be None if depthwise is True.
         """
         super(SpatialProductLayer, self).__init__()
         self.in_size = in_size
-        self.depthwise = out_channels is None
-        self.out_channels = self.in_channels if self.depthwise else out_channels
+        self.out_channels = out_channels
         self.kernel_size = kernel_size
         self.padding = padding
         self.stride = stride
         self.dilation = dilation
+        self.depthwise = depthwise
         self.rand_state = rand_state
-        self.groups = self.in_channels if self.depthwise else 1
+        self.groups = self.out_channels if self.depthwise else 1
 
         # Compute the effective kernel size (due to dilation)
         dh, dw = self.dilation
