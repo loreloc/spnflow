@@ -98,7 +98,7 @@ class RealNVP(AbstractModel):
             x, ildj = layer.inverse(x)
             inv_log_det_jacobian += ildj
         prior = self.in_base.log_prob(x)
-        return torch.sum(prior, dim=1) + inv_log_det_jacobian
+        return torch.sum(prior, dim=1, keepdim=True) + inv_log_det_jacobian
 
     @torch.no_grad()
     def mpe(self, x):
@@ -186,7 +186,7 @@ class MAF(AbstractModel):
             x, ildj = layer.inverse(x)
             inv_log_det_jacobian += ildj
         prior = self.in_base.log_prob(x)
-        return torch.sum(prior, dim=1) + inv_log_det_jacobian
+        return torch.sum(prior, dim=1, keepdim=True) + inv_log_det_jacobian
 
     @torch.no_grad()
     def mpe(self, x):
