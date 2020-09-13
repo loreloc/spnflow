@@ -234,7 +234,7 @@ class RatSpn(AbstractModel):
         :param rg_repetitions: The number of independent repetitions of the region graph.
         :param n_batch: The number of base distributions batches.
         :param n_sum: The number of sum nodes per region.
-        :param dropout: The dropout rate for probabilistic dropout at sum layer inputs (can be None).
+        :param dropout: The dropout rate for probabilistic dropout at sum layer inputs. It can be None.
         :param optimize_scale: Whether to train scale and location jointly.
         :param rand_state: The random state used to generate the random graph.
         """
@@ -381,6 +381,7 @@ class DgcSpn(AbstractModel):
                  prod_channels=8,
                  depthwise=False,
                  n_pooling=0,
+                 dropout=None,
                  quantiles_loc=False,
                  optimize_scale=False,
                  quantiles=None,
@@ -396,6 +397,7 @@ class DgcSpn(AbstractModel):
         :param prod_channels: The number of output channels of spatial product layers. Used only if depthwise is False.
         :param depthwise: Whether to use depthwise convolutions as product layers.
         :param n_pooling: The number of initial pooling product layers.
+        :param dropout: The dropout rate for probabilistic dropout at sum layer inputs. It can be None.
         :param quantiles_loc: Whether to initialize the location parameters using quantiles.
         :param optimize_scale: Whether to train scale.
         :param quantiles: The mean quantiles tensor. It's used only if quantiles_loc is True.
@@ -410,6 +412,7 @@ class DgcSpn(AbstractModel):
         self.prod_channels = prod_channels
         self.depthwise = depthwise
         self.n_pooling = n_pooling
+        self.dropout = dropout
         self.quantiles_loc = quantiles_loc
         self.optimize_scale = optimize_scale
         self.quantiles = quantiles
@@ -444,7 +447,7 @@ class DgcSpn(AbstractModel):
             in_size = spatial_prod.out_size
 
             # Add a spatial sum layer
-            spatial_sum = SpatialSumLayer(in_size, self.sum_channels)
+            spatial_sum = SpatialSumLayer(in_size, self.sum_channels, self.dropout)
             self.layers.append(spatial_sum)
             in_size = spatial_sum.out_size
 

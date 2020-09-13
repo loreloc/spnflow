@@ -225,7 +225,7 @@ class SumLayer(torch.nn.Module):
         :param in_partitions: The number of input partitions.
         :param in_nodes: The number of input nodes per partition.
         :param out_nodes: The number of output nodes per region.
-        :param dropout: The input nodes dropout rate (can be None).
+        :param dropout: The input nodes dropout rate. It can be None.
         """
         super(SumLayer, self).__init__()
         self.in_partitions = in_partitions
@@ -250,8 +250,7 @@ class SumLayer(torch.nn.Module):
         """
         # Apply the dropout, if specified
         if self.training and self.dropout is not None:
-            mask = torch.rand(size=(self.out_regions, self.in_nodes), device=x.device)
-            x = x + torch.log(torch.floor(self._rate + mask))
+            x = x + torch.log(torch.floor(self._rate + torch.rand_like(x)))
 
         # Calculate the log likelihood using the "logsumexp" trick
         w = torch.log_softmax(self.weight, dim=2)  # (out_regions, out_nodes, in_nodes)

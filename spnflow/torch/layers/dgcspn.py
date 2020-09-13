@@ -191,16 +191,20 @@ class SpatialProductLayer(torch.nn.Module):
 
 class SpatialSumLayer(torch.nn.Module):
     """Spatial Sum layer class."""
-    def __init__(self, in_size, out_channels):
+    def __init__(self, in_size, out_channels, dropout=None):
         """
         Initialize a Spatial Sum layer.
 
         :param in_size: The input tensor size. It should be (in_channels, in_height, in_width).
         :param out_channels: The number of output channels.
+        :param dropout: The input nodes dropout rate. It can be None.
         """
         super(SpatialSumLayer, self).__init__()
         self.in_size = in_size
         self.out_channels = out_channels
+        self.dropout = dropout
+        if self.dropout:
+            self._rate = 1.0 - dropout
 
         # Initialize the weight tensor
         self.weight = torch.nn.Parameter(torch.randn(self.out_channels, self.in_channels, 1, 1), requires_grad=True)
@@ -228,6 +232,10 @@ class SpatialSumLayer(torch.nn.Module):
         :param x: The inputs.
         :return: The tensor result of the layer.
         """
+        # Apply the dropout, if specified
+        if self.training and self.dropout is not None:
+            x = x + torch.log(torch.floor(self._rate + torch.rand_like(x)))
+
         # Normalize the weight using softmax
         w = torch.softmax(self.weight, dim=1)
 
