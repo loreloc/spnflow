@@ -183,7 +183,7 @@ def ratspn_experiment_info(kwargs):
         info += '-b' + str(kwargs['n_batch'])
     if 'n_sum' in kwargs:
         info += '-s' + str(kwargs['n_sum'])
-    return sum
+    return info
 
 
 if __name__ == '__main__':
