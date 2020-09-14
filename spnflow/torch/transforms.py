@@ -18,7 +18,8 @@ class Delogit:
 
     def __call__(self, tensor):
         x = 1.0 / (1.0 + torch.exp(-tensor))
-        return (x - self.alpha) / (1.0 - 2.0 * self.alpha)
+        x = (x - self.alpha) / (1.0 - 2.0 * self.alpha)
+        return torch.clamp(x, 0.0, 1.0)
 
 
 class Dequantize:
