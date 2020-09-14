@@ -34,7 +34,7 @@ def collect_results_generative(dataset, info, model, data_train, data_val, data_
         file.write('Two StdDev. Log-Likelihood: ' + str(2.0 * sigma_ll) + '\n')
 
     # Plot the training history
-    filepath = os.path.join('histories', 'generative', dataset + '_' + info + '_' + '.png')
+    filepath = os.path.join('histories', 'generative', dataset + '_' + info + '.png')
     plt.plot(history['train'])
     plt.plot(history['validation'])
     plt.title('Log-Loss')
