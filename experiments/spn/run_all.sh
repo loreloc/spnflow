@@ -1,6 +1,6 @@
 #!/bin/bash
 export PYTHONPATH=../../
-export DATAPATH=../
+export DATAROOT=../datasets/
 python experiment.py hepmass
 python experiment.py miniboone
 python experiment.py power

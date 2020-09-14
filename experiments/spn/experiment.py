@@ -2,11 +2,7 @@ import os
 import sys
 import numpy as np
 
-from experiments.power import load_power_dataset
-from experiments.gas import load_gas_dataset
-from experiments.hepmass import load_hepmass_dataset
-from experiments.miniboone import load_miniboone_dataset
-from experiments.bsds300 import load_bsds300_dataset
+from experiments.datasets import load_dataset
 
 from spnflow.structure.leaf import Gaussian
 from spnflow.learning.wrappers import learn_estimator
@@ -18,7 +14,7 @@ def run_experiment_power():
     rand_state = np.random.RandomState(42)
 
     # Load the power dataset
-    data_train, data_val, data_test = load_power_dataset(rand_state)
+    data_train, data_val, data_test = load_dataset(dataroot, 'POWER', rand_state)
     _, n_features = data_train.shape
 
     # Set the parameters for the SPN
@@ -40,7 +36,7 @@ def run_experiment_gas():
     rand_state = np.random.RandomState(42)
 
     # Load the gas dataset
-    data_train, data_val, data_test = load_gas_dataset(rand_state)
+    data_train, data_val, data_test = load_dataset(dataroot, 'GAS', rand_state)
     _, n_features = data_train.shape
 
     # Set the parameters for the SPN
@@ -62,7 +58,7 @@ def run_experiment_hepmass():
     rand_state = np.random.RandomState(42)
 
     # Load the hepmass dataset
-    data_train, data_val, data_test = load_hepmass_dataset(rand_state)
+    data_train, data_val, data_test = load_dataset(dataroot, 'HEPMASS', rand_state)
     _, n_features = data_train.shape
 
     # Set the parameters for the SPN
@@ -84,7 +80,7 @@ def run_experiment_miniboone():
     rand_state = np.random.RandomState(42)
 
     # Load the miniboone dataset
-    data_train, data_val, data_test = load_miniboone_dataset(rand_state)
+    data_train, data_val, data_test = load_dataset(dataroot, 'MINIBOONE', rand_state)
     _, n_features = data_train.shape
 
     # Set the parameters for the SPN
@@ -106,7 +102,7 @@ def run_experiment_bsds300():
     rand_state = np.random.RandomState(42)
 
     # Load the BSDS300 dataset
-    data_train, data_val, data_test = load_bsds300_dataset(rand_state)
+    data_train, data_val, data_test = load_dataset(dataroot, 'BSDS300', rand_state)
     _, n_features = data_train.shape
 
     # Set the parameters for the SPN
@@ -140,6 +136,8 @@ def collect_results(dataset, info, spn, data_test):
 if __name__ == '__main__':
     if len(sys.argv) <= 1:
         print("Usage:\n\tpython experiment.py <dataset>")
+
+    dataroot = os.environ['DATAROOT']
 
     dataset = sys.argv[1]
     if dataset == 'power':
