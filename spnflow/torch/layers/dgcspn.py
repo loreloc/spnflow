@@ -203,8 +203,6 @@ class SpatialSumLayer(torch.nn.Module):
         self.in_size = in_size
         self.out_channels = out_channels
         self.dropout = dropout
-        if self.dropout:
-            self._rate = 1.0 - dropout
 
         # Initialize the weight tensor
         self.weight = torch.nn.Parameter(torch.randn(self.out_channels, self.in_channels, 1, 1), requires_grad=True)
@@ -234,7 +232,7 @@ class SpatialSumLayer(torch.nn.Module):
         """
         # Apply the dropout, if specified
         if self.training and self.dropout is not None:
-            x = x + torch.log(torch.floor(self._rate + torch.rand_like(x)))
+            x = x + torch.log(torch.floor(1.0 - self.dropout + torch.rand_like(x)))
 
         # Normalize the weight using softmax
         w = torch.softmax(self.weight, dim=1)
