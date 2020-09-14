@@ -51,7 +51,7 @@ def run_experiment_mnist():
     # Set the transformation (discriminative setting)
     transform = torchvision.transforms.Compose([
         torchvision.transforms.ToTensor(),
-        torchvision.transforms.Normalize(0.0, 1.0),
+        torchvision.transforms.Normalize(0.1307, 0.3081),
         Reshape(*in_size)
     ])
 
