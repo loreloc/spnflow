@@ -7,7 +7,7 @@ import numpy as np
 from experiments.datasets import load_dataset, load_unsupervised_mnist
 
 from spnflow.torch.models import RealNVP, MAF
-from spnflow.torch.transforms import Flatten, Dequantize, Normalize, Logit, Delogit, Reshape
+from spnflow.torch.transforms import Flatten, Dequantize, Logit, Delogit, Reshape
 from experiments.utils import collect_results_generative, collect_samples
 
 
@@ -172,8 +172,7 @@ def run_experiment_mnist():
     transform = torchvision.transforms.Compose([
         torchvision.transforms.ToTensor(),
         Flatten(),
-        Dequantize(),
-        Normalize(255.0),
+        Dequantize(1.0 / 256.0),
         Logit()
     ])
 
@@ -192,6 +191,7 @@ def run_experiment_mnist():
         info = nvp_experiment_info(kwargs)
         collect_results_generative('mnist', info, model, data_train, data_val, data_test)
         collect_samples('mnist', info, model, n_samples=(5, 5), transform=sample_transform)
+        quit()
 
     # MAF experiments
     for kwargs in flow_kwargs:

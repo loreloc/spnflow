@@ -5,7 +5,7 @@ import numpy as np
 from experiments.datasets import load_unsupervised_mnist, load_supervised_mnist
 
 from spnflow.torch.models import DgcSpn
-from spnflow.torch.transforms import Dequantize, Normalize, Logit, Delogit, Reshape
+from spnflow.torch.transforms import Dequantize, Logit, Delogit, Reshape
 from experiments.utils import collect_results_generative, collect_results_discriminative
 
 
@@ -27,8 +27,7 @@ def run_experiment_mnist():
     transform = torchvision.transforms.Compose([
         torchvision.transforms.ToTensor(),
         Reshape(*in_size),
-        Dequantize(),
-        Normalize(255.0),
+        Dequantize(1.0 / 256.0),
         Logit(),
     ])
 

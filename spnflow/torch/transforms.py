@@ -24,11 +24,11 @@ class Delogit:
 
 class Dequantize:
     """Dequantize transformation"""
-    def __init__(self):
-        pass
+    def __init__(self, factor=1.0):
+        self.factor = factor
 
     def __call__(self, tensor):
-        return tensor + torch.rand(tensor.size())
+        return tensor + torch.rand(tensor.size()) * self.factor
 
 
 class Flatten:
@@ -47,12 +47,3 @@ class Reshape:
 
     def __call__(self, tensor):
         return torch.reshape(tensor, self.size)
-
-
-class Normalize:
-    """Normalize transformation"""
-    def __init__(self, factor):
-        self.factor = factor
-
-    def __call__(self, tensor):
-        return tensor / self.factor
