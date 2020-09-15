@@ -1,5 +1,3 @@
-torch
-torchvision
 scikit-learn
 pandas
 matplotlib
