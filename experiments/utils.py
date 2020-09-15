@@ -99,7 +99,7 @@ def collect_samples(dataset, info, model, n_samples, transform=None):
     :param info: The information string about the experiment.
     :param model: The model which to sample from.
     :param n_samples: The number of samples. It can be an integer or a integer pair.
-    :param transform: The function that convert the tensor samples to images.
+    :param transform: The function that converts the tensor samples to images. It can be None.
     """
     # Initialize the results filepath
     filepath = os.path.join('samples', dataset + '_' + info)
@@ -110,8 +110,53 @@ def collect_samples(dataset, info, model, n_samples, transform=None):
         n_samples = rows * cols
         samples = model.sample(n_samples).cpu()
         images = torch.stack(list(map(transform, torch.unbind(samples, dim=0))), dim=0)
-        torchvision.utils.save_image(images, filepath + '.png', nrow=cols, padding=0, pad_value=255)
+        torchvision.utils.save_image(images, filepath + '.png', nrow=cols, padding=0)
     else:
         n_samples = np.prod(n_samples)
         samples = model.sample(n_samples).cpu().numpy()
         pd.DataFrame(samples).to_csv(filepath + '.csv')
+
+
+def collect_completions(dataset, info, model, data_test, n_samples, transform=None, rand_state=None):
+    """
+    Complete some random images from the test set.
+
+    :param dataset: The dataset's name.
+    :param info: The information string about the experiment.
+    :param model: The model used for completions.
+    :param data_test: The test dataset.
+    :param n_samples: The number of samples to complete for each mask kind.
+    :param transform: The function that converts the tensor samples to images. It can be None.
+    :param rand_state: The random state used to get samples to complete. It can be None.
+    """
+    # Initialize the results filepath
+    filepath = os.path.join('completions', dataset + '_' + info + '.png')
+
+    # Get some random samples from the test set
+    if rand_state is None:
+        rand_state = np.random.RandomState(42)
+    idx_samples = rand_state.choice(np.arange(len(data_test)), n_samples, replace=False)
+    samples = torch.stack([data_test[i] for i in idx_samples], dim=0)
+    n_samples, n_channels, image_h, image_w = samples.size()
+
+    # Compute the masked samples (left, right, top, bottom patterns)
+    idx_lef = torch.tensor([j for j in range(image_w // 2)])
+    idx_rig = torch.tensor([j for j in range(image_w // 2, image_w)])
+    idx_top = torch.tensor([i for i in range(image_h // 2)])
+    idx_bot = torch.tensor([i for i in range(image_h // 2, image_h)])
+    samples_lef = torch.index_fill(samples, dim=3, index=idx_lef, value=np.nan)
+    samples_rig = torch.index_fill(samples, dim=3, index=idx_rig, value=np.nan)
+    samples_top = torch.index_fill(samples, dim=2, index=idx_top, value=np.nan)
+    samples_bot = torch.index_fill(samples, dim=2, index=idx_bot, value=np.nan)
+
+    # Compute the maximum at posteriori estimates for image completion
+    model = model.cpu()
+    samples = torch.cat([samples_lef, samples_rig, samples_top, samples_bot], dim=0)
+    samples_full = model.mpe(samples)
+
+    # Apply the transformation, if specified
+    if transform:
+        samples_full = torch.stack([transform(x) for x in samples_full], dim=0)
+
+    # Save the completed images
+    torchvision.utils.save_image(samples_full, filepath, nrow=n_samples, padding=0)

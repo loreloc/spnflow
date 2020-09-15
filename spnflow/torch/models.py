@@ -375,7 +375,6 @@ class DgcSpn(AbstractModel):
                  out_classes=1,
                  n_batch=8,
                  sum_channels=8,
-                 prod_channels=8,
                  depthwise=False,
                  n_pooling=0,
                  dropout=None,
@@ -390,7 +389,6 @@ class DgcSpn(AbstractModel):
         :param out_classes: The number of output classes. Specify 1 in case of plain density estimation.
         :param n_batch: The number of output channels of the base layer.
         :param sum_channels: The number of output channels of spatial sum layers.
-        :param prod_channels: The number of output channels of spatial product layers. Used only if depthwise is False.
         :param depthwise: Whether to use depthwise convolutions as product layers.
         :param n_pooling: The number of initial pooling product layers.
         :param dropout: The dropout rate for probabilistic dropout at sum layer inputs. It can be None.
@@ -404,7 +402,6 @@ class DgcSpn(AbstractModel):
         self.out_classes = out_classes
         self.n_batch = n_batch
         self.sum_channels = sum_channels
-        self.prod_channels = prod_channels
         self.depthwise = depthwise
         self.n_pooling = n_pooling
         self.dropout = dropout
@@ -422,7 +419,7 @@ class DgcSpn(AbstractModel):
             # Add a spatial product layer (but with strides in order to reduce the dimensionality)
             # Also, use depthwise convolutions for pooling
             pooling = SpatialProductLayer(
-                in_size, in_size[0], kernel_size=(2, 2), padding='valid', stride=(2, 2), dilation=(1, 1), depthwise=True
+                in_size, depthwise=True, kernel_size=(2, 2), padding='valid', stride=(2, 2), dilation=(1, 1)
             )
             self.layers.append(pooling)
             in_size = pooling.out_size
@@ -431,10 +428,9 @@ class DgcSpn(AbstractModel):
         depth = int(np.max(np.ceil(np.log2(in_size[1:]))).item())
         for k in range(depth):
             # Add a spatial product layer (with full padding and no strides)
-            out_channels = in_size[0] if self.depthwise else self.prod_channels
             spatial_prod = SpatialProductLayer(
-                in_size, out_channels, kernel_size=(2, 2), padding='full', stride=(1, 1),
-                dilation=(2 ** k, 2 ** k), depthwise=self.depthwise, rand_state=self.rand_state
+                in_size, depthwise=self.depthwise, kernel_size=(2, 2), padding='full',
+                stride=(1, 1), dilation=(2 ** k, 2 ** k), rand_state=self.rand_state
             )
             self.layers.append(spatial_prod)
             in_size = spatial_prod.out_size
@@ -445,10 +441,9 @@ class DgcSpn(AbstractModel):
             in_size = spatial_sum.out_size
 
         # Add the last product layer
-        out_channels = in_size[0] if self.depthwise else self.prod_channels
         spatial_prod = SpatialProductLayer(
-            in_size, out_channels, kernel_size=(2, 2), padding='final', stride=(1, 1),
-            dilation=(2 ** depth, 2 ** depth), depthwise=self.depthwise, rand_state=self.rand_state
+            in_size, depthwise=self.depthwise, kernel_size=(2, 2), padding='final',
+            stride=(1, 1), dilation=(2 ** depth, 2 ** depth), rand_state=self.rand_state
         )
         self.layers.append(spatial_prod)
         in_size = spatial_prod.out_size
@@ -496,13 +491,13 @@ class DgcSpn(AbstractModel):
         # Forward through the root layer
         y = self.root_layer(y)
 
-        # Compute the gradients at leaves
-        (d,) = torch.autograd.grad(y, z)
+        # Compute the gradients at distribution leaves
+        (z_grad,) = torch.autograd.grad(y, z, grad_outputs=torch.ones_like(y))
 
         with torch.no_grad():
             # Compute the maximum at posteriori estimate using leaves gradients
             mode = self.base_layer.loc
-            estimates = torch.sum(torch.unsqueeze(d, dim=2) * mode, dim=1)
+            estimates = torch.sum(torch.unsqueeze(z_grad, dim=2) * mode, dim=1)
             return torch.where(torch.isnan(x), estimates, x)
 
     def sample(self, n_samples, y=None):

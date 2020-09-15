@@ -6,7 +6,7 @@ from experiments.datasets import load_unsupervised_mnist, load_supervised_mnist
 
 from spnflow.torch.models import DgcSpn
 from spnflow.torch.transforms import Dequantize, Logit, Delogit, Reshape
-from experiments.utils import collect_results_generative, collect_results_discriminative
+from experiments.utils import collect_results_generative, collect_results_discriminative, collect_completions
 
 
 def run_experiment_mnist():
@@ -18,9 +18,9 @@ def run_experiment_mnist():
 
     # Set the parameters for the DGC-SPN (generative setting)
     dgcspn_kwargs = [
-        {'n_batch': 8, 'sum_channels':  4, 'prod_channels': 16, 'rand_state': rand_state},
-        {'n_batch': 8, 'sum_channels':  8, 'prod_channels': 32, 'rand_state': rand_state},
-        {'n_batch': 8, 'sum_channels': 16, 'prod_channels': 64, 'rand_state': rand_state},
+        {'n_batch': 8, 'sum_channels':  4, 'depthwise': False, 'rand_state': rand_state},
+        {'n_batch': 8, 'sum_channels':  8, 'depthwise': False, 'rand_state': rand_state},
+        {'n_batch': 8, 'sum_channels': 16, 'depthwise': False, 'rand_state': rand_state},
     ]
 
     # Set the transformation (generative setting)
@@ -29,6 +29,12 @@ def run_experiment_mnist():
         Reshape(*in_size),
         Dequantize(1.0 / 256.0),
         Logit(),
+    ])
+
+    # Set the tensor sample to image transformation
+    sample_transform = torchvision.transforms.Compose([
+        Delogit(),
+        Reshape(*in_size)
     ])
 
     # Load the dataset (generative setting)
@@ -40,6 +46,7 @@ def run_experiment_mnist():
         model = DgcSpn(in_size, quantiles_loc=quantiles_loc, **kwargs)
         info = dgcspn_experiment_info(kwargs)
         collect_results_generative('mnist', info, model, data_train, data_val, data_test)
+        collect_completions('mnist', info, model, data_test, n_samples=16, transform=sample_transform)
 
     # Set the parameters for the DGC-SPN (discriminative setting)
     dgcspn_kwargs = [
