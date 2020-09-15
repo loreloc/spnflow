@@ -44,7 +44,6 @@ spnflow.utils.validity module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

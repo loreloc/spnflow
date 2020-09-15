@@ -1,6 +1,14 @@
 spnflow.torch package
 =====================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   spnflow.torch.layers
+
 Submodules
 ----------
 
@@ -20,14 +28,6 @@ spnflow.torch.constraints module
    :undoc-members:
    :show-inheritance:
 
-spnflow.torch.layers module
----------------------------
-
-.. automodule:: spnflow.torch.layers
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 spnflow.torch.models module
 ---------------------------
 
@@ -36,6 +36,21 @@ spnflow.torch.models module
    :undoc-members:
    :show-inheritance:
 
+spnflow.torch.transforms module
+-------------------------------
+
+.. automodule:: spnflow.torch.transforms
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spnflow.torch.utils module
+--------------------------
+
+.. automodule:: spnflow.torch.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

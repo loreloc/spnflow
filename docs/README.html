@@ -86,9 +86,9 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">SPNFlow</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#abstract">Abstract</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#features">Features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#experiments">Experiments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#related-repositories">Related Repositories</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
 </ul>
@@ -165,17 +165,9 @@
 <h1>SPNFlow<a class="headerlink" href="#spnflow" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="abstract">
 <h2>Abstract<a class="headerlink" href="#abstract" title="Permalink to this headline">¶</a></h2>
-<p>Sum-product networks (SPNs) are models that, under some constraints, guarantee tractability for probabilistic inference and sampling.
-Recent works show that it’s possible to treat SPNs as multiple layers neural models with density distributions as input units and log-likelihoods as outputs.
-A lot of work have been done on normalizing flows as density estimators.
-Like sum-product networks, some normalizing flows guarantee tractability and have been successfully used to build efficient models for probabilistic inference.
-In this work I exploit the potentiality of normalizing flows combined with SPNs for both tractable and expressive density estimation.</p>
-</div>
-<div class="section" id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p><strong>SPNFlow</strong> is a python implementation of <strong>Sum-Product Networks</strong> (SPNs) learning and inference.
-It also contains an implementation of <strong>Randomized and Tensorized SPNs</strong> (RAT-SPNs) using PyTorch.
-In this repository there are also present novel models that combine <strong>RAT-SPNs</strong> and <strong>Normalizing Flows</strong> for tractable density estimation.</p>
+<p>SPNFlow is a Python library that implements probabilistic models such as various kinds of <strong>Sum-Product Networks</strong>,
+<strong>Normalizing Flows</strong> and their combinations for tractable probabilistic inference.
+Some models are implemented using <strong>PyTorch</strong> for fast training and inference on GPUs.</p>
 </div>
 <div class="section" id="features">
 <h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
@@ -185,12 +177,18 @@ In this repository there are also present novel models that combine <strong>RAT-
 <li><p>Optimization of the structure of SPNs. [4]</p></li>
 <li><p>JSON I/O operations for SPNs. [4]</p></li>
 <li><p>Implementation of RAT-SPN using PyTorch. [5]</p></li>
-<li><p>Implementation of RAT-SPN combined with MAFs and RealNVP using PyTorch. [5] [6] [7] [8]</p></li>
+<li><p>Implementation of MAFs and Real-NVPs using PyTorch. [6] [7] [8]</p></li>
+<li><p>Implementation of Deep Generalized Convolutional SPNs (DGC-SPNs). [9]</p></li>
 </ul>
 </div>
 <div class="section" id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
 <p>The online documentation is hosted using Github Pages at <a class="reference external" href="https://loreloc.github.io/spnflow/">SPNFlow</a>.</p>
+</div>
+<div class="section" id="experiments">
+<h2>Experiments<a class="headerlink" href="#experiments" title="Permalink to this headline">¶</a></h2>
+<p>The datasets required to run the experiments can be found on <a class="reference external" href="https://drive.google.com/file/d/1LFQfim0hl1IlUstT8xaHjSQ3FWVZavpK/view?usp=sharing">GoogleDrive</a>.
+After downloading it, unzip it in <code class="docutils literal notranslate"><span class="pre">experiments/datasets</span></code> to be able to run the experiments.</p>
 </div>
 <div class="section" id="related-repositories">
 <h2>Related Repositories<a class="headerlink" href="#related-repositories" title="Permalink to this headline">¶</a></h2>
@@ -198,6 +196,7 @@ In this repository there are also present novel models that combine <strong>RAT-
 <li><p><a class="reference external" href="https://github.com/SPFlow/SPFlow">SPFlow</a></p></li>
 <li><p><a class="reference external" href="https://github.com/cambridge-mlg/RAT-SPN">RAT-SPN</a></p></li>
 <li><p><a class="reference external" href="https://github.com/gpapamak/maf">MAF</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pronobis/libspn-keras">LibSPN-Keras</a></p></li>
 </ul>
 </div>
 <div class="section" id="references">
@@ -211,6 +210,7 @@ In this repository there are also present novel models that combine <strong>RAT-
 <li><p>Masked Autoregressive Flow for Density Estimation (Papamakarios et al.).</p></li>
 <li><p>Density Estimation using RealNVP (Dinh et al.).</p></li>
 <li><p>Normalizing Flows for Probabilistic Modeling and Inference (Papamakarios, Nalisnick et al.).</p></li>
+<li><p>Deep Generalized Convolutional Sum-Product Networks for Probabilistic Image Representations (Van de Wolfshaar and Pronobis).</p></li>
 </ol>
 </div>
 </div>

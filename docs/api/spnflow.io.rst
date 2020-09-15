@@ -12,7 +12,6 @@ spnflow.io.json module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

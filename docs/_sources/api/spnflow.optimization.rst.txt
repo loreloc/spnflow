@@ -12,7 +12,6 @@ spnflow.optimization.pruning module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 
