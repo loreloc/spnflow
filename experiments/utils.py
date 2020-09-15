@@ -109,7 +109,7 @@ def collect_samples(dataset, info, model, n_samples, transform=None):
         rows, cols = (1, n_samples) if isinstance(n_samples, int) else n_samples
         n_samples = rows * cols
         samples = model.sample(n_samples).cpu()
-        images = torch.stack(list(map(transform, torch.unbind(samples, dim=0))), dim=0)
+        images = torch.stack([transform(x) for x in samples], dim=0)
         torchvision.utils.save_image(images, filepath + '.png', nrow=cols, padding=0)
     else:
         n_samples = np.prod(n_samples)

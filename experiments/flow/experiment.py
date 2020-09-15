@@ -190,15 +190,14 @@ def run_experiment_mnist():
         model = RealNVP(n_features, **kwargs)
         info = nvp_experiment_info(kwargs)
         collect_results_generative('mnist', info, model, data_train, data_val, data_test)
-        collect_samples('mnist', info, model, n_samples=(5, 5), transform=sample_transform)
-        quit()
+        collect_samples('mnist', info, model, n_samples=(8, 8), transform=sample_transform)
 
     # MAF experiments
     for kwargs in flow_kwargs:
         model = MAF(n_features, **kwargs)
         info = maf_experiment_info(kwargs)
         collect_results_generative('mnist', info, model, data_train, data_val, data_test)
-        collect_samples('mnist', info, model, n_samples=(5, 5), transform=sample_transform)
+        collect_samples('mnist', info, model, n_samples=(8, 8), transform=sample_transform)
 
 
 def nvp_experiment_info(kwargs):
