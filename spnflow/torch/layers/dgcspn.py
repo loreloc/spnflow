@@ -204,7 +204,7 @@ class SpatialSumLayer(torch.nn.Module):
         self.dropout = dropout
 
         # Initialize the weight tensor
-        self.weight = torch.nn.Parameter(torch.randn(self.out_channels, self.in_channels, 1, 1), requires_grad=True)
+        self.weight = torch.nn.Parameter(torch.randn(self.out_channels, *self.in_size), requires_grad=True)
 
     @property
     def in_channels(self):
@@ -234,16 +234,18 @@ class SpatialSumLayer(torch.nn.Module):
             x = x + torch.log(torch.floor(1.0 - self.dropout + torch.rand_like(x)))
 
         # Normalize the weight using softmax
-        w = torch.softmax(self.weight, dim=1)
+        w = torch.log_softmax(self.weight, dim=1)
 
         # Subtract the max of the inputs (this is used for numerical stability)
         x_max, _ = torch.max(x, dim=1, keepdim=True)
+        w_max, _ = torch.max(w, dim=1, keepdim=True)
         x_max = torch.detach(x_max)
-        x = x - x_max
+        w_max = torch.detach(w_max)
 
-        # Apply plain convolution on exp(x) and return back to log space
-        y = torch.nn.functional.conv2d(torch.exp(x), w)
-        y = torch.log(y) + x_max
+        x = torch.unsqueeze(torch.exp(x - x_max), dim=1)
+        w = torch.unsqueeze(torch.exp(w - w_max), dim=0)
+        y = torch.sum(x * w, dim=2)
+        y = torch.log(y) + x_max + torch.transpose(w_max, 0, 1)
         return y
 
 

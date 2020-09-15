@@ -18,9 +18,9 @@ def run_experiment_mnist():
 
     # Set the parameters for the DGC-SPN (generative setting)
     dgcspn_kwargs = [
-        {'n_batch': 8, 'sum_channels':  4, 'depthwise': False, 'rand_state': rand_state},
-        {'n_batch': 8, 'sum_channels':  8, 'depthwise': False, 'rand_state': rand_state},
-        {'n_batch': 8, 'sum_channels': 16, 'depthwise': False, 'rand_state': rand_state},
+        {'n_batch': 8, 'sum_channels': 2, 'depthwise': False, 'rand_state': rand_state},
+        {'n_batch': 8, 'sum_channels': 4, 'depthwise': False, 'rand_state': rand_state},
+        {'n_batch': 8, 'sum_channels': 8, 'depthwise': False, 'rand_state': rand_state},
     ]
 
     # Set the transformation (generative setting)
@@ -50,9 +50,9 @@ def run_experiment_mnist():
 
     # Set the parameters for the DGC-SPN (discriminative setting)
     dgcspn_kwargs = [
-        {'n_batch': 32, 'sum_channels': 64, 'depthwise': True, 'n_pooling': 2},
-        {'n_batch': 32, 'sum_channels': 64, 'depthwise': True, 'n_pooling': 1},
-        {'n_batch': 32, 'sum_channels': 64, 'depthwise': True, 'n_pooling': 0},
+        {'n_batch': 16, 'sum_channels': 32, 'depthwise': True, 'n_pooling': 2},
+        {'n_batch': 16, 'sum_channels': 32, 'depthwise': True, 'n_pooling': 1},
+        {'n_batch': 16, 'sum_channels': 32, 'depthwise': True, 'n_pooling': 0},
     ]
 
     # Set the transformation (discriminative setting)
