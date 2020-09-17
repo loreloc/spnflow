@@ -50,9 +50,10 @@ def run_experiment_mnist():
 
     # Set the parameters for the DGC-SPN (discriminative setting)
     dgcspn_kwargs = [
-        {'n_batch': 16, 'sum_channels': 32, 'depthwise': True, 'n_pooling': 2},
-        {'n_batch': 16, 'sum_channels': 32, 'depthwise': True, 'n_pooling': 1},
-        {'n_batch': 16, 'sum_channels': 32, 'depthwise': True, 'n_pooling': 0},
+        {'n_batch': 16, 'sum_channels': 64, 'depthwise': True, 'n_pooling': 2},
+        {'n_batch': 32, 'sum_channels': 64, 'depthwise': True, 'n_pooling': 2},
+        {'n_batch': 16, 'sum_channels': 64, 'depthwise': True, 'n_pooling': 1},
+        {'n_batch': 32, 'sum_channels': 64, 'depthwise': True, 'n_pooling': 1},
     ]
 
     # Set the transformation (discriminative setting)
@@ -67,9 +68,9 @@ def run_experiment_mnist():
 
     # Run the RAT-SPN experiment (discriminative setting)
     for kwargs in dgcspn_kwargs:
-        model = DgcSpn(in_size, n_classes, dropout=0.2, **kwargs)
+        model = DgcSpn(in_size, n_classes, dropout=0.2, optimize_scale=False, uniform_loc=(-1.5, 1.5), **kwargs)
         info = dgcspn_experiment_info(kwargs)
-        collect_results_discriminative('mnist', info, model, data_train, data_val, data_test)
+        collect_results_discriminative('mnist', info, model, data_train, data_val, data_test, lr=1e-2)
 
 
 def dgcspn_experiment_info(kwargs):

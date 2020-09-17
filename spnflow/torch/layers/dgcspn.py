@@ -4,7 +4,7 @@ import numpy as np
 
 class SpatialGaussianLayer(torch.nn.Module):
     """Spatial Gaussian input layer."""
-    def __init__(self, in_size, out_channels, optimize_scale, quantiles_loc=None):
+    def __init__(self, in_size, out_channels, optimize_scale, quantiles_loc=None, uniform_loc=None):
         """
         Initialize a Spatial Gaussian input layer.
 
@@ -12,18 +12,27 @@ class SpatialGaussianLayer(torch.nn.Module):
         :param out_channels: The number of output channels.
         :param optimize_scale: Whether to optimize scale.
         :param quantiles_loc: The mean quantiles for location initialization. It can be None.
+        :param uniform_loc: The uniform range for location initialization. It can be None.
         """
         super(SpatialGaussianLayer, self).__init__()
         self.in_size = in_size
         self.out_channels = out_channels
         self.optimize_scale = optimize_scale
         self.quantiles_loc = quantiles_loc
+        self.uniform_loc = uniform_loc
+
+        assert quantiles_loc is None or uniform_loc is None,\
+            "At least one between quantiles_loc and uniform_loc must be None"
 
         # Instantiate the location parameter
-        if self.quantiles_loc is None:
-            self.loc = torch.nn.Parameter(torch.randn(self.out_channels, *self.in_size), requires_grad=True)
-        else:
+        if self.quantiles_loc:
             self.loc = torch.nn.Parameter(self.quantiles_loc, requires_grad=False)
+        elif self.uniform_loc:
+            low, high = self.uniform_loc
+            linspace = torch.linspace(low, high, steps=self.out_channels).view(-1, 1, 1, 1)
+            self.loc = torch.nn.Parameter(linspace.repeat(1, *self.in_size), requires_grad=True)
+        else:
+            self.loc = torch.nn.Parameter(torch.randn(self.out_channels, *self.in_size), requires_grad=True)
 
         # Instantiate the scale parameter
         if self.optimize_scale:

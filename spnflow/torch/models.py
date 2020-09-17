@@ -380,6 +380,7 @@ class DgcSpn(AbstractModel):
                  dropout=None,
                  optimize_scale=True,
                  quantiles_loc=None,
+                 uniform_loc=None,
                  rand_state=None,
                  ):
         """
@@ -394,6 +395,7 @@ class DgcSpn(AbstractModel):
         :param dropout: The dropout rate for probabilistic dropout at sum layer inputs. It can be None.
         :param optimize_scale: Whether to train scale.
         :param quantiles_loc: The mean quantiles for location initialization. It can be None.
+        :param uniform_loc: The uniform range for location initialization. It can be None.
         :param rand_state: The random state used to initialize the spatial product layers weights.
                            It can be None if depthwise is True.
         """
@@ -407,10 +409,13 @@ class DgcSpn(AbstractModel):
         self.dropout = dropout
         self.optimize_scale = optimize_scale
         self.quantiles_loc = quantiles_loc
+        self.uniform_loc = uniform_loc
         self.rand_state = rand_state
 
         # Instantiate the base layer
-        self.base_layer = SpatialGaussianLayer(self.in_size, self.n_batch, self.optimize_scale, self.quantiles_loc)
+        self.base_layer = SpatialGaussianLayer(
+            self.in_size, self.n_batch, self.optimize_scale, self.quantiles_loc, self.uniform_loc
+        )
         in_size = self.base_layer.out_size
 
         # Add the initial pooling layers, if specified
