@@ -182,7 +182,7 @@
 <span id="spnflow-torch-layers-dgcspn-module"></span><h2>spnflow.torch.layers.dgcspn module<a class="headerlink" href="#module-spnflow.torch.layers.dgcspn" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="spnflow.torch.layers.dgcspn.SpatialGaussianLayer">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.layers.dgcspn.</code><code class="sig-name descname">SpatialGaussianLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_size</span></em>, <em class="sig-param"><span class="n">out_channels</span></em>, <em class="sig-param"><span class="n">optimize_scale</span></em>, <em class="sig-param"><span class="n">quantiles_loc</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialGaussianLayer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.layers.dgcspn.</code><code class="sig-name descname">SpatialGaussianLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_size</span></em>, <em class="sig-param"><span class="n">out_channels</span></em>, <em class="sig-param"><span class="n">optimize_scale</span></em>, <em class="sig-param"><span class="n">quantiles_loc</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">uniform_loc</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialGaussianLayer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Spatial Gaussian input layer.</p>
 <dl class="py method">
@@ -328,14 +328,14 @@
 <em class="property">property </em><code class="sig-name descname">in_channels</code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialRootLayer.in_channels" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt id="spnflow.torch.layers.dgcspn.SpatialRootLayer.in_height">
-<em class="property">property </em><code class="sig-name descname">in_height</code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialRootLayer.in_height" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py attribute">
 <dt id="spnflow.torch.layers.dgcspn.SpatialRootLayer.training">
 <code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialRootLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.torch.layers.dgcspn.SpatialRootLayer.in_height">
+<em class="property">property </em><code class="sig-name descname">in_height</code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialRootLayer.in_height" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
