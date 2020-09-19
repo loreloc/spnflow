@@ -22,12 +22,12 @@ class SpatialGaussianLayer(torch.nn.Module):
         self.uniform_loc = uniform_loc
 
         assert quantiles_loc is None or uniform_loc is None,\
-            "At least one between quantiles_loc and uniform_loc must be None"
+            'At least one between quantiles_loc and uniform_loc must be None'
 
         # Instantiate the location parameter
-        if self.quantiles_loc:
+        if self.quantiles_loc is not None:
             self.loc = torch.nn.Parameter(self.quantiles_loc, requires_grad=False)
-        elif self.uniform_loc:
+        elif self.uniform_loc is not None:
             low, high = self.uniform_loc
             linspace = torch.linspace(low, high, steps=self.out_channels).view(-1, 1, 1, 1)
             self.loc = torch.nn.Parameter(linspace.repeat(1, *self.in_size), requires_grad=True)
@@ -250,11 +250,9 @@ class SpatialSumLayer(torch.nn.Module):
         w_max, _ = torch.max(w, dim=1, keepdim=True)
         x_max = torch.detach(x_max)
         w_max = torch.detach(w_max)
-
         x = torch.unsqueeze(torch.exp(x - x_max), dim=1)
         w = torch.unsqueeze(torch.exp(w - w_max), dim=0)
-        y = torch.sum(x * w, dim=2)
-        y = torch.log(y) + x_max + torch.transpose(w_max, 0, 1)
+        y = torch.log(torch.sum(x * w, dim=2)) + x_max + torch.transpose(w_max, 0, 1)
         return y
 
 
