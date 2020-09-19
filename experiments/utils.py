@@ -1,25 +1,35 @@
 import os
+import json
 import torch
 import torchvision
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from datetime import datetime
+
 from spnflow.torch.utils import torch_train_generative, torch_test_generative
 from spnflow.torch.utils import torch_train_discriminative, torch_test_discriminative
 
 
-def collect_results_generative(dataset, info, model, data_train, data_val, data_test, **kwargs):
-    """
-    Train and test the model on given data (generative setting).
+def get_activation_class(name):
+    if name == 'relu':
+        return torch.nn.ReLU
+    elif name == 'tanh':
+        return torch.nn.Tanh,
+    elif name == 'sigmoid':
+        return torch.nn.Sigmoid
+    else:
+        raise ValueError
 
-    :param dataset: The dataset's name.
-    :param info: Information string about the experiment.
-    :param model: The model to train and test.
-    :param data_train: The train dataset.
-    :param data_val: The validation dataset.
-    :param data_test: The test dataset.
-    :param kwargs: Other arguments to pass to the train routine. See `torch_train_generative` docs.
-    """
+
+def get_experiment_filename(name, settings):
+    return '%s-%s-%s' % (name, settings['dataset'], datetime.now().strftime('%m%d%H%M'))
+
+
+def collect_results_generative(name, settings, model, data_train, data_val, data_test, **kwargs):
+    # Compute the filename string
+    filename = get_experiment_filename(name, settings)
+
     # Train the model
     history = torch_train_generative(model, data_train, data_val, **kwargs)
 
@@ -27,36 +37,30 @@ def collect_results_generative(dataset, info, model, data_train, data_val, data_
     (mu_ll, sigma_ll) = torch_test_generative(model, data_test)
 
     # Save the results to file
-    filepath = os.path.join('results', 'generative', dataset + '_' + info + '.txt')
-    with open(filepath, 'w') as file:
-        file.write(dataset + ': ' + info + '\n')
-        file.write('Mean Log-Likelihood: ' + str(mu_ll) + '\n')
-        file.write('Two StdDev. Log-Likelihood: ' + str(2.0 * sigma_ll) + '\n')
+    filepath = os.path.join(name, 'results')
+    os.makedirs(filepath, exist_ok=True)
+    results = {'log_likelihoods': {'mean': mu_ll, 'stddev': sigma_ll}, 'settings': settings}
+    with open(os.path.join(filepath, filename + '.json'), 'w') as file:
+        json.dump(results, file, indent=4)
 
     # Plot the training history
-    filepath = os.path.join('histories', 'generative', dataset + '_' + info + '.png')
+    filepath = os.path.join(name, 'histories')
+    os.makedirs(filepath, exist_ok=True)
     plt.plot(history['train'])
     plt.plot(history['validation'])
     plt.title('Log-Loss')
     plt.ylabel('loss')
     plt.xlabel('epoch')
     plt.legend(['Train', 'Validation'])
-    plt.savefig(filepath)
+    plt.tight_layout()
+    plt.savefig(os.path.join(filepath, filename + '.png'))
     plt.clf()
 
 
-def collect_results_discriminative(dataset, info, model, data_train, data_val, data_test, **kwargs):
-    """
-    Train and test the model on given data (discriminative setting).
+def collect_results_discriminative(name, settings, model, data_train, data_val, data_test, **kwargs):
+    # Compute the filename string
+    filename = get_experiment_filename(name, settings)
 
-    :param dataset: The dataset's name.
-    :param info: Information string about the experiment.
-    :param model: The model to train and test.
-    :param data_train: The train dataset.
-    :param data_val: The validation dataset.
-    :param data_test: The test dataset.
-    :param kwargs: Other arguments to pass to the train routine. See `torch_train_discriminative` docs.
-    """
     # Train the model
     history = torch_train_discriminative(model, data_train, data_val, **kwargs)
 
@@ -64,14 +68,15 @@ def collect_results_discriminative(dataset, info, model, data_train, data_val, d
     (nll, accuracy) = torch_test_discriminative(model, data_test)
 
     # Save the results to file
-    filepath = os.path.join('results', 'discriminative', dataset + '_' + info + '.txt')
-    with open(filepath, 'w') as file:
-        file.write(dataset + ': ' + info + '\n')
-        file.write('Negative Log-Likelihood: ' + str(nll) + '\n')
-        file.write('Accuracy: ' + str(accuracy) + '\n')
+    filepath = os.path.join(name, 'results')
+    os.makedirs(filepath, exist_ok=True)
+    results = {'negative_log_likelihood': nll, 'accuracy:': accuracy, 'settings': settings}
+    with open(os.path.join(filepath, filename + '.json'), 'w') as file:
+        json.dump(results, file, indent=4)
 
-    # Plot the training history (loss and accuracy)
-    filepath = os.path.join('histories', 'discriminative', dataset + '_' + info + '.png')
+    # Plot the training history
+    filepath = os.path.join(name, 'histories')
+    os.makedirs(filepath, exist_ok=True)
     plt.subplot(211)
     plt.plot(history['train']['loss'])
     plt.plot(history['validation']['loss'])
@@ -87,50 +92,31 @@ def collect_results_discriminative(dataset, info, model, data_train, data_val, d
     plt.xlabel('epoch')
     plt.legend(['Train', 'Validation'])
     plt.tight_layout()
-    plt.savefig(filepath)
+    plt.savefig(os.path.join(filepath, filename + '.png'))
     plt.clf()
 
 
-def collect_samples(dataset, info, model, n_samples, transform=None):
-    """
-    Sample some samples from the model.
+def collect_samples(name, settings, model, n_samples, image_transform=None):
+    filepath = os.path.join(name, 'samples')
+    os.makedirs(filepath, exist_ok=True)
 
-    :param dataset: The dataset's name.
-    :param info: The information string about the experiment.
-    :param model: The model which to sample from.
-    :param n_samples: The number of samples. It can be an integer or a integer pair.
-    :param transform: The function that converts the tensor samples to images. It can be None.
-    """
-    # Initialize the results filepath
-    filepath = os.path.join('samples', dataset + '_' + info)
+    # Compute the filename string
+    filename = get_experiment_filename(name, settings)
 
     # If transform is specified, save the samples as images, otherwise save them in CSV format
-    if transform:
-        rows, cols = (1, n_samples) if isinstance(n_samples, int) else n_samples
-        n_samples = rows * cols
-        samples = model.sample(n_samples).cpu()
-        images = torch.stack([transform(x) for x in samples], dim=0)
-        torchvision.utils.save_image(images, filepath + '.png', nrow=cols, padding=0)
+    if image_transform:
+        samples = model.sample(n_samples ** 2).cpu()
+        images = torch.stack([image_transform(x) for x in samples], dim=0)
+        torchvision.utils.save_image(images, os.path.join(filepath, filename + '.png'), nrow=n_samples, padding=0)
     else:
         n_samples = np.prod(n_samples)
         samples = model.sample(n_samples).cpu().numpy()
-        pd.DataFrame(samples).to_csv(filepath + '.csv')
+        pd.DataFrame(samples).to_csv(os.path.join(filepath, filename + '.csv'))
 
 
-def collect_completions(dataset, info, model, data_test, n_samples, transform=None, rand_state=None):
-    """
-    Complete some random images from the test set.
-
-    :param dataset: The dataset's name.
-    :param info: The information string about the experiment.
-    :param model: The model used for completions.
-    :param data_test: The test dataset.
-    :param n_samples: The number of samples to complete for each mask kind.
-    :param transform: The function that converts the tensor samples to images. It can be None.
-    :param rand_state: The random state used to get samples to complete. It can be None.
-    """
+def collect_completions(name, settings, model, data_test, n_samples, image_transform=None, rand_state=None):
     # Initialize the results filepath
-    filepath = os.path.join('completions', dataset + '_' + info + '.png')
+    filename = get_experiment_filename(name, settings)
 
     # Get some random samples from the test set
     if rand_state is None:
@@ -155,8 +141,12 @@ def collect_completions(dataset, info, model, data_test, n_samples, transform=No
     samples_full = model.mpe(samples)
 
     # Apply the transformation, if specified
-    if transform:
-        samples_full = torch.stack([transform(x) for x in samples_full], dim=0)
+    if image_transform:
+        samples_full = torch.stack([image_transform(x) for x in samples_full], dim=0)
 
     # Save the completed images
-    torchvision.utils.save_image(samples_full, filepath, nrow=n_samples, padding=0)
+    filepath = os.path.join(name, 'completions')
+    os.makedirs(filepath, exist_ok=True)
+    torchvision.utils.save_image(
+        samples_full, os.path.join(filepath, filename + '.png'), nrow=n_samples, padding=0
+    )

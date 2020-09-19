@@ -1,8 +1,6 @@
 datasets
-spn/**/*.txt
-ratspn/**/*.png
-ratspn/**/*.txt
-flow/**/*.png
-flow/**/*.txt
-dgcspn/**/*.png
-dgcspn/**/*.txt
+dgcspn
+flows
+ratspn
+spn
+
