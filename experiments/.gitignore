@@ -1,6 +1,5 @@
-datasets
 dgcspn
 flows
 ratspn
 spn
-
+datasets/**/
