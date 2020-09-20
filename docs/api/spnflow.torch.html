@@ -507,80 +507,166 @@ Random variables can be marginalized using NaN values.</p>
 </div>
 <div class="section" id="module-spnflow.torch.utils">
 <span id="spnflow-torch-utils-module"></span><h2>spnflow.torch.utils module<a class="headerlink" href="#module-spnflow.torch.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="spnflow.torch.utils.RunningAverageMetric">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.utils.</code><code class="sig-name descname">RunningAverageMetric</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">batch_size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.RunningAverageMetric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Running (batched) average metric</p>
+<dl class="py method">
+<dt id="spnflow.torch.utils.RunningAverageMetric.average">
+<code class="sig-name descname">average</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.RunningAverageMetric.average" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the metric average.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The metric average.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
-<dt id="spnflow.torch.utils.torch_train_generative">
-<code class="sig-prename descclassname">spnflow.torch.utils.</code><code class="sig-name descname">torch_train_generative</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">data_train</em>, <em class="sig-param">data_val</em>, <em class="sig-param">lr=0.001</em>, <em class="sig-param">batch_size=100</em>, <em class="sig-param">epochs=1000</em>, <em class="sig-param">patience=30</em>, <em class="sig-param">optim=&lt;class 'torch.optim.adam.Adam'&gt;</em>, <em class="sig-param">device=None</em>, <em class="sig-param">num_workers=2</em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.torch_train_generative" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train a Torch model by maximizing the log-likelihood.</p>
+<dt id="spnflow.torch.utils.compute_mean_quantiles">
+<code class="sig-prename descclassname">spnflow.torch.utils.</code><code class="sig-name descname">compute_mean_quantiles</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dataset</span></em>, <em class="sig-param"><span class="n">n_quantiles</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">- 1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.compute_mean_quantiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the mean quantiles of a dataset (Poon-Domingos).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> – The dataset.</p></li>
+<li><p><strong>n_quantiles</strong> – The number of quantiles.</p></li>
+<li><p><strong>n_jobs</strong> – The number of jobs for dataset processing.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The mean quantiles tensor.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.torch.utils.torch_train">
+<code class="sig-prename descclassname">spnflow.torch.utils.</code><code class="sig-name descname">torch_train</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">data_train</em>, <em class="sig-param">data_val</em>, <em class="sig-param">setting</em>, <em class="sig-param">lr=0.001</em>, <em class="sig-param">batch_size=100</em>, <em class="sig-param">epochs=1000</em>, <em class="sig-param">patience=30</em>, <em class="sig-param">optimizer_class=&lt;class 'torch.optim.adam.Adam'&gt;</em>, <em class="sig-param">n_workers=4</em>, <em class="sig-param">device=None</em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.torch_train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train a Torch model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> – The model to train.</p></li>
 <li><p><strong>data_train</strong> – The train dataset.</p></li>
 <li><p><strong>data_val</strong> – The validation dataset.</p></li>
+<li><p><strong>setting</strong> – The train setting. It can be either ‘generative’ or ‘discriminative’.</p></li>
 <li><p><strong>lr</strong> – The learning rate to use.</p></li>
 <li><p><strong>batch_size</strong> – The batch size for both train and validation.</p></li>
 <li><p><strong>epochs</strong> – The number of epochs.</p></li>
-<li><p><strong>patience</strong> – The number of consecutive epochs to wait until no improvements of the validation loss occurs.</p></li>
-<li><p><strong>optim</strong> – The optimizer to use.</p></li>
+<li><p><strong>patience</strong> – The epochs patience for early stopping.</p></li>
+<li><p><strong>optimizer_class</strong> – The optimizer class to use.</p></li>
+<li><p><strong>n_workers</strong> – The number of workers for data loading.</p></li>
 <li><p><strong>device</strong> – The device used for training. If it’s None ‘cuda’ will be used, if available.</p></li>
-<li><p><strong>num_workers</strong> – The number of workers for data loading.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The train history.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.torch.utils.torch_train_generative">
+<code class="sig-prename descclassname">spnflow.torch.utils.</code><code class="sig-name descname">torch_train_generative</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">train_loader</span></em>, <em class="sig-param"><span class="n">val_loader</span></em>, <em class="sig-param"><span class="n">optimizer</span></em>, <em class="sig-param"><span class="n">epochs</span></em>, <em class="sig-param"><span class="n">patience</span></em>, <em class="sig-param"><span class="n">device</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.torch_train_generative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train a Torch model in generative setting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – The model.</p></li>
+<li><p><strong>train_loader</strong> – The train data loader.</p></li>
+<li><p><strong>val_loader</strong> – The validation data loader.</p></li>
+<li><p><strong>optimizer</strong> – The optimize to use.</p></li>
+<li><p><strong>epochs</strong> – The number of epochs.</p></li>
+<li><p><strong>patience</strong> – The epochs patience for early stopping.</p></li>
+<li><p><strong>device</strong> – The device to use for training.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The train history.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt id="spnflow.torch.utils.torch_train_discriminative">
-<code class="sig-prename descclassname">spnflow.torch.utils.</code><code class="sig-name descname">torch_train_discriminative</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">data_train</em>, <em class="sig-param">data_val</em>, <em class="sig-param">lr=0.001</em>, <em class="sig-param">batch_size=100</em>, <em class="sig-param">epochs=250</em>, <em class="sig-param">patience=10</em>, <em class="sig-param">optim=&lt;class 'torch.optim.adam.Adam'&gt;</em>, <em class="sig-param">device=None</em>, <em class="sig-param">num_workers=2</em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.torch_train_discriminative" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train a Torch model by minimizing the categorical cross entropy.</p>
+<code class="sig-prename descclassname">spnflow.torch.utils.</code><code class="sig-name descname">torch_train_discriminative</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">train_loader</span></em>, <em class="sig-param"><span class="n">val_loader</span></em>, <em class="sig-param"><span class="n">optimizer</span></em>, <em class="sig-param"><span class="n">epochs</span></em>, <em class="sig-param"><span class="n">patience</span></em>, <em class="sig-param"><span class="n">device</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.torch_train_discriminative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train a Torch model in discriminative setting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – The model to train.</p></li>
-<li><p><strong>data_train</strong> – The train dataset.</p></li>
-<li><p><strong>data_val</strong> – The validation dataset.</p></li>
-<li><p><strong>lr</strong> – The learning rate to use.</p></li>
-<li><p><strong>batch_size</strong> – The batch size for both train and validation.</p></li>
+<li><p><strong>model</strong> – The model.</p></li>
+<li><p><strong>train_loader</strong> – The train data loader.</p></li>
+<li><p><strong>val_loader</strong> – The validation data loader.</p></li>
+<li><p><strong>optimizer</strong> – The optimize to use.</p></li>
 <li><p><strong>epochs</strong> – The number of epochs.</p></li>
-<li><p><strong>patience</strong> – The number of consecutive epochs to wait until no improvements of the validation loss occurs.</p></li>
-<li><p><strong>optim</strong> – The optimizer to use.</p></li>
-<li><p><strong>device</strong> – The device used for training. If it’s None ‘cuda’ will be used, if available.</p></li>
-<li><p><strong>num_workers</strong> – The number of workers for data loading.</p></li>
+<li><p><strong>patience</strong> – The epochs patience for early stopping.</p></li>
+<li><p><strong>device</strong> – The device to use for training.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The train history.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.torch.utils.torch_test">
+<code class="sig-prename descclassname">spnflow.torch.utils.</code><code class="sig-name descname">torch_test</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">data_test</span></em>, <em class="sig-param"><span class="n">setting</span></em>, <em class="sig-param"><span class="n">batch_size</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">n_workers</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.torch_test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test a Torch model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – The model to test.</p></li>
+<li><p><strong>data_test</strong> – The test dataset.</p></li>
+<li><p><strong>setting</strong> – The test setting. It can be either ‘generative’ or ‘discriminative’.</p></li>
+<li><p><strong>batch_size</strong> – The batch size for testing.</p></li>
+<li><p><strong>n_workers</strong> – The number of workers for data loading.</p></li>
+<li><p><strong>device</strong> – The device used for training. If it’s None ‘cuda’ will be used, if available.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The mean log-likelihood and two standard deviations if setting=’generative’.
+The negative log-likelihood and accuracy if setting=’discriminative’.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt id="spnflow.torch.utils.torch_test_generative">
-<code class="sig-prename descclassname">spnflow.torch.utils.</code><code class="sig-name descname">torch_test_generative</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">data_test</span></em>, <em class="sig-param"><span class="n">batch_size</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">num_workers</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.torch_test_generative" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test a Torch model by its log-likelihood.</p>
+<code class="sig-prename descclassname">spnflow.torch.utils.</code><code class="sig-name descname">torch_test_generative</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">test_loader</span></em>, <em class="sig-param"><span class="n">device</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.torch_test_generative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test a Torch model in generative setting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> – The model to test.</p></li>
-<li><p><strong>data_test</strong> – The test dataset.</p></li>
-<li><p><strong>batch_size</strong> – The batch size for testing.</p></li>
-<li><p><strong>device</strong> – The device used for training. If it’s None ‘cuda’ will be used, if available.</p></li>
-<li><p><strong>num_workers</strong> – The number of workers for data loading.</p></li>
+<li><p><strong>test_loader</strong> – The test data loader.</p></li>
+<li><p><strong>device</strong> – The device used for testing.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The mean log-likelihood and two standard deviations.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt id="spnflow.torch.utils.torch_test_discriminative">
-<code class="sig-prename descclassname">spnflow.torch.utils.</code><code class="sig-name descname">torch_test_discriminative</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">dataset</span></em>, <em class="sig-param"><span class="n">batch_size</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">num_workers</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.torch_test_discriminative" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test a Torch model by its log-likelihood.</p>
+<code class="sig-prename descclassname">spnflow.torch.utils.</code><code class="sig-name descname">torch_test_discriminative</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">test_loader</span></em>, <em class="sig-param"><span class="n">device</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.torch_test_discriminative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test a Torch model in discriminative setting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> – The model to test.</p></li>
-<li><p><strong>dataset</strong> – The test dataset.</p></li>
-<li><p><strong>batch_size</strong> – The batch size for testing.</p></li>
-<li><p><strong>device</strong> – The device used for training. If it’s None ‘cuda’ will be used, if available.</p></li>
-<li><p><strong>num_workers</strong> – The number of workers for data loading.</p></li>
+<li><p><strong>test_loader</strong> – The test data loader.</p></li>
+<li><p><strong>device</strong> – The device used for testing.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The negative log-likelihood and accuracy.</p>
 </dd>
 </dl>
 </dd></dl>
