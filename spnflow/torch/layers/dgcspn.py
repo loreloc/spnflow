@@ -242,18 +242,12 @@ class SpatialSumLayer(torch.nn.Module):
         if self.training and self.dropout is not None:
             x = x + torch.log(torch.floor(1.0 - self.dropout + torch.rand_like(x)))
 
-        # Normalize the weight using softmax
+        # Normalize the weight using log softmax
         w = torch.log_softmax(self.weight, dim=1)
 
-        # Subtract the max of the inputs (this is used for numerical stability)
-        x_max, _ = torch.max(x, dim=1, keepdim=True)
-        w_max, _ = torch.max(w, dim=1, keepdim=True)
-        x_max = torch.detach(x_max)
-        w_max = torch.detach(w_max)
-        x = torch.unsqueeze(torch.exp(x - x_max), dim=1)
-        w = torch.unsqueeze(torch.exp(w - w_max), dim=0)
-        y = torch.log(torch.sum(x * w, dim=2)) + x_max + torch.transpose(w_max, 0, 1)
-        return y
+        # Apply the logsumexp trick
+        x = torch.unsqueeze(x, dim=1)
+        return torch.logsumexp(x + w, dim=2)
 
 
 class SpatialRootLayer(torch.nn.Module):
