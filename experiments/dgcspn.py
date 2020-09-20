@@ -2,6 +2,7 @@ import argparse
 import numpy as np
 
 from spnflow.torch.models import DgcSpn
+from spnflow.torch.utils import compute_mean_quantiles
 
 from experiments.datasets import load_vision_dataset
 from experiments.datasets import get_vision_dataset_transforms
@@ -93,7 +94,7 @@ if __name__ == '__main__':
     quantiles_loc = None
     uniform_loc = None
     if args.quantiles_loc:
-        quantiles_loc = data_train.dataset.mean_quantiles(args.n_batch)
+        quantiles_loc = compute_mean_quantiles(data_train.dataset, args.n_batch)
     elif args.uniform_loc:
         uniform_loc = tuple(args.uniform_loc)
 

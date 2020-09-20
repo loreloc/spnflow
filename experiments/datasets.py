@@ -1,5 +1,4 @@
 import os
-import math
 import torch
 import torchvision
 import numpy as np
@@ -20,9 +19,6 @@ class UnsupervisedMNIST(torchvision.datasets.MNIST):
     def __getitem__(self, index):
         x, y = super(UnsupervisedMNIST, self).__getitem__(index)
         return x
-
-    def mean_quantiles(self, n_quantiles):
-        return compute_mean_quantiles(self.data, n_quantiles, self.transform)
 
 
 def load_dataset(root, name, rand_state, normalize=True):
@@ -120,20 +116,3 @@ def get_vision_dataset_mean_stddev(name):
         return (0.1307, 0.3081)
     else:
         raise ValueError
-
-
-def compute_mean_quantiles(data, n_quantiles, transform=None):
-    # Apply the transform, if specified
-    if transform:
-        data = torch.stack(list(map(transform, data.numpy())), dim=0)
-
-    # Split the dataset in quantiles regions
-    n_samples = data.size(0)
-    data, indices = torch.sort(data, dim=0)
-    section_quantiles = [math.floor(n_samples / n_quantiles)] * n_quantiles
-    section_quantiles[-1] += n_samples % n_quantiles
-    values_per_quantile = torch.split(data, section_quantiles, dim=0)
-
-    # Compute the mean quantiles
-    mean_per_quantiles = [torch.mean(x, dim=0) for x in values_per_quantile]
-    return torch.stack(mean_per_quantiles, dim=0)

@@ -1,7 +1,38 @@
+import math
 import time
 import torch
 import numpy as np
+from joblib import Parallel, delayed
 from spnflow.torch.callbacks import EarlyStopping
+
+
+def compute_mean_quantiles(dataset, n_quantiles, n_jobs=-1):
+    """
+    Compute the mean quantiles of a dataset (Poon-Domingos).
+
+    :param dataset: The dataset.
+    :param n_quantiles: The number of quantiles.
+    :param n_jobs: The number of jobs for dataset processing.
+    :return: The mean quantiles tensor.
+    """
+    # Get the entire processed dataset
+    n_samples = len(dataset)
+    data = torch.stack(
+        Parallel(n_jobs=n_jobs, batch_size=256, max_nbytes='64M')(
+            delayed(dataset.__getitem__)(i) for i in range(n_samples)
+        ),
+        dim=0
+    )
+
+    # Split the dataset in quantiles regions
+    data, indices = torch.sort(data, dim=0)
+    section_quantiles = [math.floor(n_samples / n_quantiles)] * n_quantiles
+    section_quantiles[-1] += n_samples % n_quantiles
+    values_per_quantile = torch.split(data, section_quantiles, dim=0)
+
+    # Compute the mean quantiles
+    mean_per_quantiles = [torch.mean(x, dim=0) for x in values_per_quantile]
+    return torch.stack(mean_per_quantiles, dim=0)
 
 
 def torch_train_generative(
