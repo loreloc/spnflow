@@ -2,8 +2,40 @@ import math
 import time
 import torch
 import numpy as np
+
+from tqdm import tqdm
 from joblib import Parallel, delayed
 from spnflow.torch.callbacks import EarlyStopping
+
+
+class RunningAverageMetric:
+    """Running (batched) average metric"""
+    def __init__(self, batch_size):
+        """
+        Initialize a running average metric object.
+
+        :param batch_size: The batch size.
+        """
+        self.batch_size = batch_size
+        self.metric_accumulator = 0.0
+        self.n_metrics = 0
+
+    def __call__(self, x):
+        """
+        Accumulate a metric.
+
+        :param x: The metric value.
+        """
+        self.metric_accumulator += x
+        self.n_metrics += 1
+
+    def average(self):
+        """
+        Get the metric average.
+
+        :return: The metric average.
+        """
+        return self.metric_accumulator / (self.n_metrics * self.batch_size)
 
 
 def compute_mean_quantiles(dataset, n_quantiles, n_jobs=-1):
@@ -35,96 +67,126 @@ def compute_mean_quantiles(dataset, n_quantiles, n_jobs=-1):
     return torch.stack(mean_per_quantiles, dim=0)
 
 
-def torch_train_generative(
+def torch_train(
         model,
         data_train,
         data_val,
+        setting,
         lr=1e-3,
         batch_size=100,
         epochs=1000,
         patience=30,
-        optim=torch.optim.Adam,
-        device=None,
-        num_workers=2,
+        optimizer_class=torch.optim.Adam,
+        n_workers=4,
+        device=None
 ):
     """
-    Train a Torch model by maximizing the log-likelihood.
+    Train a Torch model.
 
     :param model: The model to train.
     :param data_train: The train dataset.
     :param data_val: The validation dataset.
+    :param setting: The train setting. It can be either 'generative' or 'discriminative'.
     :param lr: The learning rate to use.
     :param batch_size: The batch size for both train and validation.
     :param epochs: The number of epochs.
-    :param patience: The number of consecutive epochs to wait until no improvements of the validation loss occurs.
-    :param optim: The optimizer to use.
+    :param patience: The epochs patience for early stopping.
+    :param optimizer_class: The optimizer class to use.
+    :param n_workers: The number of workers for data loading.
     :param device: The device used for training. If it's None 'cuda' will be used, if available.
-    :param num_workers: The number of workers for data loading.
+    :return: The train history.
+    """
+    # Get the device to use
+    if device is None:
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print('Train using device: ' + str(device))
+
+    # Setup the data loaders
+    train_loader = torch.utils.data.DataLoader(
+        data_train, batch_size=batch_size, shuffle=True, num_workers=n_workers
+    )
+    val_loader = torch.utils.data.DataLoader(
+        data_val, batch_size=batch_size, shuffle=False, num_workers=n_workers
+    )
+
+    # Instantiate the optimizer
+    optimizer = optimizer_class(model.parameters(), lr=lr)
+
+    # Train the model
+    if setting == 'generative':
+        train_func = torch_train_generative
+    elif setting == 'discriminative':
+        train_func = torch_train_discriminative
+    else:
+        raise ValueError('Unknown train setting called %s' % setting)
+    return train_func(model, train_loader, val_loader, optimizer, epochs, patience, device)
+
+
+def torch_train_generative(model, train_loader, val_loader, optimizer, epochs, patience, device):
+    """
+    Train a Torch model in generative setting.
+
+    :param model: The model.
+    :param train_loader: The train data loader.
+    :param val_loader: The validation data loader.
+    :param optimizer: The optimize to use.
+    :param epochs: The number of epochs.
+    :param patience: The epochs patience for early stopping.
+    :param device: The device to use for training.
+    :return: The train history.
     """
     # Instantiate the train history
     history = {
         'train': [], 'validation': []
     }
 
-    # Get the device to use
-    if device is None:
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print('Train using device: ' + str(device))
-
-    # Print the model
-    print(model)
-
-    # Move the model to the device
-    model.to(device)
-
-    # Setup the data loaders
-    train_loader = torch.utils.data.DataLoader(
-        data_train, batch_size=batch_size, shuffle=True, num_workers=num_workers
-    )
-    val_loader = torch.utils.data.DataLoader(
-        data_val, batch_size=batch_size, shuffle=False, num_workers=num_workers
-    )
-
-    # Instantiate the optimizer
-    optimizer = optim(model.parameters(), lr=lr)
-
     # Instantiate the early stopping callback
     early_stopping = EarlyStopping(patience=patience)
 
-    # Train the model
-    for epoch in range(epochs):
+    # Move the model to device
+    model.to(device)
+
+    for epoch in range(1, epochs + 1):
         start_time = time.time()
 
         # Training phase
-        train_loss = 0.0
-        for inputs in train_loader:
+        running_train_loss = RunningAverageMetric(train_loader.batch_size)
+        tk = tqdm(
+            train_loader, total=len(train_loader), leave=False,
+            bar_format='{l_bar}{bar:32}{r_bar}', desc='Epoch %d/%d' % (epoch, epochs)
+        )
+        for inputs in tk:
             inputs = inputs.to(device)
             optimizer.zero_grad()
             log_likelihoods = model(inputs)
-            loss = -log_likelihoods.sum()
-            train_loss += loss.item()
-            loss /= batch_size
+            loss = -torch.sum(log_likelihoods)
+            running_train_loss(loss.item())
+            loss /= train_loader.batch_size
             loss.backward()
             optimizer.step()
             model.apply_constraints()
-        train_loss /= len(train_loader) * batch_size
 
-        # Compute the validation loss
-        val_loss = 0.0
+        # Validation phase
+        running_val_loss = RunningAverageMetric(val_loader.batch_size)
         with torch.no_grad():
             for inputs in val_loader:
                 inputs = inputs.to(device)
                 log_likelihoods = model(inputs)
-                val_loss += -log_likelihoods.sum().item()
-            val_loss /= len(val_loader) * batch_size
+                loss = -torch.sum(log_likelihoods)
+                running_val_loss(loss.item())
 
+        # Get the average train and validation losses and print it
         end_time = time.time()
+        train_loss = running_train_loss.average()
+        val_loss = running_val_loss.average()
+        print('Epoch %d/%d - train_loss: %.4f, validation_loss: %.4f [%ds]' %
+              (epoch, epochs, train_loss, val_loss, end_time - start_time))
+
+        # Append losses to history data
         history['train'].append(train_loss)
         history['validation'].append(val_loss)
-        elapsed_time = end_time - start_time
-        print('[%4d] train_loss: %.4f, validation_loss: %.4f - %ds' % (epoch + 1, train_loss, val_loss, elapsed_time))
 
-        # Check if training should stop
+        # Check if training should stop according to early stopping
         early_stopping(val_loss)
         if early_stopping.should_stop:
             print('Early Stopping... Best Loss: %.4f' % early_stopping.best_loss)
@@ -133,31 +195,18 @@ def torch_train_generative(
     return history
 
 
-def torch_train_discriminative(
-        model,
-        data_train,
-        data_val,
-        lr=1e-3,
-        batch_size=100,
-        epochs=250,
-        patience=10,
-        optim=torch.optim.Adam,
-        device=None,
-        num_workers=2,
-):
+def torch_train_discriminative(model, train_loader, val_loader, optimizer, epochs, patience, device):
     """
-    Train a Torch model by minimizing the categorical cross entropy.
+    Train a Torch model in discriminative setting.
 
-    :param model: The model to train.
-    :param data_train: The train dataset.
-    :param data_val: The validation dataset.
-    :param lr: The learning rate to use.
-    :param batch_size: The batch size for both train and validation.
+    :param model: The model.
+    :param train_loader: The train data loader.
+    :param val_loader: The validation data loader.
+    :param optimizer: The optimize to use.
     :param epochs: The number of epochs.
-    :param patience: The number of consecutive epochs to wait until no improvements of the validation loss occurs.
-    :param optim: The optimizer to use.
-    :param device: The device used for training. If it's None 'cuda' will be used, if available.
-    :param num_workers: The number of workers for data loading.
+    :param patience: The epochs patience for early stopping.
+    :param device: The device to use for training.
+    :return: The train history.
     """
     # Instantiate the train history
     history = {
@@ -165,76 +214,67 @@ def torch_train_discriminative(
         'validation': {'loss': [], 'accuracy': []}
     }
 
-    # Get the device to use
-    if device is None:
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print('Train using device: ' + str(device))
-
-    # Print the model
-    print(model)
-
-    # Move the model to the device
-    model.to(device)
-
-    # Setup the data loaders
-    train_loader = torch.utils.data.DataLoader(
-        data_train, batch_size=batch_size, shuffle=True, num_workers=num_workers
-    )
-    val_loader = torch.utils.data.DataLoader(
-        data_val, batch_size=batch_size, shuffle=False, num_workers=num_workers
-    )
-
-    # Instantiate the optimizer
-    optimizer = optim(model.parameters(), lr=lr)
-
     # Instantiate the early stopping callback
     early_stopping = EarlyStopping(patience=patience)
 
-    # Train the model
-    for epoch in range(epochs):
+    # Move the model to device
+    model.to(device)
+
+    for epoch in range(1, epochs + 1):
         start_time = time.time()
 
         # Training phase
-        train_loss = 0.0
-        train_hits = 0
-        for inputs, targets in train_loader:
+        running_train_loss = RunningAverageMetric(train_loader.batch_size)
+        running_train_hits = RunningAverageMetric(train_loader.batch_size)
+        tk = tqdm(
+            train_loader, total=len(train_loader), leave=False,
+            bar_format='{l_bar}{bar:32}{r_bar}', desc='Epoch %d/%d' % (epoch, epochs)
+        )
+        for inputs, targets in tk:
             inputs, targets = inputs.to(device), targets.to(device)
             optimizer.zero_grad()
             outputs = torch.log_softmax(model(inputs), dim=1)
             loss = torch.nn.functional.nll_loss(outputs, targets, reduction='sum')
-            train_loss += loss.item()
-            preds = torch.argmax(outputs, dim=1)
-            train_hits += torch.eq(preds, targets).sum().item()
-            loss /= batch_size
+            running_train_loss(loss.item())
+            loss /= train_loader.batch_size
             loss.backward()
             optimizer.step()
             model.apply_constraints()
-        train_loss /= len(train_loader) * batch_size
-        train_hits /= len(train_loader) * batch_size
+            with torch.no_grad():
+                predictions = torch.argmax(outputs, dim=1)
+                hits = torch.eq(predictions, targets).sum()
+                running_train_hits(hits.item())
 
-        # Compute the validation loss
-        val_loss = 0.0
-        val_hits = 0
+        # Validation phase
+        running_val_loss = RunningAverageMetric(val_loader.batch_size)
+        running_val_hits = RunningAverageMetric(val_loader.batch_size)
         with torch.no_grad():
             for inputs, targets in val_loader:
                 inputs, targets = inputs.to(device), targets.to(device)
+                optimizer.zero_grad()
                 outputs = torch.log_softmax(model(inputs), dim=1)
-                val_loss += torch.nn.functional.nll_loss(outputs, targets, reduction='sum').item()
-                preds = torch.argmax(outputs, dim=1)
-                val_hits += torch.eq(preds, targets).sum().item()
-            val_loss /= len(val_loader) * batch_size
-            val_hits /= len(val_loader) * batch_size
+                loss = torch.nn.functional.nll_loss(outputs, targets, reduction='sum')
+                running_val_loss(loss.item())
+                predictions = torch.argmax(outputs, dim=1)
+                hits = torch.eq(predictions, targets).sum()
+                running_val_hits(hits.item())
 
+        # Get the average train and validation losses and accuracies and print it
         end_time = time.time()
-        history['train']['loss'].append(train_loss)
-        history['train']['accuracy'].append(train_hits)
-        history['validation']['loss'].append(val_loss)
-        history['validation']['accuracy'].append(val_hits)
-        elapsed_time = end_time - start_time
-        print('[%4d] train_loss: %.4f, val_loss: %.4f, train_acc %.1f, val_acc: %.1f - %ds' %
-              (epoch + 1, train_loss, val_loss, train_hits * 100, val_hits * 100, elapsed_time))
+        train_loss = running_train_loss.average()
+        train_accuracy = running_train_hits.average()
+        val_loss = running_val_loss.average()
+        val_accuracy = running_val_hits.average()
+        print('Epoch %d/%d - train_loss: %.4f, validation_loss: %.4f, train_acc: %.1f%%, validation_acc: %.1f%% [%ds]' %
+              (epoch, epochs, train_loss, val_loss, train_accuracy * 100, val_accuracy * 100, end_time - start_time))
 
-        # Check if training should stop
+        # Append losses and accuracies to history data
+        history['train']['loss'].append(train_loss)
+        history['train']['accuracy'].append(train_accuracy)
+        history['validation']['loss'].append(val_loss)
+        history['validation']['accuracy'].append(val_accuracy)
+
+        # Check if training should stop according to early stopping
         early_stopping(val_loss)
         if early_stopping.should_stop:
             print('Early Stopping... Best Loss: %.4f' % early_stopping.best_loss)
@@ -243,21 +283,25 @@ def torch_train_discriminative(
     return history
 
 
-def torch_test_generative(
+def torch_test(
         model,
         data_test,
+        setting,
         batch_size=100,
-        device=None,
-        num_workers=2,
+        n_workers=4,
+        device=None
 ):
     """
-    Test a Torch model by its log-likelihood.
+    Test a Torch model.
 
     :param model: The model to test.
     :param data_test: The test dataset.
+    :param setting: The test setting. It can be either 'generative' or 'discriminative'.
     :param batch_size: The batch size for testing.
+    :param n_workers: The number of workers for data loading.
     :param device: The device used for training. If it's None 'cuda' will be used, if available.
-    :param num_workers: The number of workers for data loading.
+    :return: The mean log-likelihood and two standard deviations if setting='generative'.
+             The negative log-likelihood and accuracy if setting='discriminative'.
     """
     # Get the device to use
     if device is None:
@@ -266,59 +310,57 @@ def torch_test_generative(
 
     # Setup the data loader
     test_loader = torch.utils.data.DataLoader(
-        data_test, batch_size=batch_size, shuffle=False, num_workers=num_workers
+        data_test, batch_size=batch_size, shuffle=False, num_workers=n_workers
     )
 
     # Test the model
+    if setting == 'generative':
+        test_func = torch_test_generative
+    elif setting == 'discriminative':
+        test_func = torch_test_discriminative
+    else:
+        raise ValueError('Unknown test setting called %s' % setting)
+    return test_func(model, test_loader, device)
+
+
+def torch_test_generative(model, test_loader, device):
+    """
+    Test a Torch model in generative setting.
+
+    :param model: The model to test.
+    :param test_loader: The test data loader.
+    :param device: The device used for testing.
+    :return: The mean log-likelihood and two standard deviations.
+    """
     test_ll = np.array([])
     with torch.no_grad():
         for inputs in test_loader:
             inputs = inputs.to(device)
             ll = model(inputs).cpu().numpy().flatten()
             test_ll = np.hstack((test_ll, ll))
-
     mu_ll = np.mean(test_ll)
     sigma_ll = 2.0 * np.std(test_ll) / np.sqrt(len(test_ll))
     return mu_ll, sigma_ll
 
 
-def torch_test_discriminative(
-        model,
-        dataset,
-        batch_size=100,
-        device=None,
-        num_workers=2,
-):
+def torch_test_discriminative(model, test_loader, device):
     """
-    Test a Torch model by its log-likelihood.
+    Test a Torch model in discriminative setting.
 
     :param model: The model to test.
-    :param dataset: The test dataset.
-    :param batch_size: The batch size for testing.
-    :param device: The device used for training. If it's None 'cuda' will be used, if available.
-    :param num_workers: The number of workers for data loading.
+    :param test_loader: The test data loader.
+    :param device: The device used for testing.
+    :return: The negative log-likelihood and accuracy.
     """
-    # Get the device to use
-    if device is None:
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print('Test using device: ' + str(device))
-
-    # Setup the data loader
-    test_loader = torch.utils.data.DataLoader(
-        dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers
-    )
-
-    # Test the model
-    test_loss = 0.0
-    test_hits = 0
+    running_loss = RunningAverageMetric(test_loader.batch_size)
+    running_hits = RunningAverageMetric(test_loader.batch_size)
     with torch.no_grad():
         for inputs, targets in test_loader:
             inputs, targets = inputs.to(device), targets.to(device)
             outputs = torch.log_softmax(model(inputs), dim=1)
-            test_loss += torch.nn.functional.nll_loss(outputs, targets, reduction='sum').item()
-            preds = torch.argmax(outputs, dim=1)
-            test_hits += torch.eq(preds, targets).sum().item()
-        test_loss /= len(test_loader) * batch_size
-        test_hits /= len(test_loader) * batch_size
-
-    return test_loss, test_hits
+            loss = torch.nn.functional.nll_loss(outputs, targets, reduction='sum')
+            running_loss(loss.item())
+            predictions = torch.argmax(outputs, dim=1)
+            hits = torch.eq(predictions, targets).sum()
+            running_hits(hits.item())
+    return running_loss.average(), running_hits.average()

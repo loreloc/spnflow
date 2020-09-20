@@ -5,10 +5,9 @@ import torchvision
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from datetime import datetime
 
-from spnflow.torch.utils import torch_train_generative, torch_test_generative
-from spnflow.torch.utils import torch_train_discriminative, torch_test_discriminative
+from datetime import datetime
+from spnflow.torch.utils import torch_train, torch_test
 
 
 def get_activation_class(name):
@@ -31,10 +30,10 @@ def collect_results_generative(name, settings, model, data_train, data_val, data
     filename = get_experiment_filename(name, settings)
 
     # Train the model
-    history = torch_train_generative(model, data_train, data_val, **kwargs)
+    history = torch_train(model, data_train, data_val, setting='generative', **kwargs)
 
     # Test the model
-    (mu_ll, sigma_ll) = torch_test_generative(model, data_test)
+    (mu_ll, sigma_ll) = torch_test(model, data_test, setting='generative')
 
     # Save the results to file
     filepath = os.path.join(name, 'results')
@@ -62,10 +61,10 @@ def collect_results_discriminative(name, settings, model, data_train, data_val, 
     filename = get_experiment_filename(name, settings)
 
     # Train the model
-    history = torch_train_discriminative(model, data_train, data_val, **kwargs)
+    history = torch_train(model, data_train, data_val, setting='discriminative', **kwargs)
 
     # Test the model
-    (nll, accuracy) = torch_test_discriminative(model, data_test)
+    (nll, accuracy) = torch_test(model, data_test, setting='discriminative')
 
     # Save the results to file
     filepath = os.path.join(name, 'results')
