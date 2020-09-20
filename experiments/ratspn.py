@@ -124,4 +124,4 @@ if __name__ == '__main__':
             patience=args.patience
         )
         if args.n_samples > 0:
-            collect_samples('ratspn', model, args.n_samples, image_transform)
+            collect_samples('ratspn', vars(args), model, args.n_samples, image_transform)
