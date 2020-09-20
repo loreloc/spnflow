@@ -26,14 +26,14 @@ def get_experiment_filename(name, settings):
 
 
 def collect_results_generative(name, settings, model, data_train, data_val, data_test, **kwargs):
-    # Compute the filename string
-    filename = get_experiment_filename(name, settings)
-
     # Train the model
     history = torch_train(model, data_train, data_val, setting='generative', **kwargs)
 
     # Test the model
     (mu_ll, sigma_ll) = torch_test(model, data_test, setting='generative')
+
+    # Compute the filename string
+    filename = get_experiment_filename(name, settings)
 
     # Save the results to file
     filepath = os.path.join(name, 'results')
@@ -57,14 +57,14 @@ def collect_results_generative(name, settings, model, data_train, data_val, data
 
 
 def collect_results_discriminative(name, settings, model, data_train, data_val, data_test, **kwargs):
-    # Compute the filename string
-    filename = get_experiment_filename(name, settings)
-
     # Train the model
     history = torch_train(model, data_train, data_val, setting='discriminative', **kwargs)
 
     # Test the model
     (nll, accuracy) = torch_test(model, data_test, setting='discriminative')
+
+    # Compute the filename string
+    filename = get_experiment_filename(name, settings)
 
     # Save the results to file
     filepath = os.path.join(name, 'results')
@@ -95,7 +95,7 @@ def collect_results_discriminative(name, settings, model, data_train, data_val, 
     plt.clf()
 
 
-def collect_samples(name, settings, model, n_samples, image_transform=None):
+def collect_samples(name, settings, model, n_samples, inv_transform=None):
     filepath = os.path.join(name, 'samples')
     os.makedirs(filepath, exist_ok=True)
 
@@ -103,9 +103,9 @@ def collect_samples(name, settings, model, n_samples, image_transform=None):
     filename = get_experiment_filename(name, settings)
 
     # If transform is specified, save the samples as images, otherwise save them in CSV format
-    if image_transform:
+    if inv_transform:
         samples = model.sample(n_samples ** 2).cpu()
-        images = torch.stack([image_transform(x) for x in samples], dim=0)
+        images = torch.stack([inv_transform(x) for x in samples], dim=0)
         torchvision.utils.save_image(images, os.path.join(filepath, filename + '.png'), nrow=n_samples, padding=0)
     else:
         n_samples = np.prod(n_samples)
@@ -113,7 +113,7 @@ def collect_samples(name, settings, model, n_samples, image_transform=None):
         pd.DataFrame(samples).to_csv(os.path.join(filepath, filename + '.csv'))
 
 
-def collect_completions(name, settings, model, data_test, n_samples, image_transform=None, rand_state=None):
+def collect_completions(name, settings, model, data_test, n_samples, inv_transform=None, rand_state=None):
     # Initialize the results filepath
     filename = get_experiment_filename(name, settings)
 
@@ -122,7 +122,10 @@ def collect_completions(name, settings, model, data_test, n_samples, image_trans
         rand_state = np.random.RandomState(42)
     idx_samples = rand_state.choice(np.arange(len(data_test)), n_samples, replace=False)
     samples = torch.stack([data_test[i] for i in idx_samples], dim=0)
-    n_samples, n_channels, image_h, image_w = samples.size()
+    sample_size = samples.size()[1:]
+    target_size = inv_transform(samples[0]).size()
+    samples = torch.reshape(samples, [-1, *target_size])
+    _, _, image_h, image_w = samples.size()
 
     # Compute the masked samples (left, right, top, bottom patterns)
     idx_lef = torch.tensor([j for j in range(image_w // 2)])
@@ -137,11 +140,12 @@ def collect_completions(name, settings, model, data_test, n_samples, image_trans
     # Compute the maximum at posteriori estimates for image completion
     model = model.cpu()
     samples = torch.cat([samples_lef, samples_rig, samples_top, samples_bot], dim=0)
+    samples = torch.reshape(samples, [-1, *sample_size])
     samples_full = model.mpe(samples)
 
     # Apply the transformation, if specified
-    if image_transform:
-        samples_full = torch.stack([image_transform(x) for x in samples_full], dim=0)
+    if inv_transform:
+        samples_full = torch.stack([inv_transform(x) for x in samples_full], dim=0)
 
     # Save the completed images
     filepath = os.path.join(name, 'completions')

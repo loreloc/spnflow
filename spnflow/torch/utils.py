@@ -77,6 +77,7 @@ def torch_train(
         epochs=1000,
         patience=30,
         optimizer_class=torch.optim.Adam,
+        weight_decay=0.0,
         n_workers=4,
         device=None
 ):
@@ -92,6 +93,7 @@ def torch_train(
     :param epochs: The number of epochs.
     :param patience: The epochs patience for early stopping.
     :param optimizer_class: The optimizer class to use.
+    :param weight_decay: L2 regularization factor.
     :param n_workers: The number of workers for data loading.
     :param device: The device used for training. If it's None 'cuda' will be used, if available.
     :return: The train history.
@@ -110,7 +112,7 @@ def torch_train(
     )
 
     # Instantiate the optimizer
-    optimizer = optimizer_class(model.parameters(), lr=lr)
+    optimizer = optimizer_class(model.parameters(), lr=lr, weight_decay=weight_decay)
 
     # Train the model
     if setting == 'generative':

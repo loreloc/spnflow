@@ -3,7 +3,7 @@ import torch
 import numpy as np
 from spnflow.utils.region import RegionGraph
 from spnflow.torch.layers.ratspn import GaussianLayer, ProductLayer, SumLayer, RootLayer
-from spnflow.torch.layers.flows import CouplingLayer, AutoregressiveLayer, BatchNormLayer
+from spnflow.torch.layers.flows import CouplingLayer, AutoregressiveLayer, BatchNormLayer, LogitLayer
 from spnflow.torch.layers.dgcspn import SpatialGaussianLayer, SpatialProductLayer, SpatialSumLayer, SpatialRootLayer
 from spnflow.torch.constraints import ScaleClipper
 
@@ -41,6 +41,7 @@ class RealNVP(AbstractModel):
                  depth=1,
                  units=128,
                  activation=torch.nn.ReLU,
+                 logit=False,
                  in_base=None,
                  ):
         """
@@ -52,8 +53,8 @@ class RealNVP(AbstractModel):
         :param depth: The number of hidden layers of flows conditioners.
         :param units: The number of hidden units per layer of flows conditioners.
         :param activation: The activation class to use for the flows conditioners hidden layers.
+        :param logit: Whether to apply logit transformation on the input layer.
         :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
-
         """
         super(RealNVP, self).__init__()
         self.in_features = in_features
@@ -62,6 +63,7 @@ class RealNVP(AbstractModel):
         self.depth = depth
         self.units = units
         self.activation = activation
+        self.logit = logit
 
         # Build the base distribution, if necessary
         if in_base:
@@ -73,6 +75,8 @@ class RealNVP(AbstractModel):
 
         # Build the coupling layers
         self.layers = torch.nn.ModuleList()
+        if self.logit:
+            self.layers.append(LogitLayer())
         reverse = False
         for _ in range(self.n_flows):
             self.layers.append(
@@ -130,6 +134,7 @@ class MAF(AbstractModel):
                  depth=1,
                  units=128,
                  activation=torch.nn.ReLU,
+                 logit=False,
                  in_base=None,
                  ):
         """
@@ -141,6 +146,7 @@ class MAF(AbstractModel):
         :param depth: The number of hidden layers of flows conditioners.
         :param units: The number of hidden units per layer of flows conditioners.
         :param activation: The activation class to use for the flows conditioners hidden layers.
+        :param logit: Whether to apply logit transformation on the input layer.
         :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         """
         super(MAF, self).__init__()
@@ -150,6 +156,7 @@ class MAF(AbstractModel):
         self.depth = depth
         self.units = units
         self.activation = activation
+        self.logit = logit
 
         # Build the base distribution, if necessary
         if in_base:
@@ -161,6 +168,8 @@ class MAF(AbstractModel):
 
         # Build the autoregressive layers
         self.layers = torch.nn.ModuleList()
+        if self.logit:
+            self.layers.append(LogitLayer())
         reverse = False
         for _ in range(self.n_flows):
             self.layers.append(

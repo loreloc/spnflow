@@ -16,7 +16,7 @@ if __name__ == '__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
-        'dataset', choices=['mnist'],
+        'dataset', choices=['mnist', 'cifar10'],
         help='The vision dataset used in the experiment.'
     )
     parser.add_argument(
@@ -85,10 +85,12 @@ if __name__ == '__main__':
     rand_state = np.random.RandomState(42)
 
     # Load the dataset
-    data_train, data_val, data_test = load_vision_dataset('datasets', args.dataset, args.discriminative)
     image_size = get_vision_dataset_image_size(args.dataset)
+    data_train, data_val, data_test = load_vision_dataset(
+        'datasets', args.dataset, args.discriminative, normalize=True
+    )
     out_classes = 1 if not args.discriminative else get_vision_dataset_n_classes(args.dataset)
-    _, image_transform = get_vision_dataset_transforms(args.dataset, args.discriminative)
+    _, inv_transform = get_vision_dataset_transforms(args.dataset, normalize=True)
 
     # Set the location initialization parameter
     quantiles_loc = None
@@ -134,5 +136,5 @@ if __name__ == '__main__':
         if args.n_completions > 0:
             collect_completions(
                 'dgcspn', vars(args), model, data_test,
-                args.n_completions, image_transform, rand_state
+                args.n_completions, inv_transform, rand_state
             )

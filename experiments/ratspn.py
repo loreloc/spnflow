@@ -6,7 +6,8 @@ from spnflow.torch.models import RatSpn
 from experiments.datasets import load_dataset, load_vision_dataset
 from experiments.datasets import get_vision_dataset_transforms
 from experiments.datasets import get_vision_dataset_n_classes, get_vision_dataset_n_features
-from experiments.utils import collect_results_generative, collect_results_discriminative, collect_samples
+from experiments.utils import collect_results_generative, collect_results_discriminative
+from experiments.utils import collect_samples, collect_completions
 
 if __name__ == '__main__':
     # Parse the arguments
@@ -15,7 +16,7 @@ if __name__ == '__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
-        'dataset', choices=['power', 'gas', 'hepmass', 'miniboone', 'bsds300', 'mnist'],
+        'dataset', choices=['power', 'gas', 'hepmass', 'miniboone', 'bsds300', 'mnist', 'cifar10'],
         help='The dataset used in the experiment.'
     )
     parser.add_argument(
@@ -51,6 +52,10 @@ if __name__ == '__main__':
         help='The number of samples to store. If the dataset is composed by images this value is squared.'
     )
     parser.add_argument(
+        '--n-completions', type=int, default=0,
+        help='The number of samples per completion kind.'
+    )
+    parser.add_argument(
         '--learning-rate', type=float, default=1e-3,
         help='The learning rate.'
     )
@@ -69,7 +74,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Check the arguments
-    vision_dataset = args.dataset in ['mnist']
+    vision_dataset = args.dataset in ['mnist', 'cifar10']
     assert vision_dataset or args.discriminative is False, \
         'Discriminative setting is not supported for dataset \'%s\'' % args.dataset
     assert not args.discriminative or args.n_samples == 0, \
@@ -80,17 +85,17 @@ if __name__ == '__main__':
 
     # Load the dataset
     if vision_dataset:
-        data_train, data_val, data_test = load_vision_dataset(
-            'datasets', args.dataset, args.discriminative, flatten=True
-        )
         n_features = get_vision_dataset_n_features(args.dataset)
+        data_train, data_val, data_test = load_vision_dataset(
+            'datasets', args.dataset, args.discriminative, normalize=True, flatten=True
+        )
         out_classes = 1 if not args.discriminative else get_vision_dataset_n_classes(args.dataset)
-        _, image_transform = get_vision_dataset_transforms(args.dataset, args.discriminative, flatten=True)
+        _, inv_transform = get_vision_dataset_transforms(args.dataset, normalize=True, flatten=True)
     else:
         data_train, data_val, data_test = load_dataset('datasets', args.dataset, rand_state)
         _, n_features = data_train.shape
         out_classes = 1
-        image_transform = None
+        inv_transform = None
 
     # Build the model
     model = RatSpn(
@@ -124,4 +129,6 @@ if __name__ == '__main__':
             patience=args.patience
         )
         if args.n_samples > 0:
-            collect_samples('ratspn', vars(args), model, args.n_samples, image_transform)
+            collect_samples('ratspn', vars(args), model, args.n_samples, inv_transform)
+        if args.n_completions > 0:
+            collect_completions('ratspn', vars(args), model, data_test, args.n_completions, inv_transform)

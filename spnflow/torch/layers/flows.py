@@ -268,7 +268,6 @@ class BatchNormLayer(torch.nn.Module):
         u = (x - mean) / torch.sqrt(var)
         u = u * torch.exp(self.weight) + self.bias
         inv_log_det_jacobian = torch.sum(self.weight - 0.5 * torch.log(var), dim=0, keepdim=True)
-
         return u, inv_log_det_jacobian
 
     def forward(self, u):
@@ -288,4 +287,46 @@ class BatchNormLayer(torch.nn.Module):
         x = x * torch.sqrt(var) + mean
         log_det_jacobian = torch.sum(-self.weight + 0.5 * torch.log(var), dim=0, keepdim=True)
 
+        return x, log_det_jacobian
+
+
+class LogitLayer(torch.nn.Module):
+    """Logit transformation layer."""
+    def __init__(self, alpha=0.05):
+        """
+        Build a Logit layer.
+
+        :param alpha: The alpha parameter for logit transformation.
+        """
+        super(LogitLayer, self).__init__()
+        self.alpha = alpha
+
+    def inverse(self, x):
+        """
+        Evaluate the layer given some inputs (backward mode).
+
+        :param x: The inputs.
+        :return: The tensor result of the layer.
+        """
+        # Apply logit transformation
+        x = self.alpha + (1.0 - 2.0 * self.alpha) * x
+        u = torch.log(x / (1.0 - x))
+        inv_log_det_jacobian = torch.sum(
+            -torch.log(x) - torch.log(1.0 - x) + np.log(1.0 - 2.0 * self.alpha), dim=1, keepdim=True
+        )
+        return u, inv_log_det_jacobian
+
+    def forward(self, u):
+        """
+        Evaluate the layer given some inputs (forward mode).
+
+        :param u: The inputs.
+        :return: The tensor result of the layer.
+        """
+        # Apply de-logit transformation
+        u = 1.0 / (1.0 + torch.exp(-u))
+        x = (u - self.alpha) / (1.0 - 2.0 * self.alpha)
+        log_det_jacobian = torch.sum(
+            u - 2.0 * torch.log(torch.exp(u) + 1.0) - np.log(1.0 - 2.0 * self.alpha), dim=1, keepdim=True
+        )
         return x, log_det_jacobian

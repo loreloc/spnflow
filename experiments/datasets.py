@@ -2,23 +2,32 @@ import os
 import torch
 import torchvision
 import numpy as np
-from spnflow.torch.transforms import Flatten, Dequantize, Logit, Delogit, Reshape
+from spnflow.torch.transforms import Flatten, Dequantize, Reshape
 
 
-class SupervisedMNIST(torchvision.datasets.MNIST):
-    """Supervised MNIST"""
-    def __init__(self, *args, **kwargs):
-        super(SupervisedMNIST, self).__init__(*args, **kwargs)
-
-
-class UnsupervisedMNIST(torchvision.datasets.MNIST):
-    """Unsupervised MNIST"""
-    def __init__(self, *args, **kwargs):
-        super(UnsupervisedMNIST, self).__init__(*args, **kwargs)
+class SupervisedDataset(torch.utils.data.Dataset):
+    """Supervised vision dataset"""
+    def __init__(self, root, dataset_class, **kwargs):
+        self.dataset = dataset_class(root, **kwargs)
 
     def __getitem__(self, index):
-        x, y = super(UnsupervisedMNIST, self).__getitem__(index)
+        return self.dataset[index]
+
+    def __len__(self):
+        return len(self.dataset)
+
+
+class UnsupervisedDataset(torch.utils.data.Dataset):
+    """unsupervised vision dataset"""
+    def __init__(self, root, dataset_class, **kwargs):
+        self.dataset = dataset_class(root, **kwargs)
+
+    def __getitem__(self, index):
+        x, y = self.dataset[index]
         return x
+
+    def __len__(self):
+        return len(self.dataset)
 
 
 def load_dataset(root, name, rand_state, normalize=True):
@@ -44,64 +53,72 @@ def load_dataset(root, name, rand_state, normalize=True):
     return data_train, data_val, data_test
 
 
-def load_vision_dataset(root, name, supervised=False, flatten=False):
-    # Get the dataset classes
-    supervised_class, unsupervised_class = get_vision_dataset_classes(name)
-
+def load_vision_dataset(root, name, supervised=False, dequantize=False, normalize=False, flatten=False):
     # Get the transform
-    transform, _ = get_vision_dataset_transforms(name, supervised, flatten)
+    transform, _ = get_vision_dataset_transforms(name, dequantize, normalize, flatten)
 
     # Load and split the dataset
-    dataset_class = supervised_class if supervised else unsupervised_class
-    data_train = dataset_class(root, train=True, transform=transform, download=True)
-    data_test = dataset_class(root, train=False, transform=transform, download=True)
+    dataset_class = get_vision_dataset_class(name)
+    if supervised:
+        data_train = SupervisedDataset(root, dataset_class, train=True, transform=transform, download=True)
+        data_test = SupervisedDataset(root, dataset_class, train=False, transform=transform, download=True)
+    else:
+        data_train = UnsupervisedDataset(root, dataset_class, train=True, transform=transform, download=True)
+        data_test = UnsupervisedDataset(root, dataset_class, train=False, transform=transform, download=True)
     n_val = int(0.1 * len(data_train))
     n_train = len(data_train) - n_val
     data_train, data_val = torch.utils.data.random_split(data_train, [n_train, n_val])
     return data_train, data_val, data_test
 
 
-def get_vision_dataset_transforms(name, supervised=False, flatten=False):
+def get_vision_dataset_transforms(name, dequantize=False, normalize=False, flatten=False):
     # Get the image size of the dataset
     image_size = get_vision_dataset_image_size(name)
 
-    # Build the forward transform
-    transform = [torchvision.transforms.ToTensor()]
-    if supervised:
+    # Build the transforms
+    transform = []
+    inv_transform = []
+    transform.append(torchvision.transforms.ToTensor())
+    inv_transform.append(Reshape(*image_size))
+    if dequantize:
+        transform.append(Dequantize(1.0 / 256.0))
+    if normalize:
         mean, stddev = get_vision_dataset_mean_stddev(name)
         transform.append(torchvision.transforms.Normalize(mean, stddev))
+        inv_transform.append(torchvision.transforms.Normalize(-mean / stddev, 1.0 / stddev))
+    if flatten:
+        transform.append(Flatten())
     else:
-        transform.append(Dequantize(1.0 / 256.0))
-        transform.append(Logit())
-    transform.append(Flatten() if flatten else Reshape(*image_size))
+        transform.append(Reshape(*image_size))
+
     transform = torchvision.transforms.Compose(transform)
+    inv_transform = torchvision.transforms.Compose(inv_transform)
 
-    # Build the image transform
-    image_transform = []
-    if not supervised:
-        image_transform.append(Delogit())
-    image_transform.append(Reshape(*image_size))
-    image_transform = torchvision.transforms.Compose(image_transform)
-
-    return transform, image_transform
+    return transform, inv_transform
 
 
-def get_vision_dataset_classes(name):
+def get_vision_dataset_class(name):
     if name == 'mnist':
-        return (SupervisedMNIST, UnsupervisedMNIST)
+        return torchvision.datasets.MNIST
+    elif name == 'cifar10':
+        return torchvision.datasets.CIFAR10
     else:
         raise ValueError
 
 
 def get_vision_dataset_image_size(name):
     if name == 'mnist':
-        return (1, 28, 28)
+        return 1, 28, 28
+    elif name == 'cifar10':
+        return 3, 32, 32
     else:
         raise ValueError
 
 
 def get_vision_dataset_n_classes(name):
     if name == 'mnist':
+        return 10
+    elif name == 'cifar10':
         return 10
     else:
         raise ValueError
@@ -113,6 +130,8 @@ def get_vision_dataset_n_features(name):
 
 def get_vision_dataset_mean_stddev(name):
     if name == 'mnist':
-        return (0.1307, 0.3081)
+        return np.array(0.1307), np.array(0.3081)
+    elif name == 'cifar10':
+        return np.array([0.4914, 0.4822, 0.4465]), np.array([0.2023, 0.1994, 0.2010])
     else:
         raise ValueError

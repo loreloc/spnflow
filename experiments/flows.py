@@ -15,7 +15,7 @@ if __name__ == '__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
-        'dataset', choices=['power', 'gas', 'hepmass', 'miniboone', 'bsds300', 'mnist'],
+        'dataset', choices=['power', 'gas', 'hepmass', 'miniboone', 'bsds300', 'mnist', 'cifar10'],
         help='The dataset used in the experiment.'
     )
     parser.add_argument(
@@ -62,10 +62,14 @@ if __name__ == '__main__':
         '--patience', type=int, default=30,
         help='The epochs patience used for early stopping.'
     )
+    parser.add_argument(
+        '--weight-decay', type=float, default=0.0,
+        help='L2 regularization factor.'
+    )
     args = parser.parse_args()
 
     # Check the arguments
-    vision_dataset = args.dataset in ['mnist']
+    vision_dataset = args.dataset in ['mnist', 'cifar10']
     model_class = MAF if args.model == 'maf' else RealNVP
 
     # Instantiate a random state, used for reproducibility
@@ -73,13 +77,15 @@ if __name__ == '__main__':
 
     # Load the dataset
     if vision_dataset:
-        data_train, data_val, data_test = load_vision_dataset('datasets', args.dataset, supervised=False, flatten=True)
         n_features = get_vision_dataset_n_features(args.dataset)
-        _, image_transform = get_vision_dataset_transforms(args.dataset, flatten=True)
+        data_train, data_val, data_test = load_vision_dataset('datasets', args.dataset, dequantize=True, flatten=True)
+        _, inv_transform = get_vision_dataset_transforms(args.dataset, dequantize=True, flatten=True)
+        apply_logit = True
     else:
         data_train, data_val, data_test = load_dataset('datasets', args.dataset, rand_state)
         _, n_features = data_train.shape
-        image_transform = None
+        inv_transform = None
+        apply_logit = False
 
     # Build the model
     model = model_class(
@@ -88,7 +94,8 @@ if __name__ == '__main__':
         depth=args.depth,
         units=args.units,
         batch_norm=args.batch_norm,
-        activation=get_activation_class(args.activation)
+        activation=get_activation_class(args.activation),
+        logit=apply_logit
     )
 
     # Train the model and collect the results
@@ -98,9 +105,10 @@ if __name__ == '__main__':
         lr=args.learning_rate,
         batch_size=args.batch_size,
         epochs=args.epochs,
-        patience=args.patience
+        patience=args.patience,
+        weight_decay=args.weight_decay
     )
 
     # Sampling
     if args.n_samples > 0:
-        collect_samples('flows', model, args.n_samples, image_transform)
+        collect_samples('flows', vars(args), model, args.n_samples, inv_transform)
