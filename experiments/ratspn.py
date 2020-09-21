@@ -12,7 +12,8 @@ from experiments.utils import collect_samples, collect_completions
 if __name__ == '__main__':
     # Parse the arguments
     parser = argparse.ArgumentParser(
-        description='Randomized And Tensorized Sum-Product Networks (RAT-SPNs) experiments'
+        description='Randomized And Tensorized Sum-Product Networks (RAT-SPNs) experiments',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
         'dataset', choices=['power', 'gas', 'hepmass', 'miniboone', 'bsds300', 'mnist', 'cifar10'],
