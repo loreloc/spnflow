@@ -84,7 +84,7 @@ if __name__ == '__main__':
     )
 
     # Train the model and collect the results
-    if args.discriminative:
+    if not args.discriminative:
         collect_results_generative(
             'dgcspn', settings, model, data_train, data_val, data_test, bpp=True,
             lr=args.learning_rate, batch_size=args.batch_size, epochs=args.epochs, patience=args.patience
