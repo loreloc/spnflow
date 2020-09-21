@@ -35,7 +35,6 @@ if __name__ == '__main__':
     parser.add_argument('--batch-size', type=int, default=100, help='The batch size.')
     parser.add_argument('--epochs', type=int, default=1000, help='The number of epochs.')
     parser.add_argument('--patience', type=int, default=30, help='The epochs patience used for early stopping.')
-    parser.add_argument('--weight-decay', type=float, default=0.0, help='L2 regularization factor.')
     args = parser.parse_args()
     settings = vars(args)
 
