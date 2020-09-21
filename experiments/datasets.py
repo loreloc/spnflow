@@ -2,6 +2,7 @@ import os
 import torch
 import torchvision
 import numpy as np
+
 from spnflow.torch.transforms import Flatten, Dequantize, Reshape
 
 
@@ -81,7 +82,7 @@ def get_vision_dataset_transforms(name, dequantize=False, normalize=False, flatt
     transform.append(torchvision.transforms.ToTensor())
     inv_transform.append(Reshape(*image_size))
     if dequantize:
-        transform.append(Dequantize(1.0 / 256.0))
+        transform.append(Dequantize())
     if normalize:
         mean, stddev = get_vision_dataset_mean_stddev(name)
         transform.append(torchvision.transforms.Normalize(mean, stddev))

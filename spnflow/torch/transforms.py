@@ -3,11 +3,11 @@ import torch
 
 class Dequantize:
     """Dequantize transformation"""
-    def __init__(self, factor=1.0):
-        self.factor = factor
+    def __init__(self):
+        pass
 
-    def __call__(self, tensor):
-        return tensor + torch.rand(tensor.size()) * self.factor
+    def __call__(self, x):
+        return (x * 255.0 + torch.rand(x.size())) / 256.0
 
 
 class Flatten:
@@ -15,8 +15,8 @@ class Flatten:
     def __init__(self):
         pass
 
-    def __call__(self, tensor):
-        return torch.flatten(tensor)
+    def __call__(self, x):
+        return torch.flatten(x)
 
 
 class Reshape:
@@ -24,5 +24,5 @@ class Reshape:
     def __init__(self, *size):
         self.size = size
 
-    def __call__(self, tensor):
-        return torch.reshape(tensor, self.size)
+    def __call__(self, x):
+        return torch.reshape(x, self.size)

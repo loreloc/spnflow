@@ -25,7 +25,7 @@ def get_experiment_filename(name, settings):
     return '%s-%s-%s' % (name, settings['dataset'], datetime.now().strftime('%m%d%H%M'))
 
 
-def collect_results_generative(name, settings, model, data_train, data_val, data_test, **kwargs):
+def collect_results_generative(name, settings, model, data_train, data_val, data_test, bpp=False, **kwargs):
     # Train the model
     history = torch_train(model, data_train, data_val, setting='generative', **kwargs)
 
@@ -35,10 +35,17 @@ def collect_results_generative(name, settings, model, data_train, data_val, data
     # Compute the filename string
     filename = get_experiment_filename(name, settings)
 
+    # Compute the bits per pixel, if specified
+    if bpp:
+        dims = np.prod(data_train[0].size())
+        bpp = np.log2(256) - (mu_ll / (dims * np.log(2)))
+    else:
+        bpp = None
+
     # Save the results to file
     filepath = os.path.join(name, 'results')
     os.makedirs(filepath, exist_ok=True)
-    results = {'log_likelihoods': {'mean': mu_ll, 'stddev': sigma_ll}, 'settings': settings}
+    results = {'log_likelihoods': {'mean': mu_ll, 'stddev': sigma_ll}, 'bits_per_pixel': bpp, 'settings': settings}
     with open(os.path.join(filepath, filename + '.json'), 'w') as file:
         json.dump(results, file, indent=4)
 

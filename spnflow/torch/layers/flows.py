@@ -310,9 +310,10 @@ class LogitLayer(torch.nn.Module):
         """
         # Apply logit transformation
         x = self.alpha + (1.0 - 2.0 * self.alpha) * x
-        u = torch.log(x / (1.0 - x))
-        inv_log_det_jacobian = torch.sum(
-            -torch.log(x) - torch.log(1.0 - x) + np.log(1.0 - 2.0 * self.alpha), dim=1, keepdim=True
+        u = torch.log(x) - torch.log(1.0 - x)
+        inv_log_det_jacobian = -torch.sum(
+            torch.log(torch.sigmoid(u)) + torch.log(torch.sigmoid(-u)) - np.log(1.0 - 2.0 * self.alpha),
+            dim=1, keepdim=True
         )
         return u, inv_log_det_jacobian
 
@@ -324,9 +325,10 @@ class LogitLayer(torch.nn.Module):
         :return: The tensor result of the layer.
         """
         # Apply de-logit transformation
-        u = 1.0 / (1.0 + torch.exp(-u))
+        u = torch.sigmoid(u)
         x = (u - self.alpha) / (1.0 - 2.0 * self.alpha)
-        log_det_jacobian = torch.sum(
-            u - 2.0 * torch.log(torch.exp(u) + 1.0) - np.log(1.0 - 2.0 * self.alpha), dim=1, keepdim=True
+        log_det_jacobian = -torch.sum(
+             torch.log(u) + torch.log(1.0 - u) + np.log(1.0 - 2.0 * self.alpha),
+            dim=1, keepdim=True
         )
         return x, log_det_jacobian

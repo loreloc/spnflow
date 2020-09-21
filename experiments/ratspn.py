@@ -12,66 +12,31 @@ from experiments.utils import collect_samples, collect_completions
 if __name__ == '__main__':
     # Parse the arguments
     parser = argparse.ArgumentParser(
-        description='Randomized And Tensorized Sum-Product Networks (RAT-SPNs) experiments',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        description='Randomized And Tensorized Sum-Product Networks (RAT-SPNs) experiments'
     )
     parser.add_argument(
         'dataset', choices=['power', 'gas', 'hepmass', 'miniboone', 'bsds300', 'mnist', 'cifar10'],
         help='The dataset used in the experiment.'
     )
-    parser.add_argument(
-        '--discriminative', action='store_true',
-        help='Whether to use discriminative settings. Valid only for discriminative datasets.'
-    )
-    parser.add_argument(
-        '--rg-depth', type=int, default=1,
-        help='The region graph depth.'
-    )
-    parser.add_argument(
-        '--rg-repetitions', type=int, default=16,
-        help='The region graph repetitions.'
-    )
-    parser.add_argument(
-        '--n-batch', type=int, default=8,
-        help='The number of batch distributions at leaves.'
-    )
-    parser.add_argument(
-        '--n-sum', type=int, default=8,
-        help='The number of sum nodes per region.'
-    )
-    parser.add_argument(
-        '--dropout', type=float, default=None,
-        help='The dropout layer at sum layers.'
-    )
+    parser.add_argument('--discriminative', action='store_true', help='Whether to use discriminative settings.')
+    parser.add_argument('--rg-depth', type=int, default=1, help='The region graph depth.')
+    parser.add_argument('--rg-repetitions', type=int, default=16, help='The region graph repetitions.')
+    parser.add_argument('--n-batch', type=int, default=8, help='The number of batch distributions at leaves.')
+    parser.add_argument('--n-sum', type=int, default=8, help='The number of sum nodes per region.')
+    parser.add_argument('--dropout', type=float, default=None, help='The dropout layer at sum layers.')
     parser.add_argument(
         '--no-optimize-scale', dest='optimize_scale', action='store_false',
         help='Whether to disable scale parameters optimization of distribution leaves.'
     )
-    parser.add_argument(
-        '--n-samples', type=int, default=0,
-        help='The number of samples to store. If the dataset is composed by images this value is squared.'
-    )
-    parser.add_argument(
-        '--n-completions', type=int, default=0,
-        help='The number of samples per completion kind.'
-    )
-    parser.add_argument(
-        '--learning-rate', type=float, default=1e-3,
-        help='The learning rate.'
-    )
-    parser.add_argument(
-        '--batch-size', type=int, default=100,
-        help='The batch size.'
-    )
-    parser.add_argument(
-        '--epochs', type=int, default=1000,
-        help='The number of epochs.'
-    )
-    parser.add_argument(
-        '--patience', type=int, default=30,
-        help='The epochs patience used for early stopping.'
-    )
+    parser.add_argument('--n-samples', type=int, default=0, help='The number of samples to store.')
+    parser.add_argument('--n-completions', type=int, default=0, help='The number of samples per completion kind.')
+    parser.add_argument('--learning-rate', type=float, default=1e-3, help='The learning rate.')
+    parser.add_argument('--batch-size', type=int, default=100, help='The batch size.')
+    parser.add_argument('--epochs', type=int, default=1000, help='The number of epochs.')
+    parser.add_argument('--patience', type=int, default=30, help='The epochs patience used for early stopping.')
+    parser.add_argument('--weight-decay', type=float, default=0.0, help='L2 regularization factor.')
     args = parser.parse_args()
+    settings = vars(args)
 
     # Check the arguments
     vision_dataset = args.dataset in ['mnist', 'cifar10']
@@ -110,25 +75,17 @@ if __name__ == '__main__':
     )
 
     # Train the model and collect the results
-    if args.discriminative:
-        collect_results_discriminative(
-            'ratspn', vars(args), model,
-            data_train, data_val, data_test,
-            lr=args.learning_rate,
-            batch_size=args.batch_size,
-            epochs=args.epochs,
-            patience=args.patience
-        )
-    else:
+    if not args.discriminative:
         collect_results_generative(
-            'ratspn', vars(args), model,
-            data_train, data_val, data_test,
-            lr=args.learning_rate,
-            batch_size=args.batch_size,
-            epochs=args.epochs,
-            patience=args.patience
+            'ratspn', settings, model, data_train, data_val, data_test, bpp=vision_dataset,
+            lr=args.learning_rate, batch_size=args.batch_size, epochs=args.epochs, patience=args.patience
         )
         if args.n_samples > 0:
-            collect_samples('ratspn', vars(args), model, args.n_samples, inv_transform)
+            collect_samples('ratspn', settings, model, args.n_samples, inv_transform)
         if args.n_completions > 0:
-            collect_completions('ratspn', vars(args), model, data_test, args.n_completions, inv_transform)
+            collect_completions('ratspn', settings, model, data_test, args.n_completions, inv_transform)
+    else:
+        collect_results_discriminative(
+            'ratspn', settings, model, data_train, data_val, data_test,
+            lr=args.learning_rate, batch_size=args.batch_size, epochs=args.epochs, patience=args.patience
+        )

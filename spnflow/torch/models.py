@@ -32,7 +32,69 @@ class AbstractModel(abc.ABC, torch.nn.Module):
         pass
 
 
-class RealNVP(AbstractModel):
+class NormalizingFlow(AbstractModel):
+    """Normalizing Flow abstract model."""
+    def __init__(self, in_features, n_flows=5, logit=False, in_base=None):
+        """
+        Initialize an abstract Normalizing Flow model.
+
+        :param in_features: The number of input features.
+        :param n_flows: The number of sequential coupling flows.
+        :param logit: Whether to apply logit transformation on the input layer.
+        :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
+        """
+        super(NormalizingFlow, self).__init__()
+        self.in_features = in_features
+        self.n_flows = n_flows
+        self.logit = logit
+
+        # Build the base distribution, if necessary
+        if in_base is None:
+            self.in_base_loc = torch.nn.Parameter(torch.zeros([self.in_features], requires_grad=False))
+            self.in_base_scale = torch.nn.Parameter(torch.ones([self.in_features], requires_grad=False))
+            self.in_base = torch.distributions.Normal(self.in_base_loc, self.in_base_scale)
+        else:
+            self.in_base = in_base
+
+        # Initialize the normalizing flow layers
+        # Moreover, append the logit transformation, if specified
+        self.layers = torch.nn.ModuleList()
+        if self.logit:
+            self.layers.append(LogitLayer())
+
+    def forward(self, x):
+        """
+        Compute the log-likelihood given complete evidence.
+
+        :param x: The inputs tensor.
+        :return: The output of the model.
+        """
+        inv_log_det_jacobian = 0.0
+        for layer in self.layers:
+            x, ildj = layer.inverse(x)
+            inv_log_det_jacobian += ildj
+        prior = torch.sum(self.in_base.log_prob(x), dim=1, keepdim=True)
+        return prior + inv_log_det_jacobian
+
+    @torch.no_grad()
+    def mpe(self, x):
+        raise NotImplementedError('Maximum at posteriori estimation is not implemented for Normalizing Flows')
+
+    @torch.no_grad()
+    def sample(self, n_samples):
+        """
+        Sample some values from the modeled distribution.
+
+        :param n_samples: The number of samples.
+        :return: The samples.
+        """
+        x = self.in_base.sample([n_samples])
+        for layer in reversed(self.layers):
+            x, ldj = layer.forward(x)
+        return x
+
+
+class RealNVP(NormalizingFlow):
     """Real Non-Volume-Preserving (RealNVP) normalizing flow model."""
     def __init__(self,
                  in_features,
@@ -56,27 +118,13 @@ class RealNVP(AbstractModel):
         :param logit: Whether to apply logit transformation on the input layer.
         :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         """
-        super(RealNVP, self).__init__()
-        self.in_features = in_features
-        self.n_flows = n_flows
+        super(RealNVP, self).__init__(in_features, n_flows, logit, in_base)
         self.batch_norm = batch_norm
         self.depth = depth
         self.units = units
         self.activation = activation
-        self.logit = logit
-
-        # Build the base distribution, if necessary
-        if in_base:
-            self.in_base = in_base
-        else:
-            self.in_base_loc = torch.nn.Parameter(torch.zeros([self.in_features], requires_grad=False))
-            self.in_base_scale = torch.nn.Parameter(torch.ones([self.in_features], requires_grad=False))
-            self.in_base = torch.distributions.Normal(self.in_base_loc, self.in_base_scale)
 
         # Build the coupling layers
-        self.layers = torch.nn.ModuleList()
-        if self.logit:
-            self.layers.append(LogitLayer())
         reverse = False
         for _ in range(self.n_flows):
             self.layers.append(
@@ -90,42 +138,8 @@ class RealNVP(AbstractModel):
             # Invert the input ordering
             reverse = not reverse
 
-    def forward(self, x):
-        """
-        Compute the log-likelihood given complete evidence.
 
-        :param x: The inputs tensor.
-        :return: The output of the model.
-        """
-        inv_log_det_jacobian = 0.0
-        for layer in self.layers:
-            x, ildj = layer.inverse(x)
-            inv_log_det_jacobian += ildj
-        prior = self.in_base.log_prob(x)
-        return torch.sum(prior, dim=1, keepdim=True) + inv_log_det_jacobian
-
-    @torch.no_grad()
-    def mpe(self, x):
-        raise NotImplementedError('Maximum at posteriori estimation is not implemented for RealNVPs')
-
-    @torch.no_grad()
-    def sample(self, n_samples):
-        """
-        Sample some values from the modeled distribution.
-
-        :param n_samples: The number of samples.
-        :return: The samples.
-        """
-        # Sample from the base distribution
-        x = self.in_base.sample([n_samples])
-
-        # Apply the normalizing flows transformations
-        for layer in reversed(self.layers):
-            x, ldj = layer.forward(x)
-        return x
-
-
-class MAF(AbstractModel):
+class MAF(NormalizingFlow):
     """Masked Autoregressive Flow (MAF) normalizing flow model."""
     def __init__(self,
                  in_features,
@@ -149,27 +163,13 @@ class MAF(AbstractModel):
         :param logit: Whether to apply logit transformation on the input layer.
         :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         """
-        super(MAF, self).__init__()
-        self.in_features = in_features
-        self.n_flows = n_flows
+        super(MAF, self).__init__(in_features, n_flows, logit, in_base)
         self.batch_norm = batch_norm
         self.depth = depth
         self.units = units
         self.activation = activation
-        self.logit = logit
-
-        # Build the base distribution, if necessary
-        if in_base:
-            self.in_base = in_base
-        else:
-            self.in_base_loc = torch.nn.Parameter(torch.zeros([self.in_features], requires_grad=False))
-            self.in_base_scale = torch.nn.Parameter(torch.ones([self.in_features], requires_grad=False))
-            self.in_base = torch.distributions.Normal(self.in_base_loc, self.in_base_scale)
 
         # Build the autoregressive layers
-        self.layers = torch.nn.ModuleList()
-        if self.logit:
-            self.layers.append(LogitLayer())
         reverse = False
         for _ in range(self.n_flows):
             self.layers.append(
@@ -182,40 +182,6 @@ class MAF(AbstractModel):
 
             # Invert the input ordering
             reverse = not reverse
-
-    def forward(self, x):
-        """
-        Compute the log-likelihood given complete evidence.
-
-        :param x: The inputs tensor.
-        :return: The output of the model.
-        """
-        inv_log_det_jacobian = 0.0
-        for layer in self.layers:
-            x, ildj = layer.inverse(x)
-            inv_log_det_jacobian += ildj
-        prior = self.in_base.log_prob(x)
-        return torch.sum(prior, dim=1, keepdim=True) + inv_log_det_jacobian
-
-    @torch.no_grad()
-    def mpe(self, x):
-        raise NotImplementedError('Maximum at posteriori estimation is not implemented for RealNVPs')
-
-    @torch.no_grad()
-    def sample(self, n_samples):
-        """
-        Sample some values from the modeled distribution.
-
-        :param n_samples: The number of samples.
-        :return: The samples.
-        """
-        # Sample from the base distribution
-        x = self.in_base.sample([n_samples])
-
-        # Apply the normalizing flows transformations
-        for layer in reversed(self.layers):
-            x, ldj = layer.forward(x)
-        return x
 
 
 class RatSpn(AbstractModel):
