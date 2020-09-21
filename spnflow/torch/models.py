@@ -148,8 +148,10 @@ class MAF(NormalizingFlow):
                  depth=1,
                  units=128,
                  activation=torch.nn.ReLU,
+                 sequential=True,
                  logit=False,
                  in_base=None,
+                 rand_state=None
                  ):
         """
         Initialize a MAF.
@@ -160,20 +162,31 @@ class MAF(NormalizingFlow):
         :param depth: The number of hidden layers of flows conditioners.
         :param units: The number of hidden units per layer of flows conditioners.
         :param activation: The activation class to use for the flows conditioners hidden layers.
+        :param sequential: If True build masks degrees sequentially, otherwise randomly.
         :param logit: Whether to apply logit transformation on the input layer.
         :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
+        :param rand_state: The random state used to generate the masks degrees. Used only if sequential is False.
         """
         super(MAF, self).__init__(in_features, n_flows, logit, in_base)
         self.batch_norm = batch_norm
         self.depth = depth
         self.units = units
         self.activation = activation
+        self.sequential = sequential
+        self.rand_state = rand_state
+
+        # If necessary, instantiate a random state
+        if not self.sequential and self.rand_state is None:
+            self.rand_state = np.random.RandomState(42)
 
         # Build the autoregressive layers
         reverse = False
         for _ in range(self.n_flows):
             self.layers.append(
-                AutoregressiveLayer(self.in_features, self.depth, self.units, self.activation, reverse=reverse)
+                AutoregressiveLayer(
+                    self.in_features, self.depth, self.units, self.activation,
+                    sequential=self.sequential, reverse=reverse, rand_state=self.rand_state
+                )
             )
 
             # Append batch normalization after each layer, if specified
@@ -372,7 +385,7 @@ class DgcSpn(AbstractModel):
         :param quantiles_loc: The mean quantiles for location initialization. It can be None.
         :param uniform_loc: The uniform range for location initialization. It can be None.
         :param rand_state: The random state used to initialize the spatial product layers weights.
-                           It can be None if depthwise is True.
+                           Used only if depthwise is False.
         """
         super(DgcSpn, self).__init__()
         self.in_size = in_size
@@ -386,6 +399,10 @@ class DgcSpn(AbstractModel):
         self.quantiles_loc = quantiles_loc
         self.uniform_loc = uniform_loc
         self.rand_state = rand_state
+
+        # If necessary, instantiate a random state
+        if not self.depthwise and self.rand_state is None:
+            self.rand_state = np.random.RandomState(42)
 
         # Instantiate the base layer
         self.base_layer = SpatialGaussianLayer(

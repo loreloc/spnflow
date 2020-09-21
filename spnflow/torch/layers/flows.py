@@ -118,7 +118,7 @@ class CouplingLayer(torch.nn.Module):
 
 class AutoregressiveLayer(torch.nn.Module):
     """Masked Autoregressive Flow autoregressive layer."""
-    def __init__(self, in_features, depth, units, activation, reverse=False):
+    def __init__(self, in_features, depth, units, activation, sequential=True, reverse=False, rand_state=None):
         """
         Build an autoregressive layer as specified in Masked Autoregressive Flow paper.
 
@@ -126,7 +126,9 @@ class AutoregressiveLayer(torch.nn.Module):
         :param depth: The number of hidden layers of the conditioner.
         :param units: The number of units of each hidden layer of the conditioner.
         :param activation: The activation class used for inner layers of the conditioner.
-        :param reverse: Whether to reverse the mask used in the autoregressive layer. Useful for alternating orders.
+        :param sequential: Whether to use sequential degrees for inner layers masks.
+        :param reverse: Whether to reverse the mask used in the autoregressive layer. Used only if sequential is True.
+        :param rand_state: The random state used to generate the masks degrees. Used only if sequential is False.
         """
         super(AutoregressiveLayer, self).__init__()
         self.in_features = in_features
@@ -134,11 +136,17 @@ class AutoregressiveLayer(torch.nn.Module):
         self.depth = depth
         self.units = units
         self.activation = activation
+        self.sequential = sequential
         self.reverse = reverse
+        self.rand_state = rand_state
         self.layers = torch.nn.ModuleList()
 
         # Create the masks of the masked linear layers
-        masks = self._create_masks()
+        degrees = self._build_degrees_sequential() if sequential else self._build_degrees_random()
+        masks = self._build_masks(degrees)
+
+        # Preserve the input ordering
+        self.ordering = degrees[0]
 
         # Initialize the conditioner neural network
         out_features = self.units
@@ -176,46 +184,70 @@ class AutoregressiveLayer(torch.nn.Module):
         x = torch.zeros_like(u)
         log_det_jacobian = torch.zeros_like(u)
 
-        # This requires K iterations where K is the number of features
-        ordering = range(self.in_features)
-        if self.reverse:
-            ordering = reversed(ordering)
-
+        # This requires D iterations where D is the number of features
         # Get the parameters and apply the affine transformation (inverse mode)
-        for i in ordering:
+        for i in range(0, self.in_features):
             z = x
             for layer in self.layers:
                 z = layer(z)
             mu, sigma = torch.chunk(z, chunks=2, dim=1)
-            x[:, i] = u[:, i] * torch.exp(sigma[:, i]) + mu[:, i]
-            log_det_jacobian[:, i] = sigma[:, i]
+            idx = np.argwhere(self.ordering == i).item()
+            x[:, idx] = u[:, idx] * torch.exp(sigma[:, idx]) + mu[:, idx]
+            log_det_jacobian[:, idx] = sigma[:, idx]
         log_det_jacobian = torch.sum(log_det_jacobian, dim=1, keepdim=True)
         return x, log_det_jacobian
 
-    def _create_masks(self):
+    def _build_degrees_sequential(self):
         """
-        Create the masks for the linear layers of the autoregressive network.
+        Build sequential degrees for the linear layers of the autoregressive network.
 
         :return: The masks to use for each hidden layer of the autoregressive network.
         """
         # Initialize the input degrees sequentially
-        degrees = [np.arange(self.in_features)]
+        degrees = []
         if self.reverse:
-            degrees[0] = np.flip(degrees[0])
+            degrees.append(np.arange(self.in_features - 1, -1, -1))
+        else:
+            degrees.append(np.arange(self.in_features))
 
         # Add the degrees of the hidden layers
         for _ in range(self.depth):
-            degrees += [np.arange(self.units) % (self.in_features - 1)]
+            degrees.append(np.arange(self.units) % (self.in_features - 1))
+        return degrees
 
-        # Add the degrees of the output layer
-        degrees += [degrees[0] % self.in_features - 1]
+    def _build_degrees_random(self):
+        """
+        Create random degrees for the linear layers of the autoregressive network.
 
-        # Construct the masks
+        :return: The masks to use for each hidden layer of the autoregressive network.
+        """
+        # Initialize the input degrees randomly
+        degrees = []
+        ordering = np.arange(self.in_features)
+        self.rand_state.shuffle(ordering)
+        degrees.append(ordering)
+
+        # Add the degrees of the hidden layers
+        for _ in range(self.depth):
+            min_prev_degree = np.min(degrees[-1])
+            degrees.append(self.rand_state.randint(min_prev_degree, self.in_features - 1, self.units))
+        return degrees
+
+    @staticmethod
+    def _build_masks(degrees):
+        """
+        Build masks from degrees.
+
+        :return: The masks to use for each hidden layer of the autoregressive network.
+        """
         masks = []
         for (d1, d2) in zip(degrees[:-1], degrees[1:]):
             d1 = np.expand_dims(d1, axis=0)
             d2 = np.expand_dims(d2, axis=1)
-            masks += [np.greater_equal(d2, d1).astype('float32')]
+            masks.append(np.less_equal(d1, d2).astype(np.float32))
+        d1 = np.expand_dims(degrees[-1], axis=0)
+        d2 = np.expand_dims(degrees[0], axis=1)
+        masks.append(np.less(d1, d2).astype(np.float32))
         return masks
 
 

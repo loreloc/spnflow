@@ -28,6 +28,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--activation', choices=['relu', 'tanh', 'sigmoid'], default='relu', help='The activation function to use.'
     )
+    parser.add_argument('--random-degrees', action='store_true', help='Whether to use random degrees for MAF models.')
     parser.add_argument('--n-samples', type=int, default=0, help='The number of samples to store.')
     parser.add_argument('--learning-rate', type=float, default=1e-3, help='The learning rate.')
     parser.add_argument('--batch-size', type=int, default=100, help='The batch size.')
@@ -38,13 +39,14 @@ if __name__ == '__main__':
     settings = vars(args)
 
     # Check the arguments
-    vision_dataset = args.dataset in ['mnist', 'cifar10']
-    model_class = MAF if args.model == 'maf' else RealNVP
+    assert args.model == 'maf' or not args.random_degrees, \
+        '--random-degrees can only be specified when the model is \'maf\''
 
     # Instantiate a random state, used for reproducibility
     rand_state = np.random.RandomState(42)
 
     # Load the dataset
+    vision_dataset = args.dataset in ['mnist', 'cifar10']
     if vision_dataset:
         n_features = get_vision_dataset_n_features(args.dataset)
         data_train, data_val, data_test = load_vision_dataset('datasets', args.dataset, dequantize=True, flatten=True)
@@ -54,16 +56,28 @@ if __name__ == '__main__':
         _, n_features = data_train.shape
         inv_transform = None
 
-    # Build the model
-    model = model_class(
-        n_features,
-        n_flows=args.n_flows,
-        depth=args.depth,
-        units=args.units,
-        batch_norm=args.batch_norm,
-        activation=get_activation_class(args.activation),
-        logit=vision_dataset
-    )
+    if args.model == 'maf':
+        model = MAF(
+            n_features,
+            n_flows=args.n_flows,
+            depth=args.depth,
+            units=args.units,
+            batch_norm=args.batch_norm,
+            activation=get_activation_class(args.activation),
+            sequential=not args.random_degrees,
+            logit=vision_dataset,
+            rand_state=rand_state
+        )
+    elif args.model == 'nvp':
+        model = RealNVP(
+            n_features,
+            n_flows=args.n_flows,
+            depth=args.depth,
+            units=args.units,
+            batch_norm=args.batch_norm,
+            activation=get_activation_class(args.activation),
+            logit=vision_dataset
+        )
 
     # Train the model and collect the results
     collect_results_generative(
