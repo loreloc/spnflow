@@ -234,14 +234,12 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/spnflow.torch.html#spnflow.torch.transforms.Delogit">Delogit (class in spnflow.torch.transforms)</a>
-</li>
       <li><a href="api/spnflow.torch.html#spnflow.torch.transforms.Dequantize">Dequantize (class in spnflow.torch.transforms)</a>
+</li>
+      <li><a href="api/spnflow.structure.html#spnflow.structure.node.dfs_post_order">dfs_post_order() (in module spnflow.structure.node)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/spnflow.structure.html#spnflow.structure.node.dfs_post_order">dfs_post_order() (in module spnflow.structure.node)</a>
-</li>
       <li><a href="api/spnflow.torch.html#spnflow.torch.models.DgcSpn">DgcSpn (class in spnflow.torch.models)</a>
 </li>
       <li><a href="api/spnflow.structure.html#spnflow.structure.leaf.LeafType.DISCRETE">DISCRETE (spnflow.structure.leaf.LeafType attribute)</a>
@@ -303,6 +301,8 @@
 </li>
         <li><a href="api/spnflow.torch.layers.html#spnflow.torch.layers.flows.CouplingLayer.forward">(spnflow.torch.layers.flows.CouplingLayer method)</a>
 </li>
+        <li><a href="api/spnflow.torch.layers.html#spnflow.torch.layers.flows.LogitLayer.forward">(spnflow.torch.layers.flows.LogitLayer method)</a>
+</li>
         <li><a href="api/spnflow.torch.layers.html#spnflow.torch.layers.flows.MaskedLinear.forward">(spnflow.torch.layers.flows.MaskedLinear method)</a>
 </li>
         <li><a href="api/spnflow.torch.layers.html#spnflow.torch.layers.ratspn.GaussianLayer.forward">(spnflow.torch.layers.ratspn.GaussianLayer method)</a>
@@ -317,11 +317,9 @@
 </li>
         <li><a href="api/spnflow.torch.html#spnflow.torch.models.DgcSpn.forward">(spnflow.torch.models.DgcSpn method)</a>
 </li>
-        <li><a href="api/spnflow.torch.html#spnflow.torch.models.MAF.forward">(spnflow.torch.models.MAF method)</a>
+        <li><a href="api/spnflow.torch.html#spnflow.torch.models.NormalizingFlow.forward">(spnflow.torch.models.NormalizingFlow method)</a>
 </li>
         <li><a href="api/spnflow.torch.html#spnflow.torch.models.RatSpn.forward">(spnflow.torch.models.RatSpn method)</a>
-</li>
-        <li><a href="api/spnflow.torch.html#spnflow.torch.models.RealNVP.forward">(spnflow.torch.models.RealNVP method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -404,6 +402,8 @@
         <li><a href="api/spnflow.torch.layers.html#spnflow.torch.layers.flows.BatchNormLayer.inverse">(spnflow.torch.layers.flows.BatchNormLayer method)</a>
 </li>
         <li><a href="api/spnflow.torch.layers.html#spnflow.torch.layers.flows.CouplingLayer.inverse">(spnflow.torch.layers.flows.CouplingLayer method)</a>
+</li>
+        <li><a href="api/spnflow.torch.layers.html#spnflow.torch.layers.flows.LogitLayer.inverse">(spnflow.torch.layers.flows.LogitLayer method)</a>
 </li>
       </ul></li>
       <li><a href="api/spnflow.utils.html#spnflow.utils.validity.is_complete">is_complete() (in module spnflow.utils.validity)</a>
@@ -538,7 +538,7 @@
       </ul></li>
       <li><a href="api/spnflow.torch.html#spnflow.torch.models.AbstractModel.log_prob">log_prob() (spnflow.torch.models.AbstractModel method)</a>
 </li>
-      <li><a href="api/spnflow.torch.html#spnflow.torch.transforms.Logit">Logit (class in spnflow.torch.transforms)</a>
+      <li><a href="api/spnflow.torch.layers.html#spnflow.torch.layers.flows.LogitLayer">LogitLayer (class in spnflow.torch.layers.flows)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -672,11 +672,9 @@
 </li>
         <li><a href="api/spnflow.torch.html#spnflow.torch.models.DgcSpn.mpe">(spnflow.torch.models.DgcSpn method)</a>
 </li>
-        <li><a href="api/spnflow.torch.html#spnflow.torch.models.MAF.mpe">(spnflow.torch.models.MAF method)</a>
+        <li><a href="api/spnflow.torch.html#spnflow.torch.models.NormalizingFlow.mpe">(spnflow.torch.models.NormalizingFlow method)</a>
 </li>
         <li><a href="api/spnflow.torch.html#spnflow.torch.models.RatSpn.mpe">(spnflow.torch.models.RatSpn method)</a>
-</li>
-        <li><a href="api/spnflow.torch.html#spnflow.torch.models.RealNVP.mpe">(spnflow.torch.models.RealNVP method)</a>
 </li>
       </ul></li>
       <li><a href="api/spnflow.structure.html#spnflow.structure.node.Mul">Mul (class in spnflow.structure.node)</a>
@@ -691,11 +689,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spnflow.structure.html#spnflow.structure.node.Node">Node (class in spnflow.structure.node)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spnflow.algorithms.html#spnflow.algorithms.inference.node_likelihood">node_likelihood() (in module spnflow.algorithms.inference)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/spnflow.algorithms.html#spnflow.algorithms.inference.node_log_likelihood">node_log_likelihood() (in module spnflow.algorithms.inference)</a>
+</li>
+      <li><a href="api/spnflow.torch.html#spnflow.torch.models.NormalizingFlow">NormalizingFlow (class in spnflow.torch.models)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -844,11 +844,9 @@
 </li>
         <li><a href="api/spnflow.torch.html#spnflow.torch.models.DgcSpn.sample">(spnflow.torch.models.DgcSpn method)</a>
 </li>
-        <li><a href="api/spnflow.torch.html#spnflow.torch.models.MAF.sample">(spnflow.torch.models.MAF method)</a>
+        <li><a href="api/spnflow.torch.html#spnflow.torch.models.NormalizingFlow.sample">(spnflow.torch.models.NormalizingFlow method)</a>
 </li>
         <li><a href="api/spnflow.torch.html#spnflow.torch.models.RatSpn.sample">(spnflow.torch.models.RatSpn method)</a>
-</li>
-        <li><a href="api/spnflow.torch.html#spnflow.torch.models.RealNVP.sample">(spnflow.torch.models.RealNVP method)</a>
 </li>
       </ul></li>
       <li><a href="api/spnflow.io.html#spnflow.io.json.save_json">save_json() (in module spnflow.io.json)</a>
@@ -1198,6 +1196,8 @@
 </li>
         <li><a href="api/spnflow.torch.layers.html#spnflow.torch.layers.flows.CouplingLayer.training">(spnflow.torch.layers.flows.CouplingLayer attribute)</a>
 </li>
+        <li><a href="api/spnflow.torch.layers.html#spnflow.torch.layers.flows.LogitLayer.training">(spnflow.torch.layers.flows.LogitLayer attribute)</a>
+</li>
         <li><a href="api/spnflow.torch.layers.html#spnflow.torch.layers.ratspn.GaussianLayer.training">(spnflow.torch.layers.ratspn.GaussianLayer attribute)</a>
 </li>
         <li><a href="api/spnflow.torch.layers.html#spnflow.torch.layers.ratspn.ProductLayer.training">(spnflow.torch.layers.ratspn.ProductLayer attribute)</a>
@@ -1211,6 +1211,8 @@
         <li><a href="api/spnflow.torch.html#spnflow.torch.models.DgcSpn.training">(spnflow.torch.models.DgcSpn attribute)</a>
 </li>
         <li><a href="api/spnflow.torch.html#spnflow.torch.models.MAF.training">(spnflow.torch.models.MAF attribute)</a>
+</li>
+        <li><a href="api/spnflow.torch.html#spnflow.torch.models.NormalizingFlow.training">(spnflow.torch.models.NormalizingFlow attribute)</a>
 </li>
         <li><a href="api/spnflow.torch.html#spnflow.torch.models.RatSpn.training">(spnflow.torch.models.RatSpn attribute)</a>
 </li>
