@@ -38,7 +38,7 @@ if __name__ == '__main__':
     )
     parser.add_argument('--n-completions', type=int, default=0, help='The number of samples per completion kind.')
     parser.add_argument('--learning-rate', type=float, default=1e-3, help='The learning rate.')
-    parser.add_argument('--batch-size', type=int, default=100, help='The batch size.')
+    parser.add_argument('--batch-size', type=int, default=128, help='The batch size.')
     parser.add_argument('--epochs', type=int, default=1000, help='The number of epochs.')
     parser.add_argument('--patience', type=int, default=30, help='The epochs patience used for early stopping.')
     args = parser.parse_args()
