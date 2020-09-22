@@ -421,6 +421,11 @@ class DgcSpn(AbstractModel):
             self.layers.append(pooling)
             in_size = pooling.out_size
 
+            # Add a spatial sum layer
+            spatial_sum = SpatialSumLayer(in_size, self.sum_channels, self.dropout)
+            self.layers.append(spatial_sum)
+            in_size = spatial_sum.out_size
+
         # Instantiate the inner layers
         depth = int(np.max(np.ceil(np.log2(in_size[1:]))).item())
         for k in range(depth):
