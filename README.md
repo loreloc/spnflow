@@ -1,3 +1,5 @@
+![Logo](docs/spnflow-logo.svg)
+
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 [![PyPI version](https://badge.fury.io/py/spnflow.svg)](https://badge.fury.io/py/spnflow)
 

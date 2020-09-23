@@ -4,24 +4,26 @@ SPHINXAPI     = sphinx-apidoc
 SOURCEDIR     = .
 APISOURCE     = ../spnflow
 BUILDDIR      = _build
+SOURCESDIR    = _sources
+STATICDIR     = _static
+IMAGESDIR     = _images
 APIDIR        = api
-README        = README.*
+OTHERS        = .buildinfo objects.inv *.html *.js
 
 .PHONY: all clean
 
 # Build all
-all: api html
+all: html
 
 # Make the API pages
 api:
-	$(SPHINXAPI) -o "$(APIDIR)" "$(APISOURCE)"
+	$(SPHINXAPI) -o $(APIDIR) $(APISOURCE)
 
 # Make the HTML static site
 html: api
-	cp "$(SOURCEDIR)/../README.md" "$(SOURCEDIR)"
-	$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS)
-	cp -a "$(BUILDDIR)/html/." "$(SOURCEDIR)"
+	$(SPHINXBUILD) -M html $(SOURCEDIR) $(BUILDDIR) $(SPHINXOPTS)
+	cp -a "$(BUILDDIR)/html/." $(SOURCEDIR)
 
 # Clean
 clean:
-	rm -rf "$(BUILDDIR)" "$(APIDIR)" "$(README)"
+	rm -rf $(BUILDDIR) $(SOURCESDIR) $(STATICDIR) $(IMAGESDIR) $(APIDIR) $(OTHERS)
