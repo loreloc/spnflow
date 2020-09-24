@@ -66,7 +66,6 @@ def node_likelihood(node, lc):
     It also handles of NaN and infinite likelihoods.
 
     :param node: The internal node.
-    :param x: The input.
     :param lc: The list of likelihoods of the children.
     :return: The likelihood of the node given the inputs.
     """
@@ -83,7 +82,6 @@ def node_log_likelihood(node, lc):
     It also handles of NaN and infinite log likelihoods.
 
     :param node: The internal node.
-    :param x: The input.
     :param lc: The list of log likelihoods of the children.
     :return: The log likelihood of the node given the inputs.
     """

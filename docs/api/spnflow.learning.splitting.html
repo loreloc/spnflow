@@ -297,7 +297,7 @@ The proportion of the split is sampled from a beta distribution.</p>
 <span id="spnflow-learning-splitting-rdc-module"></span><h2>spnflow.learning.splitting.rdc module<a class="headerlink" href="#module-spnflow.learning.splitting.rdc" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt id="spnflow.learning.splitting.rdc.rdc_cols">
-<code class="sig-prename descclassname">spnflow.learning.splitting.rdc.</code><code class="sig-name descname">rdc_cols</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">d=0.3</em>, <em class="sig-param">k=20</em>, <em class="sig-param">s=0.16666666666666666</em>, <em class="sig-param">f=&lt;ufunc 'sin'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.rdc.rdc_cols" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spnflow.learning.splitting.rdc.</code><code class="sig-name descname">rdc_cols</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">d=0.3</em>, <em class="sig-param">k=16</em>, <em class="sig-param">s=0.16666666666666666</em>, <em class="sig-param">f=&lt;ufunc 'sin'&gt;</em>, <em class="sig-param">n_jobs=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.rdc.rdc_cols" title="Permalink to this definition">¶</a></dt>
 <dd><p>Split the features using the RDC (Randomized Dependency Coefficient) method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -307,6 +307,7 @@ The proportion of the split is sampled from a beta distribution.</p>
 <li><p><strong>k</strong> – The size of the latent space.</p></li>
 <li><p><strong>s</strong> – The standard deviation of the gaussian distribution.</p></li>
 <li><p><strong>f</strong> – The non linear function to use.</p></li>
+<li><p><strong>n_jobs</strong> – The number of jobs to use for parallel computation.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -317,7 +318,7 @@ The proportion of the split is sampled from a beta distribution.</p>
 
 <dl class="py function">
 <dt id="spnflow.learning.splitting.rdc.rdc_rows">
-<code class="sig-prename descclassname">spnflow.learning.splitting.rdc.</code><code class="sig-name descname">rdc_rows</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">n=2</em>, <em class="sig-param">k=20</em>, <em class="sig-param">s=0.16666666666666666</em>, <em class="sig-param">f=&lt;ufunc 'sin'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.rdc.rdc_rows" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spnflow.learning.splitting.rdc.</code><code class="sig-name descname">rdc_rows</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">n=2</em>, <em class="sig-param">k=16</em>, <em class="sig-param">s=0.16666666666666666</em>, <em class="sig-param">f=&lt;ufunc 'sin'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.rdc.rdc_rows" title="Permalink to this definition">¶</a></dt>
 <dd><p>Split the samples using the RDC (Randomized Dependency Coefficient) method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

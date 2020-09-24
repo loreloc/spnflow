@@ -65,6 +65,8 @@ if __name__ == '__main__':
 
     # Load the dataset
     data_train, data_val, data_test = load_dataset('datasets', args.dataset, rand_state)
+    data_train = np.vstack([data_train, data_val])
+    rand_state.shuffle(data_train)
     _, n_features = data_train.shape
 
     # Learn the SPN density estimator

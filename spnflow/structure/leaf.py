@@ -171,14 +171,16 @@ class Multinomial(Leaf):
 
     LEAF_TYPE = LeafType.DISCRETE
 
-    def __init__(self, scope, p=[0.5, 0.5]):
+    def __init__(self, scope, p=None):
         """
         Initialize a Multinomial leaf node given its scope.
 
         :param scope: The scope of the leaf.
-        :param k: The number of classes.
+        :param p: The probability of each class.
         """
         super().__init__(scope)
+        if p is None:
+            p = [0.5, 0.5]
         self.p = p
 
     def fit(self, data, domain):
@@ -339,15 +341,23 @@ class Isotonic(Leaf):
 
     LEAF_TYPE = LeafType.DISCRETE
 
-    def __init__(self, scope, meta, densities=[], breaks=[], mids=[]):
+    def __init__(self, scope, meta, densities=None, breaks=None, mids=None):
         """
         Initialize an Isotonic leaf node given its scope.
 
         :param scope: The scope of the leaf.
         :param meta: The meta type.
-        :param delta: The smoothing factor.
+        :param densities: The densities.
+        :param breaks: The breaks values.
+        :param mids: The mids values.
         """
         super().__init__(scope)
+        if densities is None:
+            densities = []
+        if breaks is None:
+            breaks = []
+        if mids is None:
+            mids = []
         self.meta = meta
         self.densities = densities
         self.breaks = breaks
@@ -381,13 +391,13 @@ class Isotonic(Leaf):
         :return: The resulting likelihood.
         """
         n_samples = len(x)
-        l = np.full(n_samples, np.finfo(float).eps)
+        lh = np.full(n_samples, np.finfo(float).eps)
         for i in range(n_samples):
             j = np.searchsorted(self.breaks, x[i], side='right')
             if j == 0 or j == len(self.breaks):
                 continue
-            l[i] = self.densities[j - 1]
-        return l
+            lh[i] = self.densities[j - 1]
+        return lh
 
     def log_likelihood(self, x):
         """
@@ -523,17 +533,17 @@ class Gaussian(Leaf):
 
     LEAF_TYPE = LeafType.CONTINUOUS
 
-    def __init__(self, scope, mean=0.0, stdev=1.0):
+    def __init__(self, scope, mean=0.0, stddev=1.0):
         """
         Initialize a Gaussian leaf node given its scope.
 
         :param scope: The scope of the leaf.
         :param mean: The mean parameter.
-        :param stdev: The standard deviation parameter.
+        :param stddev: The standard deviation parameter.
         """
         super().__init__(scope)
         self.mean = mean
-        self.stdev = stdev
+        self.stddev = stddev
 
     def fit(self, data, domain):
         """
@@ -542,7 +552,9 @@ class Gaussian(Leaf):
         :param data: The training data.
         :param domain: The domain of the distribution leaf.
         """
-        self.mean, self.stdev = stats.norm.fit(data)
+        self.mean, self.stddev = stats.norm.fit(data)
+        if np.isclose(self.stddev, 0.0):
+            self.stddev += np.finfo(np.float32).eps
 
     def likelihood(self, x):
         """
@@ -551,7 +563,7 @@ class Gaussian(Leaf):
         :param x: The inputs.
         :return: The resulting likelihood.
         """
-        return stats.norm.pdf(x, self.mean, self.stdev)
+        return stats.norm.pdf(x, self.mean, self.stddev)
 
     def log_likelihood(self, x):
         """
@@ -560,7 +572,7 @@ class Gaussian(Leaf):
         :param x: The inputs.
         :return: The resulting log likelihood.
         """
-        return stats.norm.logpdf(x, self.mean, self.stdev)
+        return stats.norm.logpdf(x, self.mean, self.stddev)
 
     def mode(self):
         """
@@ -577,7 +589,7 @@ class Gaussian(Leaf):
         :param size: The number of samples.
         :return: Some samples.
         """
-        return stats.norm.rvs(self.mean, self.stdev, size=size)
+        return stats.norm.rvs(self.mean, self.stddev, size=size)
 
     def params_count(self):
         """
@@ -593,7 +605,7 @@ class Gaussian(Leaf):
 
         :return: A dictionary containing the distribution parameters.
         """
-        return {'mean': self.mean, 'stdev': self.stdev}
+        return {'mean': self.mean, 'stddev': self.stddev}
 
 
 class Gamma(Leaf):
