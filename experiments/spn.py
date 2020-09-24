@@ -7,6 +7,7 @@ from datetime import datetime
 from spnflow.structure.leaf import Gaussian
 from spnflow.learning.wrappers import learn_estimator
 from spnflow.algorithms.inference import log_likelihood
+from spnflow.utils.statistics import get_statistics
 
 from experiments.datasets import load_dataset
 
@@ -78,6 +79,7 @@ if __name__ == '__main__':
         min_rows_slice=args.min_rows_slice,
         min_cols_slice=args.min_cols_slice
     )
+    print(get_statistics(spn))
 
     # Collect the experiments results
     collect_results(vars(args), spn, data_test)
