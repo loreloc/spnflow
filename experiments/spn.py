@@ -8,18 +8,25 @@ from spnflow.structure.leaf import Gaussian
 from spnflow.learning.wrappers import learn_estimator
 from spnflow.algorithms.inference import log_likelihood
 from spnflow.utils.statistics import get_statistics
+from spnflow.utils.validity import assert_is_valid
 
 from experiments.datasets import load_dataset
 
 
-def collect_results(settings, spn, data_test):
+def collect_results(settings, spn, data_test, batch_size=1024):
     # Compute the filename string
     filename = 'spn-%s-%s' % (settings['dataset'], datetime.now().strftime('%m%d%H%M'))
 
-    # Compute the log-likelihoods for the test set
-    ll = log_likelihood(spn, data_test)
+    # Compute the log-likelihoods for the test set (batch mode)
+    n_samples = len(data_test)
+    ll = np.zeros((n_samples, 1))
+    for i in range(0, n_samples - batch_size, batch_size):
+        ll[i:i+batch_size] = log_likelihood(spn, data_test[i:i+batch_size])
+    n_remaining_samples = n_samples % batch_size
+    if n_remaining_samples > 0:
+        ll[-n_remaining_samples:] = log_likelihood(spn, data_test[-n_remaining_samples:])
     mu_ll = np.mean(ll)
-    sigma_ll = np.std(ll) / np.sqrt(data_test.shape[0])
+    sigma_ll = np.std(ll) / np.sqrt(n_samples)
 
     # Save the results to file
     filepath = os.path.join('spn', 'results')
@@ -79,6 +86,7 @@ if __name__ == '__main__':
         min_rows_slice=args.min_rows_slice,
         min_cols_slice=args.min_cols_slice
     )
+    assert_is_valid(spn)
     print(get_statistics(spn))
 
     # Collect the experiments results

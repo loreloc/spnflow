@@ -11,7 +11,7 @@ from spnflow.io.json import save_json
 
 # Load the dataset
 x_data, y_data = load_iris(return_X_y=True)
-x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.33)
+x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.25)
 _, n_features = x_data.shape
 data_train = np.hstack([x_train, y_train.reshape(-1, 1)])
 data_test = np.hstack([x_test, np.full((len(y_test), 1), np.nan)])

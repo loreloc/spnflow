@@ -13,8 +13,9 @@ data, _ = make_moons(n_samples=10000, noise=0.05)
 _, n_features = data.shape
 
 # Learn the SPN density estimation structure and parameters
+# Minimum number of samples required for clustering is 1024 and the number of clusters is 8
 distributions = [Gaussian] * n_features
-spn = learn_estimator(data, distributions, learn_leaf='mle', split_rows_params={'n': 8})
+spn = learn_estimator(data, distributions, min_rows_slice=1024, split_rows_kwargs={'n': 8})
 print(get_statistics(spn))
 
 # Sample some values
@@ -26,4 +27,4 @@ plt.scatter(samples[:, 0], samples[:, 1], s=2)
 plt.show()
 
 # Save the SPN model
-save_json(spn, 'spn_classifier.json')
+save_json(spn, 'spn_estimator.json')
