@@ -37,7 +37,6 @@ def learn_structure(data,
                     split_cols_kwargs=None,
                     min_rows_slice=256,
                     min_cols_slice=2,
-                    id_bar=None,
                     ):
     """
     Learn the structure and parameters of a SPN given some training data and several hyperparameters.
@@ -53,7 +52,6 @@ def learn_structure(data,
     :param split_cols_kwargs: The parameters of the cols splitting method.
     :param min_rows_slice: The minimum number of samples required to split horizontally.
     :param min_cols_slice: The minimum number of features required to split vertically.
-    :param id_bar: The id used for the progress bar. This can be used to make nested tqdm bars.
     :return: A learned valid SPN.
     """
     assert data is not None
@@ -63,7 +61,6 @@ def learn_structure(data,
     assert split_cols is not None
     assert min_rows_slice > 1
     assert min_cols_slice > 1
-    assert id_bar is None or id_bar > 0
 
     if learn_leaf_params is None:
         learn_leaf_params = {}
@@ -85,7 +82,7 @@ def learn_structure(data,
     tasks.append(Task(tmp_node, data, initial_scope, is_first=True))
 
     # Initialize the progress bar (with unspecified total)
-    tk = tqdm(total=np.inf, position=id_bar, leave=False)
+    tk = tqdm(total=np.inf, leave=None)
 
     while tasks:
         # Get the next task
@@ -150,6 +147,9 @@ def learn_structure(data,
         # Update the progress bar
         tk.update()
         tk.refresh()
+
+    # Close the progress bar
+    tk.close()
 
     root = tmp_node.children[0]
     return assign_ids(root)

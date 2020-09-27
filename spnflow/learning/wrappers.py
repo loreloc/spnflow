@@ -58,7 +58,7 @@ def learn_classifier(data, distributions, domains=None, class_idx=-1, **kwargs):
     children = []
     tk = tqdm(np.unique(classes), bar_format='{l_bar}{bar:32}{r_bar}')
     for c in tk:
-        weight, branch = learn_branch(data[classes == c], **kwargs, id_bar=1)
+        weight, branch = learn_branch(data[classes == c], **kwargs)
         weights.append(weight)
         children.append(prune(branch))
 
