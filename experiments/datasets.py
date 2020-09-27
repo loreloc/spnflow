@@ -88,7 +88,7 @@ def get_vision_dataset_transform(name, dequantize=False, standardize=False, flat
     if flatten:
         transforms.append(Flatten())
     else:
-        transforms.append(Reshape(*image_size))
+        transforms.append(Reshape(image_size))
     return torchvision.transforms.Compose(transforms)
 
 
