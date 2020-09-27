@@ -341,7 +341,7 @@ def torch_test_generative(model, test_loader, device):
             ll = model(inputs).cpu().numpy().flatten()
             test_ll = np.hstack((test_ll, ll))
     mu_ll = np.mean(test_ll)
-    sigma_ll = 2.0 * np.std(test_ll) / np.sqrt(len(test_ll))
+    sigma_ll = np.std(test_ll) / np.sqrt(len(test_ll))
     return mu_ll, sigma_ll
 
 
