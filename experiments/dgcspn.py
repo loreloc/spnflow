@@ -5,7 +5,7 @@ from spnflow.torch.models import DgcSpn
 from spnflow.torch.utils import compute_mean_quantiles
 
 from experiments.datasets import load_vision_dataset
-from experiments.datasets import get_vision_dataset_transforms
+from experiments.datasets import get_vision_dataset_inverse_transform
 from experiments.datasets import get_vision_dataset_n_classes, get_vision_dataset_image_size
 from experiments.utils import collect_results_generative, collect_results_discriminative, collect_completions
 
@@ -17,6 +17,9 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         'dataset', choices=['mnist', 'cifar10'], help='The vision dataset used in the experiment.'
+    )
+    parser.add_argument(
+        '--no-standardize', dest='standardize', action='store_false', help='Whether to disable dataset standardization'
     )
     parser.add_argument( '--discriminative', action='store_true', help='Whether to use discriminative settings.')
     parser.add_argument('--n-batch', type=int, default=8, help='The number of batch distributions at leaves.')
@@ -56,10 +59,10 @@ if __name__ == '__main__':
     # Load the dataset
     image_size = get_vision_dataset_image_size(args.dataset)
     data_train, data_val, data_test = load_vision_dataset(
-        'datasets', args.dataset, args.discriminative, normalize=True
+        'datasets', args.dataset, args.discriminative, standardize=args.standardize
     )
     out_classes = 1 if not args.discriminative else get_vision_dataset_n_classes(args.dataset)
-    _, inv_transform = get_vision_dataset_transforms(args.dataset, normalize=True)
+    inv_transform = get_vision_dataset_inverse_transform(args.dataset, args.standardize)
 
     # Set the location initialization parameter
     uniform_loc = None

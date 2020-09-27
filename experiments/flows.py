@@ -4,7 +4,7 @@ import numpy as np
 from spnflow.torch.models import RealNVP, MAF
 
 from experiments.datasets import load_dataset, load_vision_dataset
-from experiments.datasets import get_vision_dataset_transforms, get_vision_dataset_n_features
+from experiments.datasets import get_vision_dataset_inverse_transform, get_vision_dataset_n_features
 from experiments.utils import collect_results_generative, collect_samples
 from experiments.utils import get_activation_class
 
@@ -19,6 +19,9 @@ if __name__ == '__main__':
         help='The dataset used in the experiment.'
     )
     parser.add_argument('model', choices=['nvp', 'maf'], help='The normalizing flow model used in the experiment.')
+    parser.add_argument(
+        '--no-standardize', dest='standardize', action='store_false', help='Whether to disable dataset standardization'
+    )
     parser.add_argument('--n-flows', type=int, default=5, help='The number of stacked normalizing flows layers.')
     parser.add_argument('--depth', type=int, default=1, help='The depth of normalizing flows conditioners.')
     parser.add_argument('--units', type=int, default=128, help='The number of units of each conditioner layer.')
@@ -49,12 +52,16 @@ if __name__ == '__main__':
     vision_dataset = args.dataset in ['mnist', 'cifar10']
     if vision_dataset:
         n_features = get_vision_dataset_n_features(args.dataset)
-        data_train, data_val, data_test = load_vision_dataset('datasets', args.dataset, dequantize=True, flatten=True)
-        _, inv_transform = get_vision_dataset_transforms(args.dataset, dequantize=True, flatten=True)
+        data_train, data_val, data_test = load_vision_dataset(
+            'datasets', args.dataset, dequantize=True, standardize=args.standardize, flatten=True
+        )
+        inv_transform = get_vision_dataset_inverse_transform(args.dataset)
+        apply_logit = not args.standardize
     else:
-        data_train, data_val, data_test = load_dataset('datasets', args.dataset, rand_state)
+        data_train, data_val, data_test = load_dataset('datasets', args.dataset, rand_state, args.standardize)
         _, n_features = data_train.shape
         inv_transform = None
+        apply_logit = False
 
     if args.model == 'maf':
         model = MAF(
@@ -65,7 +72,7 @@ if __name__ == '__main__':
             batch_norm=args.batch_norm,
             activation=get_activation_class(args.activation),
             sequential=not args.random_degrees,
-            logit=vision_dataset,
+            logit=apply_logit,
             rand_state=rand_state
         )
     elif args.model == 'nvp':
@@ -76,7 +83,7 @@ if __name__ == '__main__':
             units=args.units,
             batch_norm=args.batch_norm,
             activation=get_activation_class(args.activation),
-            logit=vision_dataset
+            logit=apply_logit
         )
 
     # Train the model and collect the results

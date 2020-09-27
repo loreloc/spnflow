@@ -8,7 +8,6 @@ from spnflow.structure.leaf import Gaussian
 from spnflow.learning.wrappers import learn_estimator
 from spnflow.algorithms.inference import log_likelihood
 from spnflow.utils.statistics import get_statistics
-from spnflow.utils.validity import assert_is_valid
 
 from experiments.datasets import load_dataset
 
@@ -47,11 +46,14 @@ if __name__ == '__main__':
         help='The dataset used in the experiment.'
     )
     parser.add_argument(
+        '--no-standardize', dest='standardize', action='store_false', help='Whether to disable dataset standardization'
+    )
+    parser.add_argument(
         '--learn-leaf', choices=['mle', 'isotonic'], default='mle',
         help='The algorithm used for learning parameters of leaf distributions.'
     )
     parser.add_argument(
-        '--split-rows', choices=['kmeans', 'gmm', 'rdc', 'random'], default='kmeans',
+        '--split-rows', choices=['kmeans', 'gmm', 'rdc', 'random'], default='rdc',
         help='The algorithm used for rows splitting.'
     )
     parser.add_argument(
@@ -66,13 +68,26 @@ if __name__ == '__main__':
         '--min-cols-slice', type=int, default=2,
         help='The minimum number of columns slice on a leaf distribution.'
     )
+    parser.add_argument(
+        '--n-clusters', type=int, default=None,
+        help='The number of clusters for rows splitting.'
+    )
     args = parser.parse_args()
+
+    # Check the arguments
+    rows_clustering = args.split_rows in ['kmeans', 'gmm']
+    assert rows_clustering or args.n_clusters is None, \
+        'The argument --n-clusters can be specified only if --split-rows is \'kmeans\' or \'gmm\''
+    assert not rows_clustering or args.n_clusters is not None, \
+        'Please specify --n-clusters argument'
+    assert not rows_clustering or args.n_clusters > 1, \
+        'The number of clusters must be at least 2'
 
     # Instantiate a random state, used for reproducibility
     rand_state = np.random.RandomState(42)
 
     # Load the dataset
-    data_train, data_val, data_test = load_dataset('datasets', args.dataset, rand_state)
+    data_train, data_val, data_test = load_dataset('datasets', args.dataset, rand_state, args.standardize)
     data_train = np.vstack([data_train, data_val])
     rand_state.shuffle(data_train)
     _, n_features = data_train.shape
@@ -84,9 +99,9 @@ if __name__ == '__main__':
         split_rows=args.split_rows,
         split_cols=args.split_cols,
         min_rows_slice=args.min_rows_slice,
-        min_cols_slice=args.min_cols_slice
+        min_cols_slice=args.min_cols_slice,
+        split_rows_kwargs={'n': args.n_clusters} if rows_clustering else {}
     )
-    assert_is_valid(spn)
     print(get_statistics(spn))
 
     # Collect the experiments results

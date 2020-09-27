@@ -4,7 +4,7 @@ import numpy as np
 from spnflow.torch.models import RatSpn
 
 from experiments.datasets import load_dataset, load_vision_dataset
-from experiments.datasets import get_vision_dataset_transforms
+from experiments.datasets import get_vision_dataset_inverse_transform
 from experiments.datasets import get_vision_dataset_n_classes, get_vision_dataset_n_features
 from experiments.utils import collect_results_generative, collect_results_discriminative
 from experiments.utils import collect_samples, collect_completions
@@ -18,6 +18,9 @@ if __name__ == '__main__':
     parser.add_argument(
         'dataset', choices=['power', 'gas', 'hepmass', 'miniboone', 'bsds300', 'mnist', 'cifar10'],
         help='The dataset used in the experiment.'
+    )
+    parser.add_argument(
+        '--no-standardize', dest='standardize', action='store_false', help='Whether to disable dataset standardization'
     )
     parser.add_argument('--discriminative', action='store_true', help='Whether to use discriminative settings.')
     parser.add_argument('--rg-depth', type=int, default=1, help='The region graph depth.')
@@ -52,10 +55,10 @@ if __name__ == '__main__':
     if vision_dataset:
         n_features = get_vision_dataset_n_features(args.dataset)
         data_train, data_val, data_test = load_vision_dataset(
-            'datasets', args.dataset, args.discriminative, normalize=True, flatten=True
+            'datasets', args.dataset, args.discriminative, standardize=args.standardize, flatten=True
         )
         out_classes = 1 if not args.discriminative else get_vision_dataset_n_classes(args.dataset)
-        _, inv_transform = get_vision_dataset_transforms(args.dataset, normalize=True, flatten=True)
+        inv_transform = get_vision_dataset_inverse_transform(args.dataset, args.standardize)
     else:
         data_train, data_val, data_test = load_dataset('datasets', args.dataset, rand_state)
         _, n_features = data_train.shape

@@ -31,14 +31,14 @@ class UnsupervisedDataset(torch.utils.data.Dataset):
         return len(self.dataset)
 
 
-def load_dataset(root, name, rand_state, normalize=True):
+def load_dataset(root, name, rand_state, standardize=True):
     # Load the dataset
     data_train = np.load(os.path.join(root, name, 'train.npy'))
     data_test = np.load(os.path.join(root, name, 'test.npy'))
     rand_state.shuffle(data_train)
 
-    if normalize:
-        # Normalize the data
+    if standardize:
+        # Standardize the data
         mu = np.mean(data_train, axis=0)
         sigma = np.std(data_train, axis=0)
         data_train = (data_train - mu) / sigma
@@ -54,11 +54,11 @@ def load_dataset(root, name, rand_state, normalize=True):
     return data_train, data_val, data_test
 
 
-def load_vision_dataset(root, name, supervised=False, dequantize=False, normalize=False, flatten=False):
+def load_vision_dataset(root, name, supervised=False, dequantize=False, standardize=False, flatten=False):
     # Get the transform
-    transform, _ = get_vision_dataset_transforms(name, dequantize, normalize, flatten)
+    transform = get_vision_dataset_transform(name, dequantize, standardize, flatten)
 
-    # Load and split the dataset
+    # Load the dataset
     dataset_class = get_vision_dataset_class(name)
     if supervised:
         data_train = SupervisedDataset(root, dataset_class, train=True, transform=transform, download=True)
@@ -66,36 +66,42 @@ def load_vision_dataset(root, name, supervised=False, dequantize=False, normaliz
     else:
         data_train = UnsupervisedDataset(root, dataset_class, train=True, transform=transform, download=True)
         data_test = UnsupervisedDataset(root, dataset_class, train=False, transform=transform, download=True)
+
+    # Split the train set in train set and validation set
     n_val = int(0.1 * len(data_train))
     n_train = len(data_train) - n_val
     data_train, data_val = torch.utils.data.random_split(data_train, [n_train, n_val])
     return data_train, data_val, data_test
 
 
-def get_vision_dataset_transforms(name, dequantize=False, normalize=False, flatten=False):
+def get_vision_dataset_transform(name, dequantize=False, standardize=False, flatten=False):
+    # Get the image size of the dataset
+    image_size = get_vision_dataset_image_size(name)
+
+    # Build the transform
+    transforms = [torchvision.transforms.ToTensor()]
+    if dequantize:
+        transforms.append(Dequantize())
+    if standardize:
+        mean, stddev = get_vision_dataset_mean_stddev(name)
+        transforms.append(torchvision.transforms.Normalize(mean, stddev))
+    if flatten:
+        transforms.append(Flatten())
+    else:
+        transforms.append(Reshape(*image_size))
+    return torchvision.transforms.Compose(transforms)
+
+
+def get_vision_dataset_inverse_transform(name, standardize=False):
     # Get the image size of the dataset
     image_size = get_vision_dataset_image_size(name)
 
     # Build the transforms
-    transform = []
-    inv_transform = []
-    transform.append(torchvision.transforms.ToTensor())
-    inv_transform.append(Reshape(*image_size))
-    if dequantize:
-        transform.append(Dequantize())
-    if normalize:
+    transforms = [Reshape(*image_size)]
+    if standardize:
         mean, stddev = get_vision_dataset_mean_stddev(name)
-        transform.append(torchvision.transforms.Normalize(mean, stddev))
-        inv_transform.append(torchvision.transforms.Normalize(-mean / stddev, 1.0 / stddev))
-    if flatten:
-        transform.append(Flatten())
-    else:
-        transform.append(Reshape(*image_size))
-
-    transform = torchvision.transforms.Compose(transform)
-    inv_transform = torchvision.transforms.Compose(inv_transform)
-
-    return transform, inv_transform
+        transforms.append(torchvision.transforms.Normalize(-mean / stddev, 1.0 / stddev))
+    return torchvision.transforms.Compose(transforms)
 
 
 def get_vision_dataset_class(name):
