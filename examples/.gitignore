@@ -1,1 +1,4 @@
+*.pt
+*.png
 *.json
+datasets
