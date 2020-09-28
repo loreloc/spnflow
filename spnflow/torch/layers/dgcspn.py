@@ -4,13 +4,14 @@ import numpy as np
 
 class SpatialGaussianLayer(torch.nn.Module):
     """Spatial Gaussian input layer."""
-    def __init__(self, in_size, out_channels, optimize_scale, quantiles_loc=None, uniform_loc=None):
+    def __init__(self, in_size, out_channels, optimize_scale, dropout=None, quantiles_loc=None, uniform_loc=None):
         """
         Initialize a Spatial Gaussian input layer.
 
         :param in_size: The size of the input tensor.
         :param out_channels: The number of output channels.
         :param optimize_scale: Whether to optimize scale.
+        :param dropout: The leaf nodes dropout rate. It can be None.
         :param quantiles_loc: The mean quantiles for location initialization. It can be None.
         :param uniform_loc: The uniform range for location initialization. It can be None.
         """
@@ -18,6 +19,7 @@ class SpatialGaussianLayer(torch.nn.Module):
         self.in_size = in_size
         self.out_channels = out_channels
         self.optimize_scale = optimize_scale
+        self.dropout = dropout
         self.quantiles_loc = quantiles_loc
         self.uniform_loc = uniform_loc
 
@@ -44,8 +46,9 @@ class SpatialGaussianLayer(torch.nn.Module):
         # Instantiate the multi-batch normal distribution
         self.distribution = torch.distributions.Normal(self.loc, self.scale)
 
-        # Initialize the marginalization constant
+        # Initialize some useful constants
         self.register_buffer('zero', torch.zeros(1))
+        self.register_buffer('nan', torch.tensor(np.nan))
 
     @property
     def in_channels(self):
@@ -71,11 +74,17 @@ class SpatialGaussianLayer(torch.nn.Module):
         :return: The tensor result of the layer.
         """
         # Compute the log-likelihoods
-        # This implementation assumes independence between channels of the same pixel random variables
-        # Also, marginalize random variables (denoted with NaNs)
         x = torch.unsqueeze(x, dim=1)
         x = self.distribution.log_prob(x)
+
+        # Apply the input dropout, if specified
+        if self.training and self.dropout is not None:
+            x = torch.where(torch.gt(torch.rand_like(x), self.dropout), x, self.nan)
+
+        # Marginalize missing values (denoted with NaNs)
         x = torch.where(torch.isnan(x), self.zero, x)
+
+        # This implementation assumes independence between channels of the same pixel random variables
         return torch.sum(x, dim=2)
 
 
@@ -112,11 +121,11 @@ class SpatialProductLayer(torch.nn.Module):
 
         # Compute the padding to apply
         if self.padding == 'valid':
-            self.pad = (0, 0, 0, 0)
+            self.pad = [0, 0, 0, 0]
         elif self.padding == 'full':
-            self.pad = (kaw - 1, kaw - 1, kah - 1, kah - 1)
+            self.pad = [kaw - 1, kaw - 1, kah - 1, kah - 1]
         elif self.padding == 'final':
-            self.pad = ((kaw - 1) * 2 - self.in_width, 0, (kah - 1) * 2 - self.in_height, 0)
+            self.pad = [(kaw - 1) * 2 - self.in_width, 0, (kah - 1) * 2 - self.in_height, 0]
         else:
             raise NotImplementedError('Unknown padding mode named ' + self.padding)
 

@@ -373,8 +373,9 @@ class DgcSpn(AbstractModel):
                  sum_channels=8,
                  depthwise=False,
                  n_pooling=0,
-                 dropout=None,
                  optimize_scale=True,
+                 in_dropout=None,
+                 prod_dropout=None,
                  quantiles_loc=None,
                  uniform_loc=None,
                  rand_state=None,
@@ -388,8 +389,9 @@ class DgcSpn(AbstractModel):
         :param sum_channels: The number of output channels of spatial sum layers.
         :param depthwise: Whether to use depthwise convolutions as product layers.
         :param n_pooling: The number of initial pooling product layers.
-        :param dropout: The dropout rate for probabilistic dropout at sum layer inputs. It can be None.
-        :param optimize_scale: Whether to train scale.
+        :param optimize_scale: Whether to train scale and location jointly.
+        :param in_dropout: The dropout rate for probabilistic dropout at distributions layer outputs. It can be None.
+        :param prod_dropout: The dropout rate for probabilistic dropout at product layer outputs. It can be None.
         :param quantiles_loc: The mean quantiles for location initialization. It can be None.
         :param uniform_loc: The uniform range for location initialization. It can be None.
         :param rand_state: The random state used to initialize the spatial product layers weights.
@@ -402,8 +404,9 @@ class DgcSpn(AbstractModel):
         self.sum_channels = sum_channels
         self.depthwise = depthwise
         self.n_pooling = n_pooling
-        self.dropout = dropout
         self.optimize_scale = optimize_scale
+        self.in_dropout = in_dropout
+        self.prod_dropout = prod_dropout
         self.quantiles_loc = quantiles_loc
         self.uniform_loc = uniform_loc
         self.rand_state = rand_state
@@ -414,7 +417,12 @@ class DgcSpn(AbstractModel):
 
         # Instantiate the base layer
         self.base_layer = SpatialGaussianLayer(
-            self.in_size, self.n_batch, self.optimize_scale, self.quantiles_loc, self.uniform_loc
+            self.in_size,
+            self.n_batch,
+            self.optimize_scale,
+            self.in_dropout,
+            self.quantiles_loc,
+            self.uniform_loc
         )
         in_size = self.base_layer.out_size
 
@@ -430,7 +438,7 @@ class DgcSpn(AbstractModel):
             in_size = pooling.out_size
 
             # Add a spatial sum layer
-            spatial_sum = SpatialSumLayer(in_size, self.sum_channels, self.dropout)
+            spatial_sum = SpatialSumLayer(in_size, self.sum_channels, self.prod_dropout)
             self.layers.append(spatial_sum)
             in_size = spatial_sum.out_size
 
@@ -446,7 +454,7 @@ class DgcSpn(AbstractModel):
             in_size = spatial_prod.out_size
 
             # Add a spatial sum layer
-            spatial_sum = SpatialSumLayer(in_size, self.sum_channels, self.dropout)
+            spatial_sum = SpatialSumLayer(in_size, self.sum_channels, self.prod_dropout)
             self.layers.append(spatial_sum)
             in_size = spatial_sum.out_size
 

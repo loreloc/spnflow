@@ -26,7 +26,8 @@ if __name__ == '__main__':
     parser.add_argument('--sum-channels', type=int, default=2, help='The number of sum channels for each sum layer.')
     parser.add_argument('--depthwise', action='store_true', help='Whether to use depthwise product layers.')
     parser.add_argument('--n-pooling', type=int, default=0, help='The number of initial pooling product layers.')
-    parser.add_argument('--dropout', type=float, default=None, help='The dropout layer at sum layers.')
+    parser.add_argument('--in-dropout', type=float, default=None, help='The dropout rate at input distributions.')
+    parser.add_argument('--prod-dropout', type=float, default=None, help='The dropout rate at product layers.')
     parser.add_argument(
         '--no-optimize-scale', dest='optimize_scale', action='store_false',
         help='Whether to disable scale parameters optimization of distribution leaves.'
@@ -79,8 +80,9 @@ if __name__ == '__main__':
         sum_channels=args.sum_channels,
         depthwise=args.depthwise,
         n_pooling=args.n_pooling,
-        dropout=args.dropout,
         optimize_scale=args.optimize_scale,
+        in_dropout=args.in_dropout,
+        prod_dropout=args.prod_dropout,
         quantiles_loc=quantiles_loc,
         uniform_loc=uniform_loc,
         rand_state=rand_state
