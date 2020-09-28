@@ -27,7 +27,8 @@ if __name__ == '__main__':
     parser.add_argument('--rg-repetitions', type=int, default=16, help='The region graph repetitions.')
     parser.add_argument('--n-batch', type=int, default=8, help='The number of batch distributions at leaves.')
     parser.add_argument('--n-sum', type=int, default=8, help='The number of sum nodes per region.')
-    parser.add_argument('--dropout', type=float, default=None, help='The dropout layer at sum layers.')
+    parser.add_argument('--in-dropout', type=float, default=None, help='The dropout rate at input distributions.')
+    parser.add_argument('--prod-dropout', type=float, default=None, help='The dropout rate at product layers.')
     parser.add_argument(
         '--no-optimize-scale', dest='optimize_scale', action='store_false',
         help='Whether to disable scale parameters optimization of distribution leaves.'
@@ -72,8 +73,9 @@ if __name__ == '__main__':
         rg_repetitions=args.rg_repetitions,
         n_batch=args.n_batch,
         n_sum=args.n_sum,
-        dropout=args.dropout,
         optimize_scale=args.optimize_scale,
+        in_dropout=args.in_dropout,
+        prod_dropout=args.prod_dropout,
         rand_state=rand_state
     )
 

@@ -4,7 +4,7 @@ import numpy as np
 
 class GaussianLayer(torch.nn.Module):
     """The Gaussian distributions input layer class."""
-    def __init__(self, in_features, out_channels, regions, rg_depth, optimize_scale):
+    def __init__(self, in_features, out_channels, regions, rg_depth, optimize_scale, dropout=None):
         """
         Initialize a Gaussian distributions input layer.
 
@@ -13,6 +13,7 @@ class GaussianLayer(torch.nn.Module):
         :param regions: The regions of the distributions.
         :param rg_depth: The depth of the region graph.
         :param optimize_scale: Whether to optimize scale and location jointly.
+        :param dropout: The leaf nodes dropout rate. It can be None.
         """
         super(GaussianLayer, self).__init__()
         self.in_features = in_features
@@ -21,6 +22,7 @@ class GaussianLayer(torch.nn.Module):
         self.regions = regions
         self.rg_depth = rg_depth
         self.optimize_scale = optimize_scale
+        self.dropout = dropout
 
         # Compute the padding and the number of features for each base distribution batch
         self.pad = -self.in_features % (2 ** self.rg_depth)
@@ -66,8 +68,9 @@ class GaussianLayer(torch.nn.Module):
         # Instantiate the multi-batch normal distribution
         self.distribution = torch.distributions.Normal(self.loc, self.scale)
 
-        # Initialize the marginalization constant
+        # Initialize some useful constants
         self.register_buffer('zero', torch.zeros(1))
+        self.register_buffer('nan', torch.tensor([np.nan]))
 
     def forward(self, x):
         """
@@ -77,10 +80,17 @@ class GaussianLayer(torch.nn.Module):
         :return: The log likelihood of each distribution leaf.
         """
         # Gather the inputs and compute the log-likelihoods
-        # Also, marginalize random variables (denoted with NaNs)
         x = torch.unsqueeze(x[:, self.mask], dim=2)
         x = self.distribution.log_prob(x)
+
+        # Apply the input dropout, if specified
+        if self.training and self.dropout is not None:
+            x = torch.where(torch.gt(torch.rand_like(x), self.dropout), x, self.nan)
+
+        # Marginalize missing values (denoted with NaNs)
         x = torch.where(torch.isnan(x), self.zero, x)
+
+        # Pad to zeros
         if self.pad > 0:
             x = torch.where(self.pad_mask, x, self.zero)
         return torch.sum(x, dim=-1)
@@ -188,6 +198,7 @@ class ProductLayer(torch.nn.Module):
         """
         Evaluate the layer given some inputs for maximum at posteriori estimation.
 
+        :param x: Not required for product node.
         :param idx: The layer's node indices.
         :return: The previous layer's nodes indices.
         """

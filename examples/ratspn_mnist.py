@@ -29,7 +29,8 @@ model = RatSpn(
     rg_repetitions=32,
     n_batch=16,
     n_sum=16,
-    dropout=0.2,
+    in_dropout=0.2,
+    prod_dropout=0.2,
     optimize_scale=False
 )
 

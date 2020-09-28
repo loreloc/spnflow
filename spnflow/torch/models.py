@@ -206,8 +206,9 @@ class RatSpn(AbstractModel):
                  rg_repetitions=1,
                  n_batch=2,
                  n_sum=2,
-                 dropout=None,
                  optimize_scale=True,
+                 in_dropout=None,
+                 prod_dropout=None,
                  rand_state=None,
                  ):
         """
@@ -219,8 +220,9 @@ class RatSpn(AbstractModel):
         :param rg_repetitions: The number of independent repetitions of the region graph.
         :param n_batch: The number of base distributions batches.
         :param n_sum: The number of sum nodes per region.
-        :param dropout: The dropout rate for probabilistic dropout at sum layer inputs. It can be None.
         :param optimize_scale: Whether to train scale and location jointly.
+        :param in_dropout: The dropout rate for probabilistic dropout at distributions layer outputs. It can be None.
+        :param prod_dropout: The dropout rate for probabilistic dropout at product layer outputs. It can be None.
         :param rand_state: The random state used to generate the random graph.
         """
         super(RatSpn, self).__init__()
@@ -230,8 +232,9 @@ class RatSpn(AbstractModel):
         self.rg_repetitions = rg_repetitions
         self.n_batch = n_batch
         self.n_sum = n_sum
-        self.dropout = dropout
         self.optimize_scale = optimize_scale
+        self.in_dropout = in_dropout
+        self.prod_dropout = prod_dropout
         self.rand_state = rand_state
 
         # If necessary, instantiate a random state
@@ -247,7 +250,12 @@ class RatSpn(AbstractModel):
 
         # Instantiate the base distributions layer
         self.base_layer = GaussianLayer(
-            self.in_features, self.n_batch, self.rg_layers[0], self.rg_depth, self.optimize_scale
+            self.in_features,
+            self.n_batch,
+            self.rg_layers[0],
+            self.rg_depth,
+            self.optimize_scale,
+            self.in_dropout
         )
 
         # Alternate between product and sum layer
@@ -260,7 +268,7 @@ class RatSpn(AbstractModel):
                 in_groups = layer.out_partitions
                 in_nodes = layer.out_nodes
             else:
-                layer = SumLayer(in_groups, in_nodes, self.n_sum, self.dropout)
+                layer = SumLayer(in_groups, in_nodes, self.n_sum, self.prod_dropout)
                 in_groups = layer.out_regions
                 in_nodes = layer.out_nodes
             self.layers.append(layer)
