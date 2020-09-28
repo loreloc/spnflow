@@ -97,7 +97,7 @@ def get_vision_dataset_inverse_transform(name, standardize=False):
     image_size = get_vision_dataset_image_size(name)
 
     # Build the transforms
-    transforms = [Reshape(*image_size)]
+    transforms = [Reshape(image_size)]
     if standardize:
         mean, stddev = get_vision_dataset_mean_stddev(name)
         transforms.append(torchvision.transforms.Normalize(-mean / stddev, 1.0 / stddev))
