@@ -13,7 +13,7 @@ extensions = [
     'sphinx.ext.githubpages',
 ]
 
-exclude_patterns = ['docs', 'examples', 'experiments']
+exclude_patterns = ['docs', 'sphinx', 'examples', 'experiments']
 
 # -- Options for HTML output -------------------------------------------------
 

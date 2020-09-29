@@ -1,18 +1,15 @@
-SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SPHINXAPI     = sphinx-apidoc
 SOURCEDIR     = .
+GITHUBDIR     = ../docs
 APISOURCE     = ../spnflow
 BUILDDIR      = _build
 SOURCESDIR    = _sources
-IMAGESDIR     = _images
 APIDIR        = api
-OTHERS        = .buildinfo .nojekyll objects.inv *.html *.js
 
 .PHONY: all clean
 
-# Build all
-all: html
+all: github
 
 # Make the API pages
 api:
@@ -20,9 +17,12 @@ api:
 
 # Make the HTML static site
 html: api
-	$(SPHINXBUILD) -M html $(SOURCEDIR) $(BUILDDIR) $(SPHINXOPTS)
-	cp -a "$(BUILDDIR)/html/." $(SOURCEDIR)
+	$(SPHINXBUILD) -M html $(SOURCEDIR) $(BUILDDIR)
+
+# Prepare for Github pages
+github: html
+	cp -a "$(BUILDDIR)/html/." $(GITHUBDIR)
 
 # Clean
 clean:
-	rm -rf $(BUILDDIR) $(SOURCESDIR) $(IMAGESDIR) $(APIDIR) $(OTHERS)
+	rm -rf $(BUILDDIR) $(APIDIR) $(GITHUBDIR)
