@@ -23,9 +23,6 @@ class SpatialGaussianLayer(torch.nn.Module):
         self.quantiles_loc = quantiles_loc
         self.uniform_loc = uniform_loc
 
-        assert quantiles_loc is None or uniform_loc is None,\
-            'At least one between quantiles_loc and uniform_loc must be None'
-
         # Instantiate the location parameter
         if self.quantiles_loc is not None:
             self.loc = torch.nn.Parameter(self.quantiles_loc, requires_grad=False)

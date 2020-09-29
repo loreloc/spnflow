@@ -44,6 +44,8 @@ class NormalizingFlow(AbstractModel):
         :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         """
         super(NormalizingFlow, self).__init__()
+        assert in_features > 0
+        assert n_flows > 0
         self.in_features = in_features
         self.n_flows = n_flows
         self.logit = logit
@@ -119,6 +121,8 @@ class RealNVP(NormalizingFlow):
         :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         """
         super(RealNVP, self).__init__(in_features, n_flows, logit, in_base)
+        assert depth > 0
+        assert units > 0
         self.batch_norm = batch_norm
         self.depth = depth
         self.units = units
@@ -168,6 +172,8 @@ class MAF(NormalizingFlow):
         :param rand_state: The random state used to generate the masks degrees. Used only if sequential is False.
         """
         super(MAF, self).__init__(in_features, n_flows, logit, in_base)
+        assert depth > 0
+        assert units > 0
         self.batch_norm = batch_norm
         self.depth = depth
         self.units = units
@@ -226,6 +232,14 @@ class RatSpn(AbstractModel):
         :param rand_state: The random state used to generate the random graph.
         """
         super(RatSpn, self).__init__()
+        assert in_features > 0
+        assert out_classes > 0
+        assert rg_depth > 0
+        assert rg_repetitions > 0
+        assert n_batch > 0
+        assert n_sum > 0
+        assert in_dropout is None or 0.0 < in_dropout < 1.0
+        assert prod_dropout is None or 0.0 < prod_dropout < 1.0
         self.in_features = in_features
         self.out_classes = out_classes
         self.rg_depth = rg_depth
@@ -398,6 +412,17 @@ class DgcSpn(AbstractModel):
                            Used only if depthwise is False.
         """
         super(DgcSpn, self).__init__()
+        assert len(in_size) == 3 and in_size[0] > 0 and in_size[1] > 0 and in_size[2] > 0
+        assert out_classes > 0
+        assert n_batch > 0
+        assert sum_channels > 0
+        assert n_pooling >= 0
+        assert in_dropout is None or 0.0 < in_dropout < 1.0
+        assert prod_dropout is None or 0.0 < prod_dropout < 1.0
+        assert quantiles_loc is None or uniform_loc is None,\
+            'At least one between quantiles_loc and uniform_loc must be None'
+        assert quantiles_loc is None or len(quantiles_loc.size()) == 4
+        assert uniform_loc is None or (len(uniform_loc) == 2 and uniform_loc[0] < uniform_loc[1])
         self.in_size = in_size
         self.out_classes = out_classes
         self.n_batch = n_batch
