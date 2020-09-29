@@ -181,7 +181,7 @@
 <span id="spnflow-torch-layers-dgcspn-module"></span><h2>spnflow.torch.layers.dgcspn module<a class="headerlink" href="#module-spnflow.torch.layers.dgcspn" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="spnflow.torch.layers.dgcspn.SpatialGaussianLayer">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.layers.dgcspn.</code><code class="sig-name descname">SpatialGaussianLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_size</span></em>, <em class="sig-param"><span class="n">out_channels</span></em>, <em class="sig-param"><span class="n">optimize_scale</span></em>, <em class="sig-param"><span class="n">quantiles_loc</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">uniform_loc</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialGaussianLayer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.layers.dgcspn.</code><code class="sig-name descname">SpatialGaussianLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_size</span></em>, <em class="sig-param"><span class="n">out_channels</span></em>, <em class="sig-param"><span class="n">optimize_scale</span></em>, <em class="sig-param"><span class="n">dropout</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">quantiles_loc</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">uniform_loc</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialGaussianLayer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Spatial Gaussian input layer.</p>
 <dl class="py method">
@@ -567,7 +567,7 @@
 <span id="spnflow-torch-layers-ratspn-module"></span><h2>spnflow.torch.layers.ratspn module<a class="headerlink" href="#module-spnflow.torch.layers.ratspn" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="spnflow.torch.layers.ratspn.GaussianLayer">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.layers.ratspn.</code><code class="sig-name descname">GaussianLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_features</span></em>, <em class="sig-param"><span class="n">out_channels</span></em>, <em class="sig-param"><span class="n">regions</span></em>, <em class="sig-param"><span class="n">rg_depth</span></em>, <em class="sig-param"><span class="n">optimize_scale</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.GaussianLayer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.layers.ratspn.</code><code class="sig-name descname">GaussianLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_features</span></em>, <em class="sig-param"><span class="n">out_channels</span></em>, <em class="sig-param"><span class="n">regions</span></em>, <em class="sig-param"><span class="n">rg_depth</span></em>, <em class="sig-param"><span class="n">optimize_scale</span></em>, <em class="sig-param"><span class="n">dropout</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.GaussianLayer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>The Gaussian distributions input layer class.</p>
 <dl class="py method">
@@ -647,7 +647,10 @@
 <dd><p>Evaluate the layer given some inputs for maximum at posteriori estimation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>idx</strong> – The layer’s node indices.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – Not required for product node.</p></li>
+<li><p><strong>idx</strong> – The layer’s node indices.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The previous layer’s nodes indices.</p>

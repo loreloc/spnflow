@@ -251,40 +251,46 @@
 <div class="section" id="module-spnflow.learning.structure">
 <span id="spnflow-learning-structure-module"></span><h2>spnflow.learning.structure module<a class="headerlink" href="#module-spnflow.learning.structure" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt id="spnflow.learning.structure.Operation">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.learning.structure.</code><code class="sig-name descname">Operation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.structure.Operation" title="Permalink to this definition">¶</a></dt>
+<dt id="spnflow.learning.structure.OperationKind">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.learning.structure.</code><code class="sig-name descname">OperationKind</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.structure.OperationKind" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
-<p>The possible operation to execute for SPN structure learning.</p>
+<p>An enumeration.</p>
 <dl class="py attribute">
-<dt id="spnflow.learning.structure.Operation.CREATE_LEAF">
-<code class="sig-name descname">CREATE_LEAF</code><em class="property"> = (1,)</em><a class="headerlink" href="#spnflow.learning.structure.Operation.CREATE_LEAF" title="Permalink to this definition">¶</a></dt>
+<dt id="spnflow.learning.structure.OperationKind.CREATE_LEAF">
+<code class="sig-name descname">CREATE_LEAF</code><em class="property"> = (1,)</em><a class="headerlink" href="#spnflow.learning.structure.OperationKind.CREATE_LEAF" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="spnflow.learning.structure.Operation.REM_FEATURE">
-<code class="sig-name descname">REM_FEATURE</code><em class="property"> = 2</em><a class="headerlink" href="#spnflow.learning.structure.Operation.REM_FEATURE" title="Permalink to this definition">¶</a></dt>
+<dt id="spnflow.learning.structure.OperationKind.REM_FEATURE">
+<code class="sig-name descname">REM_FEATURE</code><em class="property"> = 2</em><a class="headerlink" href="#spnflow.learning.structure.OperationKind.REM_FEATURE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="spnflow.learning.structure.Operation.SPLIT_NAIVE">
-<code class="sig-name descname">SPLIT_NAIVE</code><em class="property"> = (3,)</em><a class="headerlink" href="#spnflow.learning.structure.Operation.SPLIT_NAIVE" title="Permalink to this definition">¶</a></dt>
+<dt id="spnflow.learning.structure.OperationKind.SPLIT_NAIVE">
+<code class="sig-name descname">SPLIT_NAIVE</code><em class="property"> = (3,)</em><a class="headerlink" href="#spnflow.learning.structure.OperationKind.SPLIT_NAIVE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="spnflow.learning.structure.Operation.SPLIT_ROWS">
-<code class="sig-name descname">SPLIT_ROWS</code><em class="property"> = (4,)</em><a class="headerlink" href="#spnflow.learning.structure.Operation.SPLIT_ROWS" title="Permalink to this definition">¶</a></dt>
+<dt id="spnflow.learning.structure.OperationKind.SPLIT_ROWS">
+<code class="sig-name descname">SPLIT_ROWS</code><em class="property"> = (4,)</em><a class="headerlink" href="#spnflow.learning.structure.OperationKind.SPLIT_ROWS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="spnflow.learning.structure.Operation.SPLIT_COLS">
-<code class="sig-name descname">SPLIT_COLS</code><em class="property"> = 5</em><a class="headerlink" href="#spnflow.learning.structure.Operation.SPLIT_COLS" title="Permalink to this definition">¶</a></dt>
+<dt id="spnflow.learning.structure.OperationKind.SPLIT_COLS">
+<code class="sig-name descname">SPLIT_COLS</code><em class="property"> = 5</em><a class="headerlink" href="#spnflow.learning.structure.OperationKind.SPLIT_COLS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
+<dl class="py class">
+<dt id="spnflow.learning.structure.Task">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.learning.structure.</code><code class="sig-name descname">Task</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parent</span></em>, <em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">scope</span></em>, <em class="sig-param"><span class="n">no_rows_split</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">no_cols_split</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">is_first</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.structure.Task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
 <dl class="py function">
 <dt id="spnflow.learning.structure.learn_structure">
-<code class="sig-prename descclassname">spnflow.learning.structure.</code><code class="sig-name descname">learn_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">distributions</span></em>, <em class="sig-param"><span class="n">domains</span></em>, <em class="sig-param"><span class="n">learn_leaf</span><span class="o">=</span><span class="default_value">'mle'</span></em>, <em class="sig-param"><span class="n">learn_leaf_params</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">split_rows</span><span class="o">=</span><span class="default_value">'kmeans'</span></em>, <em class="sig-param"><span class="n">split_cols</span><span class="o">=</span><span class="default_value">'rdc'</span></em>, <em class="sig-param"><span class="n">split_rows_params</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">split_cols_params</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">min_rows_slice</span><span class="o">=</span><span class="default_value">256</span></em>, <em class="sig-param"><span class="n">min_cols_slice</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">id_bar</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.structure.learn_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spnflow.learning.structure.</code><code class="sig-name descname">learn_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">distributions</span></em>, <em class="sig-param"><span class="n">domains</span></em>, <em class="sig-param"><span class="n">learn_leaf</span><span class="o">=</span><span class="default_value">'mle'</span></em>, <em class="sig-param"><span class="n">learn_leaf_params</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">split_rows</span><span class="o">=</span><span class="default_value">'kmeans'</span></em>, <em class="sig-param"><span class="n">split_cols</span><span class="o">=</span><span class="default_value">'rdc'</span></em>, <em class="sig-param"><span class="n">split_rows_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">split_cols_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">min_rows_slice</span><span class="o">=</span><span class="default_value">256</span></em>, <em class="sig-param"><span class="n">min_cols_slice</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.structure.learn_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Learn the structure and parameters of a SPN given some training data and several hyperparameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -296,11 +302,11 @@
 <li><p><strong>learn_leaf_params</strong> – The parameters of the learn leaf method.</p></li>
 <li><p><strong>split_rows</strong> – The rows splitting method (it can be ‘kmeans’, ‘gmm’, ‘rdc’ or ‘random’).</p></li>
 <li><p><strong>split_cols</strong> – The columns splitting method (it can be ‘rdc_cols’ or ‘random’).</p></li>
-<li><p><strong>split_rows_params</strong> – The parameters of the rows splitting method.</p></li>
-<li><p><strong>split_cols_params</strong> – The parameters of the cols splitting method.</p></li>
+<li><p><strong>split_rows_kwargs</strong> – The parameters of the rows splitting method.</p></li>
+<li><p><strong>split_cols_kwargs</strong> – The parameters of the cols splitting method.</p></li>
 <li><p><strong>min_rows_slice</strong> – The minimum number of samples required to split horizontally.</p></li>
 <li><p><strong>min_cols_slice</strong> – The minimum number of features required to split vertically.</p></li>
-<li><p><strong>id_bar</strong> – The id used for the progress bar. This can be used to make nested tqdm bars.</p></li>
+<li><p><strong>verbose</strong> – Whether to enable verbose mode.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -312,21 +318,7 @@
 <dl class="py function">
 <dt id="spnflow.learning.structure.choose_next_operation">
 <code class="sig-prename descclassname">spnflow.learning.structure.</code><code class="sig-name descname">choose_next_operation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">min_rows_slice</span></em>, <em class="sig-param"><span class="n">min_cols_slice</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.structure.choose_next_operation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Choose the next operation to execute.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>task</strong> – The next task, a tuple composed by the parent node, the local data, the scope and two booleans
-indicating if rows and columns splitting have failed or not respectively.</p></li>
-<li><p><strong>min_rows_slice</strong> – The minimum number of samples required to split horizontally.</p></li>
-<li><p><strong>min_cols_slice</strong> – The minimum number of features required to split vertically.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>(op, params) where op is the operation to execute and params are the optional parameters of the operation.</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 </div>
 <div class="section" id="module-spnflow.learning.wrappers">
@@ -352,7 +344,7 @@ indicating if rows and columns splitting have failed or not respectively.</p></l
 
 <dl class="py function">
 <dt id="spnflow.learning.wrappers.learn_classifier">
-<code class="sig-prename descclassname">spnflow.learning.wrappers.</code><code class="sig-name descname">learn_classifier</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">distributions</span></em>, <em class="sig-param"><span class="n">domains</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">class_idx</span><span class="o">=</span><span class="default_value">- 1</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.wrappers.learn_classifier" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spnflow.learning.wrappers.</code><code class="sig-name descname">learn_classifier</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">distributions</span></em>, <em class="sig-param"><span class="n">domains</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">class_idx</span><span class="o">=</span><span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.wrappers.learn_classifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Learn a SPN classifier given some training data, the features distributions and domains and
 the class index in the training data.</p>
 <dl class="field-list simple">
@@ -362,6 +354,7 @@ the class index in the training data.</p>
 <li><p><strong>distributions</strong> – A list of distribution classes (one for each feature).</p></li>
 <li><p><strong>domains</strong> – A list of domains (one for each feature).</p></li>
 <li><p><strong>class_idx</strong> – The index of the class feature in the training data.</p></li>
+<li><p><strong>verbose</strong> – Whether to enable verbose mode.</p></li>
 <li><p><strong>kwargs</strong> – Other parameters for structure learning.</p></li>
 </ul>
 </dd>
