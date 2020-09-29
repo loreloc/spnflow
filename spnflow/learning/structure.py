@@ -37,6 +37,7 @@ def learn_structure(data,
                     split_cols_kwargs=None,
                     min_rows_slice=256,
                     min_cols_slice=2,
+                    verbose=True,
                     ):
     """
     Learn the structure and parameters of a SPN given some training data and several hyperparameters.
@@ -52,6 +53,7 @@ def learn_structure(data,
     :param split_cols_kwargs: The parameters of the cols splitting method.
     :param min_rows_slice: The minimum number of samples required to split horizontally.
     :param min_cols_slice: The minimum number of features required to split vertically.
+    :param verbose: Whether to enable verbose mode.
     :return: A learned valid SPN.
     """
     assert data is not None
@@ -81,8 +83,8 @@ def learn_structure(data,
     tmp_node = Mul([], initial_scope)
     tasks.append(Task(tmp_node, data, initial_scope, is_first=True))
 
-    # Initialize the progress bar (with unspecified total)
-    tk = tqdm(total=np.inf, leave=None)
+    # Initialize the progress bar (with unspecified total), if verbose is enabled
+    tk = tqdm(total=np.inf, leave=None) if verbose else None
 
     while tasks:
         # Get the next task
@@ -144,12 +146,12 @@ def learn_structure(data,
         else:
             raise NotImplementedError("Operation of kind " + op.__name__ + " not implemented")
 
-        # Update the progress bar
-        tk.update()
-        tk.refresh()
+        if verbose:
+            tk.update()
+            tk.refresh()
 
-    # Close the progress bar
-    tk.close()
+    if verbose:
+        tk.close()
 
     root = tmp_node.children[0]
     return assign_ids(root)

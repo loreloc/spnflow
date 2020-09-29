@@ -27,7 +27,7 @@ def learn_estimator(data, distributions, domains=None, **kwargs):
     return prune(root)
 
 
-def learn_classifier(data, distributions, domains=None, class_idx=-1, **kwargs):
+def learn_classifier(data, distributions, domains=None, class_idx=-1, verbose=True, **kwargs):
     """
     Learn a SPN classifier given some training data, the features distributions and domains and
     the class index in the training data.
@@ -36,6 +36,7 @@ def learn_classifier(data, distributions, domains=None, class_idx=-1, **kwargs):
     :param distributions: A list of distribution classes (one for each feature).
     :param domains: A list of domains (one for each feature).
     :param class_idx: The index of the class feature in the training data.
+    :param verbose: Whether to enable verbose mode.
     :param kwargs: Other parameters for structure learning.
     :return: A learned valid and optimized SPN.
     """
@@ -51,12 +52,19 @@ def learn_classifier(data, distributions, domains=None, class_idx=-1, **kwargs):
     def learn_branch(local_data, **kwargs):
         n_local_samples, _ = local_data.shape
         weight = n_local_samples / n_samples
-        local_spn = learn_structure(local_data, distributions, domains, **kwargs)
+        local_spn = learn_structure(local_data, distributions, domains, verbose=verbose, **kwargs)
         return weight, local_spn
 
+    # Initialize the tqdm wrapped unique classes array, if verbose is enabled
+    unique_classes = np.unique(classes)
+    if verbose:
+        tk = tqdm(np.unique(classes), bar_format='{l_bar}{bar:32}{r_bar}')
+    else:
+        tk = unique_classes
+
+    # Learn each sub-spn's structure individually
     weights = []
     children = []
-    tk = tqdm(np.unique(classes), bar_format='{l_bar}{bar:32}{r_bar}')
     for c in tk:
         weight, branch = learn_branch(data[classes == c], **kwargs)
         weights.append(weight)
