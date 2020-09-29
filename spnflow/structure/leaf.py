@@ -8,7 +8,7 @@ class LeafType(Enum):
     """
     The type of the distribution leaf. It can be discrete or continuous.
     """
-    DISCRETE = 1,
+    DISCRETE = 1
     CONTINUOUS = 2
 
 
