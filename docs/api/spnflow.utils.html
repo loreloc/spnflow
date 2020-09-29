@@ -1,0 +1,405 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>spnflow.utils package &#8212; SPNFlow 0.4.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="spnflow.torch.layers package" href="spnflow.torch.layers.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="spnflow-utils-package">
+<h1>spnflow.utils package<a class="headerlink" href="#spnflow-utils-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-spnflow.utils.data">
+<span id="spnflow-utils-data-module"></span><h2>spnflow.utils.data module<a class="headerlink" href="#module-spnflow.utils.data" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="spnflow.utils.data.get_data_domains">
+<code class="sig-prename descclassname">spnflow.utils.data.</code><code class="sig-name descname">get_data_domains</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">distributions</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.data.get_data_domains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the domains based on the training data and the features distributions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The training data.</p></li>
+<li><p><strong>distributions</strong> – A list of distribution classes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of domains.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.utils.data.ohe_data">
+<code class="sig-prename descclassname">spnflow.utils.data.</code><code class="sig-name descname">ohe_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">domain</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.data.ohe_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>One-Hot-Encoding function.
+:param data: The data to encode.
+:param domain: The domain to use.
+:return: The One Hot encoded data.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.utils.filter">
+<span id="spnflow-utils-filter-module"></span><h2>spnflow.utils.filter module<a class="headerlink" href="#module-spnflow.utils.filter" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="spnflow.utils.filter.get_nodes">
+<code class="sig-prename descclassname">spnflow.utils.filter.</code><code class="sig-name descname">get_nodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.filter.get_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all the nodes in a SPN.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>root</strong> – The root of the SPN.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of nodes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.utils.filter.filter_nodes_type">
+<code class="sig-prename descclassname">spnflow.utils.filter.</code><code class="sig-name descname">filter_nodes_type</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em>, <em class="sig-param"><span class="n">ntype</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.filter.filter_nodes_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the nodes of a specified type in a SPN.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> – The root of the SPN.</p></li>
+<li><p><strong>ntype</strong> – The node type.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of nodes of a specific type.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.utils.region">
+<span id="spnflow-utils-region-module"></span><h2>spnflow.utils.region module<a class="headerlink" href="#module-spnflow.utils.region" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="spnflow.utils.region.RegionGraph">
+<em class="property">class </em><code class="sig-prename descclassname">spnflow.utils.region.</code><code class="sig-name descname">RegionGraph</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_features</span></em>, <em class="sig-param"><span class="n">depth</span></em>, <em class="sig-param"><span class="n">rand_state</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.region.RegionGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>RegionGraph Class.
+A region graph is defined w.r.t. a set of indices of random variable in a SPN.
+A <em>region</em> R is defined as a non-empty subset of the indices, and represented as sorted tuples with unique entries.
+A <em>partition</em> P of a region R is defined as a collection of non-empty sets, which are non-overlapping, and whose
+union is R. R is also called <em>parent</em> region of P.
+Any region C such that C is in partition P is called <em>child region</em> of P.
+So, a region is represented as a sorted tuple of integers (unique elements) and a partition is represented as a
+sorted tuple of regions (non-overlapping, not-empty, at least 2).
+A <em>region graph</em> is an acyclic, directed, bi-partite graph over regions and partitions. So, any child of a region
+R is a partition of R, and any child of a partition is a child region of the partition. The root of the region graph
+is a sorted tuple composed of all the elements. The leaves of the region graph must also be regions. They are called
+input regions, or leaf regions.
+Given a region graph, we can easily construct a corresponding SPN:
+1) Associate I distributions to each input region.
+2) Associate K sum nodes to each other (non-input) region.
+3) For each partition P in the region graph, take all cross-products (as product nodes) of distributions/sum nodes
+associated with the child regions. Connect these products as children of all sum nodes in the parent region of P.
+In the end, this procedure will always deliver a complete and decomposable SPN.</p>
+<dl class="py method">
+<dt id="spnflow.utils.region.RegionGraph.random_layers">
+<code class="sig-name descname">random_layers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.region.RegionGraph.random_layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a list of layers randomly over a single repetition of features.
+:return: A list of layers, alternating between regions and partitions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.utils.region.RegionGraph.make_layers">
+<code class="sig-name descname">make_layers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_repetitions</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.region.RegionGraph.make_layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a random graph’s layers over multiple repetitions of features.
+:param n_repetitions: The number of repetitions.
+:return: A list of layers, alternating between regions and partitions.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.utils.statistics">
+<span id="spnflow-utils-statistics-module"></span><h2>spnflow.utils.statistics module<a class="headerlink" href="#module-spnflow.utils.statistics" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="spnflow.utils.statistics.get_statistics">
+<code class="sig-prename descclassname">spnflow.utils.statistics.</code><code class="sig-name descname">get_statistics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.statistics.get_statistics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute some statistics of a SPN given its root.</p>
+<p>The computed statistics are the following:</p>
+<ul class="simple">
+<li><p>n_nodes, the number of nodes</p></li>
+<li><p>n_sum, the number of sum nodes</p></li>
+<li><p>n_mul, the number of multiplication nodes</p></li>
+<li><p>n_leaves, the number of leaves</p></li>
+<li><p>n_edges, the number of edges</p></li>
+<li><p>n_params, the number of parameters</p></li>
+<li><p>depth, the depth of the network</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>root</strong> – The root of the SPN.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary containing the statistics.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.utils.statistics.get_edges_count">
+<code class="sig-prename descclassname">spnflow.utils.statistics.</code><code class="sig-name descname">get_edges_count</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.statistics.get_edges_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of edges of a SPN given its root.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>root</strong> – The root of the SPN.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The number of edges.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.utils.statistics.get_parameters_count">
+<code class="sig-prename descclassname">spnflow.utils.statistics.</code><code class="sig-name descname">get_parameters_count</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.statistics.get_parameters_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of parameters of a SPN given its root.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>root</strong> – The root of the SPN.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The number of parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.utils.statistics.get_depth">
+<code class="sig-prename descclassname">spnflow.utils.statistics.</code><code class="sig-name descname">get_depth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.statistics.get_depth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the depth of the SPN given its root.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>root</strong> – The root of the SPN.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The depth of the network.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.utils.validity">
+<span id="spnflow-utils-validity-module"></span><h2>spnflow.utils.validity module<a class="headerlink" href="#module-spnflow.utils.validity" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="spnflow.utils.validity.assert_is_valid">
+<code class="sig-prename descclassname">spnflow.utils.validity.</code><code class="sig-name descname">assert_is_valid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.validity.assert_is_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert if the SPN is valid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>root</strong> – The SPN root.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.utils.validity.is_valid">
+<code class="sig-prename descclassname">spnflow.utils.validity.</code><code class="sig-name descname">is_valid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.validity.is_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the SPN is valid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>root</strong> – The SPN root.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(True, None) if the SPN is valid;
+(False, reason) otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.utils.validity.is_complete">
+<code class="sig-prename descclassname">spnflow.utils.validity.</code><code class="sig-name descname">is_complete</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.validity.is_complete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the SPN is complete.
+It checks that each child of a sum node has the same scope.
+Furthermore, it checks that the sum of the weights of a sum node is close to 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>root</strong> – The root of the SPN.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(True, None) if the SPN is complete;
+(False, reason) otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.utils.validity.is_consistent">
+<code class="sig-prename descclassname">spnflow.utils.validity.</code><code class="sig-name descname">is_consistent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.validity.is_consistent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the SPN is consistent.
+It checks that each child of a sum node has disjointed scopes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>root</strong> – The root of the SPN.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(True, None) if the SPN is consistent;
+(False, reason) otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.utils.validity.is_labeled">
+<code class="sig-prename descclassname">spnflow.utils.validity.</code><code class="sig-name descname">is_labeled</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.validity.is_labeled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the SPN is labeled correctly.
+It checks that the initial id is zero and each id is consecutive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>root</strong> – The root of the SPN.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(True, None) if the SPN is labeled correctly;
+(False, reason) otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-spnflow.utils" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/spnflow-logo.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">SPNFlow</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Sum-Product Networks and Normalizing Flows for Tractable Density Estimation</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=loreloc&repo=spnflow&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">spnflow</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="spnflow.html">spnflow package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="spnflow.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="spnflow.algorithms.html">spnflow.algorithms package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.io.html">spnflow.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.learning.html">spnflow.learning package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.optimization.html">spnflow.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.structure.html">spnflow.structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.torch.html">spnflow.torch package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">spnflow.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spnflow.html#module-spnflow">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">spnflow</a><ul>
+  <li><a href="spnflow.html">spnflow package</a><ul>
+      <li>Previous: <a href="spnflow.torch.layers.html" title="previous chapter">spnflow.torch.layers package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Lorenzo Loconte.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/api/spnflow.utils.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/loreloc/spnflow" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

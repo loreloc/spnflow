@@ -1,0 +1,422 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>spnflow.algorithms package &#8212; SPNFlow 0.4.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="spnflow.io package" href="spnflow.io.html" />
+    <link rel="prev" title="spnflow package" href="spnflow.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="spnflow-algorithms-package">
+<h1>spnflow.algorithms package<a class="headerlink" href="#spnflow-algorithms-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-spnflow.algorithms.evaluation">
+<span id="spnflow-algorithms-evaluation-module"></span><h2>spnflow.algorithms.evaluation module<a class="headerlink" href="#module-spnflow.algorithms.evaluation" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="spnflow.algorithms.evaluation.eval_bottom_up">
+<code class="sig-prename descclassname">spnflow.algorithms.evaluation.</code><code class="sig-name descname">eval_bottom_up</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">leaf_func</span></em>, <em class="sig-param"><span class="n">node_func</span></em>, <em class="sig-param"><span class="n">return_results</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.algorithms.evaluation.eval_bottom_up" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the SPN bottom up given some inputs and leaves and nodes evaluation functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> – The root of the SPN.</p></li>
+<li><p><strong>x</strong> – The inputs.</p></li>
+<li><p><strong>leaf_func</strong> – The function to compute at the leaves.</p></li>
+<li><p><strong>node_func</strong> – The function to compute at each internal node.</p></li>
+<li><p><strong>return_results</strong> – A flag indicating if this function must return the log likelihoods of each node of the SPN.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs. Additionally it returns the output of each node.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.algorithms.evaluation.eval_top_down">
+<code class="sig-prename descclassname">spnflow.algorithms.evaluation.</code><code class="sig-name descname">eval_top_down</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">ls</span></em>, <em class="sig-param"><span class="n">leaf_func</span></em>, <em class="sig-param"><span class="n">sum_func</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.algorithms.evaluation.eval_top_down" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the SPN top down given some inputs, the likelihoods of each node and a leaves evaluation function.
+The leaves to evaluate are chosen by following the nodes having maximum likelihood top down.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> – The root of the SPN.</p></li>
+<li><p><strong>x</strong> – The inputs (must have at least one NaN value).</p></li>
+<li><p><strong>ls</strong> – The likelihoods of each node.</p></li>
+<li><p><strong>leaf_func</strong> – The leaves evaluation function.</p></li>
+<li><p><strong>sum_func</strong> – The sum node evaluation function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The NaN-filled inputs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.algorithms.inference">
+<span id="spnflow-algorithms-inference-module"></span><h2>spnflow.algorithms.inference module<a class="headerlink" href="#module-spnflow.algorithms.inference" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="spnflow.algorithms.inference.likelihood">
+<code class="sig-prename descclassname">spnflow.algorithms.inference.</code><code class="sig-name descname">likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">return_results</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.algorithms.inference.likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the likelihoods of the SPN given some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> – The root of the SPN.</p></li>
+<li><p><strong>x</strong> – The inputs.</p></li>
+<li><p><strong>return_results</strong> – A flag indicating if this function must return the likelihoods of each node of the SPN.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The likelihood values. Additionally it returns the likelihood values of each node.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.algorithms.inference.log_likelihood">
+<code class="sig-prename descclassname">spnflow.algorithms.inference.</code><code class="sig-name descname">log_likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">return_results</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.algorithms.inference.log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the logarithmic likelihoods of the SPN given some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> – The root of the SPN.</p></li>
+<li><p><strong>x</strong> – The inputs.</p></li>
+<li><p><strong>return_results</strong> – A flag indicating if this function must return the log likelihoods of each node of the SPN.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The log likelihood values. Additionally it returns the log likelihood values of each node.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.algorithms.inference.leaf_likelihood">
+<code class="sig-prename descclassname">spnflow.algorithms.inference.</code><code class="sig-name descname">leaf_likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">m</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.algorithms.inference.leaf_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the likelihood of a leaf given an input and its NaN mask.
+It also handles of NaN and infinite likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> – The leaf node.</p></li>
+<li><p><strong>x</strong> – The input.</p></li>
+<li><p><strong>m</strong> – The NaN mask of the input.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The likelihood of the leaf given the input.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.algorithms.inference.leaf_log_likelihood">
+<code class="sig-prename descclassname">spnflow.algorithms.inference.</code><code class="sig-name descname">leaf_log_likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">m</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.algorithms.inference.leaf_log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the logarithmic likelihood of a leaf given an input and its NaN mask.
+It also handles of NaN and infinite log likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> – The leaf node.</p></li>
+<li><p><strong>x</strong> – The input.</p></li>
+<li><p><strong>m</strong> – The NaN mask of the input.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The log likelihood of the leaf given the input.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.algorithms.inference.node_likelihood">
+<code class="sig-prename descclassname">spnflow.algorithms.inference.</code><code class="sig-name descname">node_likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em>, <em class="sig-param"><span class="n">lc</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.algorithms.inference.node_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the likelihood of a node given the list of likelihoods of its children.
+It also handles of NaN and infinite likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> – The internal node.</p></li>
+<li><p><strong>lc</strong> – The list of likelihoods of the children.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The likelihood of the node given the inputs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.algorithms.inference.node_log_likelihood">
+<code class="sig-prename descclassname">spnflow.algorithms.inference.</code><code class="sig-name descname">node_log_likelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em>, <em class="sig-param"><span class="n">lc</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.algorithms.inference.node_log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the logarithmic likelihood of a node given the list of logarithmic likelihoods of its children.
+It also handles of NaN and infinite log likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> – The internal node.</p></li>
+<li><p><strong>lc</strong> – The list of log likelihoods of the children.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The log likelihood of the node given the inputs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.algorithms.mpe">
+<span id="spnflow-algorithms-mpe-module"></span><h2>spnflow.algorithms.mpe module<a class="headerlink" href="#module-spnflow.algorithms.mpe" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="spnflow.algorithms.mpe.mpe">
+<code class="sig-prename descclassname">spnflow.algorithms.mpe.</code><code class="sig-name descname">mpe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em>, <em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.algorithms.mpe.mpe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the Maximum Posterior Estimate of a SPN given some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> – The root of the SPN.</p></li>
+<li><p><strong>x</strong> – The inputs (must have at least one NaN value).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The NaN-filled inputs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.algorithms.mpe.leaf_mpe">
+<code class="sig-prename descclassname">spnflow.algorithms.mpe.</code><code class="sig-name descname">leaf_mpe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em>, <em class="sig-param"><span class="n">size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.algorithms.mpe.leaf_mpe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the maximum likelihood estimate of a leaf node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> – The leaf node.</p></li>
+<li><p><strong>size</strong> – The number of values to replace.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The maximum likelihood estimate.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.algorithms.mpe.sum_mpe">
+<code class="sig-prename descclassname">spnflow.algorithms.mpe.</code><code class="sig-name descname">sum_mpe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em>, <em class="sig-param"><span class="n">size</span></em>, <em class="sig-param"><span class="n">lc</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.algorithms.mpe.sum_mpe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose the branch that maximize the posterior estimate likelihood.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> – The sum node.</p></li>
+<li><p><strong>size</strong> – The number of values.</p></li>
+<li><p><strong>lc</strong> – The log likelihoods of the children nodes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The branch that maximize the posterior estimate likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.algorithms.sampling">
+<span id="spnflow-algorithms-sampling-module"></span><h2>spnflow.algorithms.sampling module<a class="headerlink" href="#module-spnflow.algorithms.sampling" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="spnflow.algorithms.sampling.sample">
+<code class="sig-prename descclassname">spnflow.algorithms.sampling.</code><code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em>, <em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.algorithms.sampling.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample some features from the distribution represented by the SPN.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> – The root of the SPN.</p></li>
+<li><p><strong>x</strong> – The inputs (must have at least one NaN value where to put the sample).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The inputs that are NaN-filled with samples from appropriate distributions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.algorithms.sampling.leaf_sample">
+<code class="sig-prename descclassname">spnflow.algorithms.sampling.</code><code class="sig-name descname">leaf_sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em>, <em class="sig-param"><span class="n">size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.algorithms.sampling.leaf_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample some values from the distribution leaf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> – The distribution leaf node.</p></li>
+<li><p><strong>size</strong> – The number of samples.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Some samples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.algorithms.sampling.sum_sample">
+<code class="sig-prename descclassname">spnflow.algorithms.sampling.</code><code class="sig-name descname">sum_sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em>, <em class="sig-param"><span class="n">size</span></em>, <em class="sig-param"><span class="n">lc</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.algorithms.sampling.sum_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose the sub-distribution from which sample.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> – The sum node.</p></li>
+<li><p><strong>size</strong> – The number of samples.</p></li>
+<li><p><strong>lc</strong> – The log likelihoods of the children of the sum node.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The index of the sub-distribution to follow.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.algorithms">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-spnflow.algorithms" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/spnflow-logo.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">SPNFlow</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Sum-Product Networks and Normalizing Flows for Tractable Density Estimation</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=loreloc&repo=spnflow&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">spnflow</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="spnflow.html">spnflow package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="spnflow.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">spnflow.algorithms package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.io.html">spnflow.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.learning.html">spnflow.learning package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.optimization.html">spnflow.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.structure.html">spnflow.structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.torch.html">spnflow.torch package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.utils.html">spnflow.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spnflow.html#module-spnflow">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">spnflow</a><ul>
+  <li><a href="spnflow.html">spnflow package</a><ul>
+      <li>Previous: <a href="spnflow.html" title="previous chapter">spnflow package</a></li>
+      <li>Next: <a href="spnflow.io.html" title="next chapter">spnflow.io package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Lorenzo Loconte.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/api/spnflow.algorithms.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/loreloc/spnflow" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

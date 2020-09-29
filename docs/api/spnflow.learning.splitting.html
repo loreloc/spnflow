@@ -1,0 +1,389 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>spnflow.learning.splitting package &#8212; SPNFlow 0.4.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="spnflow.optimization package" href="spnflow.optimization.html" />
+    <link rel="prev" title="spnflow.learning package" href="spnflow.learning.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="spnflow-learning-splitting-package">
+<h1>spnflow.learning.splitting package<a class="headerlink" href="#spnflow-learning-splitting-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-spnflow.learning.splitting.cols">
+<span id="spnflow-learning-splitting-cols-module"></span><h2>spnflow.learning.splitting.cols module<a class="headerlink" href="#module-spnflow.learning.splitting.cols" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="spnflow.learning.splitting.cols.split_cols_clusters">
+<code class="sig-prename descclassname">spnflow.learning.splitting.cols.</code><code class="sig-name descname">split_cols_clusters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">clusters</span></em>, <em class="sig-param"><span class="n">scope</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.cols.split_cols_clusters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the data vertically given the clusters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The data.</p></li>
+<li><p><strong>clusters</strong> – The clusters.</p></li>
+<li><p><strong>scope</strong> – The original scope.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(slices, scopes) where slices is a list of partial data and scopes is a list of partial scopes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.learning.splitting.cols.get_split_cols_method">
+<code class="sig-prename descclassname">spnflow.learning.splitting.cols.</code><code class="sig-name descname">get_split_cols_method</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">split_cols</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.cols.get_split_cols_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the columns splitting method given a string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>split_cols</strong> – The string of the method do get.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The corresponding columns splitting function.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.learning.splitting.gmm">
+<span id="spnflow-learning-splitting-gmm-module"></span><h2>spnflow.learning.splitting.gmm module<a class="headerlink" href="#module-spnflow.learning.splitting.gmm" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="spnflow.learning.splitting.gmm.gmm">
+<code class="sig-prename descclassname">spnflow.learning.splitting.gmm.</code><code class="sig-name descname">gmm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.gmm.gmm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute GMM clustering on some data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The data.</p></li>
+<li><p><strong>n</strong> – The number of clusters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An array where each element is the cluster where the corresponding data belong.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.learning.splitting.kmeans">
+<span id="spnflow-learning-splitting-kmeans-module"></span><h2>spnflow.learning.splitting.kmeans module<a class="headerlink" href="#module-spnflow.learning.splitting.kmeans" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="spnflow.learning.splitting.kmeans.kmeans">
+<code class="sig-prename descclassname">spnflow.learning.splitting.kmeans.</code><code class="sig-name descname">kmeans</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.kmeans.kmeans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute KMeans clustering on some data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The data.</p></li>
+<li><p><strong>n</strong> – The number of clusters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An array where each element is the cluster where the corresponding data belong.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.learning.splitting.random">
+<span id="spnflow-learning-splitting-random-module"></span><h2>spnflow.learning.splitting.random module<a class="headerlink" href="#module-spnflow.learning.splitting.random" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="spnflow.learning.splitting.random.random_rows">
+<code class="sig-prename descclassname">spnflow.learning.splitting.random.</code><code class="sig-name descname">random_rows</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">a</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">b</span><span class="o">=</span><span class="default_value">2.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.random.random_rows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose a binary partition horizontally randomly.
+The proportion of the split is sampled from a beta distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The data.</p></li>
+<li><p><strong>a</strong> – The alpha parameter of the beta distribution.</p></li>
+<li><p><strong>b</strong> – The beta parameter of the beta distribution.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A binary partition.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.learning.splitting.random.random_cols">
+<code class="sig-prename descclassname">spnflow.learning.splitting.random.</code><code class="sig-name descname">random_cols</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">a</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">b</span><span class="o">=</span><span class="default_value">2.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.random.random_cols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose a binary partition vertically randomly.
+The proportion of the split is sampled from a beta distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The data.</p></li>
+<li><p><strong>a</strong> – The alpha parameter of the beta distribution.</p></li>
+<li><p><strong>b</strong> – The beta parameter of the beta distribution.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A binary partition.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.learning.splitting.rdc">
+<span id="spnflow-learning-splitting-rdc-module"></span><h2>spnflow.learning.splitting.rdc module<a class="headerlink" href="#module-spnflow.learning.splitting.rdc" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="spnflow.learning.splitting.rdc.rdc_cols">
+<code class="sig-prename descclassname">spnflow.learning.splitting.rdc.</code><code class="sig-name descname">rdc_cols</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">d=0.3</em>, <em class="sig-param">k=16</em>, <em class="sig-param">s=0.16666666666666666</em>, <em class="sig-param">f=&lt;ufunc 'sin'&gt;</em>, <em class="sig-param">n_jobs=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.rdc.rdc_cols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the features using the RDC (Randomized Dependency Coefficient) method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The data.</p></li>
+<li><p><strong>d</strong> – The threshold value that regulates the independence tests among the features.</p></li>
+<li><p><strong>k</strong> – The size of the latent space.</p></li>
+<li><p><strong>s</strong> – The standard deviation of the gaussian distribution.</p></li>
+<li><p><strong>f</strong> – The non linear function to use.</p></li>
+<li><p><strong>n_jobs</strong> – The number of jobs to use for parallel computation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A features partitioning.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.learning.splitting.rdc.rdc_rows">
+<code class="sig-prename descclassname">spnflow.learning.splitting.rdc.</code><code class="sig-name descname">rdc_rows</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">n=2</em>, <em class="sig-param">k=16</em>, <em class="sig-param">s=0.16666666666666666</em>, <em class="sig-param">f=&lt;ufunc 'sin'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.rdc.rdc_rows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the samples using the RDC (Randomized Dependency Coefficient) method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The data.</p></li>
+<li><p><strong>n</strong> – The number of clusters for KMeans.</p></li>
+<li><p><strong>k</strong> – The size of the latent space.</p></li>
+<li><p><strong>s</strong> – The standard deviation of the gaussian distribution.</p></li>
+<li><p><strong>f</strong> – The non linear function to use.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A samples partitioning.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.learning.splitting.rdc.rdc_cca">
+<code class="sig-prename descclassname">spnflow.learning.splitting.rdc.</code><code class="sig-name descname">rdc_cca</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">i</span></em>, <em class="sig-param"><span class="n">j</span></em>, <em class="sig-param"><span class="n">features</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.rdc.rdc_cca" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the RDC (Randomized Dependency Coefficient) using CCA (Canonical Correlation Coefficient).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i</strong> – The index of the first feature.</p></li>
+<li><p><strong>j</strong> – The index of the second feature.</p></li>
+<li><p><strong>features</strong> – The list of the features.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The RDC coefficient (the largest canonical correlation coefficient).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.learning.splitting.rdc.rdc_transform">
+<code class="sig-prename descclassname">spnflow.learning.splitting.rdc.</code><code class="sig-name descname">rdc_transform</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">s</span></em>, <em class="sig-param"><span class="n">f</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.rdc.rdc_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the RDC (Randomized Dependency Coefficient) pipeline on some data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The data.</p></li>
+<li><p><strong>k</strong> – The size of the latent space.</p></li>
+<li><p><strong>s</strong> – The standard deviation of the gaussian distribution.</p></li>
+<li><p><strong>f</strong> – The non linear function to use.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The transformed data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.learning.splitting.rows">
+<span id="spnflow-learning-splitting-rows-module"></span><h2>spnflow.learning.splitting.rows module<a class="headerlink" href="#module-spnflow.learning.splitting.rows" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="spnflow.learning.splitting.rows.split_rows_clusters">
+<code class="sig-prename descclassname">spnflow.learning.splitting.rows.</code><code class="sig-name descname">split_rows_clusters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">clusters</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.rows.split_rows_clusters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the data horizontally given the clusters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The data.</p></li>
+<li><p><strong>clusters</strong> – The clusters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(slices, weights) where slices is a list of partial data and weights is a list of proportions of the
+local data in respect to the original data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.learning.splitting.rows.get_split_rows_method">
+<code class="sig-prename descclassname">spnflow.learning.splitting.rows.</code><code class="sig-name descname">get_split_rows_method</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">split_rows</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.rows.get_split_rows_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the rows splitting method given a string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>split_rows</strong> – The string of the method do get.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The corresponding rows splitting function.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.learning.splitting">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-spnflow.learning.splitting" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/spnflow-logo.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">SPNFlow</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Sum-Product Networks and Normalizing Flows for Tractable Density Estimation</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=loreloc&repo=spnflow&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">spnflow</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="spnflow.html">spnflow package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="spnflow.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="spnflow.algorithms.html">spnflow.algorithms package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.io.html">spnflow.io package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="spnflow.learning.html">spnflow.learning package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.optimization.html">spnflow.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.structure.html">spnflow.structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.torch.html">spnflow.torch package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.utils.html">spnflow.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spnflow.html#module-spnflow">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">spnflow</a><ul>
+  <li><a href="spnflow.html">spnflow package</a><ul>
+  <li><a href="spnflow.learning.html">spnflow.learning package</a><ul>
+      <li>Previous: <a href="spnflow.learning.html" title="previous chapter">spnflow.learning package</a></li>
+      <li>Next: <a href="spnflow.optimization.html" title="next chapter">spnflow.optimization package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Lorenzo Loconte.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/api/spnflow.learning.splitting.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/loreloc/spnflow" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
