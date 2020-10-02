@@ -77,12 +77,14 @@
 <span id="spnflow-learning-splitting-gmm-module"></span><h2>spnflow.learning.splitting.gmm module<a class="headerlink" href="#module-spnflow.learning.splitting.gmm" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt id="spnflow.learning.splitting.gmm.gmm">
-<code class="sig-prename descclassname">spnflow.learning.splitting.gmm.</code><code class="sig-name descname">gmm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.gmm.gmm" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spnflow.learning.splitting.gmm.</code><code class="sig-name descname">gmm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">distributions</span></em>, <em class="sig-param"><span class="n">domains</span></em>, <em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.gmm.gmm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute GMM clustering on some data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> – The data.</p></li>
+<li><p><strong>distributions</strong> – The data distributions (not used).</p></li>
+<li><p><strong>domains</strong> – The data domains (not used).</p></li>
 <li><p><strong>n</strong> – The number of clusters.</p></li>
 </ul>
 </dd>
@@ -97,13 +99,15 @@
 <span id="spnflow-learning-splitting-kmeans-module"></span><h2>spnflow.learning.splitting.kmeans module<a class="headerlink" href="#module-spnflow.learning.splitting.kmeans" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt id="spnflow.learning.splitting.kmeans.kmeans">
-<code class="sig-prename descclassname">spnflow.learning.splitting.kmeans.</code><code class="sig-name descname">kmeans</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.kmeans.kmeans" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spnflow.learning.splitting.kmeans.</code><code class="sig-name descname">kmeans</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">distributions</span></em>, <em class="sig-param"><span class="n">domains</span></em>, <em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.kmeans.kmeans" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute KMeans clustering on some data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> – The data.</p></li>
 <li><p><strong>n</strong> – The number of clusters.</p></li>
+<li><p><strong>distributions</strong> – The data distributions (not used).</p></li>
+<li><p><strong>domains</strong> – The data domains (not used).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -117,13 +121,15 @@
 <span id="spnflow-learning-splitting-random-module"></span><h2>spnflow.learning.splitting.random module<a class="headerlink" href="#module-spnflow.learning.splitting.random" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt id="spnflow.learning.splitting.random.random_rows">
-<code class="sig-prename descclassname">spnflow.learning.splitting.random.</code><code class="sig-name descname">random_rows</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">a</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">b</span><span class="o">=</span><span class="default_value">2.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.random.random_rows" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spnflow.learning.splitting.random.</code><code class="sig-name descname">random_rows</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">distributions</span></em>, <em class="sig-param"><span class="n">domains</span></em>, <em class="sig-param"><span class="n">a</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">b</span><span class="o">=</span><span class="default_value">2.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.random.random_rows" title="Permalink to this definition">¶</a></dt>
 <dd><p>Choose a binary partition horizontally randomly.
 The proportion of the split is sampled from a beta distribution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> – The data.</p></li>
+<li><p><strong>distributions</strong> – The data distributions (not used).</p></li>
+<li><p><strong>domains</strong> – The data domains (not used).</p></li>
 <li><p><strong>a</strong> – The alpha parameter of the beta distribution.</p></li>
 <li><p><strong>b</strong> – The beta parameter of the beta distribution.</p></li>
 </ul>
@@ -136,13 +142,15 @@ The proportion of the split is sampled from a beta distribution.</p>
 
 <dl class="py function">
 <dt id="spnflow.learning.splitting.random.random_cols">
-<code class="sig-prename descclassname">spnflow.learning.splitting.random.</code><code class="sig-name descname">random_cols</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">a</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">b</span><span class="o">=</span><span class="default_value">2.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.random.random_cols" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spnflow.learning.splitting.random.</code><code class="sig-name descname">random_cols</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">distributions</span></em>, <em class="sig-param"><span class="n">domains</span></em>, <em class="sig-param"><span class="n">a</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">b</span><span class="o">=</span><span class="default_value">2.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.random.random_cols" title="Permalink to this definition">¶</a></dt>
 <dd><p>Choose a binary partition vertically randomly.
 The proportion of the split is sampled from a beta distribution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> – The data.</p></li>
+<li><p><strong>distributions</strong> – The data distributions (not used).</p></li>
+<li><p><strong>domains</strong> – The data domains (not used).</p></li>
 <li><p><strong>a</strong> – The alpha parameter of the beta distribution.</p></li>
 <li><p><strong>b</strong> – The beta parameter of the beta distribution.</p></li>
 </ul>
@@ -158,17 +166,18 @@ The proportion of the split is sampled from a beta distribution.</p>
 <span id="spnflow-learning-splitting-rdc-module"></span><h2>spnflow.learning.splitting.rdc module<a class="headerlink" href="#module-spnflow.learning.splitting.rdc" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt id="spnflow.learning.splitting.rdc.rdc_cols">
-<code class="sig-prename descclassname">spnflow.learning.splitting.rdc.</code><code class="sig-name descname">rdc_cols</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">d=0.3</em>, <em class="sig-param">k=16</em>, <em class="sig-param">s=0.16666666666666666</em>, <em class="sig-param">f=&lt;ufunc 'sin'&gt;</em>, <em class="sig-param">n_jobs=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.rdc.rdc_cols" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spnflow.learning.splitting.rdc.</code><code class="sig-name descname">rdc_cols</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">distributions</em>, <em class="sig-param">domains</em>, <em class="sig-param">d=0.3</em>, <em class="sig-param">k=16</em>, <em class="sig-param">s=0.16666666666666666</em>, <em class="sig-param">f=&lt;ufunc 'sin'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.rdc.rdc_cols" title="Permalink to this definition">¶</a></dt>
 <dd><p>Split the features using the RDC (Randomized Dependency Coefficient) method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> – The data.</p></li>
+<li><p><strong>distributions</strong> – The data distributions.</p></li>
+<li><p><strong>domains</strong> – The data domains.</p></li>
 <li><p><strong>d</strong> – The threshold value that regulates the independence tests among the features.</p></li>
 <li><p><strong>k</strong> – The size of the latent space.</p></li>
 <li><p><strong>s</strong> – The standard deviation of the gaussian distribution.</p></li>
 <li><p><strong>f</strong> – The non linear function to use.</p></li>
-<li><p><strong>n_jobs</strong> – The number of jobs to use for parallel computation.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -179,12 +188,14 @@ The proportion of the split is sampled from a beta distribution.</p>
 
 <dl class="py function">
 <dt id="spnflow.learning.splitting.rdc.rdc_rows">
-<code class="sig-prename descclassname">spnflow.learning.splitting.rdc.</code><code class="sig-name descname">rdc_rows</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">n=2</em>, <em class="sig-param">k=16</em>, <em class="sig-param">s=0.16666666666666666</em>, <em class="sig-param">f=&lt;ufunc 'sin'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.rdc.rdc_rows" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spnflow.learning.splitting.rdc.</code><code class="sig-name descname">rdc_rows</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">distributions</em>, <em class="sig-param">domains</em>, <em class="sig-param">n=2</em>, <em class="sig-param">k=16</em>, <em class="sig-param">s=0.16666666666666666</em>, <em class="sig-param">f=&lt;ufunc 'sin'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.rdc.rdc_rows" title="Permalink to this definition">¶</a></dt>
 <dd><p>Split the samples using the RDC (Randomized Dependency Coefficient) method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> – The data.</p></li>
+<li><p><strong>distributions</strong> – The data distributions.</p></li>
+<li><p><strong>domains</strong> – The data domains.</p></li>
 <li><p><strong>n</strong> – The number of clusters for KMeans.</p></li>
 <li><p><strong>k</strong> – The size of the latent space.</p></li>
 <li><p><strong>s</strong> – The standard deviation of the gaussian distribution.</p></li>
@@ -217,12 +228,14 @@ The proportion of the split is sampled from a beta distribution.</p>
 
 <dl class="py function">
 <dt id="spnflow.learning.splitting.rdc.rdc_transform">
-<code class="sig-prename descclassname">spnflow.learning.splitting.rdc.</code><code class="sig-name descname">rdc_transform</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">s</span></em>, <em class="sig-param"><span class="n">f</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.rdc.rdc_transform" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spnflow.learning.splitting.rdc.</code><code class="sig-name descname">rdc_transform</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">distributions</span></em>, <em class="sig-param"><span class="n">domains</span></em>, <em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">s</span></em>, <em class="sig-param"><span class="n">f</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.rdc.rdc_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute the RDC (Randomized Dependency Coefficient) pipeline on some data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> – The data.</p></li>
+<li><p><strong>distributions</strong> – The data distributions.</p></li>
+<li><p><strong>domains</strong> – The data domains.</p></li>
 <li><p><strong>k</strong> – The size of the latent space.</p></li>
 <li><p><strong>s</strong> – The standard deviation of the gaussian distribution.</p></li>
 <li><p><strong>f</strong> – The non linear function to use.</p></li>
