@@ -7,6 +7,7 @@ from spnflow.torch.utils import compute_mean_quantiles
 from experiments.datasets import load_vision_dataset
 from experiments.datasets import get_vision_dataset_inverse_transform
 from experiments.datasets import get_vision_dataset_n_classes, get_vision_dataset_image_size
+from experiments.datasets import VISION_DATASETS
 from experiments.utils import collect_results_generative, collect_results_discriminative, collect_completions
 
 if __name__ == '__main__':
@@ -16,7 +17,8 @@ if __name__ == '__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
-        'dataset', choices=['mnist', 'cifar10'], help='The vision dataset used in the experiment.'
+        'dataset', choices=VISION_DATASETS,
+        help='The vision dataset used in the experiment.'
     )
     parser.add_argument(
         '--no-standardize', dest='standardize', action='store_false', help='Whether to disable dataset standardization'

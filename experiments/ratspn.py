@@ -6,6 +6,7 @@ from spnflow.torch.models import RatSpn
 from experiments.datasets import load_dataset, load_vision_dataset
 from experiments.datasets import get_vision_dataset_inverse_transform
 from experiments.datasets import get_vision_dataset_n_classes, get_vision_dataset_n_features
+from experiments.datasets import BINARY_DATASETS, CONTINUOUS_DATASETS, VISION_DATASETS
 from experiments.utils import collect_results_generative, collect_results_discriminative
 from experiments.utils import collect_samples, collect_completions
 
@@ -16,7 +17,7 @@ if __name__ == '__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
-        'dataset', choices=['power', 'gas', 'hepmass', 'miniboone', 'bsds300', 'mnist', 'cifar10'],
+        'dataset', choices=CONTINUOUS_DATASETS + VISION_DATASETS,
         help='The dataset used in the experiment.'
     )
     parser.add_argument(
@@ -43,7 +44,7 @@ if __name__ == '__main__':
     settings = vars(args)
 
     # Check the arguments
-    vision_dataset = args.dataset in ['mnist', 'cifar10']
+    vision_dataset = args.dataset in VISION_DATASETS
     assert vision_dataset or args.discriminative is False, \
         'Discriminative setting is not supported for dataset \'%s\'' % args.dataset
     assert not args.discriminative or args.n_samples == 0, \

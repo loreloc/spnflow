@@ -5,6 +5,7 @@ from spnflow.torch.models import RealNVP, MAF
 
 from experiments.datasets import load_dataset, load_vision_dataset
 from experiments.datasets import get_vision_dataset_inverse_transform, get_vision_dataset_n_features
+from experiments.datasets import CONTINUOUS_DATASETS, VISION_DATASETS
 from experiments.utils import collect_results_generative, collect_samples
 from experiments.utils import get_activation_class
 
@@ -15,7 +16,7 @@ if __name__ == '__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
-        'dataset', choices=['power', 'gas', 'hepmass', 'miniboone', 'bsds300', 'mnist', 'cifar10'],
+        'dataset', choices=CONTINUOUS_DATASETS + VISION_DATASETS,
         help='The dataset used in the experiment.'
     )
     parser.add_argument('model', choices=['nvp', 'maf'], help='The normalizing flow model used in the experiment.')

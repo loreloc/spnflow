@@ -5,6 +5,42 @@ import numpy as np
 
 from spnflow.torch.transforms import Flatten, Dequantize, Reshape
 
+BINARY_DATASETS = [
+    'accidents',
+    'baudio',
+    'bbc',
+    'bnetflix',
+    'book',
+    'c20ng',
+    'cr52',
+    'cwebkb',
+    'dna',
+    'jester',
+    'kdd',
+    'kosarek',
+    'msnbc',
+    'msweb',
+    'nips',
+    'nltcs',
+    'plants',
+    'pumsb_star',
+    'tmovie',
+    'tretail'
+]
+
+CONTINUOUS_DATASETS = [
+    'power',
+    'gas',
+    'hepmass',
+    'miniboone',
+    'bsds300'
+]
+
+VISION_DATASETS = [
+    'mnist',
+    'cifar10'
+]
+
 
 class SupervisedDataset(torch.utils.data.Dataset):
     """Supervised vision dataset"""

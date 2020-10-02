@@ -4,12 +4,13 @@ import argparse
 import numpy as np
 from datetime import datetime
 
-from spnflow.structure.leaf import Gaussian
+from spnflow.structure.leaf import Bernoulli, Gaussian
 from spnflow.learning.wrappers import learn_estimator
 from spnflow.algorithms.inference import log_likelihood
 from spnflow.utils.statistics import get_statistics
 
 from experiments.datasets import load_dataset
+from experiments.datasets import BINARY_DATASETS, CONTINUOUS_DATASETS
 
 
 def collect_results(settings, spn, data_test, batch_size=1024):
@@ -42,11 +43,8 @@ if __name__ == '__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
-        'dataset', choices=['power', 'gas', 'hepmass', 'miniboone', 'bsds300'],
+        'dataset', choices=BINARY_DATASETS + CONTINUOUS_DATASETS,
         help='The dataset used in the experiment.'
-    )
-    parser.add_argument(
-        '--no-standardize', dest='standardize', action='store_false', help='Whether to disable dataset standardization'
     )
     parser.add_argument(
         '--learn-leaf', choices=['mle', 'isotonic'], default='mle',
@@ -69,40 +67,45 @@ if __name__ == '__main__':
         help='The minimum number of columns slice on a leaf distribution.'
     )
     parser.add_argument(
-        '--n-clusters', type=int, default=None,
+        '--n-clusters', type=int, default=2,
         help='The number of clusters for rows splitting.'
     )
     args = parser.parse_args()
+    settings = vars(args)
 
     # Check the arguments
-    rows_clustering = args.split_rows in ['kmeans', 'gmm']
-    assert rows_clustering or args.n_clusters is None, \
-        'The argument --n-clusters can be specified only if --split-rows is \'kmeans\' or \'gmm\''
-    assert not rows_clustering or args.n_clusters is not None, \
-        'Please specify --n-clusters argument'
-    assert not rows_clustering or args.n_clusters > 1, \
+    clustering = args.split_rows in ['kmeans', 'gmm', 'rdc']
+    assert not clustering or args.n_clusters > 1, \
         'The number of clusters must be at least 2'
 
     # Instantiate a random state, used for reproducibility
     rand_state = np.random.RandomState(42)
 
     # Load the dataset
-    data_train, data_val, data_test = load_dataset('datasets', args.dataset, rand_state, args.standardize)
+    standardize = args.dataset in CONTINUOUS_DATASETS
+    data_train, data_val, data_test = load_dataset('datasets', args.dataset, rand_state, standardize)
     data_train = np.vstack([data_train, data_val])
     rand_state.shuffle(data_train)
     _, n_features = data_train.shape
 
+    # Set the distributions
+    if args.dataset in BINARY_DATASETS:
+        distributions = [Bernoulli] * n_features
+    else:
+        distributions = [Gaussian] * n_features
+
     # Learn the SPN density estimator
     spn = learn_estimator(
-        data_train, [Gaussian] * n_features,
+        data=data_train,
+        distributions=distributions,
         learn_leaf=args.learn_leaf,
         split_rows=args.split_rows,
         split_cols=args.split_cols,
         min_rows_slice=args.min_rows_slice,
         min_cols_slice=args.min_cols_slice,
-        split_rows_kwargs={'n': args.n_clusters} if rows_clustering else {}
+        split_rows_kwargs={'n': args.n_clusters} if clustering else {}
     )
     print(get_statistics(spn))
 
     # Collect the experiments results
-    collect_results(vars(args), spn, data_test)
+    collect_results(settings, spn, data_test)

@@ -124,7 +124,9 @@ def learn_structure(data,
                 tasks.append(Task(node, local_data, [task.scope[i]], True, True))
             task.parent.children.append(node)
         elif op == OperationKind.SPLIT_ROWS:
-            clusters = split_rows_func(task.data, **split_rows_kwargs)
+            dists = [distributions[s] for s in task.scope]
+            doms = [domains[s] for s in task.scope]
+            clusters = split_rows_func(task.data, dists, doms, **split_rows_kwargs)
             slices, weights = split_rows_clusters(task.data, clusters)
             if len(slices) == 1:
                 tasks.append(Task(task.parent, task.data, task.scope, True, task.no_cols_split))
@@ -134,7 +136,9 @@ def learn_structure(data,
                 tasks.append(Task(node, local_data, task.scope, False, False))
             task.parent.children.append(node)
         elif op == OperationKind.SPLIT_COLS:
-            clusters = split_cols_func(task.data, **split_cols_kwargs)
+            dists = [distributions[s] for s in task.scope]
+            doms = [domains[s] for s in task.scope]
+            clusters = split_cols_func(task.data, dists, doms, **split_cols_kwargs)
             slices, scopes = split_cols_clusters(task.data, clusters, task.scope)
             if len(slices) == 1:
                 tasks.append(Task(task.parent, task.data, task.scope, task.no_rows_split, True))
