@@ -56,11 +56,10 @@ def learn_classifier(data, distributions, domains=None, class_idx=-1, verbose=Tr
         return weight, local_spn
 
     # Initialize the tqdm wrapped unique classes array, if verbose is enabled
-    unique_classes = np.unique(classes)
     if verbose:
         tk = tqdm(np.unique(classes), bar_format='{l_bar}{bar:32}{r_bar}')
     else:
-        tk = unique_classes
+        tk = np.unique(classes)
 
     # Learn each sub-spn's structure individually
     weights = []

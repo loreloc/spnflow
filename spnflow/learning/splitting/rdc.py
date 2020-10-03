@@ -1,4 +1,3 @@
-import warnings
 import numpy as np
 import scipy.stats as stats
 import scipy.sparse as sparse
@@ -28,13 +27,11 @@ def rdc_cols(data, distributions, domains, d=0.3, k=16, s=1.0 / 6.0, f=np.sin):
     pairwise_comparisons = list(combinations(range(n_features), 2))
 
     adj_matrix = np.zeros((n_features, n_features), dtype=np.int)
-    with warnings.catch_warnings():
-        warnings.simplefilter('ignore')
-        for i, j in pairwise_comparisons:
-            rdc = rdc_cca(i, j, rdc_features)
-            if rdc > d:
-                adj_matrix[i, j] = 1
-                adj_matrix[j, i] = 1
+    for i, j in pairwise_comparisons:
+        rdc = rdc_svd(i, j, rdc_features)
+        if rdc > d:
+            adj_matrix[i, j] = 1
+            adj_matrix[j, i] = 1
 
     adj_matrix = sparse.csr_matrix(adj_matrix)
     _, clusters = sparse.csgraph.connected_components(adj_matrix, directed=False, return_labels=True)
@@ -55,23 +52,21 @@ def rdc_rows(data, distributions, domains, n=2, k=16, s=1.0 / 6.0, f=np.sin):
     :return: A samples partitioning.
     """
     rdc_samples = np.concatenate(rdc_transform(data, distributions, domains, k, s, f), axis=1)
-    with warnings.catch_warnings():
-        warnings.simplefilter('ignore')
-        return cluster.KMeans(n_clusters=n).fit_predict(rdc_samples)
+    return cluster.KMeans(n_clusters=n).fit_predict(rdc_samples)
 
 
-def rdc_cca(i, j, features):
+def rdc_svd(i, j, features):
     """
-    Compute the RDC (Randomized Dependency Coefficient) using CCA (Canonical Correlation Coefficient).
+    Compute the RDC (Randomized Dependency Coefficient) using SVD (Singular Value Decomposition).
 
     :param i: The index of the first feature.
     :param j: The index of the second feature.
     :param features: The list of the features.
     :return: The RDC coefficient (the largest canonical correlation coefficient).
     """
-    cca = cross_decomposition.CCA(n_components=1, max_iter=128)
-    x_cca, y_cca = cca.fit_transform(features[i], features[j])
-    return np.corrcoef(x_cca.T, y_cca.T)[0, 1]
+    cca = cross_decomposition.PLSSVD(n_components=1)
+    cca.fit(features[i], features[j])
+    return np.corrcoef(cca.x_scores_.T, cca.y_scores_.T)[0, 1]
 
 
 def rdc_transform(data, distributions, domains, k, s, f):
@@ -98,8 +93,9 @@ def rdc_transform(data, distributions, domains, k, s, f):
             feature_matrix = np.expand_dims(data[:, i], axis=-1)
         features.append(np.apply_along_axis(ecdf, 0, feature_matrix))
 
-    weights = [stats.norm.rvs(size=(f.shape[1], f.shape[1] * k)) for f in features]
-    projected_samples = [(s / f.shape[1]) * np.dot(f, w) for f, w in zip(features, weights)]
+    biases = [stats.norm.rvs(0.0, s, size=(1, k)) for f in features]
+    weights = [stats.norm.rvs(0.0, s, size=(f.shape[1], k)) for f in features]
+    projected_samples = [np.dot(f, w) + b for f, w, b in zip(features, weights, biases)]
     non_linear_samples = [f(x) for x in projected_samples]
 
     return non_linear_samples
