@@ -99,15 +99,17 @@
 <span id="spnflow-learning-splitting-kmeans-module"></span><h2>spnflow.learning.splitting.kmeans module<a class="headerlink" href="#module-spnflow.learning.splitting.kmeans" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt id="spnflow.learning.splitting.kmeans.kmeans">
-<code class="sig-prename descclassname">spnflow.learning.splitting.kmeans.</code><code class="sig-name descname">kmeans</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">distributions</span></em>, <em class="sig-param"><span class="n">domains</span></em>, <em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.kmeans.kmeans" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spnflow.learning.splitting.kmeans.</code><code class="sig-name descname">kmeans</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">distributions</span></em>, <em class="sig-param"><span class="n">domains</span></em>, <em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">n_init</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">max_iter</span><span class="o">=</span><span class="default_value">512</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.kmeans.kmeans" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute KMeans clustering on some data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> – The data.</p></li>
-<li><p><strong>n</strong> – The number of clusters.</p></li>
 <li><p><strong>distributions</strong> – The data distributions (not used).</p></li>
 <li><p><strong>domains</strong> – The data domains (not used).</p></li>
+<li><p><strong>n</strong> – The number of clusters.</p></li>
+<li><p><strong>n_init</strong> – The number of restarts.</p></li>
+<li><p><strong>max_iter</strong> – Maximum number of iterations.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -209,9 +211,9 @@ The proportion of the split is sampled from a beta distribution.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="spnflow.learning.splitting.rdc.rdc_cca">
-<code class="sig-prename descclassname">spnflow.learning.splitting.rdc.</code><code class="sig-name descname">rdc_cca</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">i</span></em>, <em class="sig-param"><span class="n">j</span></em>, <em class="sig-param"><span class="n">features</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.rdc.rdc_cca" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the RDC (Randomized Dependency Coefficient) using CCA (Canonical Correlation Coefficient).</p>
+<dt id="spnflow.learning.splitting.rdc.rdc_svd">
+<code class="sig-prename descclassname">spnflow.learning.splitting.rdc.</code><code class="sig-name descname">rdc_svd</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">i</span></em>, <em class="sig-param"><span class="n">j</span></em>, <em class="sig-param"><span class="n">features</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.splitting.rdc.rdc_svd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the RDC (Randomized Dependency Coefficient) using SVD (Singular Value Decomposition).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
