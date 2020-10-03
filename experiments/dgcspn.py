@@ -1,5 +1,9 @@
+import os
+import json
+import itertools
 import argparse
-import numpy as np
+import torch
+import torchvision
 
 from spnflow.torch.models import DgcSpn
 from spnflow.torch.utils import compute_mean_quantiles
@@ -10,96 +14,125 @@ from experiments.datasets import get_vision_dataset_n_classes, get_vision_datase
 from experiments.datasets import VISION_DATASETS
 from experiments.utils import collect_results_generative, collect_results_discriminative, collect_completions
 
-if __name__ == '__main__':
-    # Parse the arguments
-    parser = argparse.ArgumentParser(
-        description='Deep Generalized Convolutional Sum-Product Networks (DGC-SPNs) experiments',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
-    parser.add_argument(
-        'dataset', choices=VISION_DATASETS,
-        help='The vision dataset used in the experiment.'
-    )
-    parser.add_argument(
-        '--no-standardize', dest='standardize', action='store_false', help='Whether to disable dataset standardization'
-    )
-    parser.add_argument( '--discriminative', action='store_true', help='Whether to use discriminative settings.')
-    parser.add_argument('--n-batch', type=int, default=8, help='The number of batch distributions at leaves.')
-    parser.add_argument('--sum-channels', type=int, default=2, help='The number of sum channels for each sum layer.')
-    parser.add_argument('--depthwise', action='store_true', help='Whether to use depthwise product layers.')
-    parser.add_argument('--n-pooling', type=int, default=0, help='The number of initial pooling product layers.')
-    parser.add_argument('--in-dropout', type=float, default=None, help='The dropout rate at input distributions.')
-    parser.add_argument('--prod-dropout', type=float, default=None, help='The dropout rate at product layers.')
-    parser.add_argument(
-        '--no-optimize-scale', dest='optimize_scale', action='store_false',
-        help='Whether to disable scale parameters optimization of distribution leaves.'
-    )
-    parser.add_argument(
-        '--quantiles-loc', action='store_true',
-        help='Whether to use quantiles for leaves distributions location initialization.'
-    )
-    parser.add_argument(
-        '--uniform-loc', type=float, default=None, nargs=2,
-        help='The uniform range for leaves distributions location initialization.'
-    )
-    parser.add_argument('--n-completions', type=int, default=0, help='The number of samples per completion kind.')
-    parser.add_argument('--learning-rate', type=float, default=1e-3, help='The learning rate.')
-    parser.add_argument('--batch-size', type=int, default=128, help='The batch size.')
-    parser.add_argument('--epochs', type=int, default=1000, help='The number of epochs.')
-    parser.add_argument('--patience', type=int, default=30, help='The epochs patience used for early stopping.')
-    args = parser.parse_args()
-    settings = vars(args)
+# Set the hyper-parameters grid space
+hyperparams = {
+    'discriminative': {
+        'n_batch': [16, 32],
+        'sum_channels': [32, 64, 128]
+    },
+    'generative': {
+        'n_batch': [4, 8, 16],
+        'sum_channels': [2, 4],
+    }
+}
+hyperparams_space = {
+    'discriminative': [
+        dict(zip(hyperparams['discriminative'].keys(), x))
+        for x in itertools.product(*hyperparams['discriminative'].values())
+    ],
+    'generative': [
+        dict(zip(hyperparams['generative'].keys(), x))
+        for x in itertools.product(*hyperparams['generative'].values())
+    ]
+}
 
-    # Check the arguments
-    assert not args.discriminative or args.n_completions == 0, \
-        'Completion is available only in generative setting for dataset \'%s\'' % args.dataset
-    assert not args.uniform_loc or not args.quantiles_loc, \
-        'Only one between --uniform-loc and --quantiles-loc can be specified'
+# Parse the arguments
+parser = argparse.ArgumentParser(
+    description='Deep Generalized Convolutional Sum-Product Networks (DGC-SPNs) experiments'
+)
+parser.add_argument(
+    'dataset', choices=VISION_DATASETS, help='The vision dataset used in the experiment.'
+)
+parser.add_argument('--discriminative', action='store_true', help='Whether to use discriminative settings.')
+parser.add_argument('--learning-rate', type=float, default=1e-3, help='The learning rate.')
+parser.add_argument('--batch-size', type=int, default=128, help='The batch size.')
+parser.add_argument('--epochs', type=int, default=1000, help='The number of epochs.')
+parser.add_argument('--patience', type=int, default=30, help='The epochs patience used for early stopping.')
+parser.add_argument('--weight-decay', type=float, default=0.0, help='L2 regularization factor.')
+args = parser.parse_args()
 
-    # Instantiate a random state, used for reproducibility
-    rand_state = np.random.RandomState(42)
+# Load the dataset
+image_size = get_vision_dataset_image_size(args.dataset)
+data_train, data_val, data_test = load_vision_dataset('datasets', args.dataset, args.discriminative, standardize=True)
+out_classes = 1 if not args.discriminative else get_vision_dataset_n_classes(args.dataset)
+inv_transform = get_vision_dataset_inverse_transform(args.dataset, standardize=True)
 
-    # Load the dataset
-    image_size = get_vision_dataset_image_size(args.dataset)
-    data_train, data_val, data_test = load_vision_dataset(
-        'datasets', args.dataset, args.discriminative, standardize=args.standardize
-    )
-    out_classes = 1 if not args.discriminative else get_vision_dataset_n_classes(args.dataset)
-    inv_transform = get_vision_dataset_inverse_transform(args.dataset, args.standardize)
+# Create the results directory
+filepath = 'dgcspn'
+discriminative_filepath = os.path.join(filepath, 'discriminative')
+generative_filepath = os.path.join(filepath, 'generative')
+samples_filepath = os.path.join(generative_filepath, 'samples')
+completions_filepath = os.path.join(generative_filepath, 'completions')
+os.makedirs(filepath, exist_ok=True)
+os.makedirs(discriminative_filepath, exist_ok=True)
+os.makedirs(generative_filepath, exist_ok=True)
+os.makedirs(samples_filepath, exist_ok=True)
+os.makedirs(completions_filepath, exist_ok=True)
+results = {}
 
-    # Set the location initialization parameter
-    uniform_loc = None
-    quantiles_loc = None
-    if args.uniform_loc:
-        uniform_loc = tuple(args.uniform_loc)
-    elif args.quantiles_loc:
-        quantiles_loc = compute_mean_quantiles(data_train.dataset, args.n_batch)
-
+# Run hyper-parameters grid search and collect the results
+hp_space = hyperparams_space['discriminative'] if args.discriminative else hyperparams_space['generative']
+for idx, hp in enumerate(hp_space):
     # Build the model
-    model = DgcSpn(
-        image_size, out_classes,
-        n_batch=args.n_batch,
-        sum_channels=args.sum_channels,
-        depthwise=args.depthwise,
-        n_pooling=args.n_pooling,
-        optimize_scale=args.optimize_scale,
-        in_dropout=args.in_dropout,
-        prod_dropout=args.prod_dropout,
-        quantiles_loc=quantiles_loc,
-        uniform_loc=uniform_loc,
-        rand_state=rand_state
-    )
+    if args.discriminative:
+        model = DgcSpn(
+            image_size, out_classes,
+            n_batch=hp['n_batch'],
+            sum_channels=hp['sum_channels'],
+            depthwise=True,
+            n_pooling=2,
+            optimize_scale=False,
+            in_dropout=0.2,
+            prod_dropout=0.2,
+            uniform_loc=(-1.5, 1.5)
+        )
+    else:
+        quantiles_loc = compute_mean_quantiles(data_train.dataset, hp['n_batch'])
+        model = DgcSpn(
+            image_size, out_classes,
+            n_batch=hp['n_batch'],
+            sum_channels=hp['sum_channels'],
+            depthwise=False,
+            n_pooling=0,
+            optimize_scale=True,
+            in_dropout=None,
+            prod_dropout=None,
+            quantiles_loc=quantiles_loc
+        )
 
     # Train the model and collect the results
-    if not args.discriminative:
-        collect_results_generative(
-            'dgcspn', settings, model, data_train, data_val, data_test, bpp=True,
-            lr=args.learning_rate, batch_size=args.batch_size, epochs=args.epochs, patience=args.patience
+    if args.discriminative:
+        nll, accuracy = collect_results_discriminative(
+            model, data_train, data_val, data_test,
+            lr=args.learning_rate, batch_size=args.batch_size,
+            epochs=args.epochs, patience=args.patience, weight_decay=args.weight_decay
         )
-        if args.n_completions > 0:
-            collect_completions('dgcspn', settings, model, data_test, args.n_completions, inv_transform, rand_state)
+        results[str(idx)] = {
+            'nll': nll,
+            'accuracy': accuracy,
+            'hyper_params': hp
+        }
+        with open(os.path.join(discriminative_filepath, args.dataset + '.json'), 'w') as file:
+            json.dump(results, file, indent=4)
     else:
-        collect_results_discriminative(
-            'dgcspn', settings, model, data_train, data_val, data_test,
-            lr=args.learning_rate, batch_size=args.batch_size, epochs=args.epochs, patience=args.patience
+        mean_ll, stddev_ll, bpp = collect_results_generative(
+            model, data_train, data_val, data_test, compute_bpp=True,
+            lr=args.learning_rate, batch_size=args.batch_size,
+            epochs=args.epochs, patience=args.patience, weight_decay=args.weight_decay
         )
+        results[str(idx)] = {
+            'log_likelihood': {
+                'mean': mean_ll,
+                'stddev': 2.0 * stddev_ll
+            },
+            'bpp': bpp,
+            'hyper_params': hp
+        }
+        with open(os.path.join(generative_filepath, args.dataset + '.json'), 'w') as file:
+            json.dump(results, file, indent=4)
+
+        # Completions
+        n_completions = 16
+        samples_full = collect_completions(model, data_test, n_completions, inv_transform)
+        filename = os.path.join(completions_filepath, str(idx) + '.png')
+        torchvision.utils.save_image(samples_full, filename, nrow=n_completions, padding=0)

@@ -67,7 +67,7 @@ class UnsupervisedDataset(torch.utils.data.Dataset):
         return len(self.dataset)
 
 
-def load_dataset(root, name, rand_state, standardize=True):
+def load_dataset(root, name, rand_state, return_val=True, standardize=True):
     # Load the dataset
     data_train = np.load(os.path.join(root, name, 'train.npy'))
     data_test = np.load(os.path.join(root, name, 'test.npy'))
@@ -83,11 +83,13 @@ def load_dataset(root, name, rand_state, standardize=True):
         data_test = data_test.astype('float32')
 
     # Split train data to get the validation data
-    n_val = int(0.1 * len(data_train))
-    data_val = data_train[-n_val:]
-    data_train = data_train[0:-n_val]
-
-    return data_train, data_val, data_test
+    if return_val:
+        n_val = int(0.1 * len(data_train))
+        data_val = data_train[-n_val:]
+        data_train = data_train[0:-n_val]
+        return data_train, data_val, data_test
+    else:
+        return data_train, data_test
 
 
 def load_vision_dataset(root, name, supervised=False, dequantize=False, standardize=False, flatten=False):
