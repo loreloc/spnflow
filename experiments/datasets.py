@@ -51,9 +51,9 @@ def load_binary_dataset(root, name):
 def load_continuous_dataset(root, name, standardize=True):
     filepath = os.path.join(root, 'continuous', name + '.h5')
     with h5py.File(filepath, 'r') as file:
-        data_train = file['train']
-        data_valid = file['valid']
-        data_test = file['test']
+        data_train = file['train'][:]
+        data_valid = file['valid'][:]
+        data_test = file['test'][:]
         if standardize:
             data_joint = np.vstack([data_train, data_valid])
             mu = np.mean(data_joint, axis=0)
