@@ -64,9 +64,10 @@ def rdc_svd(i, j, features):
     :param features: The list of the features.
     :return: The RDC coefficient (the largest canonical correlation coefficient).
     """
-    cca = cross_decomposition.PLSSVD(n_components=1)
-    cca.fit(features[i], features[j])
-    return np.corrcoef(cca.x_scores_.T, cca.y_scores_.T)[0, 1]
+    svd = cross_decomposition.PLSSVD(n_components=1)
+    svd.fit(features[i], features[j])
+    x, y = svd.transform(features[i], features[j])
+    return np.corrcoef(x.T, y.T)[0, 1]
 
 
 def rdc_transform(data, distributions, domains, k, s, f):
