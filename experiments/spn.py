@@ -47,9 +47,9 @@ if __name__ == '__main__':
 
     # Load the dataset
     if args.dataset in BINARY_DATASETS:
-        data_train, data_valid, data_test = load_binary_dataset('datasets', args.dataset)
+        data_train, data_val, data_test = load_binary_dataset('datasets', args.dataset)
     else:
-        data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset, standardize=True)
+        data_train, data_val, data_test = load_continuous_dataset('datasets', args.dataset, standardize=True)
     _, n_features = data_train.shape
 
     # Set the distributions at leaves
@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
         # Compute the log-likelihoods for the datasets
         train_mean_ll, train_stddev_ll = evaluate_log_likelihoods(spn, data_train)
-        valid_mean_ll, valid_stddev_ll = evaluate_log_likelihoods(spn, data_valid)
+        valid_mean_ll, valid_stddev_ll = evaluate_log_likelihoods(spn, data_val)
         test_mean_ll, test_stddev_ll = evaluate_log_likelihoods(spn, data_test)
 
         # Save the results

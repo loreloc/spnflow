@@ -61,4 +61,7 @@ def load_continuous_dataset(root, name, standardize=True):
             data_train = (data_train - mu) / sigma
             data_valid = (data_valid - mu) / sigma
             data_test = (data_test - mu) / sigma
+            data_train = data_train.astype(np.float32)
+            data_valid = data_valid.astype(np.float32)
+            data_test = data_test.astype(np.float32)
         return data_train, data_valid, data_test
