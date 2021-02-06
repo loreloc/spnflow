@@ -33,7 +33,8 @@ CONTINUOUS_DATASETS = [
 ]
 
 VISION_DATASETS = [
-    'mnist'
+    'mnist',
+    'cifar10'
 ]
 
 
@@ -47,7 +48,6 @@ class DatasetTransform:
         self.mu = None
         self.sigma = None
         self.shape = None
-        self.channel = False
 
     def fit(self, data):
         if self.standardize:
@@ -56,8 +56,6 @@ class DatasetTransform:
             self.mu = np.mean(data, axis=0)
             self.sigma = np.std(data, axis=0)
         self.shape = data.shape[1:]
-        if len(data.shape) == 3:
-            self.channel = True
 
     def forward(self, data):
         if self.dequantize:
@@ -66,15 +64,11 @@ class DatasetTransform:
             data = (data - self.mu) / (self.sigma + self.epsilon)
         if self.flatten:
             data = data.reshape([len(data), -1])
-        elif self.channel:
-            data = data.reshape([len(data), 1, *data.shape[1:]])
         return data.astype(self.dtype)
 
     def backward(self, data):
         if self.flatten:
             data = data.reshape([len(data), *self.shape])
-        elif self.channel:
-            data = data.reshape([len(data), *data.shape[2:]])
         if self.standardize:
             data = (self.sigma + self.epsilon) * data + self.mu
         if self.dequantize:
@@ -118,6 +112,10 @@ def load_vision_dataset(root, name, unsupervised=True):
         image_train, label_train = data_train['image'][:], data_train['label'][:]
         image_valid, label_valid = data_valid['image'][:], data_valid['label'][:]
         image_test, label_test = data_test['image'][:], data_test['label'][:]
+        if len(image_train.shape[1:]) == 2:
+            image_train = np.expand_dims(image_train, axis=1)
+            image_valid = np.expand_dims(image_valid, axis=1)
+            image_test = np.expand_dims(image_test, axis=1)
         if unsupervised:
             return image_train, image_valid, image_test
         else:

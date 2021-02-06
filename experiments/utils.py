@@ -35,11 +35,13 @@ def collect_samples(model, n_samples):
 
 
 def save_grid_images(images, filepath):
-    n_rows, n_cols, width, height = images.shape
-    canvas = np.zeros([n_rows * width, n_cols * height], dtype=np.uint8)
+    n_rows, n_cols, channels, width, height = images.shape
+    canvas = np.zeros([n_rows * width, n_cols * height, channels], dtype=np.uint8)
     for i in range(n_rows):
         for j in range(n_cols):
             px, py = i * width, j * height
             qx, qy = px + width, py + height
-            canvas[px:qx, py:qy] = images[i, j]
+            canvas[px:qx, py:qy] = np.transpose(images[i, j], axes=[1, 2, 0])
+    if channels == 1:
+        canvas = np.squeeze(canvas, axis=-1)
     plt.imsave(filepath, canvas, cmap='gray')
