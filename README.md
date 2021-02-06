@@ -23,7 +23,7 @@ Some models are implemented using **PyTorch** for fast training and inference on
 The library documentation is hosted using Github Pages at [SPNFlow](https://loreloc.github.io/spnflow/).
 
 ## Experiments
-The datasets required to run the experiments can be found on [Google Drive](https://drive.google.com/file/d/1iVBjQts_8aADdXYEFFhpxfQgz2k5tU7f/view?usp=sharing).
+The datasets required to run the experiments can be found on [Google Drive](https://drive.google.com/file/d/1-QqptzZp2ArMrH4TkYhcSSz2KgKn_PVW/view?usp=sharing).
 After downloading it, unzip it in `experiments/datasets` to be able to run the experiments.
 
 ## Examples
