@@ -7,7 +7,7 @@ import numpy as np
 
 from spnflow.torch.models import RatSpn
 
-from experiments.datasets import load_continuous_dataset, load_vision_dataset
+from experiments.datasets import DatasetTransform, load_continuous_dataset, load_vision_dataset
 from experiments.datasets import CONTINUOUS_DATASETS, VISION_DATASETS
 from experiments.utils import collect_results_generative, collect_results_discriminative
 
@@ -47,11 +47,17 @@ if __name__ == '__main__':
     rand_state = np.random.RandomState(42)
 
     # Load the dataset
+    transform = None
     if is_vision_dataset:
+        transform = DatasetTransform(dequantize=True, standardize=True, flatten=True)
         if args.discriminative:
             (image_train, label_train), (image_valid, label_valid), (image_test, label_test) = load_vision_dataset(
-                'datasets', args.dataset, unsupervised=False, dequantize=True, standardize=True, flatten=True
+                'datasets', args.dataset, unsupervised=False
             )
+            transform.fit(np.vstack([image_train, image_valid]))
+            image_train = transform.forward(image_train)
+            image_valid = transform.forward(image_valid)
+            image_test = transform.forward(image_test)
             _, n_features = image_train.shape
             out_classes = len(np.unique(label_train))
             data_train = list(zip(image_train, label_train))
@@ -59,12 +65,21 @@ if __name__ == '__main__':
             data_test = list(zip(image_test, label_test))
         else:
             data_train, data_valid, data_test = load_vision_dataset(
-                'datasets', args.dataset, unsupervised=True, dequantize=True, standardize=True, flatten=True
+                'datasets', args.dataset, unsupervised=True
             )
+            transform.fit(np.vstack([data_train, data_valid]))
+            data_train = transform.forward(data_train)
+            data_valid = transform.forward(data_valid)
+            data_test = transform.forward(data_test)
             _, n_features = data_train.shape
             out_classes = 1
     else:
-        data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset, rand_state)
+        transform = DatasetTransform(standardize=True)
+        data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
+        transform.fit(np.vstack([data_train, data_valid]))
+        data_train = transform.forward(data_train)
+        data_valid = transform.forward(data_valid)
+        data_test = transform.forward(data_test)
         _, n_features = data_train.shape
         out_classes = 1
 

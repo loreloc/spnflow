@@ -9,7 +9,7 @@ from spnflow.learning.wrappers import learn_estimator
 from spnflow.algorithms.inference import log_likelihood
 from spnflow.utils.statistics import get_statistics
 
-from experiments.datasets import load_binary_dataset, load_continuous_dataset
+from experiments.datasets import DatasetTransform, load_binary_dataset, load_continuous_dataset
 from experiments.datasets import BINARY_DATASETS, CONTINUOUS_DATASETS
 
 # Set the hyper-parameters grid space
@@ -49,7 +49,12 @@ if __name__ == '__main__':
     if args.dataset in BINARY_DATASETS:
         data_train, data_valid, data_test = load_binary_dataset('datasets', args.dataset)
     else:
-        data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset, standardize=True)
+        transform = DatasetTransform(standardize=True)
+        data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
+        transform.fit(np.vstack([data_train, data_valid]))
+        data_train = transform.forward(data_train)
+        data_valid = transform.forward(data_valid)
+        data_test = transform.forward(data_test)
     _, n_features = data_train.shape
 
     # Set the distributions at leaves

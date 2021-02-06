@@ -6,9 +6,9 @@ import numpy as np
 
 from spnflow.torch.models import RealNVP, MAF
 
-from experiments.datasets import load_continuous_dataset, load_vision_dataset
+from experiments.datasets import DatasetTransform, load_continuous_dataset, load_vision_dataset
 from experiments.datasets import CONTINUOUS_DATASETS, VISION_DATASETS
-from experiments.utils import collect_results_generative, collect_results_discriminative
+from experiments.utils import collect_results_generative
 
 # Set the hyper-parameters grid space
 HYPERPARAMS = {
@@ -37,14 +37,20 @@ if __name__ == '__main__':
 
     # Load the dataset
     is_vision_dataset = args.dataset in VISION_DATASETS
+    transform = None
     if is_vision_dataset:
+        transform = DatasetTransform(dequantize=True, standardize=False, flatten=True)
         data_train, data_valid, data_test = load_vision_dataset(
-            'datasets', args.dataset, unsupervised=True, dequantize=True, standardize=False, flatten=True
+            'datasets', args.dataset, unsupervised=True
         )
-        _, n_features = data_train.shape
     else:
-        data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset, standardize=True)
-        _, n_features = data_train.shape
+        transform = DatasetTransform(standardize=True)
+        data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
+    transform.fit(np.vstack([data_train, data_valid]))
+    data_train = transform.forward(data_train)
+    data_valid = transform.forward(data_valid)
+    data_test = transform.forward(data_test)
+    _, n_features = data_train.shape
 
     # Create the results directory
     directory = 'flows'
