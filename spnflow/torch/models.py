@@ -421,7 +421,7 @@ class DgcSpn(AbstractModel):
         assert prod_dropout is None or 0.0 < prod_dropout < 1.0
         assert quantiles_loc is None or uniform_loc is None,\
             'At least one between quantiles_loc and uniform_loc must be None'
-        assert quantiles_loc is None or len(quantiles_loc.size()) == 4
+        assert quantiles_loc is None or len(quantiles_loc.shape) == 4
         assert uniform_loc is None or (len(uniform_loc) == 2 and uniform_loc[0] < uniform_loc[1])
         self.in_size = in_size
         self.out_classes = out_classes
@@ -432,9 +432,12 @@ class DgcSpn(AbstractModel):
         self.optimize_scale = optimize_scale
         self.in_dropout = in_dropout
         self.prod_dropout = prod_dropout
-        self.quantiles_loc = quantiles_loc
         self.uniform_loc = uniform_loc
         self.rand_state = rand_state
+
+        self.quantiles_loc = None
+        if quantiles_loc is not None:
+            self.quantiles_loc = torch.tensor(quantiles_loc)
 
         # If necessary, instantiate a random state
         if not self.depthwise and self.rand_state is None:

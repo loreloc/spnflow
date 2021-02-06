@@ -47,6 +47,7 @@ class DatasetTransform:
         self.mu = None
         self.sigma = None
         self.shape = None
+        self.channel = False
 
     def fit(self, data):
         if self.standardize:
@@ -55,6 +56,8 @@ class DatasetTransform:
             self.mu = np.mean(data, axis=0)
             self.sigma = np.std(data, axis=0)
         self.shape = data.shape[1:]
+        if len(data.shape) == 3:
+            self.channel = True
 
     def forward(self, data):
         if self.dequantize:
@@ -63,11 +66,15 @@ class DatasetTransform:
             data = (data - self.mu) / (self.sigma + self.epsilon)
         if self.flatten:
             data = data.reshape([len(data), -1])
+        elif self.channel:
+            data = data.reshape([len(data), 1, *data.shape[1:]])
         return data.astype(self.dtype)
 
     def backward(self, data):
         if self.flatten:
             data = data.reshape([len(data), *self.shape])
+        elif self.channel:
+            data = data.reshape([len(data), *data.shape[2:]])
         if self.standardize:
             data = (self.sigma + self.epsilon) * data + self.mu
         if self.dequantize:
