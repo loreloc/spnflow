@@ -9,7 +9,7 @@ from spnflow.torch.models import RatSpn
 
 from experiments.datasets import DatasetTransform, load_continuous_dataset, load_vision_dataset
 from experiments.datasets import CONTINUOUS_DATASETS, VISION_DATASETS
-from experiments.utils import collect_results_generative, collect_results_discriminative
+from experiments.utils import collect_results_generative, collect_results_discriminative, collect_samples, save_grid_images
 
 # Set the hyper-parameters grid space
 HYPERPARAMS = {
@@ -85,11 +85,17 @@ if __name__ == '__main__':
 
     # Create the results directory
     directory = 'ratspn'
-    discriminative_directory = os.path.join(directory, 'discriminative')
-    generative_directory = os.path.join(directory, 'generative')
     os.makedirs(directory, exist_ok=True)
-    os.makedirs(discriminative_directory, exist_ok=True)
-    os.makedirs(generative_directory, exist_ok=True)
+    if args.discriminative:
+        directory = os.path.join(directory, 'discriminative')
+        os.makedirs(directory, exist_ok=True)
+    else:
+        directory = os.path.join(directory, 'generative')
+        os.makedirs(directory, exist_ok=True)
+        if is_vision_dataset:
+            directory = os.path.join(directory, args.dataset)
+            samples_directory = os.path.join(directory, 'samples')
+            os.makedirs(samples_directory, exist_ok=True)
     results = {}
 
     # Run hyper-parameters grid search and collect the results
@@ -120,7 +126,7 @@ if __name__ == '__main__':
                 'accuracy': accuracy,
                 'hyper_params': hp
             }
-            with open(os.path.join(discriminative_directory, args.dataset + '.json'), 'w') as file:
+            with open(os.path.join(directory, args.dataset + '.json'), 'w') as file:
                 json.dump(results, file, indent=4)
         else:
             mean_ll, stddev_ll, bpp = collect_results_generative(
@@ -137,5 +143,13 @@ if __name__ == '__main__':
                 'bpp': bpp,
                 'hyper_params': hp
             }
-            with open(os.path.join(generative_directory, args.dataset + '.json'), 'w') as file:
+            with open(os.path.join(directory, args.dataset + '.json'), 'w') as file:
                 json.dump(results, file, indent=4)
+
+            if is_vision_dataset:
+                n_samples = 8
+                samples = collect_samples(model, n_samples * n_samples)
+                images = transform.backward(samples)
+                images = images.reshape([n_samples, n_samples, *images.shape[1:]])
+                images_filename = os.path.join(samples_directory, str(idx) + '.png')
+                save_grid_images(images, images_filename)

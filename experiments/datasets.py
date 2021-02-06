@@ -71,7 +71,6 @@ class DatasetTransform:
         if self.standardize:
             data = (self.sigma + self.epsilon) * data + self.mu
         if self.dequantize:
-            data = np.floor(data)
             data[data < 0] = 0.0
             data[data > 1.0] = 1.0
             data = data * 255.0
