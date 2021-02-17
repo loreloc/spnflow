@@ -41,7 +41,8 @@ spn = learn_classifier(
     learn_leaf='mle',
     split_rows='kmeans',
     split_cols='gvs',
-    min_rows_slice=512
+    min_rows_slice=256,
+    split_cols_kwargs={'p': 1.0}
 )
 
 # Print some statistics

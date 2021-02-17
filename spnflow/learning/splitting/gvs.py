@@ -63,14 +63,17 @@ def gtest(data, i, j, distributions, domains, p):
     else:
         raise NotImplementedError('Leaves distributions must be either discrete or continuous')
 
-    # Apply Laplace smoothing
-    hist_m, hist_n = hist.shape
-    hist = hist + 1
-    n_samples = n_samples + (hist_m * hist_n)
-    dof = (hist_m - 1) * (hist_n - 1)
+    m1, m2 = np.sum(hist, axis=1), np.sum(hist, axis=0)
+    f1, f2 = np.count_nonzero(m1), np.count_nonzero(m2)
+    dof = (f1 - 1) * (f2 - 1)
 
-    m1, m2 = np.sum(hist, axis=0), np.sum(hist, axis=1)
-    expl = np.outer(m1, m2) / n_samples
-    g_val = 2.0 * np.sum(hist * np.log(hist / expl))
-    thresh = 2.0 * dof * p
-    return g_val < thresh
+    g = 0.0
+    for i, c1 in enumerate(m1):
+        for j, c2 in enumerate(m2):
+            c = hist[i, j]
+            if c != 0.0:
+                e = (c1 * c2) / n_samples
+                g += c * np.log(c / e)
+    g_val = 2.0 * g
+    p_thresh = 2.0 * dof * p
+    return g_val < p_thresh
