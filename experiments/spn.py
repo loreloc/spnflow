@@ -1,7 +1,7 @@
 import os
+import time
 import json
 import argparse
-import itertools
 import numpy as np
 
 from spnflow.structure.leaf import Bernoulli, Gaussian
@@ -11,14 +11,6 @@ from spnflow.utils.statistics import get_statistics
 
 from experiments.datasets import DatasetTransform, load_binary_dataset, load_continuous_dataset
 from experiments.datasets import BINARY_DATASETS, CONTINUOUS_DATASETS
-
-# Set the hyper-parameters grid space
-HYPERPARAMS = {
-    'min_rows_slice': [512, 1024],
-    'n_clusters': [2, 4],
-    'corr_threshold': [0.3, 0.4, 0.5]
-}
-HYPERPARAMS_SPACE = [dict(zip(HYPERPARAMS.keys(), x)) for x in itertools.product(*HYPERPARAMS.values())]
 
 
 def evaluate_log_likelihoods(spn, data, batch_size=2048):
@@ -39,6 +31,27 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Vanilla Sum-Product Networks (SPNs) experiments')
     parser.add_argument(
         'dataset', choices=BINARY_DATASETS + CONTINUOUS_DATASETS, help='The dataset used in the experiment.'
+    )
+    parser.add_argument(
+        '--split-rows', choices=['kmeans', 'gmm', 'rdc', 'random'], default='kmeans', help='The splitting rows method.'
+    )
+    parser.add_argument(
+        '--split-cols', choices=['gvs', 'rdc', 'random'], default='gvs', help='The splitting columns method.'
+    )
+    parser.add_argument(
+        '--min-rows-slice', type=int, default=256, help='The minimum number of rows for splitting.'
+    )
+    parser.add_argument(
+        '--min-cols-slice', type=int, default=2, help='The minimum number of columns for splitting.'
+    )
+    parser.add_argument(
+        '--n-clusters', type=int, default=2, help='The number of clusters for rows splitting.'
+    )
+    parser.add_argument(
+        '--gtest-threshold', type=float, default=5.0, help='The threshold for the G-Test independence test.'
+    )
+    parser.add_argument(
+        '--rdc-threshold', type=float, default=0.3, help='The threshold for the RDC independence test.'
     )
     args = parser.parse_args()
 
@@ -66,35 +79,51 @@ if __name__ == '__main__':
     # Create the results directory
     directory = 'spn'
     os.makedirs(directory, exist_ok=True)
-    results = {}
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
 
-    # Run hyper-parameters grid search and collect the results
-    for idx, hp in enumerate(HYPERPARAMS_SPACE):
-        # Learn the SPN density estimator
-        spn = learn_estimator(
-            data=data_train,
-            distributions=distributions,
-            split_rows='kmeans',
-            split_cols='rdc',
-            min_rows_slice=hp['min_rows_slice'],
-            split_rows_kwargs={'n': hp['n_clusters']},
-            split_cols_kwargs={'d': hp['corr_threshold']}
-        )
+    # Open the results JSON of the chosen dataset
+    filepath = os.path.join(directory, args.dataset + '.json')
+    if os.path.isfile(filepath):
+        with open(filepath, 'r') as file:
+            results = json.load(file)
+    else:
+        results = dict()
 
-        # Compute the log-likelihoods for the datasets
-        train_mean_ll, train_stddev_ll = evaluate_log_likelihoods(spn, data_train)
-        valid_mean_ll, valid_stddev_ll = evaluate_log_likelihoods(spn, data_valid)
-        test_mean_ll, test_stddev_ll = evaluate_log_likelihoods(spn, data_test)
+    split_rows_kwargs = dict()
+    if args.split_rows == 'kmeans' or args.split_rows == 'gmm':
+        split_rows_kwargs['n'] = args.n_clusters
+    split_cols_kwargs = dict()
+    if args.split_cols == 'gvs':
+        split_cols_kwargs['p'] = args.gtest_threshold
+    elif args.split_cols == 'rdc':
+        split_cols_kwargs['d'] = args.rdc_threshold
 
-        # Save the results
-        results[str(idx)] = {
-            'log_likelihood': {
-                'train': {'mean': train_mean_ll, 'stddev': train_stddev_ll},
-                'valid': {'mean': valid_mean_ll, 'stddev': valid_stddev_ll},
-                'test': {'mean': test_mean_ll, 'stddev': test_stddev_ll}
-            },
-            'hyper_params': hp,
-            'statistics': get_statistics(spn)
-        }
-        with open(os.path.join(directory, args.dataset + '.json'), 'w') as file:
-            json.dump(results, file, indent=4)
+    # Learn the SPN density estimator
+    spn = learn_estimator(
+        data=data_train,
+        distributions=distributions,
+        split_rows=args.split_rows,
+        split_cols=args.split_cols,
+        min_rows_slice=args.min_rows_slice,
+        min_cols_slice=args.min_cols_slice,
+        split_rows_kwargs=split_rows_kwargs,
+        split_cols_kwargs=split_cols_kwargs
+    )
+
+    # Compute the log-likelihoods for the datasets
+    train_mean_ll, train_stddev_ll = evaluate_log_likelihoods(spn, data_train)
+    valid_mean_ll, valid_stddev_ll = evaluate_log_likelihoods(spn, data_valid)
+    test_mean_ll, test_stddev_ll = evaluate_log_likelihoods(spn, data_test)
+
+    # Save the results
+    results[timestamp] = {
+        'log_likelihood': {
+            'train': {'mean': train_mean_ll, 'stddev': train_stddev_ll},
+            'valid': {'mean': valid_mean_ll, 'stddev': valid_stddev_ll},
+            'test': {'mean': test_mean_ll, 'stddev': test_stddev_ll}
+        },
+        'settings': args.__dict__,
+        'statistics': get_statistics(spn)
+    }
+    with open(filepath, 'w') as file:
+        json.dump(results, file, indent=4)

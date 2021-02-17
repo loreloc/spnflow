@@ -1,15 +1,15 @@
+import warnings
 import numpy as np
-import scipy.stats as stats
 import scipy.sparse as sparse
 
-from sklearn import cluster
-from sklearn import cross_decomposition
+from sklearn import cluster, cross_decomposition
+from sklearn.exceptions import ConvergenceWarning
 from itertools import combinations
 from spnflow.structure.leaf import LeafType
-from spnflow.utils.data import ohe_data
+from spnflow.utils.data import ecdf_data, ohe_data
 
 
-def rdc_cols(data, distributions, domains, d=0.3, k=16, s=1.0 / 6.0, f=np.sin):
+def rdc_cols(data, distributions, domains, d=0.3, k=20, s=1.0 / 6.0, nl=np.sin):
     """
     Split the features using the RDC (Randomized Dependency Coefficient) method.
 
@@ -19,26 +19,28 @@ def rdc_cols(data, distributions, domains, d=0.3, k=16, s=1.0 / 6.0, f=np.sin):
     :param d: The threshold value that regulates the independence tests among the features.
     :param k: The size of the latent space.
     :param s: The standard deviation of the gaussian distribution.
-    :param f: The non linear function to use.
+    :param nl: The non linear function to use.
     :return: A features partitioning.
     """
     n_samples, n_features = data.shape
-    rdc_features = rdc_transform(data, distributions, domains, k, s, f)
+    rdc_features = rdc_transform(data, distributions, domains, k, s, nl)
     pairwise_comparisons = list(combinations(range(n_features), 2))
 
     adj_matrix = np.zeros((n_features, n_features), dtype=np.int)
-    for i, j in pairwise_comparisons:
-        rdc = rdc_svd(i, j, rdc_features)
-        if rdc > d:
-            adj_matrix[i, j] = 1
-            adj_matrix[j, i] = 1
+    with warnings.catch_warnings():
+        warnings.simplefilter(action='ignore', category=ConvergenceWarning)  # Ignore convergence warnings for CCA
+        for i, j in pairwise_comparisons:
+            rdc = rdc_cca(i, j, rdc_features)
+            if rdc > d:
+                adj_matrix[i, j] = 1
+                adj_matrix[j, i] = 1
 
     adj_matrix = sparse.csr_matrix(adj_matrix)
     _, clusters = sparse.csgraph.connected_components(adj_matrix, directed=False, return_labels=True)
     return clusters
 
 
-def rdc_rows(data, distributions, domains, n=2, k=16, s=1.0 / 6.0, f=np.sin):
+def rdc_rows(data, distributions, domains, n=2, k=20, s=1.0 / 6.0, nl=np.sin):
     """
     Split the samples using the RDC (Randomized Dependency Coefficient) method.
 
@@ -48,29 +50,30 @@ def rdc_rows(data, distributions, domains, n=2, k=16, s=1.0 / 6.0, f=np.sin):
     :param n: The number of clusters for KMeans.
     :param k: The size of the latent space.
     :param s: The standard deviation of the gaussian distribution.
-    :param f: The non linear function to use.
+    :param nl: The non linear function to use.
     :return: A samples partitioning.
     """
-    rdc_samples = np.concatenate(rdc_transform(data, distributions, domains, k, s, f), axis=1)
+    rdc_samples = np.concatenate(rdc_transform(data, distributions, domains, k, s, nl), axis=1)
     return cluster.KMeans(n_clusters=n).fit_predict(rdc_samples)
 
 
-def rdc_svd(i, j, features):
+def rdc_cca(i, j, features):
     """
-    Compute the RDC (Randomized Dependency Coefficient) using SVD (Singular Value Decomposition).
+    Compute the RDC (Randomized Dependency Coefficient) using CCA (Canonical Correlation Analysis).
 
     :param i: The index of the first feature.
     :param j: The index of the second feature.
     :param features: The list of the features.
     :return: The RDC coefficient (the largest canonical correlation coefficient).
     """
-    svd = cross_decomposition.PLSSVD(n_components=1)
-    svd.fit(features[i], features[j])
-    x, y = svd.transform(features[i], features[j])
-    return np.corrcoef(x.T, y.T)[0, 1]
+    cca = cross_decomposition.CCA(n_components=1, max_iter=128)
+    x_cca, y_cca = cca.fit_transform(features[i], features[j])
+    if np.std(x_cca) < 1e-15 or np.std(y_cca) < 1e-15:
+        return 0.0
+    return np.corrcoef(x_cca.T, y_cca.T)[0, 1]
 
 
-def rdc_transform(data, distributions, domains, k, s, f):
+def rdc_transform(data, distributions, domains, k, s, nl):
     """
     Execute the RDC (Randomized Dependency Coefficient) pipeline on some data.
 
@@ -79,24 +82,25 @@ def rdc_transform(data, distributions, domains, k, s, f):
     :param domains: The data domains.
     :param k: The size of the latent space.
     :param s: The standard deviation of the gaussian distribution.
-    :param f: The non linear function to use.
+    :param nl: The non-linear function to use.
     :return: The transformed data.
     """
-    # Empirical Cumulative Distribution Function
-    def ecdf(x):
-        return stats.rankdata(x, method='max') / len(x)
-
     features = []
     for i, dist in enumerate(distributions):
         if dist.LEAF_TYPE == LeafType.DISCRETE:
             feature_matrix = ohe_data(data[:, i], domains[i])
-        else:
+        elif dist.LEAF_TYPE == LeafType.CONTINUOUS:
             feature_matrix = np.expand_dims(data[:, i], axis=-1)
-        features.append(np.apply_along_axis(ecdf, 0, feature_matrix))
+        else:
+            raise NotImplementedError("Unknown distribution type " + dist.LEAF_TYPE)
+        x = np.apply_along_axis(ecdf_data, 0, feature_matrix)
+        o = np.ones((feature_matrix.shape[0], 1))
+        features.append(np.hstack((x, o)))
 
-    biases = [stats.norm.rvs(0.0, s, size=(1, k)) for f in features]
-    weights = [stats.norm.rvs(0.0, s, size=(f.shape[1], k)) for f in features]
-    projected_samples = [np.dot(f, w) + b for f, w, b in zip(features, weights, biases)]
-    non_linear_samples = [f(x) for x in projected_samples]
-
-    return non_linear_samples
+    samples = []
+    for x in features:
+        w = s / x.shape[1] * np.random.randn(x.shape[1], k)
+        y = nl(np.dot(x, w))
+        o = np.ones((y.shape[0], 1))
+        samples.append(np.hstack((y, o)))
+    return samples

@@ -1,4 +1,6 @@
 import numpy as np
+
+from spnflow.learning.splitting.gvs import gvs_cols
 from spnflow.learning.splitting.rdc import rdc_cols
 from spnflow.learning.splitting.random import random_cols
 
@@ -31,7 +33,9 @@ def get_split_cols_method(split_cols):
     :param split_cols: The string of the method do get.
     :return: The corresponding columns splitting function.
     """
-    if split_cols == 'rdc':
+    if split_cols == 'gvs':
+        return gvs_cols
+    elif split_cols == 'rdc':
         return rdc_cols
     elif split_cols == 'random':
         return random_cols

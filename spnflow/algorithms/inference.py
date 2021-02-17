@@ -56,7 +56,7 @@ def leaf_log_likelihood(node, x, m):
     z = np.zeros(shape=(x.shape[0], 1))
     z[~m] = node.log_likelihood(x[~m])
     z[np.isnan(z)] = 0.0
-    z[np.isinf(z)] = np.finfo(float).min
+    z[np.isinf(z)] = np.finfo(np.float32).min
     return z
 
 
@@ -88,5 +88,5 @@ def node_log_likelihood(node, lc):
     x = np.concatenate(lc, axis=1)
     z = node.log_likelihood(x)
     z[np.isnan(z)] = 0.0
-    z[np.isinf(z)] = np.finfo(float).min
+    z[np.isinf(z)] = np.finfo(np.float32).min
     return z

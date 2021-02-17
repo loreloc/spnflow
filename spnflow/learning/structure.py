@@ -17,12 +17,12 @@ class OperationKind(Enum):
 
 
 class Task:
-    def __init__(self, parent, data, scope, no_rows_split=False, no_cols_split=False, is_first=False):
+    def __init__(self, parent, data, scope, no_cols_split=False, no_rows_split=False, is_first=False):
         self.parent = parent
         self.data = data
         self.scope = scope
-        self.no_rows_split = no_rows_split
         self.no_cols_split = no_cols_split
+        self.no_rows_split = no_rows_split
         self.is_first = is_first
 
 
@@ -48,7 +48,7 @@ def learn_structure(data,
     :param learn_leaf: The method to use to learn a distribution leaf node (it can be 'mle' or 'isotonic').
     :param learn_leaf_params: The parameters of the learn leaf method.
     :param split_rows: The rows splitting method (it can be 'kmeans', 'gmm', 'rdc' or 'random').
-    :param split_cols: The columns splitting method (it can be 'rdc_cols' or 'random').
+    :param split_cols: The columns splitting method (it can be 'gvs', 'rdc' or 'random').
     :param split_rows_kwargs: The parameters of the rows splitting method.
     :param split_cols_kwargs: The parameters of the cols splitting method.
     :param min_rows_slice: The minimum number of samples required to split horizontally.
@@ -121,7 +121,7 @@ def learn_structure(data,
             node = Mul([], task.scope)
             for i in range(n_features):
                 local_data = task.data[:, i].reshape(n_samples, -1)
-                tasks.append(Task(node, local_data, [task.scope[i]], True, True))
+                tasks.append(Task(node, local_data, [task.scope[i]], True))
             task.parent.children.append(node)
         elif op == OperationKind.SPLIT_ROWS:
             dists = [distributions[s] for s in task.scope]
@@ -129,11 +129,11 @@ def learn_structure(data,
             clusters = split_rows_func(task.data, dists, doms, **split_rows_kwargs)
             slices, weights = split_rows_clusters(task.data, clusters)
             if len(slices) == 1:
-                tasks.append(Task(task.parent, task.data, task.scope, True, task.no_cols_split))
+                tasks.append(Task(task.parent, task.data, task.scope, False, True))
                 continue
             node = Sum(weights, [], task.scope)
             for local_data in slices:
-                tasks.append(Task(node, local_data, task.scope, False, False))
+                tasks.append(Task(node, local_data, task.scope))
             task.parent.children.append(node)
         elif op == OperationKind.SPLIT_COLS:
             dists = [distributions[s] for s in task.scope]
@@ -141,11 +141,11 @@ def learn_structure(data,
             clusters = split_cols_func(task.data, dists, doms, **split_cols_kwargs)
             slices, scopes = split_cols_clusters(task.data, clusters, task.scope)
             if len(slices) == 1:
-                tasks.append(Task(task.parent, task.data, task.scope, task.no_rows_split, True))
+                tasks.append(Task(task.parent, task.data, task.scope, True, False))
                 continue
             node = Mul([], task.scope)
             for i, local_data in enumerate(slices):
-                tasks.append(Task(node, local_data, scopes[i], False, False))
+                tasks.append(Task(node, local_data, scopes[i]))
             task.parent.children.append(node)
         else:
             raise NotImplementedError("Operation of kind " + op.__name__ + " not implemented")
@@ -164,56 +164,26 @@ def learn_structure(data,
 def choose_next_operation(task, min_rows_slice, min_cols_slice):
     n_samples, n_features = task.data.shape
 
-    # First of all, check if previous consecutive rows or columns splitting have failed
-    if task.no_rows_split and task.no_cols_split:
-        if n_features == 1:
-            return OperationKind.CREATE_LEAF
-        else:
-            return OperationKind.SPLIT_NAIVE
+    # Check if the data is univariate
+    if n_features == 1:
+        return OperationKind.CREATE_LEAF
 
-    # Check task's data size
-    min_samples = n_samples < min_rows_slice
-    min_features = n_features < min_cols_slice
-    if min_samples:
-        if min_features:
-            # If we cannot both split horizontally and vertically use naive splitting
-            if n_features == 1:
-                op = OperationKind.CREATE_LEAF
-            else:
-                op = OperationKind.SPLIT_NAIVE
-        else:
-            # If we cannot split horizontally but can split vertically use columns splitting
-            if n_features == 1:
-                op = OperationKind.CREATE_LEAF
-            else:
-                op = OperationKind.SPLIT_COLS
-    else:
-        if min_features:
-            # If we can split horizontally but cannot split vertically use rows splitting
-            if n_features == 1:
-                op = OperationKind.CREATE_LEAF
-            else:
-                op = OperationKind.SPLIT_ROWS
-        else:
-            # Defaults to columns splitting (but if task is first use rows splitting)
-            if n_features == 1:
-                op = OperationKind.CREATE_LEAF
-            else:
-                if task.is_first:
-                    op = OperationKind.SPLIT_ROWS
-                else:
-                    op = OperationKind.SPLIT_COLS
+    # Check if the data has low number of features
+    if n_features < min_cols_slice:
+        return OperationKind.SPLIT_NAIVE
 
-    # Check the last operation and adjust accordingly
-    if task.no_rows_split and op == OperationKind.SPLIT_ROWS:
-        if min_features:
-            return OperationKind.SPLIT_NAIVE
-        else:
-            return OperationKind.SPLIT_COLS
-    elif task.no_cols_split and op == OperationKind.SPLIT_COLS:
-        if min_samples:
+    # Check if the data has low number of samples
+    if n_samples < min_rows_slice:
+        return OperationKind.SPLIT_NAIVE
+
+    # Check if previous columns splitting have failed
+    if task.no_cols_split:
+        if task.no_rows_split:
             return OperationKind.SPLIT_NAIVE
         else:
             return OperationKind.SPLIT_ROWS
     else:
-        return op
+        if task.is_first:
+            return OperationKind.SPLIT_ROWS
+        else:
+            return OperationKind.SPLIT_COLS

@@ -1,5 +1,8 @@
+datasets/*
 dgcspn
 flows
 ratspn
 spn
-datasets/*
+*.pt
+*.png
+*.json

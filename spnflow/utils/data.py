@@ -1,4 +1,6 @@
 import numpy as np
+import scipy.stats as stats
+
 from spnflow.structure.leaf import LeafType
 
 
@@ -38,3 +40,12 @@ def ohe_data(data, domain):
     ohe = np.zeros((n_samples, len(domain)))
     ohe[np.equal.outer(data, domain)] = 1
     return ohe
+
+
+def ecdf_data(data):
+    """
+    Empirical Cumulative Distribution Function (ECDF).
+    :param data: The data.
+    :return: The result of the ECDF on data.
+    """
+    return stats.rankdata(data, method='max') / len(data)
