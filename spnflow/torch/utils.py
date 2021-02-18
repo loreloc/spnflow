@@ -36,22 +36,21 @@ class RunningAverageMetric:
         return self.metric_accumulator / (self.n_metrics * self.batch_size)
 
 
-def compute_mean_quantiles(data, n_quantiles, n_jobs=-1):
+def torch_get_activation(activation):
     """
-    Compute the mean quantiles of a dataset (Poon-Domingos).
+    Get the activation function class by its name.
 
-    :param data: The data.
-    :param n_quantiles: The number of quantiles.
-    :param n_jobs: The number of jobs for dataset processing.
-    :return: The mean quantiles tensor.
+    :param activation: The activation function's name. It can be: 'relu', 'tanh', 'sigmoid'.
+    :return: The activation function class.
     """
-    # Split the dataset in quantiles regions
-    data = np.sort(data, axis=0)
-    values_per_quantile = np.array_split(data, n_quantiles, axis=0)
-
-    # Compute the mean quantiles
-    mean_per_quantiles = [np.mean(x, axis=0) for x in values_per_quantile]
-    return np.stack(mean_per_quantiles, axis=0)
+    if activation == 'relu':
+        return torch.nn.ReLU
+    elif activation == 'tanh':
+        return torch.nn.Tanh
+    elif activation == 'sigmoid':
+        return torch.nn.Sigmoid
+    else:
+        raise NotImplementedError('Unknown activation function name' + activation)
 
 
 def torch_train(

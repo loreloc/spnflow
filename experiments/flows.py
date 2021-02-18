@@ -1,29 +1,32 @@
 import os
+import time
 import json
 import argparse
-import itertools
 import numpy as np
 
-from spnflow.torch.models import RealNVP, MAF
+from spnflow.torch.models.flows import RealNVP, MAF
 
 from experiments.datasets import DatasetTransform, load_continuous_dataset, load_vision_dataset
 from experiments.datasets import CONTINUOUS_DATASETS, VISION_DATASETS
 from experiments.utils import collect_results_generative, collect_samples, save_grid_images
 
-# Set the hyper-parameters grid space
-HYPERPARAMS = {
-    'model': ['nvp', 'maf'],
-    'n_flows': [5, 10],
-    'depth': [1, 2],
-    'units': [128, 512, 1024]
-}
-HYPERPARAMS_SPACE = [dict(zip(HYPERPARAMS.keys(), x)) for x in itertools.product(*HYPERPARAMS.values())]
 
 if __name__ == '__main__':
     # Parse the arguments
     parser = argparse.ArgumentParser(description='Normalizing Flows experiments')
     parser.add_argument(
         'dataset', choices=CONTINUOUS_DATASETS + VISION_DATASETS, help='The dataset used in the experiment.'
+    )
+    parser.add_argument('model', choices=['nvp', 'maf'], help='The normalizing flow model to use.')
+    parser.add_argument('--n-flows', type=int, default=5, help='The number of normalizing flows layers.')
+    parser.add_argument(
+        '--no-batch-norm', dest='batch_norm',
+        action='store_false', help='Whether to use batch normalization.'
+    )
+    parser.add_argument('--depth', type=int, default=1, help='The depth of each normalizing flow layer.')
+    parser.add_argument('--units', type=int, default=128, help='The number of units at each layer.')
+    parser.add_argument(
+        '--activation', choices=['relu', 'tanh', 'sigmoid'], default='relu', help='The activation function to use.'
     )
     parser.add_argument('--learning-rate', type=float, default=1e-3, help='The learning rate.')
     parser.add_argument('--batch-size', type=int, default=100, help='The batch size.')
@@ -55,58 +58,68 @@ if __name__ == '__main__':
     # Create the results directory
     directory = 'flows'
     os.makedirs(directory, exist_ok=True)
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
     if is_vision_dataset:
         directory = os.path.join(directory, args.dataset)
         os.makedirs(directory, exist_ok=True)
         samples_directory = os.path.join(directory, 'samples')
         os.makedirs(samples_directory, exist_ok=True)
-    results = {}
 
-    # Run hyper-parameters grid search and collect the results
-    for idx, hp in enumerate(HYPERPARAMS_SPACE):
-        if hp['model'] == 'nvp':
-            model = RealNVP(
-                n_features,
-                n_flows=hp['n_flows'],
-                depth=hp['depth'],
-                units=hp['units'],
-                logit=is_vision_dataset
-            )
-        elif hp['model'] == 'maf':
-            model = MAF(
-                n_features,
-                n_flows=hp['n_flows'],
-                depth=hp['depth'],
-                units=hp['units'],
-                logit=is_vision_dataset,
-                sequential=n_features <= hp['units']
-            )
-        else:
-            raise NotImplementedError("Experiments for model '%s' are not implemented" % hp['model'])
+    # Open the results JSON of the chosen dataset
+    filepath = os.path.join(directory, args.dataset + '.json')
+    if os.path.isfile(filepath):
+        with open(filepath, 'r') as file:
+            results = json.load(file)
+    else:
+        results = dict()
 
-        # Train the model and collect the results
-        mean_ll, stddev_ll, bpp = collect_results_generative(
-            model, data_train, data_valid, data_test, compute_bpp=is_vision_dataset,
-            lr=args.learning_rate, batch_size=args.batch_size,
-            epochs=args.epochs, patience=args.patience, weight_decay=args.weight_decay
+    if args.model == 'nvp':
+        model = RealNVP(
+            n_features,
+            n_flows=args.n_flows,
+            depth=args.depth,
+            units=args.units,
+            batch_norm=args.batch_norm,
+            activation=args.activation,
+            logit=is_vision_dataset
         )
+    elif args.model == 'maf':
+        model = MAF(
+            n_features,
+            n_flows=args.n_flows,
+            depth=args.depth,
+            units=args.units,
+            batch_norm=args.batch_norm,
+            activation=args.activation,
+            logit=is_vision_dataset,
+            sequential=n_features <= args.units
+        )
+    else:
+        raise NotImplementedError("Experiments for model {} are not implemented".format(args.model))
 
-        # Save the results
-        results[str(idx)] = {
-            'log_likelihood': {
-                'mean': mean_ll,
-                'stddev': 2.0 * stddev_ll
-            },
-            'bpp': bpp,
-            'hyper_params': hp
-        }
-        with open(os.path.join(directory, args.dataset + '.json'), 'w') as file:
-            json.dump(results, file, indent=4)
+    # Train the model and collect the results
+    mean_ll, stddev_ll, bpp = collect_results_generative(
+        model, data_train, data_valid, data_test, compute_bpp=is_vision_dataset,
+        lr=args.learning_rate, batch_size=args.batch_size,
+        epochs=args.epochs, patience=args.patience, weight_decay=args.weight_decay
+    )
 
-        if is_vision_dataset:
-            n_samples = 8
-            samples = collect_samples(model, n_samples * n_samples)
-            images = transform.backward(samples)
-            images = images.reshape([n_samples, n_samples, *images.shape[1:]])
-            images_filename = os.path.join(samples_directory, str(idx) + '.png')
-            save_grid_images(images, images_filename)
+    # Save the results
+    results[timestamp] = {
+        'log_likelihood': {
+            'mean': mean_ll,
+            'stddev': 2.0 * stddev_ll
+        },
+        'bpp': bpp,
+        'settings': args.__dict__
+    }
+    with open(os.path.join(directory, args.dataset + '.json'), 'w') as file:
+        json.dump(results, file, indent=4)
+
+    if is_vision_dataset:
+        n_samples = 8
+        samples = collect_samples(model, n_samples * n_samples)
+        images = transform.backward(samples)
+        images = images.reshape([n_samples, n_samples, *images.shape[1:]])
+        images_filename = os.path.join(samples_directory, str(timestamp) + '.png')
+        save_grid_images(images, images_filename)

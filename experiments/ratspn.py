@@ -4,7 +4,7 @@ import json
 import argparse
 import numpy as np
 
-from spnflow.torch.models import RatSpn
+from spnflow.torch.models.ratspn import GaussianRatSpn, BernoulliRatSpn
 
 from experiments.datasets import DatasetTransform, load_binary_dataset, load_continuous_dataset, load_vision_dataset
 from experiments.datasets import BINARY_DATASETS, CONTINUOUS_DATASETS, VISION_DATASETS
@@ -25,7 +25,10 @@ if __name__ == '__main__':
     parser.add_argument('--rg-repetitions', type=int, default=8, help='The region graph\'s number of repetitions.')
     parser.add_argument('--rg-batches', type=int, default=4, help='The region graph\'s number of distribution batches.')
     parser.add_argument('--rg-sums', type=int, default=4, help='The region graph\'s number of sum nodes per region.')
-    parser.add_argument('--optimize-scale', action='store_false', help='Whether to optimize scale in Gaussian layers.')
+    parser.add_argument(
+        '--no-optimize-scale', dest='optimize_scale',
+        action='store_false', help='Whether to optimize scale in Gaussian layers.'
+    )
     parser.add_argument('--dropout', type=float, default=None, help='The dropout to use in case of discriminative.')
     parser.add_argument('--learning-rate', type=float, default=1e-3, help='The learning rate.')
     parser.add_argument('--batch-size', type=int, default=100, help='The batch size.')
@@ -38,9 +41,7 @@ if __name__ == '__main__':
     is_binary_dataset = args.dataset in BINARY_DATASETS
     is_continuous_dataset = args.dataset in CONTINUOUS_DATASETS
     assert is_vision_dataset or args.discriminative is False, \
-        'Discriminative setting is not supported for dataset \'%s\'' % args.dataset
-    assert args.dropout is None or args.discriminative is True, \
-        'Dropout can only be used in discriminative setting'
+        'Discriminative setting is not supported for dataset ' + args.dataset
 
     # Instantiate a random state, used for reproducibility
     rand_state = np.random.RandomState(42)
@@ -50,48 +51,36 @@ if __name__ == '__main__':
     if is_binary_dataset:
         transform = DatasetTransform(standardize=False)
         data_train, data_valid, data_test = load_binary_dataset('datasets', args.dataset)
-        transform.fit(np.vstack([data_train, data_valid]))
-        data_train = transform.forward(data_train)
-        data_valid = transform.forward(data_valid)
-        data_test = transform.forward(data_test)
-        _, n_features = data_train.shape
-        out_classes = 1
     elif is_continuous_dataset:
         transform = DatasetTransform(standardize=True)
         data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
-        transform.fit(np.vstack([data_train, data_valid]))
-        data_train = transform.forward(data_train)
-        data_valid = transform.forward(data_valid)
-        data_test = transform.forward(data_test)
-        _, n_features = data_train.shape
-        out_classes = 1
     elif is_vision_dataset:
         transform = DatasetTransform(dequantize=True, standardize=True, flatten=True)
         if args.discriminative:
-            (image_train, label_train), (image_valid, label_valid), (image_test, label_test) = load_vision_dataset(
+            (data_train, label_train), (data_valid, label_valid), (data_test, label_test) = load_vision_dataset(
                 'datasets', args.dataset, unsupervised=False
             )
-            transform.fit(np.vstack([image_train, image_valid]))
-            image_train = transform.forward(image_train)
-            image_valid = transform.forward(image_valid)
-            image_test = transform.forward(image_test)
-            _, n_features = image_train.shape
-            out_classes = len(np.unique(label_train))
-            data_train = list(zip(image_train, label_train))
-            data_valid = list(zip(image_valid, label_valid))
-            data_test = list(zip(image_test, label_test))
         else:
-            data_train, data_valid, data_test = load_vision_dataset(
-                'datasets', args.dataset, unsupervised=True
-            )
-            transform.fit(np.vstack([data_train, data_valid]))
-            data_train = transform.forward(data_train)
-            data_valid = transform.forward(data_valid)
-            data_test = transform.forward(data_test)
-            _, n_features = data_train.shape
-            out_classes = 1
+            data_train, data_valid, data_test = load_vision_dataset('datasets', args.dataset, unsupervised=True)
     else:
         raise NotImplementedError('Unknow dataset type of ' + args.dataset)
+
+    transform.fit(np.vstack([data_train, data_valid]))
+    data_train = transform.forward(data_train)
+    data_valid = transform.forward(data_valid)
+    data_test = transform.forward(data_test)
+    _, n_features = data_train.shape
+
+    if is_vision_dataset:
+        if args.discriminative:
+            out_classes = len(np.unique(label_train))
+            data_train = list(zip(data_train, label_train))
+            data_valid = list(zip(data_valid, label_valid))
+            data_test = list(zip(data_test, label_test))
+        else:
+            out_classes = 1
+    else:
+        out_classes = 1
 
     # Create the results directory
     directory = 'ratspn'
@@ -117,22 +106,33 @@ if __name__ == '__main__':
         results = dict()
 
     # Build the model
-    base_dist = 'bernoulli' if is_binary_dataset else 'gaussian'
     rg_depth = min(args.rg_depth, np.log2(n_features).astype(np.int))
-    optimize_scale = args.optimize_scale if is_continuous_dataset or is_vision_dataset else False
-    model = RatSpn(
-        n_features,
-        base_dist=base_dist,
-        out_classes=out_classes,
-        rg_depth=rg_depth,
-        rg_repetitions=args.rg_repetitions,
-        n_batch=args.rg_batches,
-        n_sum=args.rg_sums,
-        optimize_scale=optimize_scale,
-        in_dropout=args.dropout,
-        prod_dropout=args.dropout,
-        rand_state=rand_state
-    )
+
+    if is_binary_dataset:
+        model = BernoulliRatSpn(
+            n_features,
+            out_classes=out_classes,
+            rg_depth=rg_depth,
+            rg_repetitions=args.rg_repetitions,
+            n_batch=args.rg_batches,
+            n_sum=args.rg_sums,
+            in_dropout=args.dropout,
+            prod_dropout=args.dropout,
+            rand_state=rand_state
+        )
+    else:
+        model = GaussianRatSpn(
+            n_features,
+            out_classes=out_classes,
+            rg_depth=rg_depth,
+            rg_repetitions=args.rg_repetitions,
+            n_batch=args.rg_batches,
+            n_sum=args.rg_sums,
+            in_dropout=args.dropout,
+            prod_dropout=args.dropout,
+            rand_state=rand_state,
+            optimize_scale=args.optimize_scale
+        )
 
     # Train the model and collect the results
     if args.discriminative:

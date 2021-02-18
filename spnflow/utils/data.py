@@ -49,3 +49,20 @@ def ecdf_data(data):
     :return: The result of the ECDF on data.
     """
     return stats.rankdata(data, method='max') / len(data)
+
+
+def compute_mean_quantiles(data, n_quantiles):
+    """
+    Compute the mean quantiles of a dataset (Poon-Domingos).
+
+    :param data: The data.
+    :param n_quantiles: The number of quantiles.
+    :return: The mean quantiles.
+    """
+    # Split the dataset in quantiles regions
+    data = np.sort(data, axis=0)
+    values_per_quantile = np.array_split(data, n_quantiles, axis=0)
+
+    # Compute the mean quantiles
+    mean_per_quantiles = [np.mean(x, axis=0) for x in values_per_quantile]
+    return np.stack(mean_per_quantiles, axis=0)
