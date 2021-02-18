@@ -2,7 +2,7 @@ import abc
 import torch
 import numpy as np
 from spnflow.utils.region import RegionGraph
-from spnflow.torch.layers.ratspn import GaussianLayer, ProductLayer, SumLayer, RootLayer
+from spnflow.torch.layers.ratspn import GaussianLayer, BernoulliLayer, ProductLayer, SumLayer, RootLayer
 from spnflow.torch.layers.flows import CouplingLayer, AutoregressiveLayer, BatchNormLayer, LogitLayer
 from spnflow.torch.layers.dgcspn import SpatialGaussianLayer, SpatialProductLayer, SpatialSumLayer, SpatialRootLayer
 from spnflow.torch.constraints import ScaleClipper
@@ -207,6 +207,7 @@ class RatSpn(AbstractModel):
     """RAT-SPN model class."""
     def __init__(self,
                  in_features,
+                 base_dist='gaussian',
                  out_classes=1,
                  rg_depth=2,
                  rg_repetitions=1,
@@ -221,18 +222,21 @@ class RatSpn(AbstractModel):
         Initialize a RAT-SPN.
 
         :param in_features: The number of input features.
+        :param base_dist: The base distribution to use. It can be either "gaussian" or "bernoulli".
         :param out_classes: The number of output classes. Specify 1 in case of plain density estimation.
         :param rg_depth: The depth of the region graph.
         :param rg_repetitions: The number of independent repetitions of the region graph.
         :param n_batch: The number of base distributions batches.
         :param n_sum: The number of sum nodes per region.
-        :param optimize_scale: Whether to train scale and location jointly.
+        :param optimize_scale: Whether to train scale and location jointly. Only used if base_dist is "gaussian".
         :param in_dropout: The dropout rate for probabilistic dropout at distributions layer outputs. It can be None.
         :param prod_dropout: The dropout rate for probabilistic dropout at product layer outputs. It can be None.
         :param rand_state: The random state used to generate the random graph.
         """
         super(RatSpn, self).__init__()
         assert in_features > 0
+        assert base_dist == 'gaussian' or base_dist == 'bernoulli'
+        assert base_dist == 'gaussian' or optimize_scale is False
         assert out_classes > 0
         assert rg_depth > 0
         assert rg_repetitions > 0
@@ -241,6 +245,7 @@ class RatSpn(AbstractModel):
         assert in_dropout is None or 0.0 < in_dropout < 1.0
         assert prod_dropout is None or 0.0 < prod_dropout < 1.0
         self.in_features = in_features
+        self.base_dist = base_dist
         self.out_classes = out_classes
         self.rg_depth = rg_depth
         self.rg_repetitions = rg_repetitions
@@ -263,14 +268,25 @@ class RatSpn(AbstractModel):
         self.rg_layers = list(reversed(self.rg_layers))
 
         # Instantiate the base distributions layer
-        self.base_layer = GaussianLayer(
-            self.in_features,
-            self.n_batch,
-            self.rg_layers[0],
-            self.rg_depth,
-            self.optimize_scale,
-            self.in_dropout
-        )
+        if self.base_dist == 'gaussian':
+            self.base_layer = GaussianLayer(
+                self.in_features,
+                self.n_batch,
+                self.rg_layers[0],
+                self.rg_depth,
+                self.in_dropout,
+                self.optimize_scale
+            )
+        elif self.base_dist == 'bernoulli':
+            self.base_layer = BernoulliLayer(
+                self.in_features,
+                self.n_batch,
+                self.rg_layers[0],
+                self.rg_depth,
+                self.in_dropout
+            )
+        else:
+            raise NotImplementedError('Unknown base distribution layer ' + self.base_dist)
 
         # Alternate between product and sum layer
         in_groups = self.base_layer.in_regions

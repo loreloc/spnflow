@@ -1,27 +1,17 @@
+import abc
 import torch
 import numpy as np
 
 
-class GaussianLayer(torch.nn.Module):
-    """The Gaussian distributions input layer class."""
-    def __init__(self, in_features, out_channels, regions, rg_depth, optimize_scale, dropout=None):
-        """
-        Initialize a Gaussian distributions input layer.
-
-        :param in_features: The number of input features.
-        :param out_channels: The number of channels for each base distribution layer.
-        :param regions: The regions of the distributions.
-        :param rg_depth: The depth of the region graph.
-        :param optimize_scale: Whether to optimize scale and location jointly.
-        :param dropout: The leaf nodes dropout rate. It can be None.
-        """
-        super(GaussianLayer, self).__init__()
+class AbstractLayer(abc.ABC, torch.nn.Module):
+    """Abstract class for input distributions layers."""
+    def __init__(self, in_features, out_channels, regions, rg_depth, dropout):
+        super(AbstractLayer, self).__init__()
         self.in_features = in_features
         self.in_regions = len(regions)
         self.out_channels = out_channels
         self.regions = regions
         self.rg_depth = rg_depth
-        self.optimize_scale = optimize_scale
         self.dropout = dropout
 
         # Compute the padding and the number of features for each base distribution batch
@@ -50,23 +40,6 @@ class GaussianLayer(torch.nn.Module):
             inv_pad_mask = torch.reshape(self.pad_mask, [-1, self.in_features_pad])
             inv_pad_mask = torch.gather(inv_pad_mask, dim=1, index=self.inv_mask)
             self.register_buffer('inv_pad_mask', inv_pad_mask)
-
-        # Instantiate the location variable
-        self.loc = torch.nn.Parameter(
-            torch.randn(self.in_regions, self.out_channels, self.dimension), requires_grad=True
-        )
-
-        # Instantiate the scale variable
-        if self.optimize_scale:
-            sigma = torch.sigmoid(torch.randn(self.in_regions, self.out_channels, self.dimension))
-            self.scale = torch.nn.Parameter(0.25 + sigma * 0.5, requires_grad=True)
-        else:
-            self.scale = torch.nn.Parameter(
-                torch.ones(self.in_regions, self.out_channels, self.dimension), requires_grad=False
-            )
-
-        # Instantiate the multi-batch normal distribution
-        self.distribution = torch.distributions.Normal(self.loc, self.scale)
 
         # Initialize some useful constants
         self.register_buffer('zero', torch.zeros(1))
@@ -156,6 +129,63 @@ class GaussianLayer(torch.nn.Module):
             samples = samples[self.inv_pad_mask[idx3]].view(n_samples, self.in_features)
 
         return samples
+
+
+class GaussianLayer(AbstractLayer):
+    """The Gaussian distributions input layer class."""
+    def __init__(self, in_features, out_channels, regions, rg_depth, dropout, optimize_scale=True):
+        """
+        Initialize a Gaussian distributions input layer.
+
+        :param in_features: The number of input features.
+        :param out_channels: The number of channels for each base distribution layer.
+        :param regions: The regions of the distributions.
+        :param rg_depth: The depth of the region graph.
+        :param dropout: The leaf nodes dropout rate. It can be None.
+        :param optimize_scale: Whether to optimize scale and location jointly.
+        """
+        super(GaussianLayer, self).__init__(in_features, out_channels, regions, rg_depth, dropout)
+        self.optimize_scale = optimize_scale
+
+        # Instantiate the location variable
+        self.loc = torch.nn.Parameter(
+            torch.randn(self.in_regions, self.out_channels, self.dimension), requires_grad=True
+        )
+
+        # Instantiate the scale variable
+        if self.optimize_scale:
+            sigma = torch.sigmoid(torch.randn(self.in_regions, self.out_channels, self.dimension))
+            self.scale = torch.nn.Parameter(0.25 + sigma * 0.5, requires_grad=True)
+        else:
+            self.scale = torch.nn.Parameter(
+                torch.ones(self.in_regions, self.out_channels, self.dimension), requires_grad=False
+            )
+
+        # Instantiate the multi-batch normal distribution
+        self.distribution = torch.distributions.Normal(self.loc, self.scale)
+
+
+class BernoulliLayer(AbstractLayer):
+    """The Bernoulli distributions input layer class."""
+    def __init__(self, in_features, out_channels, regions, rg_depth, dropout):
+        """
+        Initialize a Bernoulli distributions input layer.
+
+        :param in_features: The number of input features.
+        :param out_channels: The number of channels for each base distribution layer.
+        :param regions: The regions of the distributions.
+        :param rg_depth: The depth of the region graph.
+        :param dropout: The leaf nodes dropout rate. It can be None.
+        """
+        super(BernoulliLayer, self).__init__(in_features, out_channels, regions, rg_depth, dropout)
+
+        # Instantiate the logit variabel
+        self.logits = torch.nn.Parameter(
+            torch.randn(self.in_regions, self.out_channels, self.dimension), requires_grad=True
+        )
+
+        # Instantiate the multi-batch Bernoulli distribution
+        self.distribution = torch.distributions.Bernoulli(logits=self.logits)
 
 
 class ProductLayer(torch.nn.Module):

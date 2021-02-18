@@ -1,23 +1,14 @@
 import os
+import time
 import json
-import math
-import itertools
 import argparse
 import numpy as np
 
 from spnflow.torch.models import RatSpn
 
-from experiments.datasets import DatasetTransform, load_continuous_dataset, load_vision_dataset
-from experiments.datasets import CONTINUOUS_DATASETS, VISION_DATASETS
+from experiments.datasets import DatasetTransform, load_binary_dataset, load_continuous_dataset, load_vision_dataset
+from experiments.datasets import BINARY_DATASETS, CONTINUOUS_DATASETS, VISION_DATASETS
 from experiments.utils import collect_results_generative, collect_results_discriminative, collect_samples, save_grid_images
-
-# Set the hyper-parameters grid space
-HYPERPARAMS = {
-    'rg_depth': [1, 2, 3],
-    'rg_repetitions': [8, 16],
-    'n_batch': [8, 16]
-}
-HYPERPARAMS_SPACE = [dict(zip(HYPERPARAMS.keys(), x)) for x in itertools.product(*HYPERPARAMS.values())]
 
 
 if __name__ == '__main__':
@@ -26,9 +17,15 @@ if __name__ == '__main__':
         description='Randomized And Tensorized Sum-Product Networks (RAT-SPNs) experiments'
     )
     parser.add_argument(
-        'dataset', choices=CONTINUOUS_DATASETS + VISION_DATASETS, help='The dataset used in the experiment.'
+        'dataset', choices=BINARY_DATASETS + CONTINUOUS_DATASETS + VISION_DATASETS,
+        help='The dataset used in the experiment.'
     )
     parser.add_argument('--discriminative', action='store_true', help='Whether to use discriminative settings.')
+    parser.add_argument('--rg-depth', type=int, default=1, help='The region graph\'s depth.')
+    parser.add_argument('--rg-repetitions', type=int, default=8, help='The region graph\'s number of repetitions.')
+    parser.add_argument('--rg-batches', type=int, default=4, help='The region graph\'s number of distribution batches.')
+    parser.add_argument('--rg-sums', type=int, default=4, help='The region graph\'s number of sum nodes per region.')
+    parser.add_argument('--optimize-scale', action='store_false', help='Whether to optimize scale in Gaussian layers.')
     parser.add_argument('--dropout', type=float, default=None, help='The dropout to use in case of discriminative.')
     parser.add_argument('--learning-rate', type=float, default=1e-3, help='The learning rate.')
     parser.add_argument('--batch-size', type=int, default=100, help='The batch size.')
@@ -38,6 +35,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     is_vision_dataset = args.dataset in VISION_DATASETS
+    is_binary_dataset = args.dataset in BINARY_DATASETS
+    is_continuous_dataset = args.dataset in CONTINUOUS_DATASETS
     assert is_vision_dataset or args.discriminative is False, \
         'Discriminative setting is not supported for dataset \'%s\'' % args.dataset
     assert args.dropout is None or args.discriminative is True, \
@@ -48,7 +47,25 @@ if __name__ == '__main__':
 
     # Load the dataset
     transform = None
-    if is_vision_dataset:
+    if is_binary_dataset:
+        transform = DatasetTransform(standardize=False)
+        data_train, data_valid, data_test = load_binary_dataset('datasets', args.dataset)
+        transform.fit(np.vstack([data_train, data_valid]))
+        data_train = transform.forward(data_train)
+        data_valid = transform.forward(data_valid)
+        data_test = transform.forward(data_test)
+        _, n_features = data_train.shape
+        out_classes = 1
+    elif is_continuous_dataset:
+        transform = DatasetTransform(standardize=True)
+        data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
+        transform.fit(np.vstack([data_train, data_valid]))
+        data_train = transform.forward(data_train)
+        data_valid = transform.forward(data_valid)
+        data_test = transform.forward(data_test)
+        _, n_features = data_train.shape
+        out_classes = 1
+    elif is_vision_dataset:
         transform = DatasetTransform(dequantize=True, standardize=True, flatten=True)
         if args.discriminative:
             (image_train, label_train), (image_valid, label_valid), (image_test, label_test) = load_vision_dataset(
@@ -74,18 +91,12 @@ if __name__ == '__main__':
             _, n_features = data_train.shape
             out_classes = 1
     else:
-        transform = DatasetTransform(standardize=True)
-        data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
-        transform.fit(np.vstack([data_train, data_valid]))
-        data_train = transform.forward(data_train)
-        data_valid = transform.forward(data_valid)
-        data_test = transform.forward(data_test)
-        _, n_features = data_train.shape
-        out_classes = 1
+        raise NotImplementedError('Unknow dataset type of ' + args.dataset)
 
     # Create the results directory
     directory = 'ratspn'
     os.makedirs(directory, exist_ok=True)
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
     if args.discriminative:
         directory = os.path.join(directory, 'discriminative')
         os.makedirs(directory, exist_ok=True)
@@ -96,60 +107,70 @@ if __name__ == '__main__':
             directory = os.path.join(directory, args.dataset)
             samples_directory = os.path.join(directory, 'samples')
             os.makedirs(samples_directory, exist_ok=True)
-    results = {}
 
-    # Run hyper-parameters grid search and collect the results
-    for idx, hp in enumerate(HYPERPARAMS_SPACE):
-        # Build the model
-        model = RatSpn(
-            n_features, out_classes,
-            rg_depth=min(hp['rg_depth'], int(math.log2(n_features))),
-            rg_repetitions=hp['rg_repetitions'],
-            n_batch=hp['n_batch'],
-            n_sum=hp['n_batch'],
-            optimize_scale=True,
-            in_dropout=args.dropout,
-            prod_dropout=args.dropout,
-            rand_state=rand_state
+    # Open the results JSON of the chosen dataset
+    filepath = os.path.join(directory, args.dataset + '.json')
+    if os.path.isfile(filepath):
+        with open(filepath, 'r') as file:
+            results = json.load(file)
+    else:
+        results = dict()
+
+    # Build the model
+    base_dist = 'bernoulli' if is_binary_dataset else 'gaussian'
+    rg_depth = min(args.rg_depth, np.log2(n_features).astype(np.int))
+    optimize_scale = args.optimize_scale if is_continuous_dataset or is_vision_dataset else False
+    model = RatSpn(
+        n_features,
+        base_dist=base_dist,
+        out_classes=out_classes,
+        rg_depth=rg_depth,
+        rg_repetitions=args.rg_repetitions,
+        n_batch=args.rg_batches,
+        n_sum=args.rg_sums,
+        optimize_scale=optimize_scale,
+        in_dropout=args.dropout,
+        prod_dropout=args.dropout,
+        rand_state=rand_state
+    )
+
+    # Train the model and collect the results
+    if args.discriminative:
+        nll, accuracy = collect_results_discriminative(
+            model, data_train, data_valid, data_test,
+            lr=args.learning_rate, batch_size=args.batch_size,
+            epochs=args.epochs, patience=args.patience, weight_decay=args.weight_decay
         )
 
-        # Train the model and collect the results
-        if args.discriminative:
-            nll, accuracy = collect_results_discriminative(
-                model, data_train, data_valid, data_test,
-                lr=args.learning_rate, batch_size=args.batch_size,
-                epochs=args.epochs, patience=args.patience, weight_decay=args.weight_decay
-            )
+        results[timestamp] = {
+            'nll': nll,
+            'accuracy': accuracy,
+            'settings': args.__dict__
+        }
+        with open(os.path.join(directory, args.dataset + '.json'), 'w') as file:
+            json.dump(results, file, indent=4)
+    else:
+        mean_ll, stddev_ll, bpp = collect_results_generative(
+            model, data_train, data_valid, data_test, compute_bpp=is_vision_dataset,
+            lr=args.learning_rate, batch_size=args.batch_size,
+            epochs=args.epochs, patience=args.patience, weight_decay=args.weight_decay
+        )
 
-            results[str(idx)] = {
-                'nll': nll,
-                'accuracy': accuracy,
-                'hyper_params': hp
-            }
-            with open(os.path.join(directory, args.dataset + '.json'), 'w') as file:
-                json.dump(results, file, indent=4)
-        else:
-            mean_ll, stddev_ll, bpp = collect_results_generative(
-                model, data_train, data_valid, data_test, compute_bpp=is_vision_dataset,
-                lr=args.learning_rate, batch_size=args.batch_size,
-                epochs=args.epochs, patience=args.patience, weight_decay=args.weight_decay
-            )
+        results[timestamp] = {
+            'log_likelihood': {
+                'mean': mean_ll,
+                'stddev': 2.0 * stddev_ll
+            },
+            'bpp': bpp,
+            'settings': args.__dict__
+        }
+        with open(os.path.join(directory, args.dataset + '.json'), 'w') as file:
+            json.dump(results, file, indent=4)
 
-            results[str(idx)] = {
-                'log_likelihood': {
-                    'mean': mean_ll,
-                    'stddev': 2.0 * stddev_ll
-                },
-                'bpp': bpp,
-                'hyper_params': hp
-            }
-            with open(os.path.join(directory, args.dataset + '.json'), 'w') as file:
-                json.dump(results, file, indent=4)
-
-            if is_vision_dataset:
-                n_samples = 8
-                samples = collect_samples(model, n_samples * n_samples)
-                images = transform.backward(samples)
-                images = images.reshape([n_samples, n_samples, *images.shape[1:]])
-                images_filename = os.path.join(samples_directory, str(idx) + '.png')
-                save_grid_images(images, images_filename)
+        if is_vision_dataset:
+            n_samples = 8
+            samples = collect_samples(model, n_samples * n_samples)
+            images = transform.backward(samples)
+            images = images.reshape([n_samples, n_samples, *images.shape[1:]])
+            images_filename = os.path.join(samples_directory, timestamp + '.png')
+            save_grid_images(images, images_filename)
