@@ -4,9 +4,10 @@ import json
 import argparse
 import numpy as np
 
+from spnflow.utils.data import DataTransform
 from spnflow.torch.models.flows import RealNVP1d, RealNVP2d, MAF
 
-from experiments.datasets import DatasetTransform, load_continuous_dataset, load_vision_dataset
+from experiments.datasets import load_continuous_dataset, load_vision_dataset
 from experiments.datasets import CONTINUOUS_DATASETS, VISION_DATASETS
 from experiments.utils import collect_results_generative, collect_samples, save_grid_images
 
@@ -30,7 +31,8 @@ if __name__ == '__main__':
         '--kernel-size', type=int, default=3, help='The kernel size for convolutional layers in nvp2d.'
     )
     parser.add_argument(
-        '--activation', choices=['relu', 'tanh', 'sigmoid'], default='relu', help='The activation function to use.'
+        '--activation', choices=['relu', 'tanh', 'sigmoid'], default='relu',
+        help='The activation function to use in maf.'
     )
     parser.add_argument('--learning-rate', type=float, default=1e-3, help='The learning rate.')
     parser.add_argument('--batch-size', type=int, default=100, help='The batch size.')
@@ -47,14 +49,14 @@ if __name__ == '__main__':
     transform = None
     if is_vision_dataset:
         if args.model == 'nvp2d':
-            transform = DatasetTransform(dequantize=True, standardize=False, flatten=False)
+            transform = DataTransform(dequantize=True, standardize=False, flatten=False)
         else:
-            transform = DatasetTransform(dequantize=True, standardize=False, flatten=True)
+            transform = DataTransform(dequantize=True, standardize=False, flatten=True)
         data_train, data_valid, data_test = load_vision_dataset(
             'datasets', args.dataset, unsupervised=True
         )
     else:
-        transform = DatasetTransform(standardize=True)
+        transform = DataTransform(standardize=True)
         data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
 
     transform.fit(np.vstack([data_train, data_valid]))
@@ -92,7 +94,6 @@ if __name__ == '__main__':
             depth=args.depth,
             units=args.units,
             batch_norm=args.batch_norm,
-            activation=args.activation,
             logit=is_vision_dataset
         )
     elif args.model == 'nvp2d':
@@ -103,7 +104,6 @@ if __name__ == '__main__':
             channels=args.channels,
             kernel_size=args.kernel_size,
             batch_norm=args.batch_norm,
-            activation=args.activation,
             logit=is_vision_dataset
         )
     elif args.model == 'maf':
@@ -131,7 +131,7 @@ if __name__ == '__main__':
     results[timestamp] = {
         'log_likelihood': {
             'mean': mean_ll,
-            'stddev': 2.0 * stddev_ll
+            'stddev': stddev_ll
         },
         'bpp': bpp,
         'settings': args.__dict__

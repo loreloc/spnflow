@@ -2,9 +2,9 @@ import numpy as np
 import torch
 import torchvision
 
-from spnflow.torch.models import RealNVP
+from spnflow.torch.models.flows import RealNVP1d
 from spnflow.torch.transforms import Dequantize, Flatten, Reshape
-from spnflow.torch.utils import torch_train
+from spnflow.torch.routines import torch_train
 
 
 class UnsupervisedMNIST(torchvision.datasets.MNIST):
@@ -37,8 +37,8 @@ data_train, data_val = torch.utils.data.random_split(data_train, [n_train, n_val
 
 # Instantiate the model
 # WARNING: very high memory usage
-in_features = np.prod(UnsupervisedMNIST.IMAGE_SIZE)
-model = RealNVP(
+in_features = np.prod(UnsupervisedMNIST.IMAGE_SIZE).item()
+model = RealNVP1d(
     in_features=in_features,
     n_flows=5,
     units=1024,

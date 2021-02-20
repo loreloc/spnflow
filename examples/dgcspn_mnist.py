@@ -1,9 +1,9 @@
 import torch
 import torchvision
 
-from spnflow.torch.models import DgcSpn
+from spnflow.torch.models.dgcspn import DgcSpn
 from spnflow.torch.transforms import Reshape
-from spnflow.torch.utils import torch_train, torch_test
+from spnflow.torch.routines import torch_train, torch_test
 
 image_size = (1, 28, 28)
 n_classes = 10
@@ -28,7 +28,7 @@ model = DgcSpn(
     in_size=image_size,
     out_classes=n_classes,
     n_batch=16,
-    sum_channels=64,
+    sum_channels=32,
     depthwise=True,
     n_pooling=2,
     optimize_scale=False,

@@ -4,7 +4,7 @@ from tqdm import tqdm
 from spnflow.structure.node import Sum, assign_ids
 from spnflow.learning.structure import learn_structure
 from spnflow.utils.data import get_data_domains
-from spnflow.optimization.pruning import prune
+from spnflow.structure.pruning import prune
 
 
 def learn_estimator(data, distributions, domains=None, **kwargs):

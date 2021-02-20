@@ -120,9 +120,9 @@ class SpatialProductLayer(torch.nn.Module):
         if self.padding == 'valid':
             self.pad = [0, 0, 0, 0]
         elif self.padding == 'full':
-            self.pad = [kaw - 1, kaw - 1, kah - 1, kah - 1]
+            self.pad = [kah - 1, kah - 1, kaw - 1, kaw - 1]
         elif self.padding == 'final':
-            self.pad = [(kaw - 1) * 2 - self.in_width, 0, (kah - 1) * 2 - self.in_height, 0]
+            self.pad = [(kah - 1) * 2 - self.in_height, 0, (kaw - 1) * 2 - self.in_width, 0]
         else:
             raise NotImplementedError('Unknown padding mode named ' + self.padding)
 
@@ -150,8 +150,8 @@ class SpatialProductLayer(torch.nn.Module):
     @property
     def out_size(self):
         kah, kaw = self.effective_kernel_size
-        out_height = self.pad[2] + self.pad[3] + self.in_height - kah + 1
-        out_width = self.pad[0] + self.pad[1] + self.in_width - kaw + 1
+        out_height = self.pad[0] + self.pad[1] + self.in_height - kah + 1
+        out_width = self.pad[2] + self.pad[3] + self.in_width - kaw + 1
         out_height = int(np.ceil(out_height / self.stride[0]).item())
         out_width = int(np.ceil(out_width / self.stride[1]).item())
         return self.out_channels, out_height, out_width

@@ -3,6 +3,16 @@ import torch
 import numpy as np
 
 
+class ScaledTanh(torch.nn.Module):
+    """Scaled Tanh activation module."""
+    def __init__(self):
+        super(ScaledTanh, self).__init__()
+        self.scale = torch.nn.Parameter(torch.ones(1), requires_grad=True)
+
+    def forward(self, x):
+        return self.scale * torch.tanh(x)
+
+
 class MaskedLinear(torch.nn.Linear):
     """Masked version of linear layer."""
     def __init__(self, in_features, out_features, mask):
@@ -28,14 +38,14 @@ class MaskedLinear(torch.nn.Linear):
 
 class AbstractCouplingLayer(abc.ABC, torch.nn.Module):
     """Abstract RealNVP coupling layer."""
-    def __init__(self, in_features, depth, activation, reverse):
+    def __init__(self, in_features, depth, reverse):
         super(AbstractCouplingLayer, self).__init__()
         self.in_features = in_features
         self.out_features = in_features
         self.depth = depth
-        self.activation = activation
         self.reverse = reverse
         self.layers = torch.nn.ModuleList()
+        self.scale_act = ScaledTanh()
 
     def register_mask(self, mask):
         """
@@ -58,12 +68,15 @@ class AbstractCouplingLayer(abc.ABC, torch.nn.Module):
         :param x: The inputs.
         :return: The tensor result of the layer.
         """
-        # Get the parameters and apply the affine transformation
+        # Get the parameters
         mx = self.mask * x
-        y = mx
+        ts = mx
         for layer in self.layers:
-            y = layer(y)
-        t, s = torch.chunk(y, chunks=2, dim=1)
+            ts = layer(ts)
+        t, s = torch.chunk(ts, chunks=2, dim=1)
+        s = self.scale_act(s)
+
+        # Apply the affine transformation (backward mode)
         u = mx + self.inv_mask * ((x - t) * torch.exp(-s))
         dj = torch.flatten(self.inv_mask * s, start_dim=1)
         inv_log_det_jacobian = -torch.sum(dj, dim=1, keepdim=True)
@@ -76,12 +89,15 @@ class AbstractCouplingLayer(abc.ABC, torch.nn.Module):
         :param u: The inputs.
         :return: The tensor result of the layer.
         """
-        # Get the parameters and apply the affine transformation (inverse mode)
+        # Get the parameters
         mu = self.mask * u
-        y = mu
+        ts = mu
         for layer in self.layers:
-            y = layer(y)
-        t, s = torch.chunk(y, chunks=2, dim=1)
+            ts = layer(ts)
+        t, s = torch.chunk(ts, chunks=2, dim=1)
+        s = self.scale_act(s)
+
+        # Apply the affine transformation (forward mode).
         x = mu + self.inv_mask * (u * torch.exp(s) + t)
         dj = torch.flatten(self.inv_mask * s, start_dim=1)
         log_det_jacobian = torch.sum(dj, dim=1, keepdim=True)
@@ -90,17 +106,16 @@ class AbstractCouplingLayer(abc.ABC, torch.nn.Module):
 
 class CouplingLayer1d(AbstractCouplingLayer):
     """RealNVP 1D coupling layer."""
-    def __init__(self, in_features, depth, activation, reverse, units):
+    def __init__(self, in_features, depth, reverse, units):
         """
         Build a coupling layer as specified in RealNVP paper.
 
         :param in_features: The number of input features.
         :param depth: The number of hidden layers of the conditioner.
-        :param units: The number of units of each hidden layer of the conditioner.
-        :param activation: The activation class used for inner layers of the conditioner.
         :param reverse: Whether to reverse the mask used in the coupling layer. Useful for alternating masks.
+        :param units: The number of units of each hidden layer of the conditioner.
         """
-        super(CouplingLayer1d, self).__init__(in_features, depth, activation, reverse)
+        super(CouplingLayer1d, self).__init__(in_features, depth, reverse)
         self.units = units
 
         # Register the coupling mask
@@ -111,7 +126,7 @@ class CouplingLayer1d(AbstractCouplingLayer):
         out_features = self.units
         for _ in range(self.depth):
             self.layers.append(torch.nn.Linear(in_features, out_features))
-            self.layers.append(self.activation())
+            self.layers.append(torch.nn.ReLU())
             in_features = out_features
         out_features = self.in_features * 2
         self.layers.append(torch.nn.Linear(in_features, out_features))
@@ -125,18 +140,17 @@ class CouplingLayer1d(AbstractCouplingLayer):
 
 class CouplingLayer2d(AbstractCouplingLayer):
     """RealNVP 2D coupling layer."""
-    def __init__(self, in_features, depth, activation, reverse, channels, kernel_size):
+    def __init__(self, in_features, depth, reverse, channels, kernel_size):
         """
         Build a 2D-convolutional coupling layer as specified in RealNVP paper.
 
         :param in_features: The size of the input.
         :param depth: The number of hidden layers of the conditioner.
-        :param activation: The activation class used for inner layers of the conditioner.
         :param reverse: Whether to reverse the mask used in the coupling layer. Useful for alternating masks.
         :param channels: The number of output channels of each convolutional layer.
         :param kernel_size: The kernel size of each convolutional layer.
         """
-        super(CouplingLayer2d, self).__init__(in_features, depth, activation, reverse)
+        super(CouplingLayer2d, self).__init__(in_features, depth, reverse)
         self.channels = channels
         self.kernel_size = kernel_size
         self.padding = kernel_size // 2
@@ -148,7 +162,7 @@ class CouplingLayer2d(AbstractCouplingLayer):
         in_channels = self.in_channels
         for _ in range(self.depth):
             self.layers.append(torch.nn.Conv2d(in_channels, channels, self.kernel_size, padding=self.padding))
-            self.layers.append(self.activation())
+            self.layers.append(torch.nn.ReLU())
             in_channels = channels
         channels = self.in_channels * 2
         self.layers.append(torch.nn.Conv2d(in_channels, channels, self.kernel_size, padding=self.padding))
@@ -168,8 +182,8 @@ class CouplingLayer2d(AbstractCouplingLayer):
     @staticmethod
     def build_mask_chessboard(in_features):
         # Build the chessboard coupling mask
-        in_channels, in_width, in_height = in_features
-        mask = np.sum(np.indices([1, in_width, in_height]), axis=0) % 2
+        in_channels, in_height, in_width = in_features
+        mask = np.sum(np.indices([1, in_height, in_width]), axis=0) % 2
         return mask.astype(np.float32)
 
 
@@ -197,6 +211,7 @@ class AutoregressiveLayer(torch.nn.Module):
         self.reverse = reverse
         self.rand_state = rand_state
         self.layers = torch.nn.ModuleList()
+        self.scale_act = ScaledTanh()
 
         # Create the masks of the masked linear layers
         degrees = self._build_degrees_sequential() if sequential else self._build_degrees_random()
@@ -221,13 +236,14 @@ class AutoregressiveLayer(torch.nn.Module):
         :param x: The inputs.
         :return: The tensor result of the layer.
         """
-        # Get the parameters and apply the affine transformation
+        # Get the parameters and apply the affine transformation (backward mode)
         z = x
         for layer in self.layers:
             z = layer(z)
-        mu, sigma = torch.chunk(z, chunks=2, dim=1)
-        u = (x - mu) * torch.exp(-sigma)
-        inv_log_det_jacobian = -torch.sum(sigma, dim=1, keepdim=True)
+        t, s = torch.chunk(z, chunks=2, dim=1)
+        s = self.scale_act(s)
+        u = (x - t) * torch.exp(-s)
+        inv_log_det_jacobian = -torch.sum(s, dim=1, keepdim=True)
         return u, inv_log_det_jacobian
 
     def forward(self, u):
@@ -242,15 +258,16 @@ class AutoregressiveLayer(torch.nn.Module):
         log_det_jacobian = torch.zeros_like(u)
 
         # This requires D iterations where D is the number of features
-        # Get the parameters and apply the affine transformation (inverse mode)
+        # Get the parameters and apply the affine transformation (forward mode)
         for i in range(0, self.in_features):
             z = x
             for layer in self.layers:
                 z = layer(z)
-            mu, sigma = torch.chunk(z, chunks=2, dim=1)
+            t, s = torch.chunk(z, chunks=2, dim=1)
+            s = self.scale_act(s)
             idx = np.argwhere(self.ordering == i).item()
-            x[:, idx] = u[:, idx] * torch.exp(sigma[:, idx]) + mu[:, idx]
-            log_det_jacobian[:, idx] = sigma[:, idx]
+            x[:, idx] = u[:, idx] * torch.exp(s[:, idx]) + t[:, idx]
+            log_det_jacobian[:, idx] = s[:, idx]
         log_det_jacobian = torch.sum(log_det_jacobian, dim=1, keepdim=True)
         return x, log_det_jacobian
 
@@ -382,7 +399,7 @@ class BatchNormLayer(torch.nn.Module):
 
 class LogitLayer(torch.nn.Module):
     """Logit transformation layer."""
-    def __init__(self, alpha=0.05):
+    def __init__(self, alpha=1e-6):
         """
         Build a Logit layer.
 
@@ -390,6 +407,7 @@ class LogitLayer(torch.nn.Module):
         """
         super(LogitLayer, self).__init__()
         self.alpha = alpha
+        self.rev_alpha = 1.0 - 2.0 * alpha
 
     def inverse(self, x):
         """
@@ -399,13 +417,13 @@ class LogitLayer(torch.nn.Module):
         :return: The tensor result of the layer.
         """
         # Apply logit transformation
-        x = self.alpha + (1.0 - 2.0 * self.alpha) * x
+        x = self.alpha + self.rev_alpha * x
         u = torch.log(x) - torch.log(1.0 - x)
         dj = torch.flatten(
-            torch.log(torch.sigmoid(u)) + torch.log(torch.sigmoid(-u)) - np.log(1.0 - 2.0 * self.alpha),
+            -torch.log(x) - torch.log(1.0 - x) + np.log(self.rev_alpha),
             start_dim=1
         )
-        inv_log_det_jacobian = -torch.sum(dj, dim=1, keepdim=True)
+        inv_log_det_jacobian = torch.sum(dj, dim=1, keepdim=True)
         return u, inv_log_det_jacobian
 
     def forward(self, u):
@@ -417,10 +435,10 @@ class LogitLayer(torch.nn.Module):
         """
         # Apply de-logit transformation
         u = torch.sigmoid(u)
-        x = (u - self.alpha) / (1.0 - 2.0 * self.alpha)
+        x = (u - self.alpha) / self.rev_alpha
         dj = torch.flatten(
-            torch.log(u) + torch.log(1.0 - u) + np.log(1.0 - 2.0 * self.alpha),
+            torch.log(u) + torch.log(-u) - np.log(self.rev_alpha),
             start_dim=1
         )
-        log_det_jacobian = -torch.sum(dj, dim=1, keepdim=True)
+        log_det_jacobian = torch.sum(dj, dim=1, keepdim=True)
         return x, log_det_jacobian

@@ -7,8 +7,8 @@ from spnflow.torch.layers.flows import BatchNormLayer, LogitLayer
 from spnflow.torch.utils import torch_get_activation
 
 
-class AbstractNormalizingFlow1d(AbstractModel):
-    """Abstract Normalizing Flow model 1D."""
+class AbstractNormalizingFlow(AbstractModel):
+    """Abstract Normalizing Flow model."""
     def __init__(self, in_features, n_flows=5, logit=False, in_base=None):
         """
         Initialize an abstract Normalizing Flow model.
@@ -18,7 +18,7 @@ class AbstractNormalizingFlow1d(AbstractModel):
         :param logit: Whether to apply logit transformation on the input layer.
         :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         """
-        super(AbstractNormalizingFlow1d, self).__init__()
+        super(AbstractNormalizingFlow, self).__init__()
         assert (type(in_features) == int and in_features > 0) or \
                (len(in_features) == 3 and all(map(lambda d: d > 0, in_features)))
         assert n_flows > 0
@@ -73,7 +73,7 @@ class AbstractNormalizingFlow1d(AbstractModel):
         return x
 
 
-class RealNVP1d(AbstractNormalizingFlow1d):
+class RealNVP1d(AbstractNormalizingFlow):
     """Real Non-Volume-Preserving (RealNVP) 1D normalizing flow model."""
     def __init__(self,
                  in_features,
@@ -81,7 +81,6 @@ class RealNVP1d(AbstractNormalizingFlow1d):
                  depth=1,
                  units=128,
                  batch_norm=True,
-                 activation='relu',
                  logit=False,
                  in_base=None,
                  ):
@@ -93,7 +92,6 @@ class RealNVP1d(AbstractNormalizingFlow1d):
         :param depth: The number of hidden layers of flows conditioners.
         :param units: The number of hidden units per layer of flows conditioners.
         :param batch_norm: Whether to apply batch normalization after each coupling layer.
-        :param activation: The activation function name to use for the flows conditioners hidden layers.
         :param logit: Whether to apply logit transformation on the input layer.
         :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         """
@@ -103,13 +101,12 @@ class RealNVP1d(AbstractNormalizingFlow1d):
         self.depth = depth
         self.units = units
         self.batch_norm = batch_norm
-        self.activation = torch_get_activation(activation)
 
         # Build the coupling layers
         reverse = False
         for _ in range(self.n_flows):
             self.layers.append(
-                CouplingLayer1d(self.in_features, self.depth, self.activation, reverse, self.units)
+                CouplingLayer1d(self.in_features, self.depth, reverse, self.units)
             )
 
             # Append batch normalization after each layer, if specified
@@ -120,7 +117,7 @@ class RealNVP1d(AbstractNormalizingFlow1d):
             reverse = not reverse
 
 
-class RealNVP2d(AbstractNormalizingFlow1d):
+class RealNVP2d(AbstractNormalizingFlow):
     """Real Non-Volume-Preserving (RealNVP) 2D normalizing flow model."""
     def __init__(self,
                  in_features,
@@ -129,7 +126,6 @@ class RealNVP2d(AbstractNormalizingFlow1d):
                  channels=16,
                  kernel_size=3,
                  batch_norm=True,
-                 activation='relu',
                  logit=False,
                  in_base=None,
                  ):
@@ -142,7 +138,6 @@ class RealNVP2d(AbstractNormalizingFlow1d):
         :param channels: The number of output channels of each convolutional layer.
         :param kernel_size: The kernel size of each convolutional layer.
         :param batch_norm: Whether to apply batch normalization after each coupling layer.
-        :param activation: The activation function name to use for the flows conditioners hidden layers.
         :param logit: Whether to apply logit transformation on the input layer.
         :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         """
@@ -154,13 +149,12 @@ class RealNVP2d(AbstractNormalizingFlow1d):
         self.channels = channels
         self.kernel_size = kernel_size
         self.batch_norm = batch_norm
-        self.activation = torch_get_activation(activation)
 
         # Build the coupling layers
         reverse = False
         for _ in range(self.n_flows):
             self.layers.append(
-                CouplingLayer2d(self.in_features, self.depth, self.activation, reverse, self.channels, self.kernel_size)
+                CouplingLayer2d(self.in_features, self.depth, reverse, self.channels, self.kernel_size)
             )
 
             # Append batch normalization after each layer, if specified
@@ -171,7 +165,7 @@ class RealNVP2d(AbstractNormalizingFlow1d):
             reverse = not reverse
 
 
-class MAF(AbstractNormalizingFlow1d):
+class MAF(AbstractNormalizingFlow):
     """Masked Autoregressive Flow (MAF) normalizing flow model."""
     def __init__(self,
                  in_features,

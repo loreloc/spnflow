@@ -4,6 +4,76 @@ import scipy.stats as stats
 from spnflow.structure.leaf import LeafType
 
 
+class DataTransform:
+    """Data transform for probabilistic learning purposes."""
+    def __init__(self, dequantize=False, standardize=True, flatten=False, epsilon=1e-8, dtype=np.float32):
+        """
+        Build the data transform.
+        The transformation pipeline is the following:
+        Dequantize -> Standardize -> Flatten -> Type Conversion
+
+        :param dequantize: Whether to dequantize the data.
+        :param standardize: Whether to standardize the data.
+        :param flatten: Whether to flatten the data.
+        :param epsilon: Epsilon factor for standardization.
+        :param dtype: The type for type conversion.
+        """
+        self.dequantize = dequantize
+        self.standardize = standardize
+        self.flatten = flatten
+        self.epsilon = epsilon
+        self.dtype = dtype
+        self.mu = None
+        self.sigma = None
+        self.shape = None
+
+    def fit(self, data):
+        """
+        Fit the data transform with some data.
+
+        :param data: The data for fitting.
+        """
+        if self.standardize:
+            if self.dequantize:  # compute mean and stddev of the dequantized dataset
+                data = (data + np.random.rand(*data.shape)) / 256.0
+            self.mu = np.mean(data, axis=0)
+            self.sigma = np.std(data, axis=0)
+        self.shape = data.shape[1:]
+
+    def forward(self, data):
+        """
+        Apply the data transform to some data.
+
+        :param data: The data to transform.
+        :return: The transformed data.
+        """
+        if self.dequantize:
+            data = (data + np.random.rand(*data.shape)) / 256.0
+        if self.standardize:
+            data = (data - self.mu) / (self.sigma + self.epsilon)
+        if self.flatten:
+            data = data.reshape([len(data), -1])
+        return data.astype(self.dtype)
+
+    def backward(self, data):
+        """
+        Apply the backward data transform to some data
+
+        :param data: The data to transform.
+        :return: The transformed data.
+        """
+        if self.flatten:
+            data = data.reshape([len(data), *self.shape])
+        if self.standardize:
+            data = (self.sigma + self.epsilon) * data + self.mu
+        if self.dequantize:
+            data[data < 0] = 0.0
+            data[data > 1.0] = 1.0
+            data = data * 255.0
+            data = data.astype(np.uint8)
+        return data
+
+
 def get_data_domains(data, distributions):
     """
     Compute the domains based on the training data and the features distributions.

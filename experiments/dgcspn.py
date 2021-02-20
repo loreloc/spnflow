@@ -5,9 +5,9 @@ import argparse
 import numpy as np
 
 from spnflow.torch.models.dgcspn import DgcSpn
-from spnflow.utils.data import compute_mean_quantiles
+from spnflow.utils.data import DataTransform, compute_mean_quantiles
 
-from experiments.datasets import DatasetTransform, load_vision_dataset
+from experiments.datasets import load_vision_dataset
 from experiments.datasets import VISION_DATASETS
 from experiments.utils import collect_results_generative, collect_results_discriminative
 
@@ -50,7 +50,7 @@ if __name__ == '__main__':
         'Only one between --mean-quantiles and --mean-uniform can be defined'
 
     # Load the dataset
-    transform = DatasetTransform(dequantize=True, standardize=True, flatten=False)
+    transform = DataTransform(dequantize=True, standardize=True, flatten=False)
     if args.discriminative:
         (data_train, label_train), (data_valid, label_valid), (data_test, label_test) = load_vision_dataset(
             'datasets', args.dataset, unsupervised=False
@@ -135,7 +135,7 @@ if __name__ == '__main__':
         results[timestamp] = {
             'log_likelihood': {
                 'mean': mean_ll,
-                'stddev': 2.0 * stddev_ll
+                'stddev': stddev_ll
             },
             'bpp': bpp,
             'settings': args.__dict__

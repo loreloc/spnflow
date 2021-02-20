@@ -1,9 +1,9 @@
 import torch
 import torchvision
 
-from spnflow.torch.models import RatSpn
+from spnflow.torch.models.ratspn import GaussianRatSpn
 from spnflow.torch.transforms import Flatten
-from spnflow.torch.utils import torch_train, torch_test
+from spnflow.torch.routines import torch_train, torch_test
 
 n_features = 784
 out_classes = 10
@@ -23,12 +23,12 @@ n_train = len(data_train) - n_val
 data_train, data_val = torch.utils.data.random_split(data_train, [n_train, n_val])
 
 # Build the model
-model = RatSpn(
+model = GaussianRatSpn(
     n_features, out_classes,
     rg_depth=3,
     rg_repetitions=32,
-    n_batch=16,
-    n_sum=16,
+    n_batch=8,
+    n_sum=8,
     in_dropout=0.2,
     prod_dropout=0.2,
     optimize_scale=False
@@ -38,6 +38,7 @@ model = RatSpn(
 torch_train(
     model, data_train, data_val,
     setting='discriminative',
+    lr=1e-2,
     epochs=25,
     patience=5
 )

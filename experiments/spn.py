@@ -6,24 +6,12 @@ import numpy as np
 
 from spnflow.structure.leaf import Bernoulli, Gaussian
 from spnflow.learning.wrappers import learn_estimator
-from spnflow.algorithms.inference import log_likelihood
+from spnflow.utils.data import DataTransform
 from spnflow.utils.statistics import get_statistics
 
-from experiments.datasets import DatasetTransform, load_binary_dataset, load_continuous_dataset
+from experiments.datasets import  load_binary_dataset, load_continuous_dataset
 from experiments.datasets import BINARY_DATASETS, CONTINUOUS_DATASETS
-
-
-def evaluate_log_likelihoods(spn, data, batch_size=2048):
-    n_samples = len(data)
-    ll = np.zeros((n_samples, 1))
-    for i in range(0, n_samples - batch_size, batch_size):
-        ll[i:i + batch_size] = log_likelihood(spn, data[i:i + batch_size])
-    n_remaining_samples = n_samples % batch_size
-    if n_remaining_samples > 0:
-        ll[-n_remaining_samples:] = log_likelihood(spn, data[-n_remaining_samples:])
-    mean_ll = np.mean(ll)
-    stddev_ll = 2.0 * np.std(ll) / np.sqrt(n_samples)
-    return mean_ll, stddev_ll
+from experiments.utils import evaluate_log_likelihoods
 
 
 if __name__ == '__main__':
@@ -62,7 +50,7 @@ if __name__ == '__main__':
     if args.dataset in BINARY_DATASETS:
         data_train, data_valid, data_test = load_binary_dataset('datasets', args.dataset)
     else:
-        transform = DatasetTransform(standardize=True)
+        transform = DataTransform(standardize=True)
         data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
         transform.fit(np.vstack([data_train, data_valid]))
         data_train = transform.forward(data_train)

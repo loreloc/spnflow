@@ -2,9 +2,9 @@ import numpy as np
 import torch
 import torchvision
 
-from spnflow.torch.models import MAF
+from spnflow.torch.models.flows import MAF
 from spnflow.torch.transforms import Dequantize, Flatten, Reshape
-from spnflow.torch.utils import torch_train
+from spnflow.torch.routines import torch_train
 
 
 class UnsupervisedCIFAR10(torchvision.datasets.CIFAR10):
@@ -38,7 +38,7 @@ data_train, data_val = torch.utils.data.random_split(data_train, [n_train, n_val
 
 # Instantiate the model
 # WARNING: very high memory usage
-in_features = np.prod(UnsupervisedCIFAR10.IMAGE_SIZE)
+in_features = np.prod(UnsupervisedCIFAR10.IMAGE_SIZE).item()
 model = MAF(
     in_features=in_features,
     n_flows=5,

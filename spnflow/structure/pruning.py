@@ -1,5 +1,5 @@
 from spnflow.structure.leaf import Leaf
-from spnflow.structure.node import Sum, Mul, bfs, assign_ids
+from spnflow.structure.node import Sum, bfs, assign_ids
 from spnflow.utils.validity import assert_is_valid
 
 

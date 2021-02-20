@@ -1,7 +1,21 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from spnflow.torch.utils import torch_train, torch_test
+from spnflow.algorithms.inference import log_likelihood
+from spnflow.torch.routines import torch_train, torch_test
+
+
+def evaluate_log_likelihoods(spn, data, batch_size=2048):
+    n_samples = len(data)
+    ll = np.zeros((n_samples, 1))
+    for i in range(0, n_samples - batch_size, batch_size):
+        ll[i:i + batch_size] = log_likelihood(spn, data[i:i + batch_size])
+    n_remaining_samples = n_samples % batch_size
+    if n_remaining_samples > 0:
+        ll[-n_remaining_samples:] = log_likelihood(spn, data[-n_remaining_samples:])
+    mean_ll = np.mean(ll)
+    stddev_ll = 2.0 * np.std(ll) / np.sqrt(n_samples)
+    return mean_ll, stddev_ll
 
 
 def collect_results_generative(model, data_train, data_valid, data_test, compute_bpp=False, **kwargs):

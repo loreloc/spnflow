@@ -4,9 +4,10 @@ import json
 import argparse
 import numpy as np
 
+from spnflow.utils.data import DataTransform
 from spnflow.torch.models.ratspn import GaussianRatSpn, BernoulliRatSpn
 
-from experiments.datasets import DatasetTransform, load_binary_dataset, load_continuous_dataset, load_vision_dataset
+from experiments.datasets import load_binary_dataset, load_continuous_dataset, load_vision_dataset
 from experiments.datasets import BINARY_DATASETS, CONTINUOUS_DATASETS, VISION_DATASETS
 from experiments.utils import collect_results_generative, collect_results_discriminative, collect_samples, save_grid_images
 
@@ -49,13 +50,13 @@ if __name__ == '__main__':
     # Load the dataset
     transform = None
     if is_binary_dataset:
-        transform = DatasetTransform(standardize=False)
+        transform = DataTransform(standardize=False)
         data_train, data_valid, data_test = load_binary_dataset('datasets', args.dataset)
     elif is_continuous_dataset:
-        transform = DatasetTransform(standardize=True)
+        transform = DataTransform(standardize=True)
         data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
     elif is_vision_dataset:
-        transform = DatasetTransform(dequantize=True, standardize=True, flatten=True)
+        transform = DataTransform(dequantize=True, standardize=True, flatten=True)
         if args.discriminative:
             (data_train, label_train), (data_valid, label_valid), (data_test, label_test) = load_vision_dataset(
                 'datasets', args.dataset, unsupervised=False
@@ -159,7 +160,7 @@ if __name__ == '__main__':
         results[timestamp] = {
             'log_likelihood': {
                 'mean': mean_ll,
-                'stddev': 2.0 * stddev_ll
+                'stddev': stddev_ll
             },
             'bpp': bpp,
             'settings': args.__dict__
