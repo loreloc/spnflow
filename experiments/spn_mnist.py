@@ -4,7 +4,7 @@ import sklearn as sk
 from experiments.datasets import load_vision_dataset
 from experiments.utils import save_grid_images
 
-from spnflow.utils.data import DataTransform
+from spnflow.utils.data import DataStandardizer
 from spnflow.utils.statistics import get_statistics
 from spnflow.structure.leaf import Gaussian, Multinomial
 from spnflow.learning.wrappers import learn_classifier
@@ -19,7 +19,7 @@ n_classes = 10
 (x_train, y_train), (x_valid, y_valid), (x_test, y_test) = load_vision_dataset('datasets', 'mnist', unsupervised=False)
 
 # Preprocess the dataset
-transform = DataTransform(dequantize=True, standardize=False, flatten=True)
+transform = DataStandardizer(flatten=True)
 transform.fit(np.row_stack([x_train, x_valid]))
 x_train = transform.forward(x_train)
 x_valid = transform.forward(x_valid)

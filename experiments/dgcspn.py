@@ -5,7 +5,7 @@ import argparse
 import numpy as np
 
 from spnflow.torch.models.dgcspn import DgcSpn
-from spnflow.utils.data import DataTransform, compute_mean_quantiles
+from spnflow.utils.data import DataStandardizer, compute_mean_quantiles
 
 from experiments.datasets import load_vision_dataset
 from experiments.datasets import VISION_DATASETS
@@ -30,12 +30,15 @@ if __name__ == '__main__':
         action='store_false', help='Whether to optimize scale in Gaussian layers.'
     )
     parser.add_argument(
-        '--mean-quantiles', action='store_true', default=False, help='Whether to use mean quantiles for leaves initialization.'
+        '--quantiles-loc', action='store_true', default=False,
+        help='Whether to use mean quantiles for leaves initialization.'
     )
     parser.add_argument(
-        '--mean-uniform', nargs=2, type=float, default=None, help='Use uniform mean for leaves initialization.'
+        '--uniform-loc', nargs=2, type=float, default=None,
+        help='Use uniform location for leaves initialization.'
     )
-    parser.add_argument('--dropout', type=float, default=None, help='The dropout to use in case of discriminative.')
+    parser.add_argument('--in-dropout', type=float, default=None, help='The input distributions layer dropout to use.')
+    parser.add_argument('--sum-dropout', type=float, default=None, help='The sum layer dropout to use.')
     parser.add_argument('--learning-rate', type=float, default=1e-3, help='The learning rate.')
     parser.add_argument('--batch-size', type=int, default=128, help='The batch size.')
     parser.add_argument('--epochs', type=int, default=1000, help='The number of epochs.')
@@ -46,11 +49,11 @@ if __name__ == '__main__':
     # Instantiate a random state, used for reproducibility
     rand_state = np.random.RandomState(42)
 
-    assert args.mean_quantiles is False or args.mean_uniform is None, \
+    assert args.quantiles_loc is False or args.uniform_loc is None, \
         'Only one between --mean-quantiles and --mean-uniform can be defined'
 
     # Load the dataset
-    transform = DataTransform(dequantize=True, standardize=True, flatten=False)
+    transform = DataStandardizer(sample_wise=False, flatten=False)
     if args.discriminative:
         (data_train, label_train), (data_valid, label_valid), (data_test, label_test) = load_vision_dataset(
             'datasets', args.dataset, unsupervised=False
@@ -92,7 +95,7 @@ if __name__ == '__main__':
         results = dict()
 
     # Compute mean quantiles, if specified
-    if args.mean_quantiles:
+    if args.quantiles_loc:
         quantiles_loc = compute_mean_quantiles(data_train, args.n_batches)
     else:
         quantiles_loc = None
@@ -105,10 +108,10 @@ if __name__ == '__main__':
         depthwise=args.depthwise,
         n_pooling=args.n_pooling,
         optimize_scale=args.optimize_scale,
-        in_dropout=args.dropout,
-        prod_dropout=args.dropout,
+        in_dropout=args.in_dropout,
+        sum_dropout=args.sum_dropout,
         quantiles_loc=quantiles_loc,
-        uniform_loc=args.mean_uniform,
+        uniform_loc=args.uniform_loc,
         rand_state=rand_state
     )
 

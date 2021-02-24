@@ -5,9 +5,9 @@ import numpy as np
 
 class ScaledTanh(torch.nn.Module):
     """Scaled Tanh activation module."""
-    def __init__(self):
+    def __init__(self, in_features):
         super(ScaledTanh, self).__init__()
-        self.scale = torch.nn.Parameter(torch.ones(1), requires_grad=True)
+        self.scale = torch.nn.Parameter(torch.ones(in_features), requires_grad=True)
 
     def forward(self, x):
         return self.scale * torch.tanh(x)
@@ -45,7 +45,7 @@ class AbstractCouplingLayer(abc.ABC, torch.nn.Module):
         self.depth = depth
         self.reverse = reverse
         self.layers = torch.nn.ModuleList()
-        self.scale_act = ScaledTanh()
+        self.scale_act = ScaledTanh(in_features)
 
     def register_mask(self, mask):
         """
@@ -211,7 +211,7 @@ class AutoregressiveLayer(torch.nn.Module):
         self.reverse = reverse
         self.rand_state = rand_state
         self.layers = torch.nn.ModuleList()
-        self.scale_act = ScaledTanh()
+        self.scale_act = ScaledTanh(in_features)
 
         # Create the masks of the masked linear layers
         degrees = self._build_degrees_sequential() if sequential else self._build_degrees_random()

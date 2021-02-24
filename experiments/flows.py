@@ -4,7 +4,7 @@ import json
 import argparse
 import numpy as np
 
-from spnflow.utils.data import DataTransform
+from spnflow.utils.data import DataStandardizer, DataDequantizer
 from spnflow.torch.models.flows import RealNVP1d, RealNVP2d, MAF
 
 from experiments.datasets import load_continuous_dataset, load_vision_dataset
@@ -49,14 +49,14 @@ if __name__ == '__main__':
     transform = None
     if is_vision_dataset:
         if args.model == 'nvp2d':
-            transform = DataTransform(dequantize=True, standardize=False, flatten=False)
+            transform = DataDequantizer(flatten=False)
         else:
-            transform = DataTransform(dequantize=True, standardize=False, flatten=True)
+            transform = DataDequantizer(flatten=True)
         data_train, data_valid, data_test = load_vision_dataset(
             'datasets', args.dataset, unsupervised=True
         )
     else:
-        transform = DataTransform(standardize=True)
+        transform = DataStandardizer()
         data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
 
     transform.fit(np.vstack([data_train, data_valid]))

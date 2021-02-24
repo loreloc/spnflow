@@ -4,7 +4,7 @@ import json
 import argparse
 import numpy as np
 
-from spnflow.utils.data import DataTransform
+from spnflow.utils.data import DataStandardizer
 from spnflow.torch.models.ratspn import GaussianRatSpn, BernoulliRatSpn
 
 from experiments.datasets import load_binary_dataset, load_continuous_dataset, load_vision_dataset
@@ -23,14 +23,19 @@ if __name__ == '__main__':
     )
     parser.add_argument('--discriminative', action='store_true', help='Whether to use discriminative settings.')
     parser.add_argument('--rg-depth', type=int, default=1, help='The region graph\'s depth.')
-    parser.add_argument('--rg-repetitions', type=int, default=8, help='The region graph\'s number of repetitions.')
-    parser.add_argument('--rg-batches', type=int, default=4, help='The region graph\'s number of distribution batches.')
-    parser.add_argument('--rg-sums', type=int, default=4, help='The region graph\'s number of sum nodes per region.')
+    parser.add_argument('--rg-repetitions', type=int, default=4, help='The region graph\'s number of repetitions.')
+    parser.add_argument('--rg-batches', type=int, default=8, help='The region graph\'s number of distribution batches.')
+    parser.add_argument('--rg-sums', type=int, default=8, help='The region graph\'s number of sum nodes per region.')
+    parser.add_argument(
+        '--uniform-loc', nargs=2, type=float, default=None,
+        help='Use uniform location for input distributions layer initialization.'
+    )
     parser.add_argument(
         '--no-optimize-scale', dest='optimize_scale',
         action='store_false', help='Whether to optimize scale in Gaussian layers.'
     )
-    parser.add_argument('--dropout', type=float, default=None, help='The dropout to use in case of discriminative.')
+    parser.add_argument('--in-dropout', type=float, default=None, help='The input distributions layer dropout to use.')
+    parser.add_argument('--sum-dropout', type=float, default=None, help='The sum layer dropout to use.')
     parser.add_argument('--learning-rate', type=float, default=1e-3, help='The learning rate.')
     parser.add_argument('--batch-size', type=int, default=100, help='The batch size.')
     parser.add_argument('--epochs', type=int, default=1000, help='The number of epochs.')
@@ -50,27 +55,29 @@ if __name__ == '__main__':
     # Load the dataset
     transform = None
     if is_binary_dataset:
-        transform = DataTransform(standardize=False)
         data_train, data_valid, data_test = load_binary_dataset('datasets', args.dataset)
-    elif is_continuous_dataset:
-        transform = DataTransform(standardize=True)
-        data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
-    elif is_vision_dataset:
-        transform = DataTransform(dequantize=True, standardize=True, flatten=True)
-        if args.discriminative:
-            (data_train, label_train), (data_valid, label_valid), (data_test, label_test) = load_vision_dataset(
-                'datasets', args.dataset, unsupervised=False
-            )
-        else:
-            data_train, data_valid, data_test = load_vision_dataset('datasets', args.dataset, unsupervised=True)
+        data_train = data_train.astype(np.float32)
+        data_valid = data_valid.astype(np.float32)
+        data_test = data_test.astype(np.float32)
     else:
-        raise NotImplementedError('Unknow dataset type of ' + args.dataset)
-
-    transform.fit(np.vstack([data_train, data_valid]))
-    data_train = transform.forward(data_train)
-    data_valid = transform.forward(data_valid)
-    data_test = transform.forward(data_test)
-    _, n_features = data_train.shape
+        if is_continuous_dataset:
+            transform = DataStandardizer(flatten=False)
+            data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
+        elif is_vision_dataset:
+            transform = DataStandardizer(sample_wise=False, flatten=True)
+            if args.discriminative:
+                (data_train, label_train), (data_valid, label_valid), (data_test, label_test) = load_vision_dataset(
+                    'datasets', args.dataset, unsupervised=False
+                )
+            else:
+                data_train, data_valid, data_test = load_vision_dataset('datasets', args.dataset, unsupervised=True)
+        else:
+            raise NotImplementedError('Unknow dataset type of ' + args.dataset)
+        transform.fit(np.vstack([data_train, data_valid]))
+        data_train = transform.forward(data_train)
+        data_valid = transform.forward(data_valid)
+        data_test = transform.forward(data_test)
+        _, n_features = data_train.shape
 
     if is_vision_dataset:
         if args.discriminative:
@@ -117,8 +124,8 @@ if __name__ == '__main__':
             rg_repetitions=args.rg_repetitions,
             n_batch=args.rg_batches,
             n_sum=args.rg_sums,
-            in_dropout=args.dropout,
-            prod_dropout=args.dropout,
+            in_dropout=args.in_dropout,
+            prod_dropout=args.prod_dropout,
             rand_state=rand_state
         )
     else:
@@ -129,9 +136,8 @@ if __name__ == '__main__':
             rg_repetitions=args.rg_repetitions,
             n_batch=args.rg_batches,
             n_sum=args.rg_sums,
-            in_dropout=args.dropout,
-            prod_dropout=args.dropout,
             rand_state=rand_state,
+            uniform_loc=args.uniform_loc,
             optimize_scale=args.optimize_scale
         )
 
@@ -169,7 +175,7 @@ if __name__ == '__main__':
             json.dump(results, file, indent=4)
 
         if is_vision_dataset:
-            n_samples = 8
+            n_samples = 10
             samples = collect_samples(model, n_samples * n_samples)
             images = transform.backward(samples)
             images = images.reshape([n_samples, n_samples, *images.shape[1:]])

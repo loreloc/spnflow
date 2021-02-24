@@ -17,7 +17,7 @@ class DgcSpn(AbstractModel):
                  n_pooling=0,
                  optimize_scale=True,
                  in_dropout=None,
-                 prod_dropout=None,
+                 sum_dropout=None,
                  quantiles_loc=None,
                  uniform_loc=None,
                  rand_state=None,
@@ -33,7 +33,7 @@ class DgcSpn(AbstractModel):
         :param n_pooling: The number of initial pooling product layers.
         :param optimize_scale: Whether to train scale and location jointly.
         :param in_dropout: The dropout rate for probabilistic dropout at distributions layer outputs. It can be None.
-        :param prod_dropout: The dropout rate for probabilistic dropout at product layer outputs. It can be None.
+        :param sum_dropout: The dropout rate for probabilistic dropout at sum layers. It can be None.
         :param quantiles_loc: The mean quantiles for location initialization. It can be None.
         :param uniform_loc: The uniform range for location initialization. It can be None.
         :param rand_state: The random state used to initialize the spatial product layers weights.
@@ -46,7 +46,7 @@ class DgcSpn(AbstractModel):
         assert sum_channels > 0
         assert n_pooling >= 0
         assert in_dropout is None or 0.0 < in_dropout < 1.0
-        assert prod_dropout is None or 0.0 < prod_dropout < 1.0
+        assert sum_dropout is None or 0.0 < sum_dropout < 1.0
         assert quantiles_loc is None or uniform_loc is None,\
             'At least one between quantiles_loc and uniform_loc must be None'
         assert quantiles_loc is None or len(quantiles_loc.shape) == 4
@@ -59,7 +59,7 @@ class DgcSpn(AbstractModel):
         self.n_pooling = n_pooling
         self.optimize_scale = optimize_scale
         self.in_dropout = in_dropout
-        self.prod_dropout = prod_dropout
+        self.sum_dropout = sum_dropout
         self.uniform_loc = uniform_loc
         self.rand_state = rand_state
 
@@ -94,7 +94,7 @@ class DgcSpn(AbstractModel):
             in_size = pooling.out_size
 
             # Add a spatial sum layer
-            spatial_sum = SpatialSumLayer(in_size, self.sum_channels, self.prod_dropout)
+            spatial_sum = SpatialSumLayer(in_size, self.sum_channels, self.sum_dropout)
             self.layers.append(spatial_sum)
             in_size = spatial_sum.out_size
 
@@ -110,7 +110,7 @@ class DgcSpn(AbstractModel):
             in_size = spatial_prod.out_size
 
             # Add a spatial sum layer
-            spatial_sum = SpatialSumLayer(in_size, self.sum_channels, self.prod_dropout)
+            spatial_sum = SpatialSumLayer(in_size, self.sum_channels, self.sum_dropout)
             self.layers.append(spatial_sum)
             in_size = spatial_sum.out_size
 

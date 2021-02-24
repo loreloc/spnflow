@@ -35,10 +35,15 @@ class SpatialGaussianLayer(torch.nn.Module):
 
         # Instantiate the scale parameter
         if self.optimize_scale:
-            sigma = torch.sigmoid(torch.randn(self.out_channels, *self.in_size))
-            self.scale = torch.nn.Parameter(0.25 + sigma * 0.5, requires_grad=True)
+            self.scale = torch.nn.Parameter(
+                0.5 + 0.1 * torch.tanh(torch.randn(self.out_channels, *self.in_size)),
+                requires_grad=True
+            )
         else:
-            self.scale = torch.nn.Parameter(torch.ones(self.out_channels, *self.in_size), requires_grad=False)
+            self.scale = torch.nn.Parameter(
+                torch.ones(self.out_channels, *self.in_size),
+                requires_grad=False
+            )
 
         # Instantiate the multi-batch normal distribution
         self.distribution = torch.distributions.Normal(self.loc, self.scale)
@@ -219,7 +224,10 @@ class SpatialSumLayer(torch.nn.Module):
         self.dropout = dropout
 
         # Initialize the weight tensor
-        self.weight = torch.nn.Parameter(torch.randn(self.out_channels, *self.in_size), requires_grad=True)
+        self.weight = torch.nn.Parameter(
+            torch.normal(0.0, 1e-1, [self.out_channels, *self.in_size]),
+            requires_grad=True
+        )
 
     @property
     def in_channels(self):
@@ -271,7 +279,10 @@ class SpatialRootLayer(torch.nn.Module):
 
         # Initialize the weight tensor
         in_flatten_size = np.prod(self.in_size).item()
-        self.weight = torch.nn.Parameter(torch.randn(self.out_channels, in_flatten_size), requires_grad=True)
+        self.weight = torch.nn.Parameter(
+            torch.normal(0.0, 1e-1, [self.out_channels, in_flatten_size]),
+            requires_grad=True
+        )
 
     @property
     def in_channels(self):

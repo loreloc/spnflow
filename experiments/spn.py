@@ -6,7 +6,7 @@ import numpy as np
 
 from spnflow.structure.leaf import Bernoulli, Gaussian
 from spnflow.learning.wrappers import learn_estimator
-from spnflow.utils.data import DataTransform
+from spnflow.utils.data import DataStandardizer
 from spnflow.utils.statistics import get_statistics
 
 from experiments.datasets import  load_binary_dataset, load_continuous_dataset
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     if args.dataset in BINARY_DATASETS:
         data_train, data_valid, data_test = load_binary_dataset('datasets', args.dataset)
     else:
-        transform = DataTransform(standardize=True)
+        transform = DataStandardizer()
         data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
         transform.fit(np.vstack([data_train, data_valid]))
         data_train = transform.forward(data_train)
