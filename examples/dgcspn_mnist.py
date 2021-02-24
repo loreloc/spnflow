@@ -33,7 +33,7 @@ model = DgcSpn(
     n_pooling=2,
     optimize_scale=False,
     in_dropout=0.2,
-    prod_dropout=0.2,
+    sum_dropout=0.2,
     uniform_loc=(-1.5, 1.5)
 )
 

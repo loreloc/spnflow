@@ -30,7 +30,7 @@ model = GaussianRatSpn(
     n_batch=8,
     n_sum=8,
     in_dropout=0.2,
-    prod_dropout=0.2,
+    sum_dropout=0.2,
     optimize_scale=False
 )
 
