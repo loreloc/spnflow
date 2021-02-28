@@ -50,7 +50,7 @@ if __name__ == '__main__':
     rand_state = np.random.RandomState(42)
 
     assert args.quantiles_loc is False or args.uniform_loc is None, \
-        'Only one between --mean-quantiles and --mean-uniform can be defined'
+        'Only one between --quantiles-loc and --uniform-loc can be defined'
 
     # Load the dataset
     transform = DataStandardizer(sample_wise=False, flatten=False)

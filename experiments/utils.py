@@ -28,7 +28,7 @@ def collect_results_generative(model, data_train, data_valid, data_test, compute
     # Compute the bits per pixel, if specified
     if compute_bpp:
         dims = np.prod(data_train.shape[1:])
-        bpp = np.log2(256) - (mu_ll / (dims * np.log(2)))
+        bpp = -(mu_ll / np.log(2)) / dims
         return mu_ll, sigma_ll, bpp
     else:
         return mu_ll, sigma_ll, None
