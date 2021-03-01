@@ -260,7 +260,7 @@ class AutoregressiveLayer(torch.nn.Module):
         self.sequential = sequential
         self.rand_state = rand_state
         self.layers = torch.nn.ModuleList()
-        self.scale_act = ScaledTanh()
+        self.scale_activation = ScaledTanh()
 
         # Create the masks of the masked linear layers
         degrees = self._build_degrees_sequential() if sequential else self._build_degrees_random()
@@ -290,7 +290,7 @@ class AutoregressiveLayer(torch.nn.Module):
         for layer in self.layers:
             z = layer(z)
         t, s = torch.chunk(z, chunks=2, dim=1)
-        s = self.scale_act(s)
+        s = self.scale_activation(s)
         u = (x - t) * torch.exp(-s)
         inv_log_det_jacobian = -torch.sum(s, dim=1, keepdim=True)
         return u, inv_log_det_jacobian
@@ -313,7 +313,7 @@ class AutoregressiveLayer(torch.nn.Module):
             for layer in self.layers:
                 z = layer(z)
             t, s = torch.chunk(z, chunks=2, dim=1)
-            s = self.scale_act(s)
+            s = self.scale_activation(s)
             idx = np.argwhere(self.ordering == i).item()
             x[:, idx] = u[:, idx] * torch.exp(s[:, idx]) + t[:, idx]
             log_det_jacobian[:, idx] = s[:, idx]
