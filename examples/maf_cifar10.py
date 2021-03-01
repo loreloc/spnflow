@@ -1,4 +1,3 @@
-import numpy as np
 import torch
 import torchvision
 
@@ -8,6 +7,7 @@ from spnflow.torch.routines import torch_train
 
 
 class UnsupervisedCIFAR10(torchvision.datasets.CIFAR10):
+    N_FEATURES = 3072
     IMAGE_SIZE = (3, 32, 32)
 
     def __init__(self, root, train=True, transform=None, download=False):
@@ -31,29 +31,30 @@ inv_transform = Reshape(UnsupervisedCIFAR10.IMAGE_SIZE)
 
 # Load the CIFAR10 dataset (unsupervised wrapping) and
 # split the dataset in train set and validation set
+in_features = UnsupervisedCIFAR10.N_FEATURES
 data_train = UnsupervisedCIFAR10('datasets', train=True, transform=transform, download=True)
 n_val = int(0.1 * len(data_train))
 n_train = len(data_train) - n_val
 data_train, data_val = torch.utils.data.random_split(data_train, [n_train, n_val])
 
 # Instantiate the model
-# WARNING: very high memory usage
-in_features = np.prod(UnsupervisedCIFAR10.IMAGE_SIZE).item()
 model = MAF(
     in_features=in_features,
+    logit=True,
     n_flows=5,
+    depth=1,
     units=1024,
-    sequential=False,  # Use random degrees
-    logit=True         # Apply logit transform
+    sequential=False
 )
 
 # Train the model using generative setting (i.e. by maximizing the log-likelihood)
 torch_train(
     model, data_train, data_val,
     setting='generative',
-    weight_decay=1e-6,
-    epochs=100,
-    patience=10
+    batch_size=64,
+    weight_decay=5e-5,
+    epochs=20,
+    patience=3
 )
 
 # Draw some samples

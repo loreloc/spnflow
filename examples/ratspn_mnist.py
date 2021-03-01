@@ -26,11 +26,12 @@ data_train, data_val = torch.utils.data.random_split(data_train, [n_train, n_val
 model = GaussianRatSpn(
     n_features, out_classes,
     rg_depth=3,
-    rg_repetitions=32,
-    n_batch=8,
-    n_sum=8,
+    rg_repetitions=8,
+    n_batch=16,
+    n_sum=16,
     in_dropout=0.2,
     sum_dropout=0.2,
+    uniform_loc=(-1.5, 1.5),
     optimize_scale=False
 )
 

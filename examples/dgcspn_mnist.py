@@ -23,7 +23,6 @@ n_train = len(data_train) - n_val
 data_train, data_val = torch.utils.data.random_split(data_train, [n_train, n_val])
 
 # Instantiate the model
-# WARNING: very high memory usage
 model = DgcSpn(
     in_size=image_size,
     out_classes=n_classes,
@@ -43,8 +42,7 @@ torch_train(
     setting='discriminative',
     lr=1e-2,
     batch_size=64,
-    epochs=25,
-    patience=5,
+    epochs=10
 )
 
 # Test the model

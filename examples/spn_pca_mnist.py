@@ -1,8 +1,7 @@
+import torch
+import torchvision
 import numpy as np
 import sklearn as sk
-
-from experiments.datasets import load_vision_dataset
-from experiments.utils import save_grid_images
 
 from spnflow.utils.data import DataStandardizer
 from spnflow.utils.statistics import get_statistics
@@ -12,20 +11,20 @@ from spnflow.algorithms.mpe import mpe
 from spnflow.algorithms.sampling import sample
 from spnflow.io.json import save_json
 
-
-# Load the MNIST dataset
 image_w, image_h = 28, 28
 n_classes = 10
-(x_train, y_train), (x_valid, y_valid), (x_test, y_test) = load_vision_dataset('datasets', 'mnist', unsupervised=False)
+
+# Load the MNIST dataset
+data_train = torchvision.datasets.MNIST('datasets', train=True, transform=None, download=True)
+data_test = torchvision.datasets.MNIST('datasets', train=False, transform=None, download=True)
+x_train, y_train = data_train.data.numpy(), data_train.targets.numpy()
+x_test, y_test = data_test.data.numpy(), data_test.targets.numpy()
 
 # Preprocess the dataset
-transform = DataStandardizer(flatten=True)
-transform.fit(np.row_stack([x_train, x_valid]))
+transform = DataStandardizer(sample_wise=False, flatten=True)
+transform.fit(x_train)
 x_train = transform.forward(x_train)
-x_valid = transform.forward(x_valid)
 x_test = transform.forward(x_test)
-x_train = np.row_stack([x_train, x_valid])
-y_train = np.hstack([y_train, y_valid])
 
 # Apply PCA for dimensionality reduction
 n_components = 40
@@ -42,7 +41,7 @@ spn = learn_classifier(
     learn_leaf='mle',
     split_rows='kmeans',
     split_cols='gvs',
-    min_rows_slice=256,
+    min_rows_slice=128,
     split_cols_kwargs={'p': 1.0}
 )
 
@@ -64,8 +63,11 @@ print(sk.metrics.classification_report(y_test, y_pred))
 n_samples = 10
 nans = np.tile(np.nan, [n_samples * n_classes, n_components])
 classes = np.tile(np.arange(n_classes), [1, n_samples]).T
-data_sample = np.column_stack([nans, classes])
-data_sample = sample(spn, data_sample)[:, :-1]
-data_images = transform.backward(pca.inverse_transform(data_sample))
-data_images = data_images.reshape(n_samples, n_classes, 1, image_w, image_h)
-save_grid_images(data_images, 'spn-mnist-samples.png')
+data_samples = np.column_stack([nans, classes])
+data_samples = sample(spn, data_samples)[:, :-1]
+
+# Transform back the data and plot the samples
+data_images = transform.backward(pca.inverse_transform(data_samples))
+data_images = data_images.reshape(n_samples * n_classes, 1, image_w, image_h)
+data_images = data_images / 255.0
+torchvision.utils.save_image(torch.tensor(data_images), 'samples_spn_mnist.png', nrow=n_samples, padding=0)
