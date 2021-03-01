@@ -27,9 +27,7 @@ if __name__ == '__main__':
     parser.add_argument('--depth', type=int, default=1, help='The depth of each normalizing flow layer.')
     parser.add_argument('--units', type=int, default=128, help='The number of units at each layer in nvp1d.')
     parser.add_argument('--channels', type=int, default=16, help='The number of convolutional channels in nvp2d.')
-    parser.add_argument(
-        '--kernel-size', type=int, default=3, help='The kernel size for convolutional layers in nvp2d.'
-    )
+    parser.add_argument('--n-blocks', type=int, default=4, help='The number of residual blocks in nvp2d.')
     parser.add_argument(
         '--activation', choices=['relu', 'tanh', 'sigmoid'], default='relu',
         help='The activation function to use in maf.'
@@ -100,10 +98,8 @@ if __name__ == '__main__':
         model = RealNVP2d(
             in_size,
             n_flows=args.n_flows,
-            depth=args.depth,
+            n_blocks=args.n_blocks,
             channels=args.channels,
-            kernel_size=args.kernel_size,
-            batch_norm=args.batch_norm,
             logit=is_vision_dataset
         )
     elif args.model == 'maf':
