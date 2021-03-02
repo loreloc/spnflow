@@ -2,6 +2,7 @@ import warnings
 from sklearn import mixture
 from sklearn.exceptions import ConvergenceWarning
 
+from spnflow.structure.leaf import LeafType
 from spnflow.utils.data import mixed_ohe_data
 
 
@@ -15,8 +16,11 @@ def gmm(data, distributions, domains, n=2):
     :param n: The number of clusters.
     :return: An array where each element is the cluster where the corresponding data belong.
     """
-    # Convert the data using One Hot Encoding
-    data = mixed_ohe_data(data, distributions, domains)
+    # Convert the data using One Hot Encoding, if needed
+    if any([d.LEAF_TYPE == LeafType.DISCRETE for d in distributions]):
+        data = mixed_ohe_data(data, distributions, domains)
+
+    # Apply GMM
     with warnings.catch_warnings():
         warnings.simplefilter(action='ignore', category=ConvergenceWarning)  # Ignore convergence warnings for GMM
         return mixture.GaussianMixture(n_components=n).fit_predict(data)
