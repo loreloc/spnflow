@@ -77,7 +77,7 @@ if __name__ == '__main__':
         data_train = transform.forward(data_train)
         data_valid = transform.forward(data_valid)
         data_test = transform.forward(data_test)
-        _, n_features = data_train.shape
+    _, n_features = data_train.shape
 
     if is_vision_dataset:
         if args.discriminative:
@@ -125,7 +125,7 @@ if __name__ == '__main__':
             n_batch=args.rg_batches,
             n_sum=args.rg_sums,
             in_dropout=args.in_dropout,
-            prod_dropout=args.prod_dropout,
+            sum_dropout=args.sum_dropout,
             rand_state=rand_state
         )
     else:

@@ -3,16 +3,16 @@ import numpy as np
 
 class EarlyStopping:
     """Early stops the training if validation loss doesn't improve after a given number of consecutive epochs"""
-    def __init__(self, patience=1, epsilon=1e-8):
+    def __init__(self, patience=1, delta=1e-3):
         """
         Instantiate an EarlyStopping object.
 
         :param patience: The number of consecutive epochs to wait.
-        :param epsilon: The minimum change of the monitored quantity.
+        :param delta: The minimum change of the monitored quantity.
         """
         self.patience = patience
-        self.epsilon = epsilon
-        self.best_loss = np.Inf
+        self.delta = delta
+        self.best_loss = np.inf
         self.should_stop = False
         self.counter = 0
 
@@ -23,7 +23,7 @@ class EarlyStopping:
         :param loss: The validation loss measured.
         """
         # Check if an improved of the loss happened
-        if loss < self.best_loss - self.epsilon:
+        if loss < self.best_loss - self.delta:
             self.best_loss = loss
             self.counter = 0
         else:
