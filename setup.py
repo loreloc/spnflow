@@ -8,7 +8,7 @@ with open("requirements.txt", "r") as fh:
 
 setuptools.setup(
     name="spnflow",
-    version="0.4.2",
+    version="0.5.0",
     author="loreloc",
     author_email="lorenzoloconte@outlook.it",
     description="Sum-Product Networks and Normalizing Flows for Tractable Density Estimation",
@@ -21,6 +21,6 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.8',
     install_requires=requirements,
 )

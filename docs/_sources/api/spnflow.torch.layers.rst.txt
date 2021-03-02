@@ -28,6 +28,14 @@ spnflow.torch.layers.ratspn module
    :undoc-members:
    :show-inheritance:
 
+spnflow.torch.layers.resnet module
+----------------------------------
+
+.. automodule:: spnflow.torch.layers.resnet
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

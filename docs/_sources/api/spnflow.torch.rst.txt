@@ -8,6 +8,7 @@ Subpackages
    :maxdepth: 4
 
    spnflow.torch.layers
+   spnflow.torch.models
 
 Submodules
 ----------
@@ -28,10 +29,10 @@ spnflow.torch.constraints module
    :undoc-members:
    :show-inheritance:
 
-spnflow.torch.models module
----------------------------
+spnflow.torch.routines module
+-----------------------------
 
-.. automodule:: spnflow.torch.models
+.. automodule:: spnflow.torch.routines
    :members:
    :undoc-members:
    :show-inheritance:

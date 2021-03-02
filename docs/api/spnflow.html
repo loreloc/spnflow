@@ -5,14 +5,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>spnflow package &#8212; SPNFlow 0.4.0 documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <title>spnflow package &#8212; SPNFlow 0.5.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="spnflow.algorithms package" href="spnflow.algorithms.html" />
@@ -60,6 +59,7 @@
 <li class="toctree-l4"><a class="reference internal" href="spnflow.learning.splitting.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.learning.splitting.html#module-spnflow.learning.splitting.cols">spnflow.learning.splitting.cols module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.learning.splitting.html#module-spnflow.learning.splitting.gmm">spnflow.learning.splitting.gmm module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.learning.splitting.html#module-spnflow.learning.splitting.gvs">spnflow.learning.splitting.gvs module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.learning.splitting.html#module-spnflow.learning.splitting.kmeans">spnflow.learning.splitting.kmeans module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.learning.splitting.html#module-spnflow.learning.splitting.random">spnflow.learning.splitting.random module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.learning.splitting.html#module-spnflow.learning.splitting.rdc">spnflow.learning.splitting.rdc module</a></li>
@@ -76,16 +76,11 @@
 <li class="toctree-l2"><a class="reference internal" href="spnflow.learning.html#module-spnflow.learning">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="spnflow.optimization.html">spnflow.optimization package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="spnflow.optimization.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="spnflow.optimization.html#module-spnflow.optimization.pruning">spnflow.optimization.pruning module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="spnflow.optimization.html#module-spnflow.optimization">Module contents</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="spnflow.structure.html">spnflow.structure package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="spnflow.structure.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="spnflow.structure.html#module-spnflow.structure.leaf">spnflow.structure.leaf module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="spnflow.structure.html#module-spnflow.structure.node">spnflow.structure.node module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spnflow.structure.html#module-spnflow.structure.pruning">spnflow.structure.pruning module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="spnflow.structure.html#module-spnflow.structure">Module contents</a></li>
 </ul>
 </li>
@@ -96,7 +91,17 @@
 <li class="toctree-l4"><a class="reference internal" href="spnflow.torch.layers.html#module-spnflow.torch.layers.dgcspn">spnflow.torch.layers.dgcspn module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.torch.layers.html#module-spnflow.torch.layers.flows">spnflow.torch.layers.flows module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.torch.layers.html#module-spnflow.torch.layers.ratspn">spnflow.torch.layers.ratspn module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.torch.layers.html#module-spnflow.torch.layers.resnet">spnflow.torch.layers.resnet module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.torch.layers.html#module-spnflow.torch.layers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spnflow.torch.models.html">spnflow.torch.models package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.torch.models.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.torch.models.html#module-spnflow.torch.models.abstract">spnflow.torch.models.abstract module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.torch.models.html#module-spnflow.torch.models.dgcspn">spnflow.torch.models.dgcspn module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.torch.models.html#module-spnflow.torch.models.flows">spnflow.torch.models.flows module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.torch.models.html#module-spnflow.torch.models.ratspn">spnflow.torch.models.ratspn module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spnflow.torch.models.html#module-spnflow.torch.models">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -104,7 +109,7 @@
 <li class="toctree-l2"><a class="reference internal" href="spnflow.torch.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="spnflow.torch.html#module-spnflow.torch.callbacks">spnflow.torch.callbacks module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="spnflow.torch.html#module-spnflow.torch.constraints">spnflow.torch.constraints module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="spnflow.torch.html#module-spnflow.torch.models">spnflow.torch.models module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spnflow.torch.html#module-spnflow.torch.routines">spnflow.torch.routines module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="spnflow.torch.html#module-spnflow.torch.transforms">spnflow.torch.transforms module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="spnflow.torch.html#module-spnflow.torch.utils">spnflow.torch.utils module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="spnflow.torch.html#module-spnflow.torch">Module contents</a></li>
@@ -169,7 +174,6 @@
 <li class="toctree-l4"><a class="reference internal" href="spnflow.algorithms.html">spnflow.algorithms package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.io.html">spnflow.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.learning.html">spnflow.learning package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.optimization.html">spnflow.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.structure.html">spnflow.structure package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.torch.html">spnflow.torch package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.utils.html">spnflow.utils package</a></li>
@@ -219,7 +223,7 @@
       &copy;2020, Lorenzo Loconte.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

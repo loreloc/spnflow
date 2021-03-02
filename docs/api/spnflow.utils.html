@@ -5,17 +5,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>spnflow.utils package &#8212; SPNFlow 0.4.0 documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <title>spnflow.utils package &#8212; SPNFlow 0.5.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="spnflow.torch.layers package" href="spnflow.torch.layers.html" />
+    <link rel="prev" title="spnflow.torch.models package" href="spnflow.torch.models.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -39,9 +38,101 @@
 </div>
 <div class="section" id="module-spnflow.utils.data">
 <span id="spnflow-utils-data-module"></span><h2>spnflow.utils.data module<a class="headerlink" href="#module-spnflow.utils.data" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="spnflow.utils.data.DataStandardizer">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.utils.data.</span></code><code class="sig-name descname"><span class="pre">DataStandardizer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">sample_wise=True</span></em>, <em class="sig-param"><span class="pre">flatten=False</span></em>, <em class="sig-param"><span class="pre">epsilon=1e-07</span></em>, <em class="sig-param"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.float32'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.data.DataStandardizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Data standardizer for probabilistic learning purposes.</p>
+<dl class="py method">
+<dt id="spnflow.utils.data.DataStandardizer.fit">
+<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.data.DataStandardizer.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the data transform with some data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – The data for fitting.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.utils.data.DataStandardizer.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.data.DataStandardizer.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the data transform to some data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – The data to transform.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The transformed data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.utils.data.DataStandardizer.backward">
+<code class="sig-name descname"><span class="pre">backward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.data.DataStandardizer.backward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the backward data transform to some data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – The data to transform.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The transformed data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.utils.data.DataDequantizer">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.utils.data.</span></code><code class="sig-name descname"><span class="pre">DataDequantizer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">flatten=False</span></em>, <em class="sig-param"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.float32'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.data.DataDequantizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Data dequantizer for probabilistic learning purposes.</p>
+<dl class="py method">
+<dt id="spnflow.utils.data.DataDequantizer.fit">
+<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.data.DataDequantizer.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the data transform with some data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – The data for fitting.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.utils.data.DataDequantizer.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.data.DataDequantizer.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the data transform to some data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – The data to transform.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The transformed data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.utils.data.DataDequantizer.backward">
+<code class="sig-name descname"><span class="pre">backward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.data.DataDequantizer.backward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the backward data transform to some data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – The data to transform.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The transformed data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt id="spnflow.utils.data.get_data_domains">
-<code class="sig-prename descclassname">spnflow.utils.data.</code><code class="sig-name descname">get_data_domains</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">distributions</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.data.get_data_domains" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">spnflow.utils.data.</span></code><code class="sig-name descname"><span class="pre">get_data_domains</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distributions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.data.get_data_domains" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the domains based on the training data and the features distributions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -57,12 +148,69 @@
 </dd></dl>
 
 <dl class="py function">
+<dt id="spnflow.utils.data.mixed_ohe_data">
+<code class="sig-prename descclassname"><span class="pre">spnflow.utils.data.</span></code><code class="sig-name descname"><span class="pre">mixed_ohe_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distributions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domains</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.data.mixed_ohe_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>One-Hot-Encoding function, applied on mixed data (both continuous and discrete).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The 2D data to encode.</p></li>
+<li><p><strong>distributions</strong> – The given distributions.</p></li>
+<li><p><strong>domains</strong> – The domains to use.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The One Hot encoded data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt id="spnflow.utils.data.ohe_data">
-<code class="sig-prename descclassname">spnflow.utils.data.</code><code class="sig-name descname">ohe_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">domain</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.data.ohe_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>One-Hot-Encoding function.
-:param data: The 1D data to encode.
-:param domain: The domain to use.
-:return: The One Hot encoded data.</p>
+<code class="sig-prename descclassname"><span class="pre">spnflow.utils.data.</span></code><code class="sig-name descname"><span class="pre">ohe_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.data.ohe_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>One-Hot-Encoding function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The 1D data to encode.</p></li>
+<li><p><strong>domain</strong> – The domain to use.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The One Hot encoded data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.utils.data.ecdf_data">
+<code class="sig-prename descclassname"><span class="pre">spnflow.utils.data.</span></code><code class="sig-name descname"><span class="pre">ecdf_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.data.ecdf_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Empirical Cumulative Distribution Function (ECDF).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – The data.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The result of the ECDF on data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.utils.data.compute_mean_quantiles">
+<code class="sig-prename descclassname"><span class="pre">spnflow.utils.data.</span></code><code class="sig-name descname"><span class="pre">compute_mean_quantiles</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_quantiles</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.data.compute_mean_quantiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the mean quantiles of a dataset (Poon-Domingos).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The data.</p></li>
+<li><p><strong>n_quantiles</strong> – The number of quantiles.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The mean quantiles.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -70,7 +218,7 @@
 <span id="spnflow-utils-filter-module"></span><h2>spnflow.utils.filter module<a class="headerlink" href="#module-spnflow.utils.filter" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt id="spnflow.utils.filter.get_nodes">
-<code class="sig-prename descclassname">spnflow.utils.filter.</code><code class="sig-name descname">get_nodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.filter.get_nodes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">spnflow.utils.filter.</span></code><code class="sig-name descname"><span class="pre">get_nodes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.filter.get_nodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all the nodes in a SPN.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -84,7 +232,7 @@
 
 <dl class="py function">
 <dt id="spnflow.utils.filter.filter_nodes_type">
-<code class="sig-prename descclassname">spnflow.utils.filter.</code><code class="sig-name descname">filter_nodes_type</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em>, <em class="sig-param"><span class="n">ntype</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.filter.filter_nodes_type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">spnflow.utils.filter.</span></code><code class="sig-name descname"><span class="pre">filter_nodes_type</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntype</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.filter.filter_nodes_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the nodes of a specified type in a SPN.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -104,7 +252,7 @@
 <span id="spnflow-utils-region-module"></span><h2>spnflow.utils.region module<a class="headerlink" href="#module-spnflow.utils.region" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="spnflow.utils.region.RegionGraph">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.utils.region.</code><code class="sig-name descname">RegionGraph</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_features</span></em>, <em class="sig-param"><span class="n">depth</span></em>, <em class="sig-param"><span class="n">rand_state</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.region.RegionGraph" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.utils.region.</span></code><code class="sig-name descname"><span class="pre">RegionGraph</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.region.RegionGraph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>RegionGraph Class.
 A region graph is defined w.r.t. a set of indices of random variable in a SPN.
@@ -126,14 +274,14 @@ associated with the child regions. Connect these products as children of all sum
 In the end, this procedure will always deliver a complete and decomposable SPN.</p>
 <dl class="py method">
 <dt id="spnflow.utils.region.RegionGraph.random_layers">
-<code class="sig-name descname">random_layers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.region.RegionGraph.random_layers" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">random_layers</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.region.RegionGraph.random_layers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a list of layers randomly over a single repetition of features.
 :return: A list of layers, alternating between regions and partitions.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="spnflow.utils.region.RegionGraph.make_layers">
-<code class="sig-name descname">make_layers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_repetitions</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.region.RegionGraph.make_layers" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">make_layers</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_repetitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.region.RegionGraph.make_layers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a random graph’s layers over multiple repetitions of features.
 :param n_repetitions: The number of repetitions.
 :return: A list of layers, alternating between regions and partitions.</p>
@@ -146,7 +294,7 @@ In the end, this procedure will always deliver a complete and decomposable SPN.<
 <span id="spnflow-utils-statistics-module"></span><h2>spnflow.utils.statistics module<a class="headerlink" href="#module-spnflow.utils.statistics" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt id="spnflow.utils.statistics.get_statistics">
-<code class="sig-prename descclassname">spnflow.utils.statistics.</code><code class="sig-name descname">get_statistics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.statistics.get_statistics" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">spnflow.utils.statistics.</span></code><code class="sig-name descname"><span class="pre">get_statistics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.statistics.get_statistics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute some statistics of a SPN given its root.</p>
 <p>The computed statistics are the following:</p>
 <ul class="simple">
@@ -170,7 +318,7 @@ In the end, this procedure will always deliver a complete and decomposable SPN.<
 
 <dl class="py function">
 <dt id="spnflow.utils.statistics.get_edges_count">
-<code class="sig-prename descclassname">spnflow.utils.statistics.</code><code class="sig-name descname">get_edges_count</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.statistics.get_edges_count" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">spnflow.utils.statistics.</span></code><code class="sig-name descname"><span class="pre">get_edges_count</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.statistics.get_edges_count" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the number of edges of a SPN given its root.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -184,7 +332,7 @@ In the end, this procedure will always deliver a complete and decomposable SPN.<
 
 <dl class="py function">
 <dt id="spnflow.utils.statistics.get_parameters_count">
-<code class="sig-prename descclassname">spnflow.utils.statistics.</code><code class="sig-name descname">get_parameters_count</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.statistics.get_parameters_count" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">spnflow.utils.statistics.</span></code><code class="sig-name descname"><span class="pre">get_parameters_count</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.statistics.get_parameters_count" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the number of parameters of a SPN given its root.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -198,7 +346,7 @@ In the end, this procedure will always deliver a complete and decomposable SPN.<
 
 <dl class="py function">
 <dt id="spnflow.utils.statistics.get_depth">
-<code class="sig-prename descclassname">spnflow.utils.statistics.</code><code class="sig-name descname">get_depth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.statistics.get_depth" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">spnflow.utils.statistics.</span></code><code class="sig-name descname"><span class="pre">get_depth</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.statistics.get_depth" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the depth of the SPN given its root.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -215,7 +363,7 @@ In the end, this procedure will always deliver a complete and decomposable SPN.<
 <span id="spnflow-utils-validity-module"></span><h2>spnflow.utils.validity module<a class="headerlink" href="#module-spnflow.utils.validity" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt id="spnflow.utils.validity.assert_is_valid">
-<code class="sig-prename descclassname">spnflow.utils.validity.</code><code class="sig-name descname">assert_is_valid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.validity.assert_is_valid" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">spnflow.utils.validity.</span></code><code class="sig-name descname"><span class="pre">assert_is_valid</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.validity.assert_is_valid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assert if the SPN is valid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -226,7 +374,7 @@ In the end, this procedure will always deliver a complete and decomposable SPN.<
 
 <dl class="py function">
 <dt id="spnflow.utils.validity.is_valid">
-<code class="sig-prename descclassname">spnflow.utils.validity.</code><code class="sig-name descname">is_valid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.validity.is_valid" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">spnflow.utils.validity.</span></code><code class="sig-name descname"><span class="pre">is_valid</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.validity.is_valid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if the SPN is valid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -241,7 +389,7 @@ In the end, this procedure will always deliver a complete and decomposable SPN.<
 
 <dl class="py function">
 <dt id="spnflow.utils.validity.is_complete">
-<code class="sig-prename descclassname">spnflow.utils.validity.</code><code class="sig-name descname">is_complete</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.validity.is_complete" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">spnflow.utils.validity.</span></code><code class="sig-name descname"><span class="pre">is_complete</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.validity.is_complete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if the SPN is complete.
 It checks that each child of a sum node has the same scope.
 Furthermore, it checks that the sum of the weights of a sum node is close to 1.</p>
@@ -258,7 +406,7 @@ Furthermore, it checks that the sum of the weights of a sum node is close to 1.<
 
 <dl class="py function">
 <dt id="spnflow.utils.validity.is_consistent">
-<code class="sig-prename descclassname">spnflow.utils.validity.</code><code class="sig-name descname">is_consistent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.validity.is_consistent" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">spnflow.utils.validity.</span></code><code class="sig-name descname"><span class="pre">is_consistent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.validity.is_consistent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if the SPN is consistent.
 It checks that each child of a sum node has disjointed scopes.</p>
 <dl class="field-list simple">
@@ -274,7 +422,7 @@ It checks that each child of a sum node has disjointed scopes.</p>
 
 <dl class="py function">
 <dt id="spnflow.utils.validity.is_labeled">
-<code class="sig-prename descclassname">spnflow.utils.validity.</code><code class="sig-name descname">is_labeled</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.validity.is_labeled" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">spnflow.utils.validity.</span></code><code class="sig-name descname"><span class="pre">is_labeled</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.utils.validity.is_labeled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if the SPN is labeled correctly.
 It checks that the initial id is zero and each id is consecutive.</p>
 <dl class="field-list simple">
@@ -335,7 +483,6 @@ It checks that the initial id is zero and each id is consecutive.</p>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.algorithms.html">spnflow.algorithms package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.io.html">spnflow.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.learning.html">spnflow.learning package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.optimization.html">spnflow.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.structure.html">spnflow.structure package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.torch.html">spnflow.torch package</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">spnflow.utils package</a></li>
@@ -354,7 +501,7 @@ It checks that the initial id is zero and each id is consecutive.</p>
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="modules.html">spnflow</a><ul>
   <li><a href="spnflow.html">spnflow package</a><ul>
-      <li>Previous: <a href="spnflow.torch.layers.html" title="previous chapter">spnflow.torch.layers package</a></li>
+      <li>Previous: <a href="spnflow.torch.models.html" title="previous chapter">spnflow.torch.models package</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -386,7 +533,7 @@ It checks that the initial id is zero and each id is consecutive.</p>
       &copy;2020, Lorenzo Loconte.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

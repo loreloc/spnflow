@@ -5,14 +5,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>spnflow.torch package &#8212; SPNFlow 0.4.0 documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <title>spnflow.torch package &#8212; SPNFlow 0.5.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="spnflow.torch.layers package" href="spnflow.torch.layers.html" />
@@ -44,7 +43,17 @@
 <li class="toctree-l2"><a class="reference internal" href="spnflow.torch.layers.html#module-spnflow.torch.layers.dgcspn">spnflow.torch.layers.dgcspn module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="spnflow.torch.layers.html#module-spnflow.torch.layers.flows">spnflow.torch.layers.flows module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="spnflow.torch.layers.html#module-spnflow.torch.layers.ratspn">spnflow.torch.layers.ratspn module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spnflow.torch.layers.html#module-spnflow.torch.layers.resnet">spnflow.torch.layers.resnet module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="spnflow.torch.layers.html#module-spnflow.torch.layers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="spnflow.torch.models.html">spnflow.torch.models package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="spnflow.torch.models.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spnflow.torch.models.html#module-spnflow.torch.models.abstract">spnflow.torch.models.abstract module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spnflow.torch.models.html#module-spnflow.torch.models.dgcspn">spnflow.torch.models.dgcspn module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spnflow.torch.models.html#module-spnflow.torch.models.flows">spnflow.torch.models.flows module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spnflow.torch.models.html#module-spnflow.torch.models.ratspn">spnflow.torch.models.ratspn module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spnflow.torch.models.html#module-spnflow.torch.models">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -57,7 +66,7 @@
 <span id="spnflow-torch-callbacks-module"></span><h2>spnflow.torch.callbacks module<a class="headerlink" href="#module-spnflow.torch.callbacks" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="spnflow.torch.callbacks.EarlyStopping">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.callbacks.</code><code class="sig-name descname">EarlyStopping</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">patience</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">epsilon</span><span class="o">=</span><span class="default_value">1e-08</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.callbacks.EarlyStopping" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.callbacks.</span></code><code class="sig-name descname"><span class="pre">EarlyStopping</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.callbacks.EarlyStopping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Early stops the training if validation loss doesn’t improve after a given number of consecutive epochs</p>
 </dd></dl>
@@ -67,281 +76,27 @@
 <span id="spnflow-torch-constraints-module"></span><h2>spnflow.torch.constraints module<a class="headerlink" href="#module-spnflow.torch.constraints" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="spnflow.torch.constraints.ScaleClipper">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.constraints.</code><code class="sig-name descname">ScaleClipper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">epsilon</span><span class="o">=</span><span class="default_value">1e-05</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.constraints.ScaleClipper" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.constraints.</span></code><code class="sig-name descname"><span class="pre">ScaleClipper</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.constraints.ScaleClipper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Constraints the scale to be positive.</p>
 <dl class="py attribute">
 <dt id="spnflow.torch.constraints.ScaleClipper.training">
-<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#spnflow.torch.constraints.ScaleClipper.training" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.constraints.ScaleClipper.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </div>
-<div class="section" id="module-spnflow.torch.models">
-<span id="spnflow-torch-models-module"></span><h2>spnflow.torch.models module<a class="headerlink" href="#module-spnflow.torch.models" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-spnflow.torch.routines">
+<span id="spnflow-torch-routines-module"></span><h2>spnflow.torch.routines module<a class="headerlink" href="#module-spnflow.torch.routines" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt id="spnflow.torch.models.AbstractModel">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.models.</code><code class="sig-name descname">AbstractModel</code><a class="headerlink" href="#spnflow.torch.models.AbstractModel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<p>Abstract class for deep probabilistic models.</p>
-<dl class="py method">
-<dt id="spnflow.torch.models.AbstractModel.forward">
-<em class="property">abstract </em><code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.AbstractModel.forward" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="spnflow.torch.models.AbstractModel.mpe">
-<em class="property">abstract </em><code class="sig-name descname">mpe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.AbstractModel.mpe" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="spnflow.torch.models.AbstractModel.sample">
-<em class="property">abstract </em><code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_samples</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.AbstractModel.sample" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="spnflow.torch.models.AbstractModel.log_prob">
-<code class="sig-name descname">log_prob</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.AbstractModel.log_prob" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="spnflow.torch.models.AbstractModel.apply_constraints">
-<code class="sig-name descname">apply_constraints</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.AbstractModel.apply_constraints" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="spnflow.torch.models.AbstractModel.training">
-<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#spnflow.torch.models.AbstractModel.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="spnflow.torch.models.NormalizingFlow">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.models.</code><code class="sig-name descname">NormalizingFlow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_features</span></em>, <em class="sig-param"><span class="n">n_flows</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">logit</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">in_base</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.NormalizingFlow" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#spnflow.torch.models.AbstractModel" title="spnflow.torch.models.AbstractModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">spnflow.torch.models.AbstractModel</span></code></a></p>
-<p>Normalizing Flow abstract model.</p>
-<dl class="py method">
-<dt id="spnflow.torch.models.NormalizingFlow.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.NormalizingFlow.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the log-likelihood given complete evidence.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> – The inputs tensor.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The output of the model.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="spnflow.torch.models.NormalizingFlow.mpe">
-<code class="sig-name descname">mpe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.NormalizingFlow.mpe" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="spnflow.torch.models.NormalizingFlow.sample">
-<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_samples</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.NormalizingFlow.sample" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sample some values from the modeled distribution.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>n_samples</strong> – The number of samples.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The samples.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="spnflow.torch.models.NormalizingFlow.training">
-<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#spnflow.torch.models.NormalizingFlow.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="spnflow.torch.models.RealNVP">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.models.</code><code class="sig-name descname">RealNVP</code><span class="sig-paren">(</span><em class="sig-param">in_features</em>, <em class="sig-param">n_flows=5</em>, <em class="sig-param">batch_norm=True</em>, <em class="sig-param">depth=1</em>, <em class="sig-param">units=128</em>, <em class="sig-param">activation=&lt;class 'torch.nn.modules.activation.ReLU'&gt;</em>, <em class="sig-param">logit=False</em>, <em class="sig-param">in_base=None</em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.RealNVP" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#spnflow.torch.models.NormalizingFlow" title="spnflow.torch.models.NormalizingFlow"><code class="xref py py-class docutils literal notranslate"><span class="pre">spnflow.torch.models.NormalizingFlow</span></code></a></p>
-<p>Real Non-Volume-Preserving (RealNVP) normalizing flow model.</p>
-<dl class="py attribute">
-<dt id="spnflow.torch.models.RealNVP.training">
-<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#spnflow.torch.models.RealNVP.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="spnflow.torch.models.MAF">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.models.</code><code class="sig-name descname">MAF</code><span class="sig-paren">(</span><em class="sig-param">in_features</em>, <em class="sig-param">n_flows=5</em>, <em class="sig-param">batch_norm=True</em>, <em class="sig-param">depth=1</em>, <em class="sig-param">units=128</em>, <em class="sig-param">activation=&lt;class 'torch.nn.modules.activation.ReLU'&gt;</em>, <em class="sig-param">sequential=True</em>, <em class="sig-param">logit=False</em>, <em class="sig-param">in_base=None</em>, <em class="sig-param">rand_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.MAF" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#spnflow.torch.models.NormalizingFlow" title="spnflow.torch.models.NormalizingFlow"><code class="xref py py-class docutils literal notranslate"><span class="pre">spnflow.torch.models.NormalizingFlow</span></code></a></p>
-<p>Masked Autoregressive Flow (MAF) normalizing flow model.</p>
-<dl class="py attribute">
-<dt id="spnflow.torch.models.MAF.training">
-<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#spnflow.torch.models.MAF.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="spnflow.torch.models.RatSpn">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.models.</code><code class="sig-name descname">RatSpn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_features</span></em>, <em class="sig-param"><span class="n">out_classes</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">rg_depth</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">rg_repetitions</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">n_batch</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">n_sum</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">optimize_scale</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">in_dropout</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">prod_dropout</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rand_state</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.RatSpn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#spnflow.torch.models.AbstractModel" title="spnflow.torch.models.AbstractModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">spnflow.torch.models.AbstractModel</span></code></a></p>
-<p>RAT-SPN model class.</p>
-<dl class="py method">
-<dt id="spnflow.torch.models.RatSpn.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.RatSpn.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the log-likelihood given some evidence.
-Random variables can be marginalized using NaN values.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> – The inputs tensor.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The output of the model.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="spnflow.torch.models.RatSpn.mpe">
-<code class="sig-name descname">mpe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">y</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.RatSpn.mpe" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the maximum at posteriori estimation.
-Random variables can be marginalized using NaN values.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> – The inputs tensor.</p></li>
-<li><p><strong>y</strong> – The target classes tensor. It can be None for unlabeled maximum at posteriori estimation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The output of the model.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="spnflow.torch.models.RatSpn.sample">
-<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_samples</span></em>, <em class="sig-param"><span class="n">y</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.RatSpn.sample" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sample some values from the modeled distribution.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>n_samples</strong> – The number of samples.</p></li>
-<li><p><strong>y</strong> – The target classes. It can be None for unlabeled and uniform sampling.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The samples.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="spnflow.torch.models.RatSpn.apply_constraints">
-<code class="sig-name descname">apply_constraints</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.RatSpn.apply_constraints" title="Permalink to this definition">¶</a></dt>
-<dd><p>Apply the constraints specified by the model.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="spnflow.torch.models.RatSpn.training">
-<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#spnflow.torch.models.RatSpn.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="spnflow.torch.models.DgcSpn">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.models.</code><code class="sig-name descname">DgcSpn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_size</span></em>, <em class="sig-param"><span class="n">out_classes</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">n_batch</span><span class="o">=</span><span class="default_value">8</span></em>, <em class="sig-param"><span class="n">sum_channels</span><span class="o">=</span><span class="default_value">8</span></em>, <em class="sig-param"><span class="n">depthwise</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">n_pooling</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">optimize_scale</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">in_dropout</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">prod_dropout</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">quantiles_loc</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">uniform_loc</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rand_state</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.DgcSpn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#spnflow.torch.models.AbstractModel" title="spnflow.torch.models.AbstractModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">spnflow.torch.models.AbstractModel</span></code></a></p>
-<p>Deep Generalized Convolutional SPN model class.</p>
-<dl class="py attribute">
-<dt id="spnflow.torch.models.DgcSpn.training">
-<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#spnflow.torch.models.DgcSpn.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="spnflow.torch.models.DgcSpn.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.DgcSpn.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the log-likelihood given some evidence.
-Random variables can be marginalized using NaN values.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> – The inputs tensor.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The output of the model.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="spnflow.torch.models.DgcSpn.mpe">
-<code class="sig-name descname">mpe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.DgcSpn.mpe" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the maximum at posteriori estimation.
-Random variables can be marginalized using NaN values.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> – The inputs tensor.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The output of the model.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="spnflow.torch.models.DgcSpn.sample">
-<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_samples</span></em>, <em class="sig-param"><span class="n">y</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.DgcSpn.sample" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="spnflow.torch.models.DgcSpn.apply_constraints">
-<code class="sig-name descname">apply_constraints</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.models.DgcSpn.apply_constraints" title="Permalink to this definition">¶</a></dt>
-<dd><p>Apply the constraints specified by the model.</p>
-</dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="module-spnflow.torch.transforms">
-<span id="spnflow-torch-transforms-module"></span><h2>spnflow.torch.transforms module<a class="headerlink" href="#module-spnflow.torch.transforms" title="Permalink to this headline">¶</a></h2>
-<dl class="py class">
-<dt id="spnflow.torch.transforms.Dequantize">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.transforms.</code><code class="sig-name descname">Dequantize</code><a class="headerlink" href="#spnflow.torch.transforms.Dequantize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Dequantize transformation</p>
-</dd></dl>
-
-<dl class="py class">
-<dt id="spnflow.torch.transforms.Flatten">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.transforms.</code><code class="sig-name descname">Flatten</code><a class="headerlink" href="#spnflow.torch.transforms.Flatten" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Flatten transformation</p>
-</dd></dl>
-
-<dl class="py class">
-<dt id="spnflow.torch.transforms.Reshape">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.transforms.</code><code class="sig-name descname">Reshape</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.transforms.Reshape" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Reshape transformation</p>
-</dd></dl>
-
-</div>
-<div class="section" id="module-spnflow.torch.utils">
-<span id="spnflow-torch-utils-module"></span><h2>spnflow.torch.utils module<a class="headerlink" href="#module-spnflow.torch.utils" title="Permalink to this headline">¶</a></h2>
-<dl class="py class">
-<dt id="spnflow.torch.utils.RunningAverageMetric">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.utils.</code><code class="sig-name descname">RunningAverageMetric</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">batch_size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.RunningAverageMetric" title="Permalink to this definition">¶</a></dt>
+<dt id="spnflow.torch.routines.RunningAverageMetric">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.routines.</span></code><code class="sig-name descname"><span class="pre">RunningAverageMetric</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.routines.RunningAverageMetric" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Running (batched) average metric</p>
 <dl class="py method">
-<dt id="spnflow.torch.utils.RunningAverageMetric.average">
-<code class="sig-name descname">average</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.RunningAverageMetric.average" title="Permalink to this definition">¶</a></dt>
+<dt id="spnflow.torch.routines.RunningAverageMetric.average">
+<code class="sig-name descname"><span class="pre">average</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.routines.RunningAverageMetric.average" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the metric average.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -353,26 +108,8 @@ Random variables can be marginalized using NaN values.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="spnflow.torch.utils.compute_mean_quantiles">
-<code class="sig-prename descclassname">spnflow.torch.utils.</code><code class="sig-name descname">compute_mean_quantiles</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dataset</span></em>, <em class="sig-param"><span class="n">n_quantiles</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">- 1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.compute_mean_quantiles" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the mean quantiles of a dataset (Poon-Domingos).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> – The dataset.</p></li>
-<li><p><strong>n_quantiles</strong> – The number of quantiles.</p></li>
-<li><p><strong>n_jobs</strong> – The number of jobs for dataset processing.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The mean quantiles tensor.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="spnflow.torch.utils.torch_train">
-<code class="sig-prename descclassname">spnflow.torch.utils.</code><code class="sig-name descname">torch_train</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">data_train</em>, <em class="sig-param">data_val</em>, <em class="sig-param">setting</em>, <em class="sig-param">lr=0.001</em>, <em class="sig-param">batch_size=100</em>, <em class="sig-param">epochs=1000</em>, <em class="sig-param">patience=30</em>, <em class="sig-param">optimizer_class=&lt;class 'torch.optim.adam.Adam'&gt;</em>, <em class="sig-param">weight_decay=0.0</em>, <em class="sig-param">n_workers=4</em>, <em class="sig-param">device=None</em>, <em class="sig-param">verbose=True</em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.torch_train" title="Permalink to this definition">¶</a></dt>
+<dt id="spnflow.torch.routines.torch_train">
+<code class="sig-prename descclassname"><span class="pre">spnflow.torch.routines.</span></code><code class="sig-name descname"><span class="pre">torch_train</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">model</span></em>, <em class="sig-param"><span class="pre">data_train</span></em>, <em class="sig-param"><span class="pre">data_val</span></em>, <em class="sig-param"><span class="pre">setting</span></em>, <em class="sig-param"><span class="pre">lr=0.001</span></em>, <em class="sig-param"><span class="pre">batch_size=100</span></em>, <em class="sig-param"><span class="pre">epochs=1000</span></em>, <em class="sig-param"><span class="pre">patience=30</span></em>, <em class="sig-param"><span class="pre">optimizer_class=&lt;class</span> <span class="pre">'torch.optim.adam.Adam'&gt;</span></em>, <em class="sig-param"><span class="pre">weight_decay=0.0</span></em>, <em class="sig-param"><span class="pre">n_workers=4</span></em>, <em class="sig-param"><span class="pre">device=None</span></em>, <em class="sig-param"><span class="pre">verbose=True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.routines.torch_train" title="Permalink to this definition">¶</a></dt>
 <dd><p>Train a Torch model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -399,8 +136,8 @@ Random variables can be marginalized using NaN values.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="spnflow.torch.utils.torch_train_generative">
-<code class="sig-prename descclassname">spnflow.torch.utils.</code><code class="sig-name descname">torch_train_generative</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">train_loader</span></em>, <em class="sig-param"><span class="n">val_loader</span></em>, <em class="sig-param"><span class="n">optimizer</span></em>, <em class="sig-param"><span class="n">epochs</span></em>, <em class="sig-param"><span class="n">patience</span></em>, <em class="sig-param"><span class="n">device</span></em>, <em class="sig-param"><span class="n">verbose</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.torch_train_generative" title="Permalink to this definition">¶</a></dt>
+<dt id="spnflow.torch.routines.torch_train_generative">
+<code class="sig-prename descclassname"><span class="pre">spnflow.torch.routines.</span></code><code class="sig-name descname"><span class="pre">torch_train_generative</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.routines.torch_train_generative" title="Permalink to this definition">¶</a></dt>
 <dd><p>Train a Torch model in generative setting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -422,8 +159,8 @@ Random variables can be marginalized using NaN values.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="spnflow.torch.utils.torch_train_discriminative">
-<code class="sig-prename descclassname">spnflow.torch.utils.</code><code class="sig-name descname">torch_train_discriminative</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">train_loader</span></em>, <em class="sig-param"><span class="n">val_loader</span></em>, <em class="sig-param"><span class="n">optimizer</span></em>, <em class="sig-param"><span class="n">epochs</span></em>, <em class="sig-param"><span class="n">patience</span></em>, <em class="sig-param"><span class="n">device</span></em>, <em class="sig-param"><span class="n">verbose</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.torch_train_discriminative" title="Permalink to this definition">¶</a></dt>
+<dt id="spnflow.torch.routines.torch_train_discriminative">
+<code class="sig-prename descclassname"><span class="pre">spnflow.torch.routines.</span></code><code class="sig-name descname"><span class="pre">torch_train_discriminative</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.routines.torch_train_discriminative" title="Permalink to this definition">¶</a></dt>
 <dd><p>Train a Torch model in discriminative setting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -445,8 +182,8 @@ Random variables can be marginalized using NaN values.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="spnflow.torch.utils.torch_test">
-<code class="sig-prename descclassname">spnflow.torch.utils.</code><code class="sig-name descname">torch_test</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">data_test</span></em>, <em class="sig-param"><span class="n">setting</span></em>, <em class="sig-param"><span class="n">batch_size</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">n_workers</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.torch_test" title="Permalink to this definition">¶</a></dt>
+<dt id="spnflow.torch.routines.torch_test">
+<code class="sig-prename descclassname"><span class="pre">spnflow.torch.routines.</span></code><code class="sig-name descname"><span class="pre">torch_test</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">setting</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.routines.torch_test" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test a Torch model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -467,8 +204,8 @@ The negative log-likelihood and accuracy if setting=’discriminative’.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="spnflow.torch.utils.torch_test_generative">
-<code class="sig-prename descclassname">spnflow.torch.utils.</code><code class="sig-name descname">torch_test_generative</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">test_loader</span></em>, <em class="sig-param"><span class="n">device</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.torch_test_generative" title="Permalink to this definition">¶</a></dt>
+<dt id="spnflow.torch.routines.torch_test_generative">
+<code class="sig-prename descclassname"><span class="pre">spnflow.torch.routines.</span></code><code class="sig-name descname"><span class="pre">torch_test_generative</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.routines.torch_test_generative" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test a Torch model in generative setting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -485,8 +222,8 @@ The negative log-likelihood and accuracy if setting=’discriminative’.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="spnflow.torch.utils.torch_test_discriminative">
-<code class="sig-prename descclassname">spnflow.torch.utils.</code><code class="sig-name descname">torch_test_discriminative</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">test_loader</span></em>, <em class="sig-param"><span class="n">device</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.torch_test_discriminative" title="Permalink to this definition">¶</a></dt>
+<dt id="spnflow.torch.routines.torch_test_discriminative">
+<code class="sig-prename descclassname"><span class="pre">spnflow.torch.routines.</span></code><code class="sig-name descname"><span class="pre">torch_test_discriminative</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.routines.torch_test_discriminative" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test a Torch model in discriminative setting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -498,6 +235,75 @@ The negative log-likelihood and accuracy if setting=’discriminative’.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The negative log-likelihood and accuracy.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.torch.transforms">
+<span id="spnflow-torch-transforms-module"></span><h2>spnflow.torch.transforms module<a class="headerlink" href="#module-spnflow.torch.transforms" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="spnflow.torch.transforms.Dequantize">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.transforms.</span></code><code class="sig-name descname"><span class="pre">Dequantize</span></code><a class="headerlink" href="#spnflow.torch.transforms.Dequantize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Dequantize transformation</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.torch.transforms.Flatten">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.transforms.</span></code><code class="sig-name descname"><span class="pre">Flatten</span></code><a class="headerlink" href="#spnflow.torch.transforms.Flatten" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Flatten transformation</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.torch.transforms.Reshape">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.transforms.</span></code><code class="sig-name descname"><span class="pre">Reshape</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.transforms.Reshape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Reshape transformation</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.torch.utils">
+<span id="spnflow-torch-utils-module"></span><h2>spnflow.torch.utils module<a class="headerlink" href="#module-spnflow.torch.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="spnflow.torch.utils.get_activation_class">
+<code class="sig-prename descclassname"><span class="pre">spnflow.torch.utils.</span></code><code class="sig-name descname"><span class="pre">get_activation_class</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">activation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.get_activation_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the activation function class by its name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>activation</strong> – The activation function’s name. It can be: ‘relu’, ‘tanh’, ‘sigmoid’.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The activation function class.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.torch.utils.squeeze_depth2d">
+<code class="sig-prename descclassname"><span class="pre">spnflow.torch.utils.</span></code><code class="sig-name descname"><span class="pre">squeeze_depth2d</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.squeeze_depth2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Space to depth transformation utility for tensors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The input tensor of size [N, C, H, W].</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The output tensor of size [N, C * 4, H // 2, W // 2].</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="spnflow.torch.utils.unsqueeze_depth2d">
+<code class="sig-prename descclassname"><span class="pre">spnflow.torch.utils.</span></code><code class="sig-name descname"><span class="pre">unsqueeze_depth2d</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.utils.unsqueeze_depth2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Depth to space transformation utility for tensors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The input tensor of size [N, C * 4, H // 2, W // 2].</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The output tensor of size [N, C, H, W].</p>
 </dd>
 </dl>
 </dd></dl>
@@ -549,7 +355,6 @@ The negative log-likelihood and accuracy if setting=’discriminative’.</p>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.algorithms.html">spnflow.algorithms package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.io.html">spnflow.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.learning.html">spnflow.learning package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.optimization.html">spnflow.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.structure.html">spnflow.structure package</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">spnflow.torch package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.utils.html">spnflow.utils package</a></li>
@@ -601,7 +406,7 @@ The negative log-likelihood and accuracy if setting=’discriminative’.</p>
       &copy;2020, Lorenzo Loconte.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

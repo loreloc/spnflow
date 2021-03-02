@@ -1,9 +1,13 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../'))
+
 # -- Project information -----------------------------------------------------
 
 project = 'SPNFlow'
 copyright = '2020, Lorenzo Loconte'
 author = 'Lorenzo Loconte'
-release = '0.4.0'
+release = '0.5.0'
 
 # -- General configuration ---------------------------------------------------
 

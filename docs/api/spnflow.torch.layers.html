@@ -5,17 +5,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>spnflow.torch.layers package &#8212; SPNFlow 0.4.0 documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <title>spnflow.torch.layers package &#8212; SPNFlow 0.5.0 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="spnflow.utils package" href="spnflow.utils.html" />
+    <link rel="next" title="spnflow.torch.models package" href="spnflow.torch.models.html" />
     <link rel="prev" title="spnflow.torch package" href="spnflow.torch.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -42,32 +41,32 @@
 <span id="spnflow-torch-layers-dgcspn-module"></span><h2>spnflow.torch.layers.dgcspn module<a class="headerlink" href="#module-spnflow.torch.layers.dgcspn" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="spnflow.torch.layers.dgcspn.SpatialGaussianLayer">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.layers.dgcspn.</code><code class="sig-name descname">SpatialGaussianLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_size</span></em>, <em class="sig-param"><span class="n">out_channels</span></em>, <em class="sig-param"><span class="n">optimize_scale</span></em>, <em class="sig-param"><span class="n">dropout</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">quantiles_loc</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">uniform_loc</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialGaussianLayer" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.dgcspn.</span></code><code class="sig-name descname"><span class="pre">SpatialGaussianLayer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantiles_loc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uniform_loc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialGaussianLayer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Spatial Gaussian input layer.</p>
 <dl class="py method">
 <dt id="spnflow.torch.layers.dgcspn.SpatialGaussianLayer.in_channels">
-<em class="property">property </em><code class="sig-name descname">in_channels</code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialGaussianLayer.in_channels" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">in_channels</span></code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialGaussianLayer.in_channels" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.dgcspn.SpatialGaussianLayer.in_height">
-<em class="property">property </em><code class="sig-name descname">in_height</code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialGaussianLayer.in_height" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">in_height</span></code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialGaussianLayer.in_height" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.dgcspn.SpatialGaussianLayer.in_width">
-<em class="property">property </em><code class="sig-name descname">in_width</code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialGaussianLayer.in_width" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">in_width</span></code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialGaussianLayer.in_width" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.dgcspn.SpatialGaussianLayer.out_size">
-<em class="property">property </em><code class="sig-name descname">out_size</code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialGaussianLayer.out_size" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">out_size</span></code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialGaussianLayer.out_size" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.dgcspn.SpatialGaussianLayer.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialGaussianLayer.forward" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialGaussianLayer.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the layer given some inputs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -81,39 +80,39 @@
 
 <dl class="py attribute">
 <dt id="spnflow.torch.layers.dgcspn.SpatialGaussianLayer.training">
-<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialGaussianLayer.training" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialGaussianLayer.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="spnflow.torch.layers.dgcspn.SpatialProductLayer">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.layers.dgcspn.</code><code class="sig-name descname">SpatialProductLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_size</span></em>, <em class="sig-param"><span class="n">depthwise</span></em>, <em class="sig-param"><span class="n">kernel_size</span></em>, <em class="sig-param"><span class="n">padding</span></em>, <em class="sig-param"><span class="n">stride</span></em>, <em class="sig-param"><span class="n">dilation</span></em>, <em class="sig-param"><span class="n">rand_state</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialProductLayer" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.dgcspn.</span></code><code class="sig-name descname"><span class="pre">SpatialProductLayer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depthwise</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dilation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialProductLayer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Spatial Product layer class.</p>
 <dl class="py method">
 <dt id="spnflow.torch.layers.dgcspn.SpatialProductLayer.in_channels">
-<em class="property">property </em><code class="sig-name descname">in_channels</code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialProductLayer.in_channels" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">in_channels</span></code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialProductLayer.in_channels" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.dgcspn.SpatialProductLayer.in_height">
-<em class="property">property </em><code class="sig-name descname">in_height</code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialProductLayer.in_height" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">in_height</span></code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialProductLayer.in_height" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.dgcspn.SpatialProductLayer.in_width">
-<em class="property">property </em><code class="sig-name descname">in_width</code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialProductLayer.in_width" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">in_width</span></code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialProductLayer.in_width" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.dgcspn.SpatialProductLayer.out_size">
-<em class="property">property </em><code class="sig-name descname">out_size</code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialProductLayer.out_size" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">out_size</span></code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialProductLayer.out_size" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.dgcspn.SpatialProductLayer.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialProductLayer.forward" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialProductLayer.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the layer given some inputs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -127,39 +126,39 @@
 
 <dl class="py attribute">
 <dt id="spnflow.torch.layers.dgcspn.SpatialProductLayer.training">
-<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialProductLayer.training" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialProductLayer.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="spnflow.torch.layers.dgcspn.SpatialSumLayer">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.layers.dgcspn.</code><code class="sig-name descname">SpatialSumLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_size</span></em>, <em class="sig-param"><span class="n">out_channels</span></em>, <em class="sig-param"><span class="n">dropout</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialSumLayer" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.dgcspn.</span></code><code class="sig-name descname"><span class="pre">SpatialSumLayer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialSumLayer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Spatial Sum layer class.</p>
 <dl class="py method">
 <dt id="spnflow.torch.layers.dgcspn.SpatialSumLayer.in_channels">
-<em class="property">property </em><code class="sig-name descname">in_channels</code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialSumLayer.in_channels" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">in_channels</span></code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialSumLayer.in_channels" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.dgcspn.SpatialSumLayer.in_height">
-<em class="property">property </em><code class="sig-name descname">in_height</code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialSumLayer.in_height" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">in_height</span></code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialSumLayer.in_height" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.dgcspn.SpatialSumLayer.in_width">
-<em class="property">property </em><code class="sig-name descname">in_width</code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialSumLayer.in_width" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">in_width</span></code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialSumLayer.in_width" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.dgcspn.SpatialSumLayer.out_size">
-<em class="property">property </em><code class="sig-name descname">out_size</code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialSumLayer.out_size" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">out_size</span></code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialSumLayer.out_size" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.dgcspn.SpatialSumLayer.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialSumLayer.forward" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialSumLayer.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the layer given some inputs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -173,44 +172,44 @@
 
 <dl class="py attribute">
 <dt id="spnflow.torch.layers.dgcspn.SpatialSumLayer.training">
-<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialSumLayer.training" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialSumLayer.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="spnflow.torch.layers.dgcspn.SpatialRootLayer">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.layers.dgcspn.</code><code class="sig-name descname">SpatialRootLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_size</span></em>, <em class="sig-param"><span class="n">out_channels</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialRootLayer" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.dgcspn.</span></code><code class="sig-name descname"><span class="pre">SpatialRootLayer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialRootLayer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Spatial Root layer class.</p>
 <dl class="py method">
 <dt id="spnflow.torch.layers.dgcspn.SpatialRootLayer.in_channels">
-<em class="property">property </em><code class="sig-name descname">in_channels</code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialRootLayer.in_channels" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">in_channels</span></code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialRootLayer.in_channels" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="spnflow.torch.layers.dgcspn.SpatialRootLayer.training">
-<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialRootLayer.training" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialRootLayer.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.dgcspn.SpatialRootLayer.in_height">
-<em class="property">property </em><code class="sig-name descname">in_height</code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialRootLayer.in_height" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">in_height</span></code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialRootLayer.in_height" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.dgcspn.SpatialRootLayer.in_width">
-<em class="property">property </em><code class="sig-name descname">in_width</code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialRootLayer.in_width" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">in_width</span></code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialRootLayer.in_width" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.dgcspn.SpatialRootLayer.out_size">
-<em class="property">property </em><code class="sig-name descname">out_size</code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialRootLayer.out_size" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">out_size</span></code><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialRootLayer.out_size" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.dgcspn.SpatialRootLayer.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialRootLayer.forward" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.dgcspn.SpatialRootLayer.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the layer given some inputs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -228,13 +227,39 @@
 <div class="section" id="module-spnflow.torch.layers.flows">
 <span id="spnflow-torch-layers-flows-module"></span><h2>spnflow.torch.layers.flows module<a class="headerlink" href="#module-spnflow.torch.layers.flows" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
+<dt id="spnflow.torch.layers.flows.ScaledTanh">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.flows.</span></code><code class="sig-name descname"><span class="pre">ScaledTanh</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.ScaledTanh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Scaled Tanh activation module.</p>
+<dl class="py method">
+<dt id="spnflow.torch.layers.flows.ScaledTanh.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.ScaledTanh.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="spnflow.torch.layers.flows.ScaledTanh.training">
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.flows.ScaledTanh.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt id="spnflow.torch.layers.flows.MaskedLinear">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.layers.flows.</code><code class="sig-name descname">MaskedLinear</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_features</span></em>, <em class="sig-param"><span class="n">out_features</span></em>, <em class="sig-param"><span class="n">mask</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.MaskedLinear" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.flows.</span></code><code class="sig-name descname"><span class="pre">MaskedLinear</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.MaskedLinear" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.linear.Linear</span></code></p>
 <p>Masked version of linear layer.</p>
 <dl class="py method">
 <dt id="spnflow.torch.layers.flows.MaskedLinear.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.MaskedLinear.forward" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.MaskedLinear.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the layer given some inputs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -248,29 +273,34 @@
 
 <dl class="py attribute">
 <dt id="spnflow.torch.layers.flows.MaskedLinear.in_features">
-<code class="sig-name descname">in_features</code><em class="property">: int</em><a class="headerlink" href="#spnflow.torch.layers.flows.MaskedLinear.in_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">in_features</span></code><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#spnflow.torch.layers.flows.MaskedLinear.in_features" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="spnflow.torch.layers.flows.MaskedLinear.out_features">
-<code class="sig-name descname">out_features</code><em class="property">: int</em><a class="headerlink" href="#spnflow.torch.layers.flows.MaskedLinear.out_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">out_features</span></code><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#spnflow.torch.layers.flows.MaskedLinear.out_features" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="spnflow.torch.layers.flows.MaskedLinear.weight">
-<code class="sig-name descname">weight</code><em class="property">: torch.Tensor</em><a class="headerlink" href="#spnflow.torch.layers.flows.MaskedLinear.weight" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">weight</span></code><em class="property"><span class="pre">:</span> <span class="pre">torch.Tensor</span></em><a class="headerlink" href="#spnflow.torch.layers.flows.MaskedLinear.weight" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="spnflow.torch.layers.flows.CouplingLayer">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.layers.flows.</code><code class="sig-name descname">CouplingLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_features</span></em>, <em class="sig-param"><span class="n">depth</span></em>, <em class="sig-param"><span class="n">units</span></em>, <em class="sig-param"><span class="n">activation</span></em>, <em class="sig-param"><span class="n">reverse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.CouplingLayer" title="Permalink to this definition">¶</a></dt>
+<dt id="spnflow.torch.layers.flows.CouplingLayer1d">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.flows.</span></code><code class="sig-name descname"><span class="pre">CouplingLayer1d</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.CouplingLayer1d" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<p>Real-NVP coupling layer.</p>
+<p>RealNVP 1D coupling layer.</p>
 <dl class="py method">
-<dt id="spnflow.torch.layers.flows.CouplingLayer.inverse">
-<code class="sig-name descname">inverse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.CouplingLayer.inverse" title="Permalink to this definition">¶</a></dt>
+<dt id="spnflow.torch.layers.flows.CouplingLayer1d.build_mask_alternating">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">build_mask_alternating</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.CouplingLayer1d.build_mask_alternating" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.torch.layers.flows.CouplingLayer1d.inverse">
+<code class="sig-name descname"><span class="pre">inverse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.CouplingLayer1d.inverse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the layer given some inputs (backward mode).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -283,8 +313,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt id="spnflow.torch.layers.flows.CouplingLayer.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.CouplingLayer.forward" title="Permalink to this definition">¶</a></dt>
+<dt id="spnflow.torch.layers.flows.CouplingLayer1d.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.CouplingLayer1d.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the layer given some inputs (forward mode).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -297,20 +327,85 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="spnflow.torch.layers.flows.CouplingLayer.training">
-<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#spnflow.torch.layers.flows.CouplingLayer.training" title="Permalink to this definition">¶</a></dt>
+<dt id="spnflow.torch.layers.flows.CouplingLayer1d.training">
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.flows.CouplingLayer1d.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.torch.layers.flows.CouplingLayer2d">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.flows.</span></code><code class="sig-name descname"><span class="pre">CouplingLayer2d</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_blocks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'chessboard'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.CouplingLayer2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>RealNVP 2D coupling layer.</p>
+<dl class="py method">
+<dt id="spnflow.torch.layers.flows.CouplingLayer2d.in_channels">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">in_channels</span></code><a class="headerlink" href="#spnflow.torch.layers.flows.CouplingLayer2d.in_channels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.torch.layers.flows.CouplingLayer2d.in_height">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">in_height</span></code><a class="headerlink" href="#spnflow.torch.layers.flows.CouplingLayer2d.in_height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.torch.layers.flows.CouplingLayer2d.in_width">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">in_width</span></code><a class="headerlink" href="#spnflow.torch.layers.flows.CouplingLayer2d.in_width" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.torch.layers.flows.CouplingLayer2d.build_mask_chessboard">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">build_mask_chessboard</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.CouplingLayer2d.build_mask_chessboard" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.torch.layers.flows.CouplingLayer2d.build_mask_channelwise">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">build_mask_channelwise</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.CouplingLayer2d.build_mask_channelwise" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.torch.layers.flows.CouplingLayer2d.inverse">
+<code class="sig-name descname"><span class="pre">inverse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.CouplingLayer2d.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (backward mode).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.torch.layers.flows.CouplingLayer2d.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.CouplingLayer2d.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (forward mode).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>u</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="spnflow.torch.layers.flows.CouplingLayer2d.training">
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.flows.CouplingLayer2d.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="spnflow.torch.layers.flows.AutoregressiveLayer">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.layers.flows.</code><code class="sig-name descname">AutoregressiveLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_features</span></em>, <em class="sig-param"><span class="n">depth</span></em>, <em class="sig-param"><span class="n">units</span></em>, <em class="sig-param"><span class="n">activation</span></em>, <em class="sig-param"><span class="n">sequential</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">reverse</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">rand_state</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.AutoregressiveLayer" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.flows.</span></code><code class="sig-name descname"><span class="pre">AutoregressiveLayer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequential</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.AutoregressiveLayer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Masked Autoregressive Flow autoregressive layer.</p>
 <dl class="py method">
 <dt id="spnflow.torch.layers.flows.AutoregressiveLayer.inverse">
-<code class="sig-name descname">inverse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.AutoregressiveLayer.inverse" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">inverse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.AutoregressiveLayer.inverse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the layer given some inputs (backward mode).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -324,7 +419,7 @@
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.flows.AutoregressiveLayer.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.AutoregressiveLayer.forward" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.AutoregressiveLayer.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the layer given some inputs (forward mode).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -338,19 +433,19 @@
 
 <dl class="py attribute">
 <dt id="spnflow.torch.layers.flows.AutoregressiveLayer.training">
-<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#spnflow.torch.layers.flows.AutoregressiveLayer.training" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.flows.AutoregressiveLayer.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="spnflow.torch.layers.flows.BatchNormLayer">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.layers.flows.</code><code class="sig-name descname">BatchNormLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_features</span></em>, <em class="sig-param"><span class="n">momentum</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">epsilon</span><span class="o">=</span><span class="default_value">1e-05</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.BatchNormLayer" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.flows.</span></code><code class="sig-name descname"><span class="pre">BatchNormLayer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">momentum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.BatchNormLayer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Batch Normalization layer.</p>
 <dl class="py method">
 <dt id="spnflow.torch.layers.flows.BatchNormLayer.inverse">
-<code class="sig-name descname">inverse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.BatchNormLayer.inverse" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">inverse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.BatchNormLayer.inverse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the layer given some inputs (backward mode).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -364,7 +459,7 @@
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.flows.BatchNormLayer.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.BatchNormLayer.forward" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.BatchNormLayer.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the layer given some inputs (forward mode).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -378,19 +473,19 @@
 
 <dl class="py attribute">
 <dt id="spnflow.torch.layers.flows.BatchNormLayer.training">
-<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#spnflow.torch.layers.flows.BatchNormLayer.training" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.flows.BatchNormLayer.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="spnflow.torch.layers.flows.LogitLayer">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.layers.flows.</code><code class="sig-name descname">LogitLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">alpha</span><span class="o">=</span><span class="default_value">0.05</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.LogitLayer" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.flows.</span></code><code class="sig-name descname"><span class="pre">LogitLayer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.LogitLayer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Logit transformation layer.</p>
 <dl class="py method">
 <dt id="spnflow.torch.layers.flows.LogitLayer.inverse">
-<code class="sig-name descname">inverse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.LogitLayer.inverse" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">inverse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.LogitLayer.inverse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the layer given some inputs (backward mode).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -404,7 +499,7 @@
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.flows.LogitLayer.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.LogitLayer.forward" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.LogitLayer.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the layer given some inputs (forward mode).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -418,7 +513,87 @@
 
 <dl class="py attribute">
 <dt id="spnflow.torch.layers.flows.LogitLayer.training">
-<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#spnflow.torch.layers.flows.LogitLayer.training" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.flows.LogitLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.torch.layers.flows.SqueezeLayer2d">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.flows.</span></code><code class="sig-name descname"><span class="pre">SqueezeLayer2d</span></code><a class="headerlink" href="#spnflow.torch.layers.flows.SqueezeLayer2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Squeeze 2x2 operation as in RealNVP based on ResNets.</p>
+<dl class="py method">
+<dt id="spnflow.torch.layers.flows.SqueezeLayer2d.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.SqueezeLayer2d.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (depth-to-space transformation).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs of size [N, C * 4, H // 2, W // 2].</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of size [N, C, H, W].</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.torch.layers.flows.SqueezeLayer2d.inverse">
+<code class="sig-name descname"><span class="pre">inverse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.SqueezeLayer2d.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (space-to-depth transformation).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs of size [N, C, H, W].</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of size [N, C * 4, H // 2, W // 2].</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="spnflow.torch.layers.flows.SqueezeLayer2d.training">
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.flows.SqueezeLayer2d.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.torch.layers.flows.UnsqueezeLayer2d">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.flows.</span></code><code class="sig-name descname"><span class="pre">UnsqueezeLayer2d</span></code><a class="headerlink" href="#spnflow.torch.layers.flows.UnsqueezeLayer2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Unsqueeze 2x2 operation as in RealNVP based on ResNets.</p>
+<dl class="py method">
+<dt id="spnflow.torch.layers.flows.UnsqueezeLayer2d.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.UnsqueezeLayer2d.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (space-to-depth transformation).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs of size [N, C, H, W].</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of size [N, C * 4, H // 2, W // 2].</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.torch.layers.flows.UnsqueezeLayer2d.inverse">
+<code class="sig-name descname"><span class="pre">inverse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.UnsqueezeLayer2d.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (depth-to-space transformation).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs of size [N, C * 4, H // 2, W // 2].</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of size [N, C, H, W].</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="spnflow.torch.layers.flows.UnsqueezeLayer2d.training">
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.flows.UnsqueezeLayer2d.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -427,13 +602,13 @@
 <div class="section" id="module-spnflow.torch.layers.ratspn">
 <span id="spnflow-torch-layers-ratspn-module"></span><h2>spnflow.torch.layers.ratspn module<a class="headerlink" href="#module-spnflow.torch.layers.ratspn" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt id="spnflow.torch.layers.ratspn.GaussianLayer">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.layers.ratspn.</code><code class="sig-name descname">GaussianLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_features</span></em>, <em class="sig-param"><span class="n">out_channels</span></em>, <em class="sig-param"><span class="n">regions</span></em>, <em class="sig-param"><span class="n">rg_depth</span></em>, <em class="sig-param"><span class="n">optimize_scale</span></em>, <em class="sig-param"><span class="n">dropout</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.GaussianLayer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<p>The Gaussian distributions input layer class.</p>
+<dt id="spnflow.torch.layers.ratspn.RegionGraphLayer">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.ratspn.</span></code><code class="sig-name descname"><span class="pre">RegionGraphLayer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rg_depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.RegionGraphLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Abstract class for input distributions layers.</p>
 <dl class="py method">
-<dt id="spnflow.torch.layers.ratspn.GaussianLayer.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.GaussianLayer.forward" title="Permalink to this definition">¶</a></dt>
+<dt id="spnflow.torch.layers.ratspn.RegionGraphLayer.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.RegionGraphLayer.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute the layer on some inputs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -446,14 +621,15 @@
 </dd></dl>
 
 <dl class="py method">
-<dt id="spnflow.torch.layers.ratspn.GaussianLayer.mpe">
-<code class="sig-name descname">mpe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">idx</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.GaussianLayer.mpe" title="Permalink to this definition">¶</a></dt>
+<dt id="spnflow.torch.layers.ratspn.RegionGraphLayer.mpe">
+<code class="sig-name descname"><span class="pre">mpe</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_offset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.RegionGraphLayer.mpe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the layer given some inputs for maximum at posteriori estimation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>x</strong> – The inputs. Random variables can be marginalized using NaN values.</p></li>
-<li><p><strong>idx</strong> – The layer’s node indices.</p></li>
+<li><p><strong>idx_group</strong> – The group indices.</p></li>
+<li><p><strong>idx_offset</strong> – The offset indices.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -463,34 +639,61 @@
 </dd></dl>
 
 <dl class="py method">
-<dt id="spnflow.torch.layers.ratspn.GaussianLayer.sample">
-<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.GaussianLayer.sample" title="Permalink to this definition">¶</a></dt>
-<dd><p>Samples some values from the base distributions.</p>
+<dt id="spnflow.torch.layers.ratspn.RegionGraphLayer.sample">
+<code class="sig-name descname"><span class="pre">sample</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_offset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.RegionGraphLayer.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from a base distribution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>idx</strong> – The layer’s node indices.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idx_group</strong> – The group indices.</p></li>
+<li><p><strong>idx_offset</strong> – The offset indices.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The samples.</p>
+<dd class="field-even"><p>The computed samples.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
+<dt id="spnflow.torch.layers.ratspn.RegionGraphLayer.training">
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.ratspn.RegionGraphLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.torch.layers.ratspn.GaussianLayer">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.ratspn.</span></code><code class="sig-name descname"><span class="pre">GaussianLayer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rg_depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uniform_loc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.GaussianLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spnflow.torch.layers.ratspn.RegionGraphLayer" title="spnflow.torch.layers.ratspn.RegionGraphLayer"><code class="xref py py-class docutils literal notranslate"><span class="pre">spnflow.torch.layers.ratspn.RegionGraphLayer</span></code></a></p>
+<p>The Gaussian distributions input layer class.</p>
+<dl class="py attribute">
 <dt id="spnflow.torch.layers.ratspn.GaussianLayer.training">
-<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#spnflow.torch.layers.ratspn.GaussianLayer.training" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.ratspn.GaussianLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.torch.layers.ratspn.BernoulliLayer">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.ratspn.</span></code><code class="sig-name descname"><span class="pre">BernoulliLayer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rg_depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.BernoulliLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spnflow.torch.layers.ratspn.RegionGraphLayer" title="spnflow.torch.layers.ratspn.RegionGraphLayer"><code class="xref py py-class docutils literal notranslate"><span class="pre">spnflow.torch.layers.ratspn.RegionGraphLayer</span></code></a></p>
+<p>The Bernoulli distributions input layer class.</p>
+<dl class="py attribute">
+<dt id="spnflow.torch.layers.ratspn.BernoulliLayer.training">
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.ratspn.BernoulliLayer.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="spnflow.torch.layers.ratspn.ProductLayer">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.layers.ratspn.</code><code class="sig-name descname">ProductLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_regions</span></em>, <em class="sig-param"><span class="n">in_nodes</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.ProductLayer" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.ratspn.</span></code><code class="sig-name descname"><span class="pre">ProductLayer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_regions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_nodes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.ProductLayer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Product node layer class.</p>
 <dl class="py method">
 <dt id="spnflow.torch.layers.ratspn.ProductLayer.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.ProductLayer.forward" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.ProductLayer.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the layer given some inputs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -504,50 +707,54 @@
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.ratspn.ProductLayer.mpe">
-<code class="sig-name descname">mpe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">idx</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.ProductLayer.mpe" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">mpe</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_offset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.ProductLayer.mpe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the layer given some inputs for maximum at posteriori estimation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> – Not required for product node.</p></li>
-<li><p><strong>idx</strong> – The layer’s node indices.</p></li>
+<li><p><strong>x</strong> – The inputs (not used here).</p></li>
+<li><p><strong>idx_group</strong> – The group indices.</p></li>
+<li><p><strong>idx_offset</strong> – The offset indices.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The previous layer’s nodes indices.</p>
+<dd class="field-even"><p>The group and offset indices.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.ratspn.ProductLayer.sample">
-<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.ProductLayer.sample" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sample the previous layer’s nodes indices.</p>
+<code class="sig-name descname"><span class="pre">sample</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_offset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.ProductLayer.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from a product layer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>idx</strong> – The layer’s node indices.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idx_group</strong> – The group indices.</p></li>
+<li><p><strong>idx_offset</strong> – The offset indices.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The previous layer’s nodes indices.</p>
+<dd class="field-even"><p>The group and offset indices.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="spnflow.torch.layers.ratspn.ProductLayer.training">
-<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#spnflow.torch.layers.ratspn.ProductLayer.training" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.ratspn.ProductLayer.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="spnflow.torch.layers.ratspn.SumLayer">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.layers.ratspn.</code><code class="sig-name descname">SumLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_partitions</span></em>, <em class="sig-param"><span class="n">in_nodes</span></em>, <em class="sig-param"><span class="n">out_nodes</span></em>, <em class="sig-param"><span class="n">dropout</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.SumLayer" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.ratspn.</span></code><code class="sig-name descname"><span class="pre">SumLayer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_partitions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.SumLayer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Sum node layer.</p>
 <dl class="py method">
 <dt id="spnflow.torch.layers.ratspn.SumLayer.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.SumLayer.forward" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.SumLayer.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the layer given some inputs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -561,50 +768,54 @@
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.ratspn.SumLayer.mpe">
-<code class="sig-name descname">mpe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">idx</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.SumLayer.mpe" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">mpe</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_offset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.SumLayer.mpe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the layer given some inputs for maximum at posteriori estimation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>x</strong> – The inputs.</p></li>
-<li><p><strong>idx</strong> – The layer’s node indices.</p></li>
+<li><p><strong>idx_group</strong> – The group indices.</p></li>
+<li><p><strong>idx_offset</strong> – The offset indices.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The previous layer’s nodes indices.</p>
+<dd class="field-even"><p>The group and offset indices.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.ratspn.SumLayer.sample">
-<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.SumLayer.sample" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sample the previous layer’s nodes indices.</p>
+<code class="sig-name descname"><span class="pre">sample</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_offset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.SumLayer.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from a sum layer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>idx</strong> – The layer’s node indices.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idx_group</strong> – The group indices.</p></li>
+<li><p><strong>idx_offset</strong> – The offset indices.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The previous layer’s nodes indices.</p>
+<dd class="field-even"><p>The group and offset indices.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="spnflow.torch.layers.ratspn.SumLayer.training">
-<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#spnflow.torch.layers.ratspn.SumLayer.training" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.ratspn.SumLayer.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="spnflow.torch.layers.ratspn.RootLayer">
-<em class="property">class </em><code class="sig-prename descclassname">spnflow.torch.layers.ratspn.</code><code class="sig-name descname">RootLayer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_partitions</span></em>, <em class="sig-param"><span class="n">in_nodes</span></em>, <em class="sig-param"><span class="n">out_classes</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.RootLayer" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.ratspn.</span></code><code class="sig-name descname"><span class="pre">RootLayer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_partitions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_classes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.RootLayer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Root sum node layer.</p>
 <dl class="py method">
 <dt id="spnflow.torch.layers.ratspn.RootLayer.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.RootLayer.forward" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.RootLayer.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the layer given some inputs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -618,7 +829,7 @@
 
 <dl class="py method">
 <dt id="spnflow.torch.layers.ratspn.RootLayer.mpe">
-<code class="sig-name descname">mpe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.RootLayer.mpe" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">mpe</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.RootLayer.mpe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the layer given some inputs for maximum at posteriori estimation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -628,28 +839,109 @@
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The partition and offset indices.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="spnflow.torch.layers.ratspn.RootLayer.sample">
-<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.RootLayer.sample" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sample the input layer’s nodes indices.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>y</strong> – The target classes.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The input layer’s nodes indices.</p>
+<dd class="field-even"><p>The group and offset indices.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="spnflow.torch.layers.ratspn.RootLayer.training">
-<code class="sig-name descname">training</code><em class="property">: bool</em><a class="headerlink" href="#spnflow.torch.layers.ratspn.RootLayer.training" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.ratspn.RootLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.torch.layers.ratspn.RootLayer.sample">
+<code class="sig-name descname"><span class="pre">sample</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.ratspn.RootLayer.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from the root layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>y</strong> – The target classes.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The group and offset indices.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.torch.layers.resnet">
+<span id="spnflow-torch-layers-resnet-module"></span><h2>spnflow.torch.layers.resnet module<a class="headerlink" href="#module-spnflow.torch.layers.resnet" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="spnflow.torch.layers.resnet.WeightNormConv2d">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.resnet.</span></code><code class="sig-name descname"><span class="pre">WeightNormConv2d</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.resnet.WeightNormConv2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Conv2D with weight normalization.</p>
+<dl class="py method">
+<dt id="spnflow.torch.layers.resnet.WeightNormConv2d.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.resnet.WeightNormConv2d.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the convolutional layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of convolution.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="spnflow.torch.layers.resnet.WeightNormConv2d.training">
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.resnet.WeightNormConv2d.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.torch.layers.resnet.ResidualBlock">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.resnet.</span></code><code class="sig-name descname"><span class="pre">ResidualBlock</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.resnet.ResidualBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Residual block for ResNets.</p>
+<dl class="py method">
+<dt id="spnflow.torch.layers.resnet.ResidualBlock.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.resnet.ResidualBlock.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the residual block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of the block.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="spnflow.torch.layers.resnet.ResidualBlock.training">
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.resnet.ResidualBlock.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.torch.layers.resnet.ResidualNetwork">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.resnet.</span></code><code class="sig-name descname"><span class="pre">ResidualNetwork</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mid_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_blocks</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.resnet.ResidualNetwork" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Residual network (aka ResNet).</p>
+<dl class="py method">
+<dt id="spnflow.torch.layers.resnet.ResidualNetwork.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.resnet.ResidualNetwork.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the residual network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of the module.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="spnflow.torch.layers.resnet.ResidualNetwork.training">
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.resnet.ResidualNetwork.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -701,7 +993,6 @@
 <li class="toctree-l4"><a class="reference internal" href="spnflow.algorithms.html">spnflow.algorithms package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.io.html">spnflow.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.learning.html">spnflow.learning package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.optimization.html">spnflow.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.structure.html">spnflow.structure package</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="spnflow.torch.html">spnflow.torch package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spnflow.utils.html">spnflow.utils package</a></li>
@@ -722,7 +1013,7 @@
   <li><a href="spnflow.html">spnflow package</a><ul>
   <li><a href="spnflow.torch.html">spnflow.torch package</a><ul>
       <li>Previous: <a href="spnflow.torch.html" title="previous chapter">spnflow.torch package</a></li>
-      <li>Next: <a href="spnflow.utils.html" title="next chapter">spnflow.utils package</a></li>
+      <li>Next: <a href="spnflow.torch.models.html" title="next chapter">spnflow.torch.models package</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -755,7 +1046,7 @@
       &copy;2020, Lorenzo Loconte.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

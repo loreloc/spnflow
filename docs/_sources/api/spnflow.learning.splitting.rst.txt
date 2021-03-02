@@ -20,6 +20,14 @@ spnflow.learning.splitting.gmm module
    :undoc-members:
    :show-inheritance:
 
+spnflow.learning.splitting.gvs module
+-------------------------------------
+
+.. automodule:: spnflow.learning.splitting.gvs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 spnflow.learning.splitting.kmeans module
 ----------------------------------------
 
