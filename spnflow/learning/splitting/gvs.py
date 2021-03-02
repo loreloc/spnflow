@@ -71,7 +71,7 @@ def gtest(data, i, j, distributions, domains, p):
     for i, c1 in enumerate(m1):
         for j, c2 in enumerate(m2):
             c = hist[i, j]
-            if c != 0.0:
+            if c != 0:
                 e = (c1 * c2) / n_samples
                 g += c * np.log(c / e)
     g_val = 2.0 * g

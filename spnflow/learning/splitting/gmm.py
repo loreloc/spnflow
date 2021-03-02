@@ -1,4 +1,6 @@
+import warnings
 from sklearn import mixture
+from sklearn.exceptions import ConvergenceWarning
 
 
 def gmm(data, distributions, domains, n=2):
@@ -11,4 +13,6 @@ def gmm(data, distributions, domains, n=2):
     :param n: The number of clusters.
     :return: An array where each element is the cluster where the corresponding data belong.
     """
-    return mixture.GaussianMixture(n_components=n).fit_predict(data)
+    with warnings.catch_warnings():
+        warnings.simplefilter(action='ignore', category=ConvergenceWarning)  # Ignore convergence warnings for GMM
+        return mixture.GaussianMixture(n_components=n).fit_predict(data)

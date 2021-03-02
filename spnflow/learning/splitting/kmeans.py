@@ -1,7 +1,9 @@
+import warnings
 from sklearn import cluster
+from sklearn.exceptions import ConvergenceWarning
 
 
-def kmeans(data, distributions, domains, n=2, n_init=3, max_iter=512):
+def kmeans(data, distributions, domains, n=2, n_init=5):
     """
     Execute KMeans clustering on some data.
 
@@ -10,7 +12,8 @@ def kmeans(data, distributions, domains, n=2, n_init=3, max_iter=512):
     :param domains: The data domains (not used).
     :param n: The number of clusters.
     :param n_init: The number of restarts.
-    :param max_iter: Maximum number of iterations.
     :return: An array where each element is the cluster where the corresponding data belong.
     """
-    return cluster.KMeans(n_clusters=n, n_init=n_init, max_iter=max_iter).fit_predict(data)
+    with warnings.catch_warnings():
+        warnings.simplefilter(action='ignore', category=ConvergenceWarning)  # Ignore convergence warnings for K-Means
+        return cluster.KMeans(n_clusters=n, n_init=n_init).fit_predict(data)

@@ -38,10 +38,10 @@ VISION_DATASETS = [
 ]
 
 
-def csv_to_numpy(filepath, sep=',', type='int8'):
+def csv_to_numpy(filepath, sep=',', dtype=np.uint8):
     with open(filepath, "r") as file:
         reader = csv.reader(file, delimiter=sep)
-        dataset = np.array(list(reader)).astype(type)
+        dataset = np.array(list(reader)).astype(dtype)
         return dataset
 
 

@@ -176,12 +176,13 @@ def choose_next_operation(task, min_rows_slice, min_cols_slice):
     if n_samples < min_rows_slice:
         return OperationKind.SPLIT_NAIVE
 
+    # Check if previous rows splitting have failed
+    if task.no_rows_split:
+        return OperationKind.SPLIT_NAIVE
+
     # Check if previous columns splitting have failed
     if task.no_cols_split:
-        if task.no_rows_split:
-            return OperationKind.SPLIT_NAIVE
-        else:
-            return OperationKind.SPLIT_ROWS
+        return OperationKind.SPLIT_ROWS
     else:
         if task.is_first:
             return OperationKind.SPLIT_ROWS
