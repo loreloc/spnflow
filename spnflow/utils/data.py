@@ -135,9 +135,29 @@ def get_data_domains(data, distributions):
     return domains
 
 
+def mixed_ohe_data(data, distributions, domains):
+    """
+    One-Hot-Encoding function, applied on mixed data (both continuous and discrete).
+
+    :param data: The 2D data to encode.
+    :param distributions: The given distributions.
+    :param domains: The domains to use.
+    :return: The One Hot encoded data.
+    """
+    n_samples, n_features = data.shape
+    ohe = []
+    for i in range(n_features):
+        if distributions[i].LEAF_TYPE == LeafType.DISCRETE:
+            ohe.append(ohe_data(data[:, i], domains[i]))
+        else:
+            ohe.append(data[:, i])
+    return np.column_stack(ohe)
+
+
 def ohe_data(data, domain):
     """
     One-Hot-Encoding function.
+
     :param data: The 1D data to encode.
     :param domain: The domain to use.
     :return: The One Hot encoded data.
@@ -151,6 +171,7 @@ def ohe_data(data, domain):
 def ecdf_data(data):
     """
     Empirical Cumulative Distribution Function (ECDF).
+
     :param data: The data.
     :return: The result of the ECDF on data.
     """
