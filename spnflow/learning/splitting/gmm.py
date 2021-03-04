@@ -23,4 +23,4 @@ def gmm(data, distributions, domains, n=2):
     # Apply GMM
     with warnings.catch_warnings():
         warnings.simplefilter(action='ignore', category=ConvergenceWarning)  # Ignore convergence warnings for GMM
-        return mixture.GaussianMixture(n_components=n).fit_predict(data)
+        return mixture.GaussianMixture(n_components=n, n_init=3).fit_predict(data)
