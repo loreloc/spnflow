@@ -74,7 +74,7 @@
 
 <dl class="py function">
 <dt id="spnflow.learning.leaf.learn_mle">
-<code class="sig-prename descclassname"><span class="pre">spnflow.learning.leaf.</span></code><code class="sig-name descname"><span class="pre">learn_mle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scope</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.leaf.learn_mle" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">spnflow.learning.leaf.</span></code><code class="sig-name descname"><span class="pre">learn_mle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.learning.leaf.learn_mle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Learn a leaf using Maximum Likelihood Estimate (MLE)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -83,10 +83,11 @@
 <li><p><strong>distribution</strong> – The distribution of the random variable.</p></li>
 <li><p><strong>domain</strong> – The domain of the random variable.</p></li>
 <li><p><strong>scope</strong> – The scope of the leaf.</p></li>
+<li><p><strong>alpha</strong> – Laplace smoothing factor.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>A leaf distribution with parameters learned by MLE.</p>
 </dd>
 </dl>
 </dd></dl>
