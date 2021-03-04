@@ -24,12 +24,13 @@ class Leaf(Node):
         """
         super().__init__([], [scope] if type(scope) == int else scope)
 
-    def fit(self, data, domain):
+    def fit(self, data, domain, **kwargs):
         """
         Fit the distribution parameters given the domain and some training data.
 
         :param data: The training data.
         :param domain: The domain of the distribution leaf.
+        :param kwargs: Optional parameters.
         """
         pass
 
@@ -102,14 +103,16 @@ class Bernoulli(Leaf):
         super().__init__(scope)
         self.p = p
 
-    def fit(self, data, domain):
+    def fit(self, data, domain, alpha=0.1, **kwargs):
         """
         Fit the distribution parameters given the domain and some training data.
 
         :param data: The training data.
         :param domain: The domain of the distribution leaf.
+        :param alpha: Laplace smoothing factor.
+        :param kwargs: Optional parameters.
         """
-        self.p = data.sum().item() / len(data)
+        self.p = (data.sum().item() + alpha) / (len(data) + 2 * alpha)
 
     def likelihood(self, x):
         """
@@ -183,17 +186,20 @@ class Multinomial(Leaf):
             p = [0.5, 0.5]
         self.p = p
 
-    def fit(self, data, domain):
+    def fit(self, data, domain, alpha=0.1, **kwargs):
         """
         Fit the distribution parameters given the domain and some training data.
 
         :param data: The training data.
         :param domain: The domain of the distribution leaf.
+        :param alpha: Laplace smoothing factor.
+        :param kwargs: Optional parameters.
         """
         self.p = []
         len_data = len(data)
         for c in range(len(domain)):
-            self.p.append(len(data[data == c]) / len_data)
+            q = (len(data[data == c]) + alpha) / (len_data + len(domain) * alpha)
+            self.p.append(q)
 
     def likelihood(self, x):
         """
@@ -273,12 +279,13 @@ class Poisson(Leaf):
         super().__init__(scope)
         self.mu = mu
 
-    def fit(self, data, domain):
+    def fit(self, data, domain, **kwargs):
         """
         Fit the distribution parameters given the domain and some training data.
 
         :param data: The training data.
         :param domain: The domain of the distribution leaf.
+        :param kwargs: Optional parameters.
         """
         self.mu = np.mean().item()
 
@@ -363,12 +370,13 @@ class Isotonic(Leaf):
         self.breaks = breaks
         self.mids = mids
 
-    def fit(self, data, domain):
+    def fit(self, data, domain, **kwargs):
         """
         Fit the distribution parameters given the domain and some training data.
 
         :param data: The training data.
         :param domain: The domain of the distribution leaf.
+        :param kwargs: Optional parameters.
         """
         n_samples, _ = data.shape
         if self.meta == LeafType.DISCRETE:
@@ -465,12 +473,13 @@ class Uniform(Leaf):
         self.start = start
         self.width = width
 
-    def fit(self, data, domain):
+    def fit(self, data, domain, **kwargs):
         """
         Fit the distribution parameters given the domain and some training data.
 
         :param data: The training data.
         :param domain: The domain of the distribution leaf.
+        :param kwargs: Optional parameters.
         """
         self.start, self.width = stats.uniform.fit(data)
 
@@ -545,12 +554,13 @@ class Gaussian(Leaf):
         self.mean = mean
         self.stddev = stddev
 
-    def fit(self, data, domain):
+    def fit(self, data, domain, **kwargs):
         """
         Fit the distribution parameters given the domain and some training data.
 
         :param data: The training data.
         :param domain: The domain of the distribution leaf.
+        :param kwargs: Optional parameters.
         """
         self.mean, self.stddev = stats.norm.fit(data)
         if np.isclose(self.stddev, 0.0):
@@ -628,12 +638,13 @@ class Gamma(Leaf):
         self.loc = loc
         self.beta = beta
 
-    def fit(self, data, domain):
+    def fit(self, data, domain, **kwargs):
         """
         Fit the distribution parameters given the domain and some training data.
 
         :param data: The training data.
         :param domain: The domain of the distribution leaf.
+        :param kwargs: Optional parameters.
         """
         assert np.any(data < 0.0), "Cannot fit Gamma distribution leaf with negative data"
         self.alpha, self.loc, self.beta = stats.gamma.fit(data)

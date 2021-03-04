@@ -16,7 +16,7 @@ def get_learn_leaf_method(learn_leaf):
         raise NotImplementedError("Unknow learn leaf method called " + learn_leaf)
 
 
-def learn_mle(data, distribution, domain, scope):
+def learn_mle(data, distribution, domain, scope, alpha=0.1):
     """
     Learn a leaf using Maximum Likelihood Estimate (MLE)
 
@@ -24,10 +24,11 @@ def learn_mle(data, distribution, domain, scope):
     :param distribution: The distribution of the random variable.
     :param domain: The domain of the random variable.
     :param scope: The scope of the leaf.
-    :return:
+    :param alpha: Laplace smoothing factor.
+    :return: A leaf distribution with parameters learned by MLE.
     """
     leaf = distribution(scope)
-    leaf.fit(data, domain)
+    leaf.fit(data, domain, alpha=alpha)
     return leaf
 
 

@@ -21,7 +21,7 @@ if __name__ == '__main__':
         'dataset', choices=BINARY_DATASETS + CONTINUOUS_DATASETS, help='The dataset used in the experiment.'
     )
     parser.add_argument(
-        '--split-rows', choices=['kmeans', 'gmm', 'rdc', 'random'], default='kmeans', help='The splitting rows method.'
+        '--split-rows', choices=['kmeans', 'gmm', 'rdc', 'random'], default='gmm', help='The splitting rows method.'
     )
     parser.add_argument(
         '--split-cols', choices=['gvs', 'rdc', 'random'], default='gvs', help='The splitting columns method.'
@@ -40,6 +40,9 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--rdc-threshold', type=float, default=0.3, help='The threshold for the RDC independence test.'
+    )
+    parser.add_argument(
+        '--smoothing', type=float, default=1.0, help='Laplace smoothing value.'
     )
     args = parser.parse_args()
 
@@ -77,6 +80,8 @@ if __name__ == '__main__':
     else:
         results = dict()
 
+    learn_leaf_params = {'alpha': args.smoothing}
+
     split_rows_kwargs = dict()
     if args.split_rows == 'kmeans' or args.split_rows == 'gmm':
         split_rows_kwargs['n'] = args.n_clusters
@@ -90,6 +95,7 @@ if __name__ == '__main__':
     spn = learn_estimator(
         data=data_train,
         distributions=distributions,
+        learn_leaf_params=learn_leaf_params,
         split_rows=args.split_rows,
         split_cols=args.split_cols,
         min_rows_slice=args.min_rows_slice,

@@ -1,6 +1,7 @@
 import numpy as np
 from enum import Enum
 from tqdm import tqdm
+from collections import deque
 
 from spnflow.structure.node import Sum, Mul, assign_ids
 from spnflow.learning.leaf import get_learn_leaf_method
@@ -79,7 +80,7 @@ def learn_structure(data,
     split_cols_func = get_split_cols_method(split_cols)
     initial_scope = list(range(n_features))
 
-    tasks = []
+    tasks = deque()
     tmp_node = Mul([], initial_scope)
     tasks.append(Task(tmp_node, data, initial_scope, is_first=True))
 
@@ -88,7 +89,7 @@ def learn_structure(data,
 
     while tasks:
         # Get the next task
-        task = tasks.pop()
+        task = tasks.popleft()
 
         # First of all, check for uninformative features
         op, zero_var_idx = None, None
