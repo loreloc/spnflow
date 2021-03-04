@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.abspath('../'))
 project = 'SPNFlow'
 copyright = '2020, Lorenzo Loconte'
 author = 'Lorenzo Loconte'
-release = '0.5.0'
+release = '0.5.1'
 
 # -- General configuration ---------------------------------------------------
 
