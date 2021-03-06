@@ -57,7 +57,7 @@ if __name__ == '__main__':
         transform = DataStandardizer()
         data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
 
-    transform.fit(np.vstack([data_train, data_valid]))
+    transform.fit(data_train)
     data_train = transform.forward(data_train)
     data_valid = transform.forward(data_valid)
     data_test = transform.forward(data_test)

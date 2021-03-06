@@ -9,7 +9,7 @@ from spnflow.learning.wrappers import learn_estimator
 from spnflow.utils.data import DataStandardizer
 from spnflow.utils.statistics import get_statistics
 
-from experiments.datasets import  load_binary_dataset, load_continuous_dataset
+from experiments.datasets import load_binary_dataset, load_continuous_dataset
 from experiments.datasets import BINARY_DATASETS, CONTINUOUS_DATASETS
 from experiments.utils import evaluate_log_likelihoods
 
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     else:
         transform = DataStandardizer()
         data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
-        transform.fit(np.vstack([data_train, data_valid]))
+        transform.fit(data_train)
         data_train = transform.forward(data_train)
         data_valid = transform.forward(data_valid)
         data_test = transform.forward(data_test)

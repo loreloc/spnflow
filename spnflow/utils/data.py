@@ -64,14 +64,16 @@ class DataStandardizer:
 
 class DataDequantizer:
     """Data dequantizer for probabilistic learning purposes."""
-    def __init__(self, flatten=False, dtype=np.float32):
+    def __init__(self, normalize=True, flatten=False, dtype=np.float32):
         """
         Build the data transform.
 
+        :param normalize: Whether to normalize the data from [0, 255] to [0, 1].
         :param flatten: Whether to flatten the data.
         :param epsilon: Epsilon factor for standardization.
         :param dtype: The type for type conversion.
         """
+        self.normalize = normalize
         self.flatten = flatten
         self.dtype = dtype
         self.shape = None
@@ -91,7 +93,9 @@ class DataDequantizer:
         :param data: The data to transform.
         :return: The transformed data.
         """
-        data = (data + np.random.rand(*data.shape)) / 256.0
+        data = data + np.random.rand(*data.shape)
+        if self.normalize:
+            data = data / 256.0
         if self.flatten:
             data = data.reshape([len(data), -1])
         return data.astype(self.dtype)
@@ -105,8 +109,49 @@ class DataDequantizer:
         """
         if self.flatten:
             data = data.reshape([len(data), *self.shape])
-        data = np.clip(data, 0.0, 1.0)
-        data = data * 255.0
+        if self.normalize:
+            data = np.clip(data, 0.0, 1.0) * 255.0
+        else:
+            data = np.clip(data, 0.0, 255.0)
+        return data
+
+
+class DataTransorms:
+    """Data transformer consisting on a chain of transforms."""
+    def __init__(self, *transforms):
+        assert len(transforms) > 0
+        self.transforms = transforms
+
+    def fit(self, data):
+        """
+        Fit the data transform with some data.
+
+        :param data: The data for fitting.
+        """
+        for transform in self.transforms:
+            transform.fit(data)
+            data = transform.forward(data)
+
+    def forward(self, data):
+        """
+        Apply the data transform to some data.
+
+        :param data: The data to transform.
+        :return: The transformed data.
+        """
+        for transform in self.transforms:
+            data = transform.forward(data)
+        return data
+
+    def backward(self, data):
+        """
+        Apply the backward data transform to some data
+
+        :param data: The data to transform.
+        :return: The transformed data.
+        """
+        for transform in reversed(self.transforms):
+            data = transform.backward(data)
         return data
 
 

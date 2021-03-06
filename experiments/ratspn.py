@@ -4,7 +4,7 @@ import json
 import argparse
 import numpy as np
 
-from spnflow.utils.data import DataStandardizer
+from spnflow.utils.data import DataStandardizer, DataDequantizer, DataTransorms
 from spnflow.torch.models.ratspn import GaussianRatSpn, BernoulliRatSpn
 
 from experiments.datasets import load_binary_dataset, load_continuous_dataset, load_vision_dataset
@@ -64,7 +64,9 @@ if __name__ == '__main__':
             transform = DataStandardizer(flatten=False)
             data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
         elif is_vision_dataset:
-            transform = DataStandardizer(sample_wise=False, flatten=True)
+            transform = DataTransorms(
+                DataDequantizer(normalize=False, flatten=True), DataStandardizer()
+            )
             if args.discriminative:
                 (data_train, label_train), (data_valid, label_valid), (data_test, label_test) = load_vision_dataset(
                     'datasets', args.dataset, unsupervised=False
@@ -73,7 +75,7 @@ if __name__ == '__main__':
                 data_train, data_valid, data_test = load_vision_dataset('datasets', args.dataset, unsupervised=True)
         else:
             raise NotImplementedError('Unknow dataset type of ' + args.dataset)
-        transform.fit(np.vstack([data_train, data_valid]))
+        transform.fit(data_train)
         data_train = transform.forward(data_train)
         data_valid = transform.forward(data_valid)
         data_test = transform.forward(data_test)
