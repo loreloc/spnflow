@@ -5,7 +5,7 @@ import argparse
 import numpy as np
 
 from spnflow.torch.models.dgcspn import DgcSpn
-from spnflow.utils.data import DataStandardizer, DataDequantizer, DataTransorms, compute_mean_quantiles
+from spnflow.utils.data import DataDequantizer, compute_mean_quantiles
 
 from experiments.datasets import load_vision_dataset
 from experiments.datasets import VISION_DATASETS
@@ -53,9 +53,7 @@ if __name__ == '__main__':
         'Only one between --quantiles-loc and --uniform-loc can be defined'
 
     # Load the dataset
-    transform = DataTransorms(
-        DataDequantizer(normalize=False, flatten=False), DataStandardizer()
-    )
+    transform = DataDequantizer()
     if args.discriminative:
         (data_train, label_train), (data_valid, label_valid), (data_test, label_test) = load_vision_dataset(
             'datasets', args.dataset, unsupervised=False
@@ -104,7 +102,9 @@ if __name__ == '__main__':
 
     # Build the model
     model = DgcSpn(
-        image_size, out_classes,
+        image_size,
+        logit=True,
+        out_classes=out_classes,
         n_batch=args.n_batches,
         sum_channels=args.sum_channels,
         depthwise=args.depthwise,

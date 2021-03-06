@@ -3,7 +3,7 @@ import numpy as np
 
 from spnflow.torch.models.abstract import AbstractModel
 from spnflow.torch.layers.flows import CouplingLayer1d, CouplingLayer2d, AutoregressiveLayer
-from spnflow.torch.layers.flows import BatchNormLayer, LogitLayer, SqueezeLayer2d, UnsqueezeLayer2d
+from spnflow.torch.layers.utils import BatchNormLayer, LogitLayer, SqueezeLayer2d, UnsqueezeLayer2d
 from spnflow.torch.utils import get_activation_class
 
 
@@ -16,11 +16,10 @@ class AbstractNormalizingFlow(AbstractModel):
         :param logit: Whether to apply logit transformation on the input layer.
         :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         """
-        super(AbstractNormalizingFlow, self).__init__()
+        super(AbstractNormalizingFlow, self).__init__(logit=logit)
         assert (type(in_features) == int and in_features > 0) or \
                (len(in_features) == 3 and all(map(lambda d: d > 0, in_features)))
         self.in_features = in_features
-        self.logit = logit
 
         # Build the base distribution, if necessary
         if in_base is None:
@@ -31,18 +30,16 @@ class AbstractNormalizingFlow(AbstractModel):
             self.in_base = in_base
 
         # Initialize the normalizing flow layers
-        # Moreover, append the logit transformation, if specified
         self.layers = torch.nn.ModuleList()
-        if self.logit:
-            self.layers.append(LogitLayer())
 
     def forward(self, x):
         """
         Compute the log-likelihood given complete evidence.
+
         :param x: The inputs tensor.
         :return: The output of the model.
         """
-        inv_log_det_jacobian = 0.0
+        x, inv_log_det_jacobian = self.preprocess(x)
         for layer in self.layers:
             x, ildj = layer.inverse(x)
             inv_log_det_jacobian += ildj
@@ -58,12 +55,14 @@ class AbstractNormalizingFlow(AbstractModel):
     def sample(self, n_samples):
         """
         Sample some values from the modeled distribution.
+
         :param n_samples: The number of samples.
         :return: The samples.
         """
         x = self.in_base.sample([n_samples])
         for layer in reversed(self.layers):
-            x, ldj = layer.forward(x)
+            x, _ = layer.forward(x)
+        x, _ = self.unpreprocess(x)
         return x
 
 

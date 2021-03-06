@@ -10,6 +10,7 @@ class DgcSpn(AbstractModel):
     """Deep Generalized Convolutional SPN model class."""
     def __init__(self,
                  in_size,
+                 logit=False,
                  out_classes=1,
                  n_batch=8,
                  sum_channels=8,
@@ -26,6 +27,7 @@ class DgcSpn(AbstractModel):
         Initialize a SpatialSpn.
 
         :param in_size: The input size.
+        :param logit: Whether to apply logit transformation on the input layer.
         :param out_classes: The number of output classes. Specify 1 in case of plain density estimation.
         :param n_batch: The number of output channels of the base layer.
         :param sum_channels: The number of output channels of spatial sum layers.
@@ -39,7 +41,7 @@ class DgcSpn(AbstractModel):
         :param rand_state: The random state used to initialize the spatial product layers weights.
                            Used only if depthwise is False.
         """
-        super(DgcSpn, self).__init__()
+        super(DgcSpn, self).__init__(logit=logit)
         assert len(in_size) == 3 and in_size[0] > 0 and in_size[1] > 0 and in_size[2] > 0
         assert out_classes > 0
         assert n_batch > 0
@@ -136,6 +138,9 @@ class DgcSpn(AbstractModel):
         :param x: The inputs tensor.
         :return: The output of the model.
         """
+        # Preprocess the data
+        x, inv_log_det_jacobian = self.preprocess(x)
+
         # Compute the base distributions log-likelihoods
         x = self.base_layer(x)
 
@@ -144,7 +149,8 @@ class DgcSpn(AbstractModel):
             x = layer(x)
 
         # Forward through the root layer
-        return self.root_layer(x)
+        log_prob = self.root_layer(x)
+        return log_prob + inv_log_det_jacobian
 
     @torch.no_grad()
     def mpe(self, x):
@@ -173,7 +179,9 @@ class DgcSpn(AbstractModel):
             # Compute the maximum at posteriori estimate using leaves gradients
             mode = self.base_layer.loc
             estimates = torch.sum(torch.unsqueeze(z_grad, dim=2) * mode, dim=1)
-            return torch.where(torch.isnan(x), estimates, x)
+            samples = torch.where(torch.isnan(x), estimates, x)
+            samples = self.unpreprocess(samples)
+            return samples
 
     @torch.no_grad()
     def sample(self, n_samples, y=None):

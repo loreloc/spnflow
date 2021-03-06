@@ -64,16 +64,13 @@ class DataStandardizer:
 
 class DataDequantizer:
     """Data dequantizer for probabilistic learning purposes."""
-    def __init__(self, normalize=True, flatten=False, dtype=np.float32):
+    def __init__(self, flatten=False, dtype=np.float32):
         """
         Build the data transform.
 
-        :param normalize: Whether to normalize the data from [0, 255] to [0, 1].
         :param flatten: Whether to flatten the data.
-        :param epsilon: Epsilon factor for standardization.
         :param dtype: The type for type conversion.
         """
-        self.normalize = normalize
         self.flatten = flatten
         self.dtype = dtype
         self.shape = None
@@ -93,9 +90,7 @@ class DataDequantizer:
         :param data: The data to transform.
         :return: The transformed data.
         """
-        data = data + np.random.rand(*data.shape)
-        if self.normalize:
-            data = data / 256.0
+        data = (data + np.random.rand(*data.shape)) / 256.0
         if self.flatten:
             data = data.reshape([len(data), -1])
         return data.astype(self.dtype)
@@ -109,10 +104,7 @@ class DataDequantizer:
         """
         if self.flatten:
             data = data.reshape([len(data), *self.shape])
-        if self.normalize:
-            data = np.clip(data, 0.0, 1.0) * 255.0
-        else:
-            data = np.clip(data, 0.0, 255.0)
+        data = np.clip(data, 0.0, 1.0) * 255.0
         return data
 
 

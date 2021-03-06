@@ -1,41 +1,6 @@
 import torch
 
 
-class WeightNormConv2d(torch.nn.Module):
-    """Conv2D with weight normalization."""
-    def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0, bias=True):
-        """
-        Initialize a Conv2d layer with weight normalization.
-
-        :param in_channels: The number of input channels.
-        :param out_channels: The number of output channels.
-        :param kernel_size: The convolving kernel size.
-        :param stride: The stride of convolution.
-        :param padding: The padding to apply.
-        :param bias: Whether to use bias parameters.
-        """
-        super(WeightNormConv2d, self).__init__()
-        self.in_channels = in_channels
-        self.out_channels = out_channels
-        self.kernel_size = kernel_size
-        self.stride = stride
-        self.padding = padding
-        self.bias = bias
-        self.conv = torch.nn.utils.weight_norm(torch.nn.Conv2d(
-            in_channels, out_channels, kernel_size,
-            stride=stride, padding=padding, bias=bias
-        ))
-
-    def forward(self, x):
-        """
-        Evaluate the convolutional layer.
-
-        :param x: The inputs.
-        :return: The outputs of convolution.
-        """
-        return self.conv(x)
-
-
 class ResidualBlock(torch.nn.Module):
     """Residual block for ResNets."""
     def __init__(self, in_channels, out_channels, kernel_size, padding):

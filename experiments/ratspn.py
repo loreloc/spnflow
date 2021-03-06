@@ -4,7 +4,7 @@ import json
 import argparse
 import numpy as np
 
-from spnflow.utils.data import DataStandardizer, DataDequantizer, DataTransorms
+from spnflow.utils.data import DataStandardizer, DataDequantizer
 from spnflow.torch.models.ratspn import GaussianRatSpn, BernoulliRatSpn
 
 from experiments.datasets import load_binary_dataset, load_continuous_dataset, load_vision_dataset
@@ -61,12 +61,10 @@ if __name__ == '__main__':
         data_test = data_test.astype(np.float32)
     else:
         if is_continuous_dataset:
-            transform = DataStandardizer(flatten=False)
+            transform = DataStandardizer()
             data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
         elif is_vision_dataset:
-            transform = DataTransorms(
-                DataDequantizer(normalize=False, flatten=True), DataStandardizer()
-            )
+            transform = DataDequantizer(flatten=True)
             if args.discriminative:
                 (data_train, label_train), (data_valid, label_valid), (data_test, label_test) = load_vision_dataset(
                     'datasets', args.dataset, unsupervised=False
@@ -133,6 +131,7 @@ if __name__ == '__main__':
     else:
         model = GaussianRatSpn(
             n_features,
+            logit=is_vision_dataset,
             out_classes=out_classes,
             rg_depth=rg_depth,
             rg_repetitions=args.rg_repetitions,

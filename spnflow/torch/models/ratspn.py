@@ -11,6 +11,7 @@ class AbstractRatSpn(AbstractModel):
     """Abstract RAT-SPN model class"""
     def __init__(self,
                  in_features,
+                 logit=False,
                  out_classes=1,
                  rg_depth=2,
                  rg_repetitions=1,
@@ -24,6 +25,7 @@ class AbstractRatSpn(AbstractModel):
         Initialize a RAT-SPN.
 
         :param in_features: The number of input features.
+        :param logit: Whether to apply logit transformation on the input layer.
         :param out_classes: The number of output classes. Specify 1 in case of plain density estimation.
         :param rg_depth: The depth of the region graph.
         :param rg_repetitions: The number of independent repetitions of the region graph.
@@ -33,7 +35,7 @@ class AbstractRatSpn(AbstractModel):
         :param sum_dropout: The dropout rate for probabilistic dropout at sum layers. It can be None.
         :param rand_state: The random state used to generate the random graph.
         """
-        super(AbstractRatSpn, self).__init__()
+        super(AbstractRatSpn, self).__init__(logit=logit)
         assert in_features > 0
         assert out_classes > 0
         assert rg_depth > 0
@@ -96,6 +98,9 @@ class AbstractRatSpn(AbstractModel):
         :param x: The inputs tensor.
         :return: The output of the model.
         """
+        # Preprocess the data
+        x, inv_log_det_jacobian = self.preprocess(x)
+
         # Compute the base distributions log-likelihoods
         x = self.base_layer(x)
 
@@ -104,7 +109,8 @@ class AbstractRatSpn(AbstractModel):
             x = layer(x)
 
         # Forward through the root layer
-        return self.root_layer(x)
+        log_prob = self.root_layer(x)
+        return log_prob + inv_log_det_jacobian
 
     @torch.no_grad()
     def mpe(self, x, y=None):
@@ -143,7 +149,11 @@ class AbstractRatSpn(AbstractModel):
             idx_group, idx_offset = self.layers[i].mpe(lls[i], idx_group, idx_offset)
 
         # Compute the maximum at posteriori inference at the base layer
-        return self.base_layer.mpe(inputs, idx_group, idx_offset)
+        samples = self.base_layer.mpe(inputs, idx_group, idx_offset)
+
+        # Unpreprocess the samples
+        samples, _ = self.unpreprocess(samples)
+        return samples
 
     @torch.no_grad()
     def sample(self, n_samples, y=None):
@@ -170,6 +180,9 @@ class AbstractRatSpn(AbstractModel):
 
         # Compute the maximum at posteriori inference at the base layer
         samples = self.base_layer.sample(idx_group, idx_offset)
+
+        # Unpreprocess the samples
+        samples, _ = self.unpreprocess(samples)
         return samples
 
 
@@ -177,6 +190,7 @@ class GaussianRatSpn(AbstractRatSpn):
     """Gaussian RAT-SPN model class."""
     def __init__(self,
                  in_features,
+                 logit=False,
                  out_classes=1,
                  rg_depth=2,
                  rg_repetitions=1,
@@ -192,6 +206,7 @@ class GaussianRatSpn(AbstractRatSpn):
         Initialize a RAT-SPN.
 
         :param in_features: The number of input features.
+        :param logit: Whether to apply logit transformation on the input layer.
         :param out_classes: The number of output classes. Specify 1 in case of plain density estimation.
         :param rg_depth: The depth of the region graph.
         :param rg_repetitions: The number of independent repetitions of the region graph.
@@ -204,7 +219,7 @@ class GaussianRatSpn(AbstractRatSpn):
         :param optimize_scale: Whether to train scale and location jointly.
         """
         super(GaussianRatSpn, self).__init__(
-            in_features, out_classes, rg_depth, rg_repetitions,
+            in_features, logit, out_classes, rg_depth, rg_repetitions,
             n_batch, n_sum, in_dropout, sum_dropout, rand_state
         )
         assert uniform_loc is None or uniform_loc[0] < uniform_loc[1], \
@@ -263,7 +278,7 @@ class BernoulliRatSpn(AbstractRatSpn):
         :param rand_state: The random state used to generate the random graph.
         """
         super(BernoulliRatSpn, self).__init__(
-            in_features, out_classes, rg_depth, rg_repetitions,
+            in_features, False, out_classes, rg_depth, rg_repetitions,
             n_batch, n_sum, in_dropout, sum_dropout, rand_state
         )
 
