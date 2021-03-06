@@ -159,7 +159,7 @@ class AbstractRatSpn(AbstractModel):
         if self.out_classes == 1:
             y = torch.zeros(n_samples).long()
         elif y is None:
-            y = torch.randint(self.in_features, n_samples)
+            y = torch.randint(self.out_classes, [n_samples])
 
         # Get the root layer indices
         idx_group, idx_offset = self.root_layer.sample(y)
