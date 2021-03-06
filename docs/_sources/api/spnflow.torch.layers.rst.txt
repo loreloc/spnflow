@@ -36,6 +36,14 @@ spnflow.torch.layers.resnet module
    :undoc-members:
    :show-inheritance:
 
+spnflow.torch.layers.utils module
+---------------------------------
+
+.. automodule:: spnflow.torch.layers.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>spnflow.torch.layers package &#8212; SPNFlow 0.5.1 documentation</title>
+    <title>spnflow.torch.layers package &#8212; SPNFlow 0.5.2 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -227,68 +227,6 @@
 <div class="section" id="module-spnflow.torch.layers.flows">
 <span id="spnflow-torch-layers-flows-module"></span><h2>spnflow.torch.layers.flows module<a class="headerlink" href="#module-spnflow.torch.layers.flows" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt id="spnflow.torch.layers.flows.ScaledTanh">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.flows.</span></code><code class="sig-name descname"><span class="pre">ScaledTanh</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.ScaledTanh" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<p>Scaled Tanh activation module.</p>
-<dl class="py method">
-<dt id="spnflow.torch.layers.flows.ScaledTanh.forward">
-<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.ScaledTanh.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defines the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="spnflow.torch.layers.flows.ScaledTanh.training">
-<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.flows.ScaledTanh.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="spnflow.torch.layers.flows.MaskedLinear">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.flows.</span></code><code class="sig-name descname"><span class="pre">MaskedLinear</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.MaskedLinear" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.linear.Linear</span></code></p>
-<p>Masked version of linear layer.</p>
-<dl class="py method">
-<dt id="spnflow.torch.layers.flows.MaskedLinear.forward">
-<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.MaskedLinear.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate the layer given some inputs.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The tensor result of the layer.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="spnflow.torch.layers.flows.MaskedLinear.in_features">
-<code class="sig-name descname"><span class="pre">in_features</span></code><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#spnflow.torch.layers.flows.MaskedLinear.in_features" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="spnflow.torch.layers.flows.MaskedLinear.out_features">
-<code class="sig-name descname"><span class="pre">out_features</span></code><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#spnflow.torch.layers.flows.MaskedLinear.out_features" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="spnflow.torch.layers.flows.MaskedLinear.weight">
-<code class="sig-name descname"><span class="pre">weight</span></code><em class="property"><span class="pre">:</span> <span class="pre">torch.Tensor</span></em><a class="headerlink" href="#spnflow.torch.layers.flows.MaskedLinear.weight" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt id="spnflow.torch.layers.flows.CouplingLayer1d">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.flows.</span></code><code class="sig-name descname"><span class="pre">CouplingLayer1d</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.CouplingLayer1d" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
@@ -434,166 +372,6 @@ registered hooks while the latter silently ignores them.</p>
 <dl class="py attribute">
 <dt id="spnflow.torch.layers.flows.AutoregressiveLayer.training">
 <code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.flows.AutoregressiveLayer.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="spnflow.torch.layers.flows.BatchNormLayer">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.flows.</span></code><code class="sig-name descname"><span class="pre">BatchNormLayer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">momentum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.BatchNormLayer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<p>Batch Normalization layer.</p>
-<dl class="py method">
-<dt id="spnflow.torch.layers.flows.BatchNormLayer.inverse">
-<code class="sig-name descname"><span class="pre">inverse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.BatchNormLayer.inverse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate the layer given some inputs (backward mode).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The tensor result of the layer.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="spnflow.torch.layers.flows.BatchNormLayer.forward">
-<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.BatchNormLayer.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate the layer given some inputs (forward mode).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>u</strong> – The inputs.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The tensor result of the layer.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="spnflow.torch.layers.flows.BatchNormLayer.training">
-<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.flows.BatchNormLayer.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="spnflow.torch.layers.flows.LogitLayer">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.flows.</span></code><code class="sig-name descname"><span class="pre">LogitLayer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.LogitLayer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<p>Logit transformation layer.</p>
-<dl class="py method">
-<dt id="spnflow.torch.layers.flows.LogitLayer.inverse">
-<code class="sig-name descname"><span class="pre">inverse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.LogitLayer.inverse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate the layer given some inputs (backward mode).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The tensor result of the layer.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="spnflow.torch.layers.flows.LogitLayer.forward">
-<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.LogitLayer.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate the layer given some inputs (forward mode).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>u</strong> – The inputs.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The tensor result of the layer.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="spnflow.torch.layers.flows.LogitLayer.training">
-<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.flows.LogitLayer.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="spnflow.torch.layers.flows.SqueezeLayer2d">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.flows.</span></code><code class="sig-name descname"><span class="pre">SqueezeLayer2d</span></code><a class="headerlink" href="#spnflow.torch.layers.flows.SqueezeLayer2d" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<p>Squeeze 2x2 operation as in RealNVP based on ResNets.</p>
-<dl class="py method">
-<dt id="spnflow.torch.layers.flows.SqueezeLayer2d.forward">
-<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.SqueezeLayer2d.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate the layer given some inputs (depth-to-space transformation).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> – The inputs of size [N, C * 4, H // 2, W // 2].</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The outputs of size [N, C, H, W].</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="spnflow.torch.layers.flows.SqueezeLayer2d.inverse">
-<code class="sig-name descname"><span class="pre">inverse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.SqueezeLayer2d.inverse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate the layer given some inputs (space-to-depth transformation).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> – The inputs of size [N, C, H, W].</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The outputs of size [N, C * 4, H // 2, W // 2].</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="spnflow.torch.layers.flows.SqueezeLayer2d.training">
-<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.flows.SqueezeLayer2d.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="spnflow.torch.layers.flows.UnsqueezeLayer2d">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.flows.</span></code><code class="sig-name descname"><span class="pre">UnsqueezeLayer2d</span></code><a class="headerlink" href="#spnflow.torch.layers.flows.UnsqueezeLayer2d" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<p>Unsqueeze 2x2 operation as in RealNVP based on ResNets.</p>
-<dl class="py method">
-<dt id="spnflow.torch.layers.flows.UnsqueezeLayer2d.forward">
-<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.UnsqueezeLayer2d.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate the layer given some inputs (space-to-depth transformation).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> – The inputs of size [N, C, H, W].</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The outputs of size [N, C * 4, H // 2, W // 2].</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="spnflow.torch.layers.flows.UnsqueezeLayer2d.inverse">
-<code class="sig-name descname"><span class="pre">inverse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.flows.UnsqueezeLayer2d.inverse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate the layer given some inputs (depth-to-space transformation).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> – The inputs of size [N, C * 4, H // 2, W // 2].</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The outputs of size [N, C, H, W].</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="spnflow.torch.layers.flows.UnsqueezeLayer2d.training">
-<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.flows.UnsqueezeLayer2d.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -869,32 +647,6 @@ registered hooks while the latter silently ignores them.</p>
 <div class="section" id="module-spnflow.torch.layers.resnet">
 <span id="spnflow-torch-layers-resnet-module"></span><h2>spnflow.torch.layers.resnet module<a class="headerlink" href="#module-spnflow.torch.layers.resnet" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt id="spnflow.torch.layers.resnet.WeightNormConv2d">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.resnet.</span></code><code class="sig-name descname"><span class="pre">WeightNormConv2d</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.resnet.WeightNormConv2d" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
-<p>Conv2D with weight normalization.</p>
-<dl class="py method">
-<dt id="spnflow.torch.layers.resnet.WeightNormConv2d.forward">
-<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.resnet.WeightNormConv2d.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate the convolutional layer.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The outputs of convolution.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="spnflow.torch.layers.resnet.WeightNormConv2d.training">
-<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.resnet.WeightNormConv2d.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt id="spnflow.torch.layers.resnet.ResidualBlock">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.resnet.</span></code><code class="sig-name descname"><span class="pre">ResidualBlock</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.resnet.ResidualBlock" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
@@ -942,6 +694,254 @@ registered hooks while the latter silently ignores them.</p>
 <dl class="py attribute">
 <dt id="spnflow.torch.layers.resnet.ResidualNetwork.training">
 <code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.resnet.ResidualNetwork.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-spnflow.torch.layers.utils">
+<span id="spnflow-torch-layers-utils-module"></span><h2>spnflow.torch.layers.utils module<a class="headerlink" href="#module-spnflow.torch.layers.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="spnflow.torch.layers.utils.ScaledTanh">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.utils.</span></code><code class="sig-name descname"><span class="pre">ScaledTanh</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.utils.ScaledTanh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Scaled Tanh activation module.</p>
+<dl class="py method">
+<dt id="spnflow.torch.layers.utils.ScaledTanh.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.utils.ScaledTanh.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the scaled tanh function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The result of the module.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="spnflow.torch.layers.utils.ScaledTanh.training">
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.utils.ScaledTanh.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.torch.layers.utils.MaskedLinear">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.utils.</span></code><code class="sig-name descname"><span class="pre">MaskedLinear</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.utils.MaskedLinear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.linear.Linear</span></code></p>
+<p>Masked version of linear layer.</p>
+<dl class="py method">
+<dt id="spnflow.torch.layers.utils.MaskedLinear.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.utils.MaskedLinear.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="spnflow.torch.layers.utils.MaskedLinear.in_features">
+<code class="sig-name descname"><span class="pre">in_features</span></code><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#spnflow.torch.layers.utils.MaskedLinear.in_features" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="spnflow.torch.layers.utils.MaskedLinear.out_features">
+<code class="sig-name descname"><span class="pre">out_features</span></code><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#spnflow.torch.layers.utils.MaskedLinear.out_features" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="spnflow.torch.layers.utils.MaskedLinear.weight">
+<code class="sig-name descname"><span class="pre">weight</span></code><em class="property"><span class="pre">:</span> <span class="pre">torch.Tensor</span></em><a class="headerlink" href="#spnflow.torch.layers.utils.MaskedLinear.weight" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.torch.layers.utils.BatchNormLayer">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.utils.</span></code><code class="sig-name descname"><span class="pre">BatchNormLayer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">momentum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.utils.BatchNormLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Batch Normalization layer.</p>
+<dl class="py method">
+<dt id="spnflow.torch.layers.utils.BatchNormLayer.inverse">
+<code class="sig-name descname"><span class="pre">inverse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.utils.BatchNormLayer.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (backward mode).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.torch.layers.utils.BatchNormLayer.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.utils.BatchNormLayer.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (forward mode).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>u</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="spnflow.torch.layers.utils.BatchNormLayer.training">
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.utils.BatchNormLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.torch.layers.utils.LogitLayer">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.utils.</span></code><code class="sig-name descname"><span class="pre">LogitLayer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.utils.LogitLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Logit transformation layer.</p>
+<dl class="py method">
+<dt id="spnflow.torch.layers.utils.LogitLayer.inverse">
+<code class="sig-name descname"><span class="pre">inverse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.utils.LogitLayer.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (backward mode).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.torch.layers.utils.LogitLayer.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.utils.LogitLayer.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (forward mode).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>u</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="spnflow.torch.layers.utils.LogitLayer.training">
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.utils.LogitLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.torch.layers.utils.SqueezeLayer2d">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.utils.</span></code><code class="sig-name descname"><span class="pre">SqueezeLayer2d</span></code><a class="headerlink" href="#spnflow.torch.layers.utils.SqueezeLayer2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Squeeze 2x2 operation as in RealNVP based on ResNets.</p>
+<dl class="py method">
+<dt id="spnflow.torch.layers.utils.SqueezeLayer2d.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.utils.SqueezeLayer2d.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (depth-to-space transformation).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs of size [N, C * 4, H // 2, W // 2].</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of size [N, C, H, W].</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.torch.layers.utils.SqueezeLayer2d.inverse">
+<code class="sig-name descname"><span class="pre">inverse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.utils.SqueezeLayer2d.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (space-to-depth transformation).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs of size [N, C, H, W].</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of size [N, C * 4, H // 2, W // 2].</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="spnflow.torch.layers.utils.SqueezeLayer2d.training">
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.utils.SqueezeLayer2d.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.torch.layers.utils.UnsqueezeLayer2d">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.utils.</span></code><code class="sig-name descname"><span class="pre">UnsqueezeLayer2d</span></code><a class="headerlink" href="#spnflow.torch.layers.utils.UnsqueezeLayer2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Unsqueeze 2x2 operation as in RealNVP based on ResNets.</p>
+<dl class="py method">
+<dt id="spnflow.torch.layers.utils.UnsqueezeLayer2d.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.utils.UnsqueezeLayer2d.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (space-to-depth transformation).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs of size [N, C, H, W].</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of size [N, C * 4, H // 2, W // 2].</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spnflow.torch.layers.utils.UnsqueezeLayer2d.inverse">
+<code class="sig-name descname"><span class="pre">inverse</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.utils.UnsqueezeLayer2d.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (depth-to-space transformation).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs of size [N, C * 4, H // 2, W // 2].</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of size [N, C, H, W].</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="spnflow.torch.layers.utils.UnsqueezeLayer2d.training">
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.utils.UnsqueezeLayer2d.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="spnflow.torch.layers.utils.WeightNormConv2d">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">spnflow.torch.layers.utils.</span></code><code class="sig-name descname"><span class="pre">WeightNormConv2d</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.utils.WeightNormConv2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Conv2D with weight normalization.</p>
+<dl class="py method">
+<dt id="spnflow.torch.layers.utils.WeightNormConv2d.forward">
+<code class="sig-name descname"><span class="pre">forward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spnflow.torch.layers.utils.WeightNormConv2d.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the convolutional layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of convolution.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="spnflow.torch.layers.utils.WeightNormConv2d.training">
+<code class="sig-name descname"><span class="pre">training</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#spnflow.torch.layers.utils.WeightNormConv2d.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
