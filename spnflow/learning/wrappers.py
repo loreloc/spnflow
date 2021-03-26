@@ -49,12 +49,6 @@ def learn_classifier(data, distributions, domains=None, class_idx=-1, verbose=Tr
     n_samples, n_features = data.shape
     classes = data[:, class_idx]
 
-    def learn_branch(local_data, **kwargs):
-        n_local_samples, _ = local_data.shape
-        weight = n_local_samples / n_samples
-        local_spn = learn_structure(local_data, distributions, domains, verbose=verbose, **kwargs)
-        return weight, local_spn
-
     # Initialize the tqdm wrapped unique classes array, if verbose is enabled
     if verbose:
         tk = tqdm(np.unique(classes), bar_format='{l_bar}{bar:32}{r_bar}')
@@ -65,7 +59,10 @@ def learn_classifier(data, distributions, domains=None, class_idx=-1, verbose=Tr
     weights = []
     children = []
     for c in tk:
-        weight, branch = learn_branch(data[classes == c], **kwargs)
+        local_data = data[classes == c]
+        n_local_samples, _ = local_data.shape
+        weight = n_local_samples / n_samples
+        branch = learn_structure(local_data, distributions, domains, verbose=verbose, **kwargs)
         weights.append(weight)
         children.append(prune(branch))
 
