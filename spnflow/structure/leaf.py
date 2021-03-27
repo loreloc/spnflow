@@ -1,7 +1,9 @@
 import numpy as np
 import scipy.stats as stats
+
 from enum import Enum
 from spnflow.structure.node import Node
+from spnflow.utils.data import ohe_data
 
 
 class LeafType(Enum):
@@ -197,8 +199,9 @@ class Multinomial(Leaf):
         """
         self.p = []
         len_data = len(data)
-        for c in range(len(domain)):
-            q = (len(data[data == c]) + alpha) / (len_data + len(domain) * alpha)
+        len_domain = len(domain)
+        for c in range(len_domain):
+            q = (len(data[data == c]) + alpha) / (len_data + len_domain * alpha)
             self.p.append(q)
 
     def likelihood(self, x):
@@ -208,10 +211,7 @@ class Multinomial(Leaf):
         :param x: The inputs.
         :return: The resulting likelihood.
         """
-        x_len = len(x)
-        k = len(self.p)
-        z = np.zeros((x_len, k))
-        z[np.arange(x_len), x.astype(int)] = 1
+        z = ohe_data(x, range(len(self.p)))
         return stats.multinomial.pmf(z, 1, self.p)
 
     def log_likelihood(self, x):
@@ -221,10 +221,7 @@ class Multinomial(Leaf):
         :param x: The inputs.
         :return: The resulting log likelihood.
         """
-        x_len = len(x)
-        k = len(self.p)
-        z = np.zeros((x_len, k))
-        z[np.arange(x_len), x.astype(int)] = 1
+        z = ohe_data(x, range(len(self.p)))
         return stats.multinomial.logpmf(z, 1, self.p)
 
     def mode(self):

@@ -1,8 +1,6 @@
 import numpy as np
 import scipy.stats as stats
 
-from spnflow.structure.leaf import LeafType
-
 
 class DataStandardizer:
     """Data standardizer for probabilistic learning purposes."""
@@ -145,50 +143,6 @@ class DataTransorms:
         for transform in reversed(self.transforms):
             data = transform.backward(data)
         return data
-
-
-def get_data_domains(data, distributions):
-    """
-    Compute the domains based on the training data and the features distributions.
-
-    :param data: The training data.
-    :param distributions: A list of distribution classes.
-    :return: A list of domains.
-    """
-    assert data is not None
-    assert distributions is not None
-
-    domains = []
-    for i, d in enumerate(distributions):
-        col = data[:, i]
-        min = np.min(col)
-        max = np.max(col)
-        if d.LEAF_TYPE == LeafType.DISCRETE:
-            domains.append(list(range(max.astype(int) + 1)))
-        elif d.LEAF_TYPE == LeafType.CONTINUOUS:
-            domains.append([min, max])
-        else:
-            raise NotImplementedError("Domain for leaf type " + d.LEAF_TYPE.__name__ + " not implemented")
-    return domains
-
-
-def mixed_ohe_data(data, distributions, domains):
-    """
-    One-Hot-Encoding function, applied on mixed data (both continuous and discrete).
-
-    :param data: The 2D data to encode.
-    :param distributions: The given distributions.
-    :param domains: The domains to use.
-    :return: The One Hot encoded data.
-    """
-    n_samples, n_features = data.shape
-    ohe = []
-    for i in range(n_features):
-        if distributions[i].LEAF_TYPE == LeafType.DISCRETE:
-            ohe.append(ohe_data(data[:, i], domains[i]))
-        else:
-            ohe.append(data[:, i])
-    return np.column_stack(ohe)
 
 
 def ohe_data(data, domain):

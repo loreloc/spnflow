@@ -36,7 +36,7 @@ def leaf_likelihood(node, x, m):
     :param m: The NaN mask of the input.
     :return: The likelihood of the leaf given the input.
     """
-    z = np.ones(shape=(x.shape[0], 1))
+    z = np.ones(shape=(len(x), 1))
     z[~m] = node.likelihood(x[~m])
     z[np.isnan(z)] = 1.0
     z[np.isinf(z)] = 0.0
@@ -53,7 +53,7 @@ def leaf_log_likelihood(node, x, m):
     :param m: The NaN mask of the input.
     :return: The log likelihood of the leaf given the input.
     """
-    z = np.zeros(shape=(x.shape[0], 1))
+    z = np.zeros(shape=(len(x), 1))
     z[~m] = node.log_likelihood(x[~m])
     z[np.isnan(z)] = 0.0
     z[np.isinf(z)] = np.finfo(np.float32).min
@@ -69,11 +69,11 @@ def node_likelihood(node, lc):
     :param lc: The list of likelihoods of the children.
     :return: The likelihood of the node given the inputs.
     """
-    x = np.concatenate(lc, axis=1)
+    x = np.hstack(lc)
     z = node.likelihood(x)
     z[np.isnan(z)] = 1.0
     z[np.isinf(z)] = 0.0
-    return z
+    return np.expand_dims(z, axis=-1)
 
 
 def node_log_likelihood(node, lc):
@@ -85,8 +85,8 @@ def node_log_likelihood(node, lc):
     :param lc: The list of log likelihoods of the children.
     :return: The log likelihood of the node given the inputs.
     """
-    x = np.concatenate(lc, axis=1)
+    x = np.hstack(lc)
     z = node.log_likelihood(x)
     z[np.isnan(z)] = 0.0
     z[np.isinf(z)] = np.finfo(np.float32).min
-    return z
+    return np.expand_dims(z, axis=-1)

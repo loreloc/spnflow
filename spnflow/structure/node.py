@@ -4,9 +4,7 @@ from collections import deque
 
 
 class Node:
-    """
-    SPN node base class.
-    """
+    """SPN node base class."""
     def __init__(self, children, scope):
         """
         Initialize a node given the children list and its scope.
@@ -38,10 +36,8 @@ class Node:
 
 
 class Sum(Node):
-    """
-    The sum node class.
-    """
-    def __init__(self, weights, children=[], scope=[]):
+    """The sum node class."""
+    def __init__(self, weights, children=None, scope=None):
         """
         Initialize a sum node given a list of children and their weights and a scope.
 
@@ -49,6 +45,10 @@ class Sum(Node):
         :param children: A list of nodes.
         :param scope: The scope.
         """
+        if children is None:
+            children = []
+        if scope is None:
+            scope = []
         if len(scope) == 0 and len(children) > 0:
             scope = children[0].scope
         super().__init__(children, scope)
@@ -61,7 +61,7 @@ class Sum(Node):
         :param x: The inputs.
         :return: The resulting likelihood.
         """
-        return np.dot(x, self.weights).reshape(-1, 1)
+        return np.dot(x, self.weights)
 
     def log_likelihood(self, x):
         """
@@ -70,21 +70,22 @@ class Sum(Node):
         :param x: The inputs.
         :return: The resulting log likelihood.
         """
-        return logsumexp(x, b=self.weights, axis=1).reshape(-1, 1)
+        return logsumexp(x, b=self.weights, axis=1)
 
 
 class Mul(Node):
-    """
-    The multiplication node class.
-    """
-    def __init__(self, children=[], scope=[]):
+    """The multiplication node class."""
+    def __init__(self, children=None, scope=None):
         """
         Initialize a sum node given a list of children and their weights and a scope.
 
-        :param weights: The weights list.
         :param children: A list of nodes.
         :param scope: The scope.
         """
+        if children is None:
+            children = []
+        if scope is None:
+            scope = []
         if len(scope) == 0 and len(children) > 0:
             scope = sum([c.scope for c in children], [])
         super().__init__(children, scope)
@@ -96,7 +97,7 @@ class Mul(Node):
         :param x: The inputs.
         :return: The resulting likelihood.
         """
-        return np.prod(x, axis=1).reshape(-1, 1)
+        return np.prod(x, axis=1)
 
     def log_likelihood(self, x):
         """
@@ -105,7 +106,7 @@ class Mul(Node):
         :param x: The inputs.
         :return: The resulting log likelihood.
         """
-        return np.sum(x, axis=1).reshape(-1, 1)
+        return np.sum(x, axis=1)
 
 
 def assign_ids(root):

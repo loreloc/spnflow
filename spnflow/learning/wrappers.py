@@ -1,9 +1,9 @@
 import numpy as np
 from tqdm import tqdm
 
+from spnflow.structure.leaf import LeafType
 from spnflow.structure.node import Sum, assign_ids
 from spnflow.learning.structure import learn_structure
-from spnflow.utils.data import get_data_domains
 from spnflow.structure.pruning import prune
 
 
@@ -68,3 +68,28 @@ def learn_classifier(data, distributions, domains=None, class_idx=-1, verbose=Tr
 
     root = Sum(weights, children)
     return assign_ids(root)
+
+
+def get_data_domains(data, distributions):
+    """
+    Compute the domains based on the training data and the features distributions.
+
+    :param data: The training data.
+    :param distributions: A list of distribution classes.
+    :return: A list of domains.
+    """
+    assert data is not None
+    assert distributions is not None
+
+    domains = []
+    for i, d in enumerate(distributions):
+        col = data[:, i]
+        min = np.min(col)
+        max = np.max(col)
+        if d.LEAF_TYPE == LeafType.DISCRETE:
+            domains.append(list(range(max.astype(int) + 1)))
+        elif d.LEAF_TYPE == LeafType.CONTINUOUS:
+            domains.append([min, max])
+        else:
+            raise NotImplementedError("Domain for leaf type " + d.LEAF_TYPE.__name__ + " not implemented")
+    return domains

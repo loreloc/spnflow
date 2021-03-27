@@ -93,31 +93,24 @@ def learn_structure(
         task = tasks.popleft()
 
         # Select the operation to apply
-        zero_var_idx = None
         n_samples, n_features = task.data.shape
-        if n_features == 1:
-            # Create a leaf node for univariate features
+        # Get the indices of uninformative features
+        zero_var_idx = np.isclose(np.var(task.data, axis=0), 0.0)
+        # If all the features are uninformative, then split using Naive Bayes model
+        if np.all(zero_var_idx):
+            op = OperationKind.SPLIT_NAIVE
+        # If only some of the features are uninformative, then remove them
+        elif np.any(zero_var_idx):
+            op = OperationKind.REM_FEATURES
+        # Create a leaf node if the data split dimension is small or last rows splitting failed
+        elif task.no_rows_split or n_features < min_cols_slice or n_samples < min_rows_slice:
             op = OperationKind.CREATE_LEAF
+        # Use rows splitting if previous columns splitting failed or it is the first task
+        elif task.no_cols_split or task.is_first:
+            op = OperationKind.SPLIT_ROWS
+        # Defaults to columns splitting
         else:
-            # Get the indices of uninformative features
-            zero_var_idx = np.isclose(np.var(task.data, axis=0), 0.0)
-            # If all the features are uninformative, then split using Naive Bayes model
-            if np.all(zero_var_idx):
-                op = OperationKind.SPLIT_NAIVE
-            # If only some of the features are uninformative, then remove them
-            elif np.any(zero_var_idx):
-                op = OperationKind.REM_FEATURES
-            # Create a leaf node if the data split dimension is small
-            # or last rows splitting failed
-            elif task.no_rows_split or n_features < min_cols_slice or n_samples < min_rows_slice:
-                op = OperationKind.CREATE_LEAF
-            # Use rows splitting if previous columns splitting failed
-            # or it is the first task
-            elif task.no_cols_split or task.is_first:
-                op = OperationKind.SPLIT_ROWS
-            # Defaults to columns splitting
-            else:
-                op = OperationKind.SPLIT_COLS
+            op = OperationKind.SPLIT_COLS
 
         if op == OperationKind.REM_FEATURES:
             # Model the removed features using Naive Bayes
@@ -169,7 +162,7 @@ def learn_structure(
                 tasks.append(Task(node, local_data, scopes[i]))
             task.parent.children.append(node)
         else:
-            raise NotImplementedError('Operation of kind {} not implemented'.format(op.__name__))
+            raise NotImplementedError('Operation of kind {} not implemented'.format(op))
 
         if verbose:
             tk.update()
