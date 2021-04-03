@@ -22,6 +22,9 @@ torch_train(
     batch_size=100, epochs=200, patience=10
 )
 
+# Just to make sure to switch to evaluation mode
+model.eval()
+
 samples = model.sample(2000).cpu().numpy()
 plt.scatter(samples[:, 0], samples[:, 1], marker='o', s=2)
 plt.show()

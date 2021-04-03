@@ -52,10 +52,14 @@ torch_train(
     model, data_train, data_val,
     setting='generative',
     batch_size=64,
+    lr=1e-4,
     weight_decay=5e-5,
     epochs=20,
     patience=3
 )
+
+# Just to make sure to switch to evaluation mode
+model.eval()
 
 # Draw some samples
 n_samples = 10

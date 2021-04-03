@@ -44,6 +44,8 @@ def collect_results_discriminative(model, data_train, data_valid, data_test, **k
 
 
 def collect_samples(model, n_samples):
+    # Make sure to switch to evaluation mode
+    model.eval()
     samples = model.sample(n_samples).cpu().numpy()
     return samples
 

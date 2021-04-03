@@ -51,6 +51,9 @@ torch_train(
     patience=3
 )
 
+# Just to make sure to switch to evaluation mode
+model.eval()
+
 # Draw some samples
 n_samples = 10
 samples = model.sample(n_samples ** 2).cpu()

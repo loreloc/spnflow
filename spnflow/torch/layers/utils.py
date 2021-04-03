@@ -51,7 +51,7 @@ class MaskedLinear(torch.nn.Linear):
 
 class BatchNormLayer(torch.nn.Module):
     """Batch Normalization layer."""
-    def __init__(self, in_features, momentum=0.1, epsilon=1e-5):
+    def __init__(self, in_features, momentum=0.9, epsilon=1e-5):
         """
         Build a Batch Normalization layer.
 
@@ -86,8 +86,8 @@ class BatchNormLayer(torch.nn.Module):
             var, mean = torch.var_mean(x, dim=0)
 
             # Update the running parameters
-            self.running_var = self.momentum * var + (1.0 - self.momentum) * self.running_var
-            self.running_mean = self.momentum * mean + (1.0 - self.momentum) * self.running_mean
+            self.running_var.mul_(self.momentum).add_(var * (1.0 - self.momentum))
+            self.running_mean.mul_(self.momentum).add_(mean * (1.0 - self.momentum))
         else:
             # Get the running parameters as batch mean and variance
             mean = self.running_mean
@@ -97,8 +97,7 @@ class BatchNormLayer(torch.nn.Module):
         var = var + self.epsilon
         u = (x - mean) / torch.sqrt(var)
         u = u * torch.exp(self.weight) + self.bias
-        dj = torch.flatten(self.weight - 0.5 * torch.log(var))
-        inv_log_det_jacobian = torch.sum(dj, dim=0, keepdim=True)
+        inv_log_det_jacobian = torch.sum(self.weight - 0.5 * torch.log(var))
         return u, inv_log_det_jacobian
 
     def forward(self, u):
@@ -116,8 +115,7 @@ class BatchNormLayer(torch.nn.Module):
         var = var + self.epsilon
         x = (u - self.bias) * torch.exp(-self.weight)
         x = x * torch.sqrt(var) + mean
-        dj = torch.flatten(-self.weight + 0.5 * torch.log(var))
-        log_det_jacobian = torch.sum(dj, dim=0, keepdim=True)
+        log_det_jacobian = torch.sum(-self.weight + 0.5 * torch.log(var))
         return x, log_det_jacobian
 
 

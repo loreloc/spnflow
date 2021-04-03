@@ -117,6 +117,7 @@ def rat_sample_energy(data):
         setting='generative', lr=1e-3,
         batch_size=256, epochs=100, patience=1
     )
+    model.eval()
     return model.sample(N_GEN_SAMPLES).cpu().numpy()
 
 
@@ -130,6 +131,7 @@ def nvp_sample_energy(data):
         setting='generative', lr=1e-4,
         batch_size=256, epochs=100, patience=1
     )
+    model.eval()
     return model.sample(N_GEN_SAMPLES).cpu().numpy()
 
 
@@ -143,6 +145,7 @@ def maf_sample_energy(data):
         setting='generative', lr=1e-4,
         batch_size=256, epochs=100, patience=1
     )
+    model.eval()
     return model.sample(N_GEN_SAMPLES).cpu().numpy()
 
 

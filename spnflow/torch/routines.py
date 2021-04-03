@@ -132,6 +132,9 @@ def torch_train_generative(model, train_loader, val_loader, optimizer, epochs, p
         else:
             tk_train = train_loader
 
+        # Make sure the model is set to train mode
+        model.train()
+
         # Training phase
         running_train_loss = RunningAverageMetric(train_loader.batch_size)
         for inputs in tk_train:
@@ -153,6 +156,9 @@ def torch_train_generative(model, train_loader, val_loader, optimizer, epochs, p
             )
         else:
             tk_val = val_loader
+
+        # Make sure the model is set to evaluation mode
+        model.eval()
 
         # Validation phase
         running_val_loss = RunningAverageMetric(val_loader.batch_size)
@@ -221,6 +227,9 @@ def torch_train_discriminative(model, train_loader, val_loader, optimizer, epoch
         else:
             tk_train = train_loader
 
+        # Make sure the model is set to train mode
+        model.train()
+
         # Training phase
         running_train_loss = RunningAverageMetric(train_loader.batch_size)
         running_train_hits = RunningAverageMetric(train_loader.batch_size)
@@ -247,6 +256,9 @@ def torch_train_discriminative(model, train_loader, val_loader, optimizer, epoch
             )
         else:
             tk_val = val_loader
+
+        # Make sure the model is set to evaluation mode
+        model.eval()
 
         # Validation phase
         running_val_loss = RunningAverageMetric(val_loader.batch_size)
@@ -335,6 +347,9 @@ def torch_test_generative(model, test_loader, device):
     :param device: The device used for testing.
     :return: The mean log-likelihood and two standard deviations.
     """
+    # Make sure the model is set to evaluation mode
+    model.eval()
+
     test_ll = np.array([])
     with torch.no_grad():
         for inputs in test_loader:
@@ -355,6 +370,9 @@ def torch_test_discriminative(model, test_loader, device):
     :param device: The device used for testing.
     :return: The negative log-likelihood and accuracy.
     """
+    # Make sure the model is set to evaluation mode
+    model.eval()
+
     running_loss = RunningAverageMetric(test_loader.batch_size)
     running_hits = RunningAverageMetric(test_loader.batch_size)
     with torch.no_grad():

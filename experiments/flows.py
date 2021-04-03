@@ -32,7 +32,7 @@ if __name__ == '__main__':
         '--activation', choices=['relu', 'tanh', 'sigmoid'], default='relu',
         help='The activation function to use in maf.'
     )
-    parser.add_argument('--learning-rate', type=float, default=1e-3, help='The learning rate.')
+    parser.add_argument('--learning-rate', type=float, default=1e-4, help='The learning rate.')
     parser.add_argument('--batch-size', type=int, default=100, help='The batch size.')
     parser.add_argument('--epochs', type=int, default=1000, help='The number of epochs.')
     parser.add_argument('--patience', type=int, default=30, help='The epochs patience used for early stopping.')
