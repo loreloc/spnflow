@@ -35,7 +35,7 @@ data_train, data_val = torch.utils.data.random_split(data_train, [n_train, n_val
 # Instantiate the model
 model = RealNVP2d(
     in_features=in_features,
-    logit=True,
+    logit=1e-6,
     n_flows=2,
     n_blocks=2,
     channels=32

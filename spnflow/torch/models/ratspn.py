@@ -11,7 +11,7 @@ class AbstractRatSpn(AbstractModel):
     """Abstract RAT-SPN model class"""
     def __init__(self,
                  in_features,
-                 logit=False,
+                 logit=None,
                  out_classes=1,
                  rg_depth=2,
                  rg_repetitions=1,
@@ -25,7 +25,7 @@ class AbstractRatSpn(AbstractModel):
         Initialize a RAT-SPN.
 
         :param in_features: The number of input features.
-        :param logit: Whether to apply logit transformation on the input layer.
+        :param logit: The logit factor to use. Use None to disable the logit transformation.
         :param out_classes: The number of output classes. Specify 1 in case of plain density estimation.
         :param rg_depth: The depth of the region graph.
         :param rg_repetitions: The number of independent repetitions of the region graph.
@@ -190,7 +190,7 @@ class GaussianRatSpn(AbstractRatSpn):
     """Gaussian RAT-SPN model class."""
     def __init__(self,
                  in_features,
-                 logit=False,
+                 logit=None,
                  out_classes=1,
                  rg_depth=2,
                  rg_repetitions=1,
@@ -278,7 +278,7 @@ class BernoulliRatSpn(AbstractRatSpn):
         :param rand_state: The random state used to generate the random graph.
         """
         super(BernoulliRatSpn, self).__init__(
-            in_features, False, out_classes, rg_depth, rg_repetitions,
+            in_features, None, out_classes, rg_depth, rg_repetitions,
             n_batch, n_sum, in_dropout, sum_dropout, rand_state
         )
 

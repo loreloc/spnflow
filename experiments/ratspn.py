@@ -21,6 +21,7 @@ if __name__ == '__main__':
         'dataset', choices=BINARY_DATASETS + CONTINUOUS_DATASETS + VISION_DATASETS,
         help='The dataset used in the experiment.'
     )
+    parser.add_argument('--logit', type=float, default=0.01, help='The logit value to use for vision datasets.')
     parser.add_argument('--discriminative', action='store_true', help='Whether to use discriminative settings.')
     parser.add_argument('--rg-depth', type=int, default=1, help='The region graph\'s depth.')
     parser.add_argument('--rg-repetitions', type=int, default=4, help='The region graph\'s number of repetitions.')
@@ -131,7 +132,7 @@ if __name__ == '__main__':
     else:
         model = GaussianRatSpn(
             n_features,
-            logit=is_vision_dataset,
+            logit=args.logit,
             out_classes=out_classes,
             rg_depth=rg_depth,
             rg_repetitions=args.rg_repetitions,

@@ -40,7 +40,7 @@ data_train, data_val = torch.utils.data.random_split(data_train, [n_train, n_val
 # Instantiate the model
 model = MAF(
     in_features=in_features,
-    logit=True,
+    logit=0.05,
     n_flows=5,
     depth=1,
     units=1024,

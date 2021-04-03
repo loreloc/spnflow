@@ -20,6 +20,7 @@ if __name__ == '__main__':
     parser.add_argument(
         'dataset', choices=VISION_DATASETS, help='The vision dataset used in the experiment.'
     )
+    parser.add_argument('--logit', type=float, default=0.01, help='The logit value to use for vision datasets.')
     parser.add_argument('--discriminative', action='store_true', help='Whether to use discriminative settings.')
     parser.add_argument('--n-batches', type=int, default=8, help='The number of input distribution layer batches.')
     parser.add_argument('--sum-channels', type=int, default=8, help='The number of channels at sum layers.')
@@ -103,7 +104,7 @@ if __name__ == '__main__':
     # Build the model
     model = DgcSpn(
         image_size,
-        logit=True,
+        logit=args.logit,
         out_classes=out_classes,
         n_batch=args.n_batches,
         sum_channels=args.sum_channels,

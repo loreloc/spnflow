@@ -19,6 +19,7 @@ if __name__ == '__main__':
         'dataset', choices=CONTINUOUS_DATASETS + VISION_DATASETS, help='The dataset used in the experiment.'
     )
     parser.add_argument('model', choices=['nvp1d', 'nvp2d', 'maf'], help='The normalizing flow model to use.')
+    parser.add_argument('--logit', type=float, default=0.01, help='The logit value to use for vision datasets.')
     parser.add_argument('--n-flows', type=int, default=5, help='The number of normalizing flows layers.')
     parser.add_argument(
         '--no-batch-norm', dest='batch_norm',
@@ -92,7 +93,7 @@ if __name__ == '__main__':
             depth=args.depth,
             units=args.units,
             batch_norm=args.batch_norm,
-            logit=is_vision_dataset
+            logit=args.logit
         )
     elif args.model == 'nvp2d':
         model = RealNVP2d(
@@ -100,7 +101,7 @@ if __name__ == '__main__':
             n_flows=args.n_flows,
             n_blocks=args.n_blocks,
             channels=args.channels,
-            logit=is_vision_dataset
+            logit=args.logit
         )
     elif args.model == 'maf':
         model = MAF(
@@ -110,7 +111,7 @@ if __name__ == '__main__':
             units=args.units,
             batch_norm=args.batch_norm,
             activation=args.activation,
-            logit=is_vision_dataset,
+            logit=args.logit,
             sequential=in_size <= args.units
         )
     else:

@@ -25,7 +25,7 @@ data_train, data_val = torch.utils.data.random_split(data_train, [n_train, n_val
 # Build the model
 model = GaussianRatSpn(
     n_features,
-    logit=True,
+    logit=1e-6,
     out_classes=out_classes,
     rg_depth=3,
     rg_repetitions=8,

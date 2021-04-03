@@ -10,7 +10,7 @@ class DgcSpn(AbstractModel):
     """Deep Generalized Convolutional SPN model class."""
     def __init__(self,
                  in_size,
-                 logit=False,
+                 logit=None,
                  out_classes=1,
                  n_batch=8,
                  sum_channels=8,
@@ -27,7 +27,7 @@ class DgcSpn(AbstractModel):
         Initialize a SpatialSpn.
 
         :param in_size: The input size.
-        :param logit: Whether to apply logit transformation on the input layer.
+        :param logit: The logit factor to use. Use None to disable the logit transformation.
         :param out_classes: The number of output classes. Specify 1 in case of plain density estimation.
         :param n_batch: The number of output channels of the base layer.
         :param sum_channels: The number of output channels of spatial sum layers.

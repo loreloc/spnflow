@@ -9,11 +9,11 @@ from spnflow.torch.utils import get_activation_class
 
 class AbstractNormalizingFlow(AbstractModel):
     """Abstract Normalizing Flow model."""
-    def __init__(self, in_features, logit=False, in_base=None):
+    def __init__(self, in_features, logit=None, in_base=None):
         """
         Initialize an abstract Normalizing Flow model.
         :param in_features: The input size.
-        :param logit: Whether to apply logit transformation on the input layer.
+        :param logit: The logit factor to use. Use None to disable the logit transformation.
         :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         """
         super(AbstractNormalizingFlow, self).__init__(logit=logit)
@@ -70,7 +70,7 @@ class RealNVP1d(AbstractNormalizingFlow):
     """Real Non-Volume-Preserving (RealNVP) 1D normalizing flow model."""
     def __init__(self,
                  in_features,
-                 logit=False,
+                 logit=None,
                  in_base=None,
                  n_flows=5,
                  depth=1,
@@ -81,7 +81,7 @@ class RealNVP1d(AbstractNormalizingFlow):
         Initialize a RealNVP.
 
         :param in_features: The number of input features.
-        :param logit: Whether to apply logit transformation on the input layer.
+        :param logit: The logit factor to use. Use None to disable the logit transformation.
         :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         :param n_flows: The number of sequential coupling flows.
         :param depth: The number of hidden layers of flows conditioners.
@@ -115,7 +115,7 @@ class RealNVP2d(AbstractNormalizingFlow):
     """Real Non-Volume-Preserving (RealNVP) 2D normalizing flow model based on ResNets."""
     def __init__(self,
                  in_features,
-                 logit=False,
+                 logit=None,
                  in_base=None,
                  n_flows=2,
                  n_blocks=4,
@@ -125,7 +125,7 @@ class RealNVP2d(AbstractNormalizingFlow):
         Initialize a RealNVP.
 
         :param in_features: The input size.
-        :param logit: Whether to apply logit transformation on the input layer.
+        :param logit: The logit factor to use. Use None to disable the logit transformation.
         :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         :param n_flows: The number of sequential multi-scale architectures.
         :param n_blocks: The number of residual blocks.
@@ -189,7 +189,7 @@ class MAF(AbstractNormalizingFlow):
     """Masked Autoregressive Flow (MAF) normalizing flow model."""
     def __init__(self,
                  in_features,
-                 logit=False,
+                 logit=None,
                  in_base=None,
                  n_flows=5,
                  depth=1,
@@ -203,7 +203,7 @@ class MAF(AbstractNormalizingFlow):
         Initialize a MAF.
 
         :param in_features: The number of input features.
-        :param logit: Whether to apply logit transformation on the input layer.
+        :param logit: The logit factor to use. Use None to disable the logit transformation.
         :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         :param n_flows: The number of sequential autoregressive layers.
         :param depth: The number of hidden layers of flows conditioners.

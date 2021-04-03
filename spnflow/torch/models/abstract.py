@@ -6,14 +6,18 @@ from spnflow.torch.layers.utils import LogitLayer
 
 class AbstractModel(abc.ABC, torch.nn.Module):
     """Abstract class for deep probabilistic models."""
-    def __init__(self, logit=False):
+    def __init__(self, logit=None):
         """
         Initialize the model.
 
-        :param logit: Whether to apply logit transformation on the input layer.
+        :param logit: The logit factor to use. Use None to disable the logit transformation.
         """
         super(AbstractModel, self).__init__()
-        self.logit = LogitLayer() if logit else None
+        if logit is not None:
+            assert 0.0 < logit < 1.0, "The logit factor must be in (0.0, 1.0)"
+            self.logit = LogitLayer(alpha=logit)
+        else:
+            self.logit = None
 
     def preprocess(self, x):
         """

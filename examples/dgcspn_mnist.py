@@ -25,7 +25,7 @@ data_train, data_val = torch.utils.data.random_split(data_train, [n_train, n_val
 # Instantiate the model
 model = DgcSpn(
     in_size=image_size,
-    logit=True,
+    logit=1e-6,
     out_classes=n_classes,
     n_batch=16,
     sum_channels=32,
