@@ -63,10 +63,15 @@ if __name__ == '__main__':
     data_valid = transform.forward(data_valid)
     data_test = transform.forward(data_test)
 
-    if is_vision_dataset and args.model == 'nvp2d':
-        in_size = data_train.shape[1:]
+    if is_vision_dataset:
+        if args.model == 'nvp2d':
+            in_size = data_train.shape[1:]
+        else:
+            _, in_size = data_train.shape
+        logit = args.logit
     else:
         _, in_size = data_train.shape
+        logit = None
 
     # Create the results directory
     directory = 'flows'
@@ -89,29 +94,29 @@ if __name__ == '__main__':
     if args.model == 'nvp1d':
         model = RealNVP1d(
             in_size,
+            logit=logit,
             n_flows=args.n_flows,
             depth=args.depth,
             units=args.units,
-            batch_norm=args.batch_norm,
-            logit=args.logit
+            batch_norm=args.batch_norm
         )
     elif args.model == 'nvp2d':
         model = RealNVP2d(
             in_size,
+            logit=logit,
             n_flows=args.n_flows,
             n_blocks=args.n_blocks,
-            channels=args.channels,
-            logit=args.logit
+            channels=args.channels
         )
     elif args.model == 'maf':
         model = MAF(
             in_size,
+            logit=logit,
             n_flows=args.n_flows,
             depth=args.depth,
             units=args.units,
             batch_norm=args.batch_norm,
             activation=args.activation,
-            logit=args.logit,
             sequential=in_size <= args.units
         )
     else:

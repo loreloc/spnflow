@@ -88,8 +88,10 @@ if __name__ == '__main__':
             data_test = list(zip(data_test, label_test))
         else:
             out_classes = 1
+        logit = args.logit
     else:
         out_classes = 1
+        logit = None
 
     # Create the results directory
     directory = 'ratspn'
@@ -132,7 +134,7 @@ if __name__ == '__main__':
     else:
         model = GaussianRatSpn(
             n_features,
-            logit=args.logit,
+            logit=logit,
             out_classes=out_classes,
             rg_depth=rg_depth,
             rg_repetitions=args.rg_repetitions,
