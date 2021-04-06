@@ -2,7 +2,7 @@ import torch
 import torchvision
 
 from spnflow.torch.models.flows import MAF
-from spnflow.torch.transforms import Dequantize, Flatten, Reshape
+from spnflow.torch.transforms import Quantize, Flatten, Reshape
 from spnflow.torch.routines import torch_train
 
 
@@ -18,11 +18,11 @@ class UnsupervisedCIFAR10(torchvision.datasets.CIFAR10):
         return x
 
 
-# Set the preprocessing transformation (random horizontal flip + dequantization + flatten)
+# Set the preprocessing transformation (quantization + random horizontal flip + flatten)
 transform = torchvision.transforms.Compose([
     torchvision.transforms.ToTensor(),
     torchvision.transforms.RandomHorizontalFlip(),
-    Dequantize(),
+    Quantize(),
     Flatten()
 ])
 
@@ -40,6 +40,7 @@ data_train, data_val = torch.utils.data.random_split(data_train, [n_train, n_val
 # Instantiate the model
 model = MAF(
     in_features=in_features,
+    dequantize=True,
     logit=0.05,
     n_flows=5,
     depth=1,
@@ -65,7 +66,7 @@ model.eval()
 n_samples = 10
 samples = model.sample(n_samples ** 2).cpu()
 images = torch.stack([inv_transform(x) for x in samples], dim=0)
-torchvision.utils.save_image(images, 'samples_cifar10.png', nrow=n_samples, padding=0)
+torchvision.utils.save_image(images, 'samples-cifar10.png', nrow=n_samples, padding=0)
 
 # Save the model to file
-torch.save(model.state_dict(), 'maf_cifar10.pt')
+torch.save(model.state_dict(), 'maf-cifar10.pt')

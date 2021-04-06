@@ -11,6 +11,7 @@ class AbstractRatSpn(AbstractModel):
     """Abstract RAT-SPN model class"""
     def __init__(self,
                  in_features,
+                 dequantize=False,
                  logit=None,
                  out_classes=1,
                  rg_depth=2,
@@ -25,6 +26,7 @@ class AbstractRatSpn(AbstractModel):
         Initialize a RAT-SPN.
 
         :param in_features: The number of input features.
+        :param dequantize: Whether to apply the dequantization transformation.
         :param logit: The logit factor to use. Use None to disable the logit transformation.
         :param out_classes: The number of output classes. Specify 1 in case of plain density estimation.
         :param rg_depth: The depth of the region graph.
@@ -35,7 +37,7 @@ class AbstractRatSpn(AbstractModel):
         :param sum_dropout: The dropout rate for probabilistic dropout at sum layers. It can be None.
         :param rand_state: The random state used to generate the random graph.
         """
-        super(AbstractRatSpn, self).__init__(logit=logit)
+        super(AbstractRatSpn, self).__init__(dequantize=dequantize, logit=logit)
         assert in_features > 0
         assert out_classes > 0
         assert rg_depth > 0
@@ -190,6 +192,7 @@ class GaussianRatSpn(AbstractRatSpn):
     """Gaussian RAT-SPN model class."""
     def __init__(self,
                  in_features,
+                 dequantize=False,
                  logit=None,
                  out_classes=1,
                  rg_depth=2,
@@ -206,6 +209,7 @@ class GaussianRatSpn(AbstractRatSpn):
         Initialize a RAT-SPN.
 
         :param in_features: The number of input features.
+        :param dequantize: Whether to apply the dequantization transformation.
         :param logit: Whether to apply logit transformation on the input layer.
         :param out_classes: The number of output classes. Specify 1 in case of plain density estimation.
         :param rg_depth: The depth of the region graph.
@@ -219,7 +223,7 @@ class GaussianRatSpn(AbstractRatSpn):
         :param optimize_scale: Whether to train scale and location jointly.
         """
         super(GaussianRatSpn, self).__init__(
-            in_features, logit, out_classes, rg_depth, rg_repetitions,
+            in_features, dequantize, logit, out_classes, rg_depth, rg_repetitions,
             n_batch, n_sum, in_dropout, sum_dropout, rand_state
         )
         assert uniform_loc is None or uniform_loc[0] < uniform_loc[1], \
@@ -278,7 +282,7 @@ class BernoulliRatSpn(AbstractRatSpn):
         :param rand_state: The random state used to generate the random graph.
         """
         super(BernoulliRatSpn, self).__init__(
-            in_features, None, out_classes, rg_depth, rg_repetitions,
+            in_features, False, None, out_classes, rg_depth, rg_repetitions,
             n_batch, n_sum, in_dropout, sum_dropout, rand_state
         )
 

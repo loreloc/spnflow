@@ -2,6 +2,41 @@ import numpy as np
 import scipy.stats as stats
 
 
+class DataFlatten:
+    """Data flatten transform for probabilistic learning purposes."""
+    def __init__(self):
+        """
+        Build the data transform.
+        """
+        self.shape = None
+
+    def fit(self, data):
+        """
+        Fit the data transform with some data.
+
+        :param data: The data for fitting.
+        """
+        self.shape = data.shape[1:]
+
+    def forward(self, data):
+        """
+        Apply the data transform to some data.
+
+        :param data: The data to transform.
+        :return: The transformed data.
+        """
+        return np.reshape(data, [len(data), -1])
+
+    def backward(self, data):
+        """
+        Apply the backward data transform to some data
+
+        :param data: The data to transform.
+        :return: The transformed data.
+        """
+        return np.reshape(data, [len(data), *self.shape])
+
+
 class DataStandardizer:
     """Data standardizer for probabilistic learning purposes."""
     def __init__(self, sample_wise=True, flatten=False, epsilon=1e-7, dtype=np.float32):
@@ -57,91 +92,6 @@ class DataStandardizer:
         if self.flatten:
             data = data.reshape([len(data), *self.shape])
         data = (self.sigma + self.epsilon) * data + self.mu
-        return data
-
-
-class DataDequantizer:
-    """Data dequantizer for probabilistic learning purposes."""
-    def __init__(self, flatten=False, dtype=np.float32):
-        """
-        Build the data transform.
-
-        :param flatten: Whether to flatten the data.
-        :param dtype: The type for type conversion.
-        """
-        self.flatten = flatten
-        self.dtype = dtype
-        self.shape = None
-
-    def fit(self, data):
-        """
-        Fit the data transform with some data.
-
-        :param data: The data for fitting.
-        """
-        self.shape = data.shape[1:]
-
-    def forward(self, data):
-        """
-        Apply the data transform to some data.
-
-        :param data: The data to transform.
-        :return: The transformed data.
-        """
-        data = (data + np.random.rand(*data.shape)) / 256.0
-        if self.flatten:
-            data = data.reshape([len(data), -1])
-        return data.astype(self.dtype)
-
-    def backward(self, data):
-        """
-        Apply the backward data transform to some data
-
-        :param data: The data to transform.
-        :return: The transformed data.
-        """
-        if self.flatten:
-            data = data.reshape([len(data), *self.shape])
-        data = np.clip(data, 0.0, 1.0) * 255.0
-        return data
-
-
-class DataTransorms:
-    """Data transformer consisting on a chain of transforms."""
-    def __init__(self, *transforms):
-        assert len(transforms) > 0
-        self.transforms = transforms
-
-    def fit(self, data):
-        """
-        Fit the data transform with some data.
-
-        :param data: The data for fitting.
-        """
-        for transform in self.transforms:
-            transform.fit(data)
-            data = transform.forward(data)
-
-    def forward(self, data):
-        """
-        Apply the data transform to some data.
-
-        :param data: The data to transform.
-        :return: The transformed data.
-        """
-        for transform in self.transforms:
-            data = transform.forward(data)
-        return data
-
-    def backward(self, data):
-        """
-        Apply the backward data transform to some data
-
-        :param data: The data to transform.
-        :return: The transformed data.
-        """
-        for transform in reversed(self.transforms):
-            data = transform.backward(data)
         return data
 
 

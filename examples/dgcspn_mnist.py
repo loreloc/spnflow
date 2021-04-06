@@ -2,7 +2,7 @@ import torch
 import torchvision
 
 from spnflow.torch.models.dgcspn import DgcSpn
-from spnflow.torch.transforms import Dequantize, Reshape
+from spnflow.torch.transforms import Reshape
 from spnflow.torch.routines import torch_train, torch_test
 
 image_size = (1, 28, 28)
@@ -11,7 +11,6 @@ n_classes = 10
 # Set the preprocessing transformation
 transform = torchvision.transforms.Compose([
     torchvision.transforms.ToTensor(),
-    Dequantize(),
     Reshape(image_size)
 ])
 
@@ -25,16 +24,14 @@ data_train, data_val = torch.utils.data.random_split(data_train, [n_train, n_val
 # Instantiate the model
 model = DgcSpn(
     in_size=image_size,
-    logit=1e-6,
     out_classes=n_classes,
     n_batch=16,
     sum_channels=32,
     depthwise=True,
     n_pooling=2,
     optimize_scale=False,
-    in_dropout=0.2,
     sum_dropout=0.2,
-    uniform_loc=(-2.0, 2.0)
+    uniform_loc=(-1.5, 1.5)
 )
 
 # Train the model using discriminative setting (i.e. by minimizing the categorical cross-entropy)
@@ -52,4 +49,4 @@ print('Test NLL: %.4f' % nll)
 print('Test Accuracy: %.1f' % (accuracy * 100))
 
 # Save the model to file
-torch.save(model.state_dict(), 'dgcspn_mnist.pt')
+torch.save(model.state_dict(), 'dgcspn-mnist.pt')

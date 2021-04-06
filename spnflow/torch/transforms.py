@@ -1,17 +1,30 @@
 import torch
 
 
-class Dequantize:
-    """Dequantize transformation"""
-    def __init__(self):
-        pass
+class Quantize:
+    """Quantize transformation."""
+    def __init__(self, num_bits=8):
+        self.num_bits = num_bits
+        self.quantization_bins = 2 ** self.num_bits
 
     def __call__(self, x):
-        return (x * 255.0 + torch.rand(x.size())) / 256.0
+        x = torch.floor(x * self.quantization_bins)
+        x = torch.clamp(x, min=0, max=self.quantization_bins - 1).long()
+        return x
+
+
+class Dequantize:
+    """Dequantize transformation."""
+    def __init__(self, num_bits=8):
+        self.num_bits = num_bits
+        self.quantization_bins = 2 ** self.num_bits
+
+    def __call__(self, x):
+        return (x + torch.rand(x.size())) / self.quantization_bins
 
 
 class Flatten:
-    """Flatten transformation"""
+    """Flatten transformation."""
     def __init__(self):
         pass
 
@@ -20,7 +33,7 @@ class Flatten:
 
 
 class Reshape:
-    """Reshape transformation"""
+    """Reshape transformation."""
     def __init__(self, size):
         self.size = size
 

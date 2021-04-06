@@ -3,20 +3,21 @@ import numpy as np
 
 from spnflow.torch.models.abstract import AbstractModel
 from spnflow.torch.layers.flows import CouplingLayer1d, CouplingLayer2d, AutoregressiveLayer
-from spnflow.torch.layers.utils import BatchNormLayer, LogitLayer, SqueezeLayer2d, UnsqueezeLayer2d
+from spnflow.torch.layers.utils import BatchNormLayer, SqueezeLayer2d, UnsqueezeLayer2d
 from spnflow.torch.utils import get_activation_class
 
 
 class AbstractNormalizingFlow(AbstractModel):
     """Abstract Normalizing Flow model."""
-    def __init__(self, in_features, logit=None, in_base=None):
+    def __init__(self, in_features, dequantize=False, logit=None, in_base=None):
         """
         Initialize an abstract Normalizing Flow model.
         :param in_features: The input size.
+        :param dequantize: Whether to apply the dequantization transformation.
         :param logit: The logit factor to use. Use None to disable the logit transformation.
         :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         """
-        super(AbstractNormalizingFlow, self).__init__(logit=logit)
+        super(AbstractNormalizingFlow, self).__init__(dequantize=dequantize, logit=logit)
         assert (type(in_features) == int and in_features > 0) or \
                (len(in_features) == 3 and all(map(lambda d: d > 0, in_features)))
         self.in_features = in_features
@@ -39,12 +40,22 @@ class AbstractNormalizingFlow(AbstractModel):
         :param x: The inputs tensor.
         :return: The output of the model.
         """
+        # Preprocess the samples
+        batch_size = x.shape[0]
         x, inv_log_det_jacobian = self.preprocess(x)
+
+        # Apply the normalizing flow layers
         for layer in self.layers:
             x, ildj = layer.inverse(x)
             inv_log_det_jacobian += ildj
-        lp = torch.flatten(self.in_base.log_prob(x), start_dim=1)
-        prior = torch.sum(lp, dim=1, keepdim=True)
+
+        # Compute the prior log-likelihood
+        prior = torch.sum(
+            self.in_base.log_prob(x).view(batch_size, -1),
+            dim=1, keepdim=True
+        )
+
+        # Return the final log-likelihood
         return prior + inv_log_det_jacobian
 
     @torch.no_grad()
@@ -59,9 +70,14 @@ class AbstractNormalizingFlow(AbstractModel):
         :param n_samples: The number of samples.
         :return: The samples.
         """
+        # Sample from the base distribution
         x = self.in_base.sample([n_samples])
+
+        # Apply the normalizing flows in forward mode
         for layer in reversed(self.layers):
             x, _ = layer.forward(x)
+
+        # Apply reverse preprocessing transformation
         x, _ = self.unpreprocess(x)
         return x
 
@@ -70,6 +86,7 @@ class RealNVP1d(AbstractNormalizingFlow):
     """Real Non-Volume-Preserving (RealNVP) 1D normalizing flow model."""
     def __init__(self,
                  in_features,
+                 dequantize=False,
                  logit=None,
                  in_base=None,
                  n_flows=5,
@@ -81,6 +98,7 @@ class RealNVP1d(AbstractNormalizingFlow):
         Initialize a RealNVP.
 
         :param in_features: The number of input features.
+        :param dequantize: Whether to apply the dequantization transformation.
         :param logit: The logit factor to use. Use None to disable the logit transformation.
         :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         :param n_flows: The number of sequential coupling flows.
@@ -88,7 +106,7 @@ class RealNVP1d(AbstractNormalizingFlow):
         :param units: The number of hidden units per layer of flows conditioners.
         :param batch_norm: Whether to apply batch normalization after each coupling layer.
         """
-        super(RealNVP1d, self).__init__(in_features, logit=logit, in_base=in_base)
+        super(RealNVP1d, self).__init__(in_features, dequantize=dequantize, logit=logit, in_base=in_base)
         assert depth > 0
         assert units > 0
         self.n_flows = n_flows
@@ -115,6 +133,7 @@ class RealNVP2d(AbstractNormalizingFlow):
     """Real Non-Volume-Preserving (RealNVP) 2D normalizing flow model based on ResNets."""
     def __init__(self,
                  in_features,
+                 dequantize=False,
                  logit=None,
                  in_base=None,
                  n_flows=2,
@@ -125,13 +144,14 @@ class RealNVP2d(AbstractNormalizingFlow):
         Initialize a RealNVP.
 
         :param in_features: The input size.
+        :param dequantize: Whether to apply the dequantization transformation.
         :param logit: The logit factor to use. Use None to disable the logit transformation.
         :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         :param n_flows: The number of sequential multi-scale architectures.
         :param n_blocks: The number of residual blocks.
         :param channels: The number of output channels of each convolutional layer.
         """
-        super(RealNVP2d, self).__init__(in_features, logit=logit, in_base=in_base)
+        super(RealNVP2d, self).__init__(in_features, dequantize=dequantize, logit=logit, in_base=in_base)
         assert n_flows > 0
         assert n_blocks > 0
         assert channels > 0
@@ -189,6 +209,7 @@ class MAF(AbstractNormalizingFlow):
     """Masked Autoregressive Flow (MAF) normalizing flow model."""
     def __init__(self,
                  in_features,
+                 dequantize=False,
                  logit=None,
                  in_base=None,
                  n_flows=5,
@@ -203,6 +224,7 @@ class MAF(AbstractNormalizingFlow):
         Initialize a MAF.
 
         :param in_features: The number of input features.
+        :param dequantize: Whether to apply the dequantization transformation.
         :param logit: The logit factor to use. Use None to disable the logit transformation.
         :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
         :param n_flows: The number of sequential autoregressive layers.
@@ -213,7 +235,7 @@ class MAF(AbstractNormalizingFlow):
         :param sequential: If True build masks degrees sequentially, otherwise randomly.
         :param rand_state: The random state used to generate the masks degrees. Used only if sequential is False.
         """
-        super(MAF, self).__init__(in_features, logit=logit, in_base=in_base)
+        super(MAF, self).__init__(in_features, dequantize=dequantize, logit=logit, in_base=in_base)
         assert n_flows > 0
         assert depth > 0
         assert units > 0

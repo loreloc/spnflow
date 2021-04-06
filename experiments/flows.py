@@ -4,7 +4,7 @@ import json
 import argparse
 import numpy as np
 
-from spnflow.utils.data import DataStandardizer, DataDequantizer
+from spnflow.utils.data import DataFlatten, DataStandardizer
 from spnflow.torch.models.flows import RealNVP1d, RealNVP2d, MAF
 
 from experiments.datasets import load_continuous_dataset, load_vision_dataset
@@ -19,7 +19,8 @@ if __name__ == '__main__':
         'dataset', choices=CONTINUOUS_DATASETS + VISION_DATASETS, help='The dataset used in the experiment.'
     )
     parser.add_argument('model', choices=['nvp1d', 'nvp2d', 'maf'], help='The normalizing flow model to use.')
-    parser.add_argument('--logit', type=float, default=0.01, help='The logit value to use for vision datasets.')
+    parser.add_argument('--dequantize', action='store_true', help='Whether to use dequantization.')
+    parser.add_argument('--logit', type=float, default=None, help='The logit value to use for vision datasets.')
     parser.add_argument('--n-flows', type=int, default=5, help='The number of normalizing flows layers.')
     parser.add_argument(
         '--no-batch-norm', dest='batch_norm',
@@ -27,8 +28,8 @@ if __name__ == '__main__':
     )
     parser.add_argument('--depth', type=int, default=1, help='The depth of each normalizing flow layer.')
     parser.add_argument('--units', type=int, default=128, help='The number of units at each layer in nvp1d.')
-    parser.add_argument('--channels', type=int, default=16, help='The number of convolutional channels in nvp2d.')
-    parser.add_argument('--n-blocks', type=int, default=4, help='The number of residual blocks in nvp2d.')
+    parser.add_argument('--channels', type=int, default=32, help='The number of convolutional channels in nvp2d.')
+    parser.add_argument('--n-blocks', type=int, default=2, help='The number of residual blocks in nvp2d.')
     parser.add_argument(
         '--activation', choices=['relu', 'tanh', 'sigmoid'], default='relu',
         help='The activation function to use in maf.'
@@ -47,41 +48,35 @@ if __name__ == '__main__':
     is_vision_dataset = args.dataset in VISION_DATASETS
     transform = None
     if is_vision_dataset:
-        if args.model == 'nvp2d':
-            transform = DataDequantizer(flatten=False)
-        else:
-            transform = DataDequantizer(flatten=True)
         data_train, data_valid, data_test = load_vision_dataset(
             'datasets', args.dataset, unsupervised=True
         )
-    else:
-        transform = DataStandardizer()
-        data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
-
-    transform.fit(data_train)
-    data_train = transform.forward(data_train)
-    data_valid = transform.forward(data_valid)
-    data_test = transform.forward(data_test)
-
-    if is_vision_dataset:
         if args.model == 'nvp2d':
             in_size = data_train.shape[1:]
         else:
+            transform = DataFlatten()
+            transform.fit(data_train)
+            data_train = transform.forward(data_train)
+            data_valid = transform.forward(data_valid)
+            data_test = transform.forward(data_test)
             _, in_size = data_train.shape
-        logit = args.logit
     else:
+        data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
+        transform = DataStandardizer()
+        transform.fit(data_train)
+        data_train = transform.forward(data_train)
+        data_valid = transform.forward(data_valid)
+        data_test = transform.forward(data_test)
         _, in_size = data_train.shape
-        logit = None
 
     # Create the results directory
     directory = 'flows'
     os.makedirs(directory, exist_ok=True)
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-    if is_vision_dataset:
-        directory = os.path.join(directory, args.dataset)
-        os.makedirs(directory, exist_ok=True)
-        samples_directory = os.path.join(directory, 'samples')
-        os.makedirs(samples_directory, exist_ok=True)
+    directory = os.path.join(directory, args.dataset)
+    os.makedirs(directory, exist_ok=True)
+    samples_directory = os.path.join(directory, 'samples')
+    os.makedirs(samples_directory, exist_ok=True)
 
     # Open the results JSON of the chosen dataset
     filepath = os.path.join(directory, args.dataset + '.json')
@@ -94,7 +89,8 @@ if __name__ == '__main__':
     if args.model == 'nvp1d':
         model = RealNVP1d(
             in_size,
-            logit=logit,
+            dequantize=args.dequantize,
+            logit=args.logit,
             n_flows=args.n_flows,
             depth=args.depth,
             units=args.units,
@@ -103,7 +99,8 @@ if __name__ == '__main__':
     elif args.model == 'nvp2d':
         model = RealNVP2d(
             in_size,
-            logit=logit,
+            dequantize=args.dequantize,
+            logit=args.logit,
             n_flows=args.n_flows,
             n_blocks=args.n_blocks,
             channels=args.channels
@@ -111,7 +108,8 @@ if __name__ == '__main__':
     elif args.model == 'maf':
         model = MAF(
             in_size,
-            logit=logit,
+            dequantize=args.dequantize,
+            logit=args.logit,
             n_flows=args.n_flows,
             depth=args.depth,
             units=args.units,
@@ -143,8 +141,9 @@ if __name__ == '__main__':
 
     if is_vision_dataset:
         n_samples = 8
-        samples = collect_samples(model, n_samples * n_samples)
-        images = transform.backward(samples)
+        images = collect_samples(model, n_samples * n_samples)
+        if transform is not None:
+            images = transform.backward(images)
         images = images.reshape([n_samples, n_samples, *images.shape[1:]])
         images_filename = os.path.join(samples_directory, str(timestamp) + '.png')
         save_grid_images(images, images_filename)

@@ -4,7 +4,7 @@ import json
 import argparse
 import numpy as np
 
-from spnflow.utils.data import DataStandardizer, DataDequantizer
+from spnflow.utils.data import DataFlatten, DataStandardizer
 from spnflow.torch.models.ratspn import GaussianRatSpn, BernoulliRatSpn
 
 from experiments.datasets import load_binary_dataset, load_continuous_dataset, load_vision_dataset
@@ -21,12 +21,13 @@ if __name__ == '__main__':
         'dataset', choices=BINARY_DATASETS + CONTINUOUS_DATASETS + VISION_DATASETS,
         help='The dataset used in the experiment.'
     )
-    parser.add_argument('--logit', type=float, default=0.01, help='The logit value to use for vision datasets.')
+    parser.add_argument('--dequantize', action='store_true', help='Whether to use dequantization.')
+    parser.add_argument('--logit', type=float, default=None, help='The logit value to use for vision datasets.')
     parser.add_argument('--discriminative', action='store_true', help='Whether to use discriminative settings.')
     parser.add_argument('--rg-depth', type=int, default=1, help='The region graph\'s depth.')
     parser.add_argument('--rg-repetitions', type=int, default=4, help='The region graph\'s number of repetitions.')
-    parser.add_argument('--rg-batches', type=int, default=8, help='The region graph\'s number of distribution batches.')
-    parser.add_argument('--rg-sums', type=int, default=8, help='The region graph\'s number of sum nodes per region.')
+    parser.add_argument('--rg-batch', type=int, default=8, help='The region graph\'s number of distribution batches.')
+    parser.add_argument('--rg-sum', type=int, default=8, help='The region graph\'s number of sum nodes per region.')
     parser.add_argument(
         '--uniform-loc', nargs=2, type=float, default=None,
         help='Use uniform location for input distributions layer initialization.'
@@ -60,38 +61,34 @@ if __name__ == '__main__':
         data_train = data_train.astype(np.float32)
         data_valid = data_valid.astype(np.float32)
         data_test = data_test.astype(np.float32)
+    elif is_continuous_dataset:
+        data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
+        transform = DataStandardizer()
+        transform.fit(data_train)
+        data_train = transform.forward(data_train)
+        data_valid = transform.forward(data_valid)
+        data_test = transform.forward(data_test)
     else:
-        if is_continuous_dataset:
-            transform = DataStandardizer()
-            data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
-        elif is_vision_dataset:
-            transform = DataDequantizer(flatten=True)
-            if args.discriminative:
-                (data_train, label_train), (data_valid, label_valid), (data_test, label_test) = load_vision_dataset(
-                    'datasets', args.dataset, unsupervised=False
-                )
-            else:
-                data_train, data_valid, data_test = load_vision_dataset('datasets', args.dataset, unsupervised=True)
+        if args.discriminative:
+            (data_train, label_train), (data_valid, label_valid), (data_test, label_test) = load_vision_dataset(
+                'datasets', args.dataset, unsupervised=False
+            )
         else:
-            raise NotImplementedError('Unknow dataset type of ' + args.dataset)
+            data_train, data_valid, data_test = load_vision_dataset('datasets', args.dataset, unsupervised=True)
+        transform = DataFlatten()
         transform.fit(data_train)
         data_train = transform.forward(data_train)
         data_valid = transform.forward(data_valid)
         data_test = transform.forward(data_test)
     _, n_features = data_train.shape
 
-    if is_vision_dataset:
-        if args.discriminative:
-            out_classes = len(np.unique(label_train))
-            data_train = list(zip(data_train, label_train))
-            data_valid = list(zip(data_valid, label_valid))
-            data_test = list(zip(data_test, label_test))
-        else:
-            out_classes = 1
-        logit = args.logit
+    if is_vision_dataset and args.discriminative:
+        out_classes = len(np.unique(label_train))
+        data_train = list(zip(data_train, label_train))
+        data_valid = list(zip(data_valid, label_valid))
+        data_test = list(zip(data_test, label_test))
     else:
         out_classes = 1
-        logit = None
 
     # Create the results directory
     directory = 'ratspn'
@@ -103,10 +100,9 @@ if __name__ == '__main__':
     else:
         directory = os.path.join(directory, 'generative')
         os.makedirs(directory, exist_ok=True)
-        if is_vision_dataset:
-            directory = os.path.join(directory, args.dataset)
-            samples_directory = os.path.join(directory, 'samples')
-            os.makedirs(samples_directory, exist_ok=True)
+        directory = os.path.join(directory, args.dataset)
+        samples_directory = os.path.join(directory, 'samples')
+        os.makedirs(samples_directory, exist_ok=True)
 
     # Open the results JSON of the chosen dataset
     filepath = os.path.join(directory, args.dataset + '.json')
@@ -125,8 +121,8 @@ if __name__ == '__main__':
             out_classes=out_classes,
             rg_depth=rg_depth,
             rg_repetitions=args.rg_repetitions,
-            n_batch=args.rg_batches,
-            n_sum=args.rg_sums,
+            n_batch=args.rg_batch,
+            n_sum=args.rg_sum,
             in_dropout=args.in_dropout,
             sum_dropout=args.sum_dropout,
             rand_state=rand_state
@@ -134,12 +130,13 @@ if __name__ == '__main__':
     else:
         model = GaussianRatSpn(
             n_features,
-            logit=logit,
+            dequantize=args.dequantize,
+            logit=args.logit,
             out_classes=out_classes,
             rg_depth=rg_depth,
             rg_repetitions=args.rg_repetitions,
-            n_batch=args.rg_batches,
-            n_sum=args.rg_sums,
+            n_batch=args.rg_batch,
+            n_sum=args.rg_sum,
             rand_state=rand_state,
             uniform_loc=args.uniform_loc,
             optimize_scale=args.optimize_scale

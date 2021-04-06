@@ -68,8 +68,8 @@ class CouplingLayer1d(torch.nn.Module):
 
         # Apply the affine transformation (backward mode)
         u = mx + self.inv_mask * ((x - t) * torch.exp(-s))
-        dj = torch.flatten(self.inv_mask * s, start_dim=1)
-        inv_log_det_jacobian = -torch.sum(dj, dim=1, keepdim=True)
+        ildj = self.inv_mask * s
+        inv_log_det_jacobian = -torch.sum(ildj, dim=1, keepdim=True)
         return u, inv_log_det_jacobian
 
     def forward(self, u):
@@ -89,8 +89,8 @@ class CouplingLayer1d(torch.nn.Module):
 
         # Apply the affine transformation (forward mode).
         x = mu + self.inv_mask * (u * torch.exp(s) + t)
-        dj = torch.flatten(self.inv_mask * s, start_dim=1)
-        log_det_jacobian = torch.sum(dj, dim=1, keepdim=True)
+        ldj = self.inv_mask * s
+        log_det_jacobian = torch.sum(ldj, dim=1, keepdim=True)
         return x, log_det_jacobian
 
 
@@ -168,6 +168,8 @@ class CouplingLayer2d(torch.nn.Module):
         :param x: The inputs.
         :return: The tensor result of the layer.
         """
+        batch_size = x.shape[0]
+
         # Get the parameters
         mx = self.mask * x
         ts = self.resnet(mx)
@@ -177,8 +179,8 @@ class CouplingLayer2d(torch.nn.Module):
 
         # Apply the affine transformation (backward mode)
         u = mx + self.inv_mask * ((x - t) * torch.exp(-s))
-        dj = torch.flatten(self.inv_mask * s, start_dim=1)
-        inv_log_det_jacobian = -torch.sum(dj, dim=1, keepdim=True)
+        ildj = self.inv_mask * s
+        inv_log_det_jacobian = -torch.sum(ildj.view(batch_size, -1), dim=1, keepdim=True)
         return u, inv_log_det_jacobian
 
     def forward(self, u):
@@ -188,6 +190,8 @@ class CouplingLayer2d(torch.nn.Module):
         :param u: The inputs.
         :return: The tensor result of the layer.
         """
+        batch_size = u.shape[0]
+
         # Get the parameters
         mu = self.mask * u
         ts = self.resnet(mu)
@@ -196,8 +200,8 @@ class CouplingLayer2d(torch.nn.Module):
 
         # Apply the affine transformation (forward mode).
         x = mu + self.inv_mask * (u * torch.exp(s) + t)
-        dj = torch.flatten(self.inv_mask * s, start_dim=1)
-        log_det_jacobian = torch.sum(dj, dim=1, keepdim=True)
+        ldj = self.inv_mask * s
+        log_det_jacobian = torch.sum(ldj.view(batch_size, -1), dim=1, keepdim=True)
         return x, log_det_jacobian
 
 

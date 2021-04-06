@@ -5,7 +5,7 @@ import argparse
 import numpy as np
 
 from spnflow.torch.models.dgcspn import DgcSpn
-from spnflow.utils.data import DataDequantizer, compute_mean_quantiles
+from spnflow.utils.data import compute_mean_quantiles
 
 from experiments.datasets import load_vision_dataset
 from experiments.datasets import VISION_DATASETS
@@ -20,7 +20,8 @@ if __name__ == '__main__':
     parser.add_argument(
         'dataset', choices=VISION_DATASETS, help='The vision dataset used in the experiment.'
     )
-    parser.add_argument('--logit', type=float, default=0.01, help='The logit value to use for vision datasets.')
+    parser.add_argument('--dequantize', action='store_true', help='Whether to use dequantization.')
+    parser.add_argument('--logit', type=float, default=None, help='The logit value to use for vision datasets.')
     parser.add_argument('--discriminative', action='store_true', help='Whether to use discriminative settings.')
     parser.add_argument('--n-batches', type=int, default=8, help='The number of input distribution layer batches.')
     parser.add_argument('--sum-channels', type=int, default=8, help='The number of channels at sum layers.')
@@ -54,19 +55,13 @@ if __name__ == '__main__':
         'Only one between --quantiles-loc and --uniform-loc can be defined'
 
     # Load the dataset
-    transform = DataDequantizer()
     if args.discriminative:
         (data_train, label_train), (data_valid, label_valid), (data_test, label_test) = load_vision_dataset(
             'datasets', args.dataset, unsupervised=False
         )
     else:
         data_train, data_valid, data_test = load_vision_dataset('datasets', args.dataset, unsupervised=True)
-
-    transform.fit(data_train)
-    data_train = transform.forward(data_train)
-    data_valid = transform.forward(data_valid)
-    data_test = transform.forward(data_test)
-    image_size = data_train.shape[1:]
+    in_size = data_train.shape[1:]
 
     if args.discriminative:
         out_classes = len(np.unique(label_train))
@@ -103,7 +98,8 @@ if __name__ == '__main__':
 
     # Build the model
     model = DgcSpn(
-        image_size,
+        in_size,
+        dequantize=args.dequantize,
         logit=args.logit,
         out_classes=out_classes,
         n_batch=args.n_batches,

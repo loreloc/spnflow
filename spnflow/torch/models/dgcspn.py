@@ -10,6 +10,7 @@ class DgcSpn(AbstractModel):
     """Deep Generalized Convolutional SPN model class."""
     def __init__(self,
                  in_size,
+                 dequantize=False,
                  logit=None,
                  out_classes=1,
                  n_batch=8,
@@ -27,6 +28,7 @@ class DgcSpn(AbstractModel):
         Initialize a SpatialSpn.
 
         :param in_size: The input size.
+        :param dequantize: Whether to apply the dequantization transformation.
         :param logit: The logit factor to use. Use None to disable the logit transformation.
         :param out_classes: The number of output classes. Specify 1 in case of plain density estimation.
         :param n_batch: The number of output channels of the base layer.
@@ -41,7 +43,7 @@ class DgcSpn(AbstractModel):
         :param rand_state: The random state used to initialize the spatial product layers weights.
                            Used only if depthwise is False.
         """
-        super(DgcSpn, self).__init__(logit=logit)
+        super(DgcSpn, self).__init__(dequantize=dequantize, logit=logit)
         assert len(in_size) == 3 and in_size[0] > 0 and in_size[1] > 0 and in_size[2] > 0
         assert out_classes > 0
         assert n_batch > 0
