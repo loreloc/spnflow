@@ -52,8 +52,8 @@ def collect_samples(model, n_samples):
 
 def save_grid_images(images, filepath):
     images = images.copy()
-    images[images < 0.0] = 0.0
-    images[images > 255.0] = 255.0
+    images[images < 0] = 0
+    images[images > 255] = 255
     images = images.astype(np.uint8)
     n_rows, n_cols, channels, width, height = images.shape
     canvas = np.zeros([n_rows * width, n_cols * height, channels], dtype=np.uint8)

@@ -58,7 +58,7 @@ model.eval()
 # Draw some samples
 n_samples = 10
 samples = model.sample(n_samples ** 2).cpu()
-torchvision.utils.save_image(samples, 'samples-mnist.png', nrow=n_samples, padding=0)
+torchvision.utils.save_image(samples / 255.0, 'samples-mnist.png', nrow=n_samples, padding=0)
 
 # Save the model to file
 torch.save(model.state_dict(), 'nvp-mnist.pt')

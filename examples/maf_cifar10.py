@@ -66,7 +66,7 @@ model.eval()
 n_samples = 10
 samples = model.sample(n_samples ** 2).cpu()
 images = torch.stack([inv_transform(x) for x in samples], dim=0)
-torchvision.utils.save_image(images, 'samples-cifar10.png', nrow=n_samples, padding=0)
+torchvision.utils.save_image(images / 255.0, 'samples-cifar10.png', nrow=n_samples, padding=0)
 
 # Save the model to file
 torch.save(model.state_dict(), 'maf-cifar10.pt')
