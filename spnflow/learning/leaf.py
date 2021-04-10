@@ -1,7 +1,8 @@
 import numpy as np
 
 from spnflow.structure.node import Mul
-from spnflow.structure.leaf import Isotonic
+from spnflow.structure.leaf import LeafType, Bernoulli, Isotonic
+from spnflow.structure.cltree import BinaryCLTree
 
 
 def get_learn_leaf_method(learn_leaf):
@@ -15,6 +16,8 @@ def get_learn_leaf_method(learn_leaf):
         return learn_mle
     elif learn_leaf == 'isotonic':
         return learn_isotonic
+    elif learn_leaf == 'cltree':
+        return learn_cltree
     else:
         raise NotImplementedError("Unknown learn leaf method called " + learn_leaf)
 
@@ -58,10 +61,36 @@ def learn_isotonic(data, distributions, domains, scope):
         sc = scope[0]
         dist = distributions[sc]
         dom = domains[sc]
-        leaf = Isotonic(sc, dist.LEAF_TYPE)
+        continuous = dist.LEAF_TYPE == LeafType.CONTINUOUS
+        leaf = Isotonic(sc, continuous=continuous)
         leaf.fit(data, dom)
         return leaf
     return learn_naive_bayes(data, distributions, domains, scope, learn_isotonic)
+
+
+def learn_cltree(data, distributions, domains, scope, alpha=0.1):
+    """
+    Learn a leaf using Chow-Liu tree (CLT).
+    If the data is univariate, a Maximum Likelihood Estimate leaf is returned.
+
+    :param data: The data.
+    :param distributions: The distributions of the random variables.
+    :param domains: The domains of the random variables.
+    :param scope: The scope of the leaf.
+    :param alpha: Laplace smoothing factor.
+    :return: A leaf distribution.
+    """
+    _, n_features = data.shape
+    if n_features == 1:  # If univariate, learn using MLE instead
+        return learn_mle(data, distributions, domains, scope, alpha=alpha)
+
+    # If multivariate, learn a CLTree
+    dists = [distributions[sc] for sc in scope]
+    doms = [domains[sc] for sc in scope]
+    assert all([d == Bernoulli for d in dists]), "Chow-Liu trees are only available for binary data"
+    leaf = BinaryCLTree(scope)
+    leaf.fit(data, doms, alpha=alpha)
+    return leaf
 
 
 def learn_naive_bayes(

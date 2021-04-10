@@ -21,6 +21,9 @@ if __name__ == '__main__':
         'dataset', choices=BINARY_DATASETS + CONTINUOUS_DATASETS, help='The dataset used in the experiment.'
     )
     parser.add_argument(
+        '--learn-leaf', choices=['mle', 'isotonic', 'cltree'], default='mle', help='The method for leaf learning.'
+    )
+    parser.add_argument(
         '--split-rows', choices=['kmeans', 'gmm', 'rdc', 'random'], default='gmm', help='The splitting rows method.'
     )
     parser.add_argument(
@@ -42,7 +45,7 @@ if __name__ == '__main__':
         '--rdc-threshold', type=float, default=0.3, help='The threshold for the RDC independence test.'
     )
     parser.add_argument(
-        '--smoothing', type=float, default=1.0, help='Laplace smoothing value.'
+        '--smoothing', type=float, default=0.1, help='Laplace smoothing value.'
     )
     args = parser.parse_args()
 
@@ -80,7 +83,10 @@ if __name__ == '__main__':
     else:
         results = dict()
 
-    learn_leaf_params = {'alpha': args.smoothing}
+    if args.learn_leaf == 'mle' or args.learn_leaf == 'cltree':
+        learn_leaf_params = {'alpha': args.smoothing}
+    else:
+        learn_leaf_params = dict()
 
     split_rows_kwargs = dict()
     if args.split_rows == 'kmeans' or args.split_rows == 'gmm':
@@ -95,6 +101,7 @@ if __name__ == '__main__':
     spn = learn_estimator(
         data=data_train,
         distributions=distributions,
+        learn_leaf=args.learn_leaf,
         learn_leaf_params=learn_leaf_params,
         split_rows=args.split_rows,
         split_cols=args.split_cols,

@@ -7,7 +7,7 @@ from spnflow.torch.routines import torch_train, torch_test
 
 def evaluate_log_likelihoods(spn, data, batch_size=2048):
     n_samples = len(data)
-    ll = np.zeros((n_samples, 1))
+    ll = np.zeros(n_samples)
     for i in range(0, n_samples - batch_size, batch_size):
         ll[i:i + batch_size] = log_likelihood(spn, data[i:i + batch_size])
     n_remaining_samples = n_samples % batch_size

@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 
+import spnflow.algorithms.inference
 from spnflow.utils.region import RegionGraph
 from spnflow.torch.models.abstract import AbstractModel
 from spnflow.torch.layers.ratspn import GaussianLayer, BernoulliLayer, SumLayer, ProductLayer, RootLayer
@@ -144,14 +145,14 @@ class AbstractRatSpn(AbstractModel):
             y = torch.argmax(self.root_layer(x), dim=1)
 
         # Get the root layer indices
-        idx_group, idx_offset = self.root_layer.mpe(x, y)
+        idx_group, idx_offset = spnflow.algorithms.inference.mpe(x, y)
 
         # Compute in top-down mode through the inner layers
         for i in range(len(self.layers) - 1, -1, -1):
-            idx_group, idx_offset = self.layers[i].mpe(lls[i], idx_group, idx_offset)
+            idx_group, idx_offset = spnflow.algorithms.inference.mpe(lls[i], idx_group, idx_offset)
 
         # Compute the maximum at posteriori inference at the base layer
-        samples = self.base_layer.mpe(inputs, idx_group, idx_offset)
+        samples = spnflow.algorithms.inference.mpe(inputs, idx_group, idx_offset)
 
         # Unpreprocess the samples
         samples, _ = self.unpreprocess(samples)

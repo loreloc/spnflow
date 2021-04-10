@@ -1,16 +1,16 @@
 import json
 from spnflow.structure.node import Sum, Mul, assign_ids
-from spnflow.structure.leaf import Leaf, Bernoulli, Multinomial, Poisson, Isotonic, Uniform, Gaussian, Gamma
+from spnflow.structure.leaf import Leaf, Bernoulli, Categorical, Isotonic, Uniform, Gaussian
+from spnflow.structure.cltree import BinaryCLTree
 
 
 DistributionMapper = {
     'Bernoulli': Bernoulli,
-    'Multinomial': Multinomial,
-    'Poisson': Poisson,
+    'Categorical': Categorical,
     'Isotonic': Isotonic,
     'Uniform': Uniform,
     'Gaussian': Gaussian,
-    'Gamma': Gamma
+    'BinaryCLTree': BinaryCLTree
 }
 
 

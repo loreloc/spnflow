@@ -5,11 +5,11 @@ import sklearn as sk
 
 from spnflow.utils.data import DataStandardizer
 from spnflow.utils.statistics import get_statistics
-from spnflow.structure.leaf import Gaussian, Multinomial
+from spnflow.structure.leaf import Gaussian, Categorical
 from spnflow.learning.wrappers import learn_classifier
-from spnflow.algorithms.mpe import mpe
+from spnflow.algorithms.inference import mpe
 from spnflow.algorithms.sampling import sample
-from spnflow.io.json import save_json
+from spnflow.structure.io import save_json
 
 # Load the MNIST dataset
 n_classes = 10
@@ -19,7 +19,7 @@ data_train = torchvision.datasets.MNIST('datasets', train=True, transform=transf
 data_test = torchvision.datasets.MNIST('datasets', train=False, transform=transform, download=True)
 
 # Build the autoencoder for features extraction
-n_features = 40
+n_features = 50
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 encoder = torch.nn.Sequential(
     torch.nn.Flatten(),
@@ -86,7 +86,7 @@ x_train = transform.forward(x_train)
 x_test = transform.forward(x_test)
 
 # Learn the SPN structure and parameters, as a classifier
-distributions = [Gaussian] * n_features + [Multinomial]
+distributions = [Gaussian] * n_features + [Categorical]
 data_train = np.column_stack([x_train, y_train])
 spn = learn_classifier(
     data_train,
@@ -103,7 +103,7 @@ spn = learn_classifier(
 print(get_statistics(spn))
 
 # Save the model to a JSON file
-save_json(spn, 'spn_mnist.json')
+save_json(spn, 'spn-mnist.json')
 
 # Make some predictions on the test set classes
 nans = np.tile(np.nan, [len(x_test), 1])
@@ -125,4 +125,4 @@ data_images = transform.backward(data_samples)
 inputs = torch.tensor(data_images, dtype=torch.float32, device=device)
 data_images = decoder(inputs).cpu().detach().numpy()
 data_images = data_images.reshape(n_samples * n_classes, 1, image_h, image_w)
-torchvision.utils.save_image(torch.tensor(data_images), 'samples_mnist.png', nrow=n_samples, padding=0)
+torchvision.utils.save_image(torch.tensor(data_images), 'samples-mnist.png', nrow=n_samples, padding=0)

@@ -24,7 +24,7 @@ class Leaf(Node):
 
         :param scope: The scope of the leaf.
         """
-        super().__init__([], [scope] if type(scope) == int else scope)
+        super(Leaf, self).__init__([], [scope] if type(scope) == int else scope)
 
     def fit(self, data, domain, **kwargs):
         """
@@ -54,20 +54,20 @@ class Leaf(Node):
         """
         pass
 
-    def mode(self):
+    def mpe(self, x):
         """
-        Compute the mode of the distribution.
+        Compute the maximum at posteriori values.
 
-        :return: The distribution's mode.
+        :return: The distribution's maximum at posteriori values.
         """
         pass
 
-    def sample(self, size=1):
+    def sample(self, x):
         """
         Sample from the leaf distribution.
 
-        :param size: The number of samples.
-        :return: Some samples.
+        :param x: The samples with possible NaN values.
+        :return: The completed samples.
         """
         pass
 
@@ -92,7 +92,6 @@ class Bernoulli(Leaf):
     """
     The Bernoulli distribution leaf.
     """
-
     LEAF_TYPE = LeafType.DISCRETE
 
     def __init__(self, scope, p=0.5):
@@ -102,7 +101,7 @@ class Bernoulli(Leaf):
         :param scope: The scope of the leaf.
         :param p: The Bernoulli probability.
         """
-        super().__init__(scope)
+        super(Bernoulli, self).__init__(scope)
         self.p = p
 
     def fit(self, data, domain, alpha=0.1, **kwargs):
@@ -135,22 +134,28 @@ class Bernoulli(Leaf):
         y = stats.bernoulli.logpmf(x, self.p)
         return y
 
-    def mode(self):
+    def mpe(self, x):
         """
-        Compute the mode of the distribution.
+        Compute the maximum at posteriori values.
 
-        :return: The distribution's mode.
+        :return: The distribution's maximum at posteriori values.
         """
-        return 0 if self.p < 0.5 else 1
+        z = np.copy(x)
+        z[np.isnan(x)] = 0 if self.p < 0.5 else 1
+        return z
 
-    def sample(self, size=1):
+    def sample(self, x):
         """
         Sample from the leaf distribution.
 
-        :param size: The number of samples.
-        :return: Some samples.
+        :param x: The samples with possible NaN values.
+        :return: The completed samples.
         """
-        return stats.bernoulli.rvs(self.p, size=size)
+        z = np.copy(x)
+        mask = np.isnan(x)
+        n_nans = np.count_nonzero(mask)
+        z[mask] = stats.bernoulli.rvs(self.p, size=n_nans)
+        return z
 
     def params_count(self):
         """
@@ -169,23 +174,20 @@ class Bernoulli(Leaf):
         return {'p': self.p}
 
 
-class Multinomial(Leaf):
+class Categorical(Leaf):
     """
-    The Multinomial (or Categorical) distribution leaf.
+    The Categorical distribution leaf.
     """
-
     LEAF_TYPE = LeafType.DISCRETE
 
     def __init__(self, scope, p=None):
         """
-        Initialize a Multinomial leaf node given its scope.
+        Initialize a Categorical leaf node given its scope.
 
         :param scope: The scope of the leaf.
-        :param p: The probability of each class.
+        :param p: The probability of each category.
         """
-        super().__init__(scope)
-        if p is None:
-            p = [0.5, 0.5]
+        super(Categorical, self).__init__(scope)
         self.p = p
 
     def fit(self, data, domain, alpha=0.1, **kwargs):
@@ -201,8 +203,8 @@ class Multinomial(Leaf):
         len_data = len(data)
         len_domain = len(domain)
         for c in range(len_domain):
-            q = (len(data[data == c]) + alpha) / (len_data + len_domain * alpha)
-            self.p.append(q)
+            prob = (len(data[data == c]) + alpha) / (len_data + len_domain * alpha)
+            self.p.append(prob)
 
     def likelihood(self, x):
         """
@@ -211,8 +213,11 @@ class Multinomial(Leaf):
         :param x: The inputs.
         :return: The resulting likelihood.
         """
-        z = ohe_data(x, range(len(self.p)))
-        return stats.multinomial.pmf(z, 1, self.p)
+        mask = np.isnan(x)
+        ll = np.ones(shape=(len(x), 1))
+        z = x[~mask].astype(np.int64)
+        ll[~mask] = stats.multinomial.pmf(ohe_data(z, range(len(self.p))), 1, self.p)
+        return ll
 
     def log_likelihood(self, x):
         """
@@ -221,26 +226,34 @@ class Multinomial(Leaf):
         :param x: The inputs.
         :return: The resulting log likelihood.
         """
-        z = ohe_data(x, range(len(self.p)))
-        return stats.multinomial.logpmf(z, 1, self.p)
+        mask = np.isnan(x)
+        ll = np.zeros(shape=(len(x), 1))
+        z = x[~mask].astype(np.int64)
+        ll[~mask] = stats.multinomial.logpmf(ohe_data(z, range(len(self.p))), 1, self.p)
+        return ll
 
-    def mode(self):
+    def mpe(self, x):
         """
-        Compute the mode of the distribution.
+        Compute the maximum at posteriori values.
 
-        :return: The distribution's mode.
+        :return: The distribution's maximum at posteriori values.
         """
-        return np.argmax(self.p)
+        z = np.copy(x)
+        z[np.isnan(x)] = np.argmax(self.p)
+        return z
 
-    def sample(self, size=1):
+    def sample(self, x):
         """
         Sample from the leaf distribution.
 
-        :param size: The number of samples.
-        :return: Some samples.
+        :param x: The samples with possible NaN values.
+        :return: The completed samples.
         """
-        s = stats.multinomial.rvs(1, self.p, size=size)
-        return np.argmax(s, axis=1)
+        z = np.copy(x)
+        mask = np.isnan(x)
+        n_nans = np.count_nonzero(mask)
+        z[mask] = np.argmax(stats.multinomial.rvs(1, self.p, size=n_nans), axis=1)
+        return z
 
     def params_count(self):
         """
@@ -259,134 +272,49 @@ class Multinomial(Leaf):
         return {'p': self.p}
 
 
-class Poisson(Leaf):
-    """
-    The Poisson distribution leaf.
-    """
-
-    LEAF_TYPE = LeafType.DISCRETE
-
-    def __init__(self, scope, mu=1.0):
-        """
-        Initialize a Poisson leaf node given its scope.
-
-        :param scope: The scope of the leaf.
-        :param mu: The mu parameter.
-        """
-        super().__init__(scope)
-        self.mu = mu
-
-    def fit(self, data, domain, **kwargs):
-        """
-        Fit the distribution parameters given the domain and some training data.
-
-        :param data: The training data.
-        :param domain: The domain of the distribution leaf.
-        :param kwargs: Optional parameters.
-        """
-        self.mu = np.mean().item()
-
-    def likelihood(self, x):
-        """
-        Compute the likelihood of the distribution leaf given some input.
-
-        :param x: The inputs.
-        :return: The resulting likelihood.
-        """
-        return stats.poisson.pmf(x, self.mu)
-
-    def log_likelihood(self, x):
-        """
-        Compute the logarithmic likelihood of the distribution leaf given some input.
-
-        :param x: The inputs.
-        :return: The resulting log likelihood.
-        """
-        return stats.poisson.logpmf(x, self.mu)
-
-    def mode(self):
-        """
-        Compute the mode of the distribution.
-
-        :return: The distribution's mode.
-        """
-        return np.floor(self.mu)
-
-    def sample(self, size=1):
-        """
-        Sample from the leaf distribution.
-
-        :param size: The number of samples.
-        :return: Some samples.
-        """
-        return stats.poisson.rvs(self.mu)
-
-    def params_count(self):
-        """
-        Get the number of parameters of the distribution leaf.
-
-        :return: The number of parameters.
-        """
-        return 1
-
-    def params_dict(self):
-        """
-        Get a dictionary representation of the distribution parameters.
-
-        :return: A dictionary containing the distribution parameters.
-        """
-        return {'mu': self.mu}
-
-
 class Isotonic(Leaf):
     """
     The Isotonic distribution leaf.
     """
-
     LEAF_TYPE = LeafType.DISCRETE
 
-    def __init__(self, scope, meta, densities=None, breaks=None, mids=None):
+    def __init__(self, scope, continuous=False, densities=None, breaks=None, mids=None):
         """
         Initialize an Isotonic leaf node given its scope.
 
         :param scope: The scope of the leaf.
-        :param meta: The meta type.
+        :param continuous: Flag checking a continuous domain.
         :param densities: The densities.
         :param breaks: The breaks values.
         :param mids: The mids values.
         """
-        super().__init__(scope)
-        if densities is None:
-            densities = []
-        if breaks is None:
-            breaks = []
-        if mids is None:
-            mids = []
-        self.meta = meta
-        self.densities = densities
-        self.breaks = breaks
-        self.mids = mids
+        super(Isotonic, self).__init__(scope)
+        self.continuous = continuous
+        self.densities = np.array(densities) if densities is not None else None
+        self.breaks = np.array(breaks) if breaks is not None else None
+        self.mids = np.array(mids) if mids is not None else None
 
-    def fit(self, data, domain, **kwargs):
+    def fit(self, data, domain, alpha=0.1, **kwargs):
         """
         Fit the distribution parameters given the domain and some training data.
 
         :param data: The training data.
         :param domain: The domain of the distribution leaf.
+        :param alpha: Laplace smoothing factor.
         :param kwargs: Optional parameters.
         """
-        n_samples, _ = data.shape
-        if self.meta == LeafType.DISCRETE:
-            bins = np.array([d for d in domain] + [domain[-1] + 1])
-            self.densities, self.breaks = np.histogram(data, bins=bins, density=True)
-            self.mids = np.array(domain)
-        else:
-            self.densities, self.breaks = np.histogram(data, bins='auto', density=True)
+        n_samples, n_features = data.shape
+        if self.continuous:
+            histogram, self.breaks = np.histogram(data, bins='auto')
             self.mids = ((self.breaks + np.roll(self.breaks, -1)) / 2.0)[:-1]
+        else:
+            bins = np.array(domain + [domain[-1] + 1])
+            histogram, self.breaks = np.histogram(data, bins=bins)
+            self.mids = np.array(domain)
 
-        # Apply Laplace smoothing
+        # Apply Laplace smoothing and obtain the densities
         n_bins = len(self.breaks) - 1
-        self.densities = (self.densities * n_samples + 1.0) / (n_samples + n_bins)
+        self.densities = (histogram + alpha) / (n_samples + n_bins * alpha)
 
     def likelihood(self, x):
         """
@@ -395,14 +323,7 @@ class Isotonic(Leaf):
         :param x: The inputs.
         :return: The resulting likelihood.
         """
-        n_samples = len(x)
-        lh = np.full(n_samples, np.finfo(float).eps)
-        for i in range(n_samples):
-            j = np.searchsorted(self.breaks, x[i], side='right')
-            if j == 0 or j == len(self.breaks):
-                continue
-            lh[i] = self.densities[j - 1]
-        return lh
+        return np.exp(self.log_likelihood(x))
 
     def log_likelihood(self, x):
         """
@@ -411,28 +332,42 @@ class Isotonic(Leaf):
         :param x: The inputs.
         :return: The resulting log likelihood.
         """
-        return np.log(self.likelihood(x))
+        oob = (x < self.breaks[0]) | (x >= self.breaks[-1])
+        mask = np.isnan(x) | oob
+        ll = np.zeros(shape=(len(x), 1))
+        z = np.expand_dims(x[~mask], axis=1)
+        j = np.argmax(z < self.breaks, axis=1)
+        ll[~mask] = np.log(self.densities[j - 1])
+        ll[oob] = -np.inf
+        return ll
 
-    def mode(self):
+    def mpe(self, x):
         """
-        Compute the mode of the distribution.
+        Compute the maximum at posteriori values.
 
-        :return: The distribution's mode.
+        :return: The distribution's maximum at posteriori values.
         """
-        return self.mids[np.argmax(self.densities)]
+        z = np.copy(x)
+        z[np.isnan(x)] = self.mids[np.argmax(self.densities)]
+        return z
 
-    def sample(self, size=1):
+    def sample(self, x):
         """
         Sample from the leaf distribution.
 
-        :param size: The number of samples.
-        :return: Some samples.
+        :param x: The samples with possible NaN values.
+        :return: The completed samples.
         """
-        if self.meta == LeafType.DISCRETE:
-            return np.random.choice(self.mids, p=self.densities, size=size)
+        z = np.copy(x)
+        mask = np.isnan(x)
+        n_nans = np.count_nonzero(mask)
+        if self.continuous == LeafType.DISCRETE:
+            z[mask] = np.random.choice(self.mids, p=self.densities, size=n_nans)
         else:
-            q = stats.uniform.rvs(size=size)
-            return stats.rv_histogram((self.densities, self.breaks)).ppf(q)
+            z[mask] = stats.rv_histogram((self.densities, self.breaks)).ppf(
+                np.random.rand(n_nans)
+            )
+        return z
 
     def params_count(self):
         """
@@ -448,14 +383,18 @@ class Isotonic(Leaf):
 
         :return: A dictionary containing the distribution parameters.
         """
-        return {'meta': self.meta, 'densities': self.densities, 'breaks': self.breaks, 'mids': self.mids}
+        return {
+            'continuous': self.continuous,
+            'densities': self.densities.tolist(),
+            'breaks': self.breaks.tolist(),
+            'mids': self.mids.tolist()
+        }
 
 
 class Uniform(Leaf):
     """
     The Uniform distribution leaf.
     """
-
     LEAF_TYPE = LeafType.CONTINUOUS
 
     def __init__(self, scope, start=0.0, width=1.0):
@@ -466,7 +405,7 @@ class Uniform(Leaf):
         :param start: The start of the uniform distribution.
         :param width: The width of the uniform distribution.
         """
-        super().__init__(scope)
+        super(Uniform, self).__init__(scope)
         self.start = start
         self.width = width
 
@@ -498,22 +437,28 @@ class Uniform(Leaf):
         """
         return stats.uniform.logpdf(x, self.start, self.width)
 
-    def mode(self):
+    def mpe(self, x):
         """
-        Compute the mode of the distribution.
+        Compute the maximum at posteriori values.
 
-        :return: The distribution's mode.
+        :return: The distribution's maximum at posteriori values.
         """
-        return self.start
+        z = np.copy(x)
+        z[np.isnan(x)] = self.start
+        return z
 
-    def sample(self, size=1):
+    def sample(self, x):
         """
         Sample from the leaf distribution.
 
-        :param size: The number of samples.
-        :return: Some samples.
+        :param x: The samples with possible NaN values.
+        :return: The completed samples.
         """
-        return stats.uniform.rvs(self.start, self.width, size=size)
+        z = np.copy(x)
+        mask = np.isnan(x)
+        n_nans = np.count_nonzero(mask)
+        z[mask] = stats.uniform.rvs(self.start, self.width, size=n_nans)
+        return z
 
     def params_count(self):
         """
@@ -529,14 +474,16 @@ class Uniform(Leaf):
 
         :return: A dictionary containing the distribution parameters.
         """
-        return {'start': self.start, 'width': self.width}
+        return {
+            'start': self.start,
+            'width': self.width
+        }
 
 
 class Gaussian(Leaf):
     """
     The Gaussian distribution leaf.
     """
-
     LEAF_TYPE = LeafType.CONTINUOUS
 
     def __init__(self, scope, mean=0.0, stddev=1.0):
@@ -547,7 +494,7 @@ class Gaussian(Leaf):
         :param mean: The mean parameter.
         :param stddev: The standard deviation parameter.
         """
-        super().__init__(scope)
+        super(Gaussian, self).__init__(scope)
         self.mean = mean
         self.stddev = stddev
 
@@ -581,22 +528,28 @@ class Gaussian(Leaf):
         """
         return stats.norm.logpdf(x, self.mean, self.stddev)
 
-    def mode(self):
+    def mpe(self, x):
         """
-        Compute the mode of the distribution.
+        Compute the maximum at posteriori values.
 
-        :return: The distribution's mode.
+        :return: The distribution's maximum at posteriori values.
         """
-        return self.mean
+        z = np.copy(x)
+        z[np.isnan(x)] = self.mean
+        return z
 
-    def sample(self, size=1):
+    def sample(self, x):
         """
         Sample from the leaf distribution.
 
-        :param size: The number of samples.
-        :return: Some samples.
+        :param x: The samples with possible NaN values.
+        :return: The completed samples.
         """
-        return stats.norm.rvs(self.mean, self.stddev, size=size)
+        z = np.copy(x)
+        mask = np.isnan(x)
+        n_nans = np.count_nonzero(mask)
+        z[mask] = stats.norm.rvs(self.mean, self.stddev, size=n_nans)
+        return z
 
     def params_count(self):
         """
@@ -612,87 +565,7 @@ class Gaussian(Leaf):
 
         :return: A dictionary containing the distribution parameters.
         """
-        return {'mean': self.mean, 'stddev': self.stddev}
-
-
-class Gamma(Leaf):
-    """
-    The Gamma distribution leaf.
-    """
-
-    LEAF_TYPE = LeafType.CONTINUOUS
-
-    def __init__(self, scope, alpha=1.0, loc=0.0, beta=2.0):
-        """
-        Initialize a Gamma leaf node given its scope.
-
-        :param scope: The scope of the leaf.
-        :param alpha: The alpha parameter.
-        :param beta: The beta parameter.
-        """
-        super().__init__(scope)
-        self.alpha = alpha
-        self.loc = loc
-        self.beta = beta
-
-    def fit(self, data, domain, **kwargs):
-        """
-        Fit the distribution parameters given the domain and some training data.
-
-        :param data: The training data.
-        :param domain: The domain of the distribution leaf.
-        :param kwargs: Optional parameters.
-        """
-        assert np.any(data < 0.0), "Cannot fit Gamma distribution leaf with negative data"
-        self.alpha, self.loc, self.beta = stats.gamma.fit(data)
-
-    def likelihood(self, x):
-        """
-        Compute the likelihood of the distribution leaf given some input.
-
-        :param x: The inputs.
-        :return: The resulting likelihood.
-        """
-        return stats.gamma.pdf(x, self.alpha, self.loc, self.beta)
-
-    def log_likelihood(self, x):
-        """
-        Compute the logarithmic likelihood of the distribution leaf given some input.
-
-        :param x: The inputs.
-        :return: The resulting log likelihood.
-        """
-        return stats.gamma.logpdf(x, self.alpha, self.loc, self.beta)
-
-    def mode(self):
-        """
-        Compute the mode of the distribution.
-
-        :return: The distribution's mode.
-        """
-        return (self.alpha - 1.0) * self.beta
-
-    def sample(self, size=1):
-        """
-        Sample from the leaf distribution.
-
-        :param size: The number of samples.
-        :return: Some samples.
-        """
-        return stats.gamma.rvs(self.alpha, self.loc, self.beta, size=size)
-
-    def params_count(self):
-        """
-        Get the number of parameters of the distribution leaf.
-
-        :return: The number of parameters.
-        """
-        return 3
-
-    def params_dict(self):
-        """
-        Get a dictionary representation of the distribution parameters.
-
-        :return: A dictionary containing the distribution parameters.
-        """
-        return {'loc': self.loc, 'alpha': self.alpha, 'beta': self.beta}
+        return {
+            'mean': self.mean,
+            'stddev': self.stddev
+        }

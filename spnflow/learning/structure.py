@@ -47,7 +47,7 @@ def learn_structure(
     :param data: The training data.
     :param distributions: A list of distributions classes (one for each feature).
     :param domains: A list of domains (one for each feature).
-    :param learn_leaf: The method to use to learn a distribution leaf node (it can be 'mle' or 'isotonic').
+    :param learn_leaf: The method to use to learn a distribution leaf node (it can be 'mle', 'isotonic' or 'cltree').
     :param learn_leaf_params: The parameters of the learn leaf method.
     :param split_rows: The rows splitting method (it can be 'kmeans', 'gmm', 'rdc' or 'random').
     :param split_cols: The columns splitting method (it can be 'gvs', 'rdc' or 'random').

@@ -116,12 +116,12 @@ def assign_ids(root):
     :param root: The root of the SPN.
     :return: The same SPN with each node having modified ids.
     """
-    ids = {}
+    next_id = 0
 
     def assign_id(node):
-        if node not in ids:
-            ids[node] = len(ids)
-        node.id = ids[node]
+        nonlocal next_id
+        node.id = next_id
+        next_id += 1
 
     bfs(root, assign_id)
     return root
