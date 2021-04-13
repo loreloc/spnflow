@@ -7,7 +7,7 @@ def likelihood(root, x, return_results=False):
     Compute the likelihoods of the SPN given some inputs.
 
     :param root: The root of the SPN.
-    :param x: The inputs.
+    :param x: The inputs. They can be marginalized using NaNs.
     :param return_results: A flag indicating if this function must return the likelihoods of each node of the SPN.
     :return: The likelihood values. Additionally it returns the likelihood values of each node.
     """
@@ -19,7 +19,7 @@ def log_likelihood(root, x, return_results=False):
     Compute the logarithmic likelihoods of the SPN given some inputs.
 
     :param root: The root of the SPN.
-    :param x: The inputs.
+    :param x: The inputs. They can be marginalized using NaNs.
     :param return_results: A flag indicating if this function must return the log likelihoods of each node of the SPN.
     :return: The log likelihood values. Additionally it returns the log likelihood values of each node.
     """
@@ -31,7 +31,7 @@ def mpe(root, x):
     Compute the Maximum Posterior Estimate of a SPN given some inputs.
 
     :param root: The root of the SPN.
-    :param x: The inputs (must have at least one NaN value).
+    :param x: The inputs. They can be marginalized using NaNs.
     :return: The NaN-filled inputs.
     """
     _, ls = log_likelihood(root, x, return_results=True)

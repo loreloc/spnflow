@@ -113,12 +113,14 @@ def learn_structure(
             op = OperationKind.SPLIT_COLS
 
         if op == OperationKind.REM_FEATURES:
+            node = Mul([], task.scope)
             # Model the removed features using Naive Bayes
-            rem_features = np.argwhere(zero_var_idx).flatten()
-            node = learn_naive_bayes(
-                task.data, distributions, domains, task.scope,
-                learn_leaf_func=learn_leaf_func, idx_features=rem_features, **learn_leaf_params
+            rem_scope = [task.scope[i] for i in np.argwhere(zero_var_idx).flatten()]
+            naive = learn_naive_bayes(
+                task.data[:, zero_var_idx], distributions, domains, rem_scope,
+                learn_leaf_func=learn_leaf_func, **learn_leaf_params
             )
+            node.children.append(naive)
             # Add the tasks regarding non-removed features
             is_first = task.is_first and len(tasks) == 0
             oth_scope = [task.scope[i] for i in np.argwhere(~zero_var_idx).flatten()]

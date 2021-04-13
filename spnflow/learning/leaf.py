@@ -34,11 +34,9 @@ def learn_mle(data, distributions, domains, scope, alpha=0.1):
     :param alpha: Laplace smoothing factor.
     :return: A leaf distribution.
     """
-    _, n_features = data.shape
-    if n_features == 1:
+    if len(scope) == 1:
         sc = scope[0]
-        dist = distributions[sc]
-        dom = domains[sc]
+        dist, dom = distributions[sc], domains[sc]
         leaf = dist(sc)
         leaf.fit(data, dom, alpha=alpha)
         return leaf
@@ -56,11 +54,9 @@ def learn_isotonic(data, distributions, domains, scope):
     :param scope: The scope of the leaf.
     :return: A leaf distribution.
     """
-    _, n_features = data.shape
-    if n_features == 1:
+    if len(scope) == 1:
         sc = scope[0]
-        dist = distributions[sc]
-        dom = domains[sc]
+        dist, dom = distributions[sc], domains[sc]
         continuous = dist.LEAF_TYPE == LeafType.CONTINUOUS
         leaf = Isotonic(sc, continuous=continuous)
         leaf.fit(data, dom)
@@ -80,13 +76,14 @@ def learn_cltree(data, distributions, domains, scope, alpha=0.1):
     :param alpha: Laplace smoothing factor.
     :return: A leaf distribution.
     """
-    _, n_features = data.shape
-    if n_features == 1:  # If univariate, learn using MLE instead
+    if len(scope) == 1:  # If univariate, learn using MLE instead
         return learn_mle(data, distributions, domains, scope, alpha=alpha)
 
-    # If multivariate, learn a CLTree
+    # Obtain the features distributions and domains
     dists = [distributions[sc] for sc in scope]
     doms = [domains[sc] for sc in scope]
+
+    # If multivariate, learn a binary CLTree
     assert all([d == Bernoulli for d in dists]), "Chow-Liu trees are only available for binary data"
     leaf = BinaryCLTree(scope)
     leaf.fit(data, doms, alpha=alpha)
@@ -99,7 +96,6 @@ def learn_naive_bayes(
         domains,
         scope,
         learn_leaf_func=learn_mle,
-        idx_features=None,
         **learn_leaf_params
 ):
     """
@@ -109,19 +105,14 @@ def learn_naive_bayes(
     :param distributions: The distribution of the random variables.
     :param domains: The domain of the random variables.
     :param scope: The scope of the leaf.
-    :param idx_features: The indices of the features to use. If None, all the features are used.
     :param learn_leaf_func: The function to use to learn the sub-distributions parameters.
     :param learn_leaf_params: Additional parameters for learn_leaf_func.
     :return: A Naive Bayes model distribution.
     """
-    if idx_features is None:
-        _, n_features = data.shape
-        idx_features = range(n_features)
-
+    _, n_features = data.shape
     node = Mul([], scope)
-    for i in idx_features:
-        sc = scope[i]
-        univariate_data = np.expand_dims(data[:, i], axis=-1)
+    for i, sc in enumerate(scope):
+        univariate_data = np.expand_dims(data[:, i], axis=1)
         leaf = learn_leaf_func(univariate_data, distributions, domains, [sc], **learn_leaf_params)
         node.children.append(leaf)
     return node
