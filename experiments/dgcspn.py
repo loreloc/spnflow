@@ -5,10 +5,9 @@ import argparse
 import numpy as np
 
 from spnflow.torch.models.dgcspn import DgcSpn
-from spnflow.utils.data import compute_mean_quantiles
+from spnflow.utils.data import DataNormalizer, DataStandardizer, compute_mean_quantiles
 
-from experiments.datasets import load_vision_dataset
-from experiments.datasets import VISION_DATASETS
+from experiments.datasets import VISION_DATASETS, load_vision_dataset
 from experiments.utils import collect_results_generative, collect_results_discriminative
 
 
@@ -60,8 +59,25 @@ if __name__ == '__main__':
             'datasets', args.dataset, unsupervised=False
         )
     else:
-        data_train, data_valid, data_test = load_vision_dataset('datasets', args.dataset, unsupervised=True)
+        data_train, data_valid, data_test = load_vision_dataset(
+            'datasets', args.dataset, unsupervised=True
+        )
     in_size = data_train.shape[1:]
+
+    # Apply the transformation, if needed
+    if not args.dequantize:
+        if args.logit:
+            transform = DataNormalizer(255.0)
+            transform.fit(data_train)
+            data_train = transform.forward(data_train)
+            data_valid = transform.forward(data_valid)
+            data_test = transform.forward(data_test)
+        else:
+            transform = DataStandardizer(sample_wise=False)
+            transform.fit(data_train)
+            data_train = transform.forward(data_train)
+            data_valid = transform.forward(data_valid)
+            data_test = transform.forward(data_test)
 
     if args.discriminative:
         out_classes = len(np.unique(label_train))

@@ -4,7 +4,7 @@ import json
 import argparse
 import numpy as np
 
-from spnflow.utils.data import DataFlatten, DataStandardizer
+from spnflow.utils.data import DataFlatten, DataNormalizer, DataStandardizer
 from spnflow.torch.models.ratspn import GaussianRatSpn, BernoulliRatSpn
 
 from experiments.datasets import load_binary_dataset, load_continuous_dataset, load_vision_dataset
@@ -74,12 +74,29 @@ if __name__ == '__main__':
                 'datasets', args.dataset, unsupervised=False
             )
         else:
-            data_train, data_valid, data_test = load_vision_dataset('datasets', args.dataset, unsupervised=True)
-        transform = DataFlatten()
-        transform.fit(data_train)
-        data_train = transform.forward(data_train)
-        data_valid = transform.forward(data_valid)
-        data_test = transform.forward(data_test)
+            data_train, data_valid, data_test = load_vision_dataset(
+                'datasets', args.dataset, unsupervised=True
+            )
+        # Instantiate the transformation, according to the hyper-parameters
+        if args.dequantize:
+            transform = DataFlatten()
+            transform.fit(data_train)
+            data_train = transform.forward(data_train)
+            data_valid = transform.forward(data_valid)
+            data_test = transform.forward(data_test)
+        else:
+            if args.logit:
+                transform = DataNormalizer(255.0, flatten=True)
+                transform.fit(data_train)
+                data_train = transform.forward(data_train)
+                data_valid = transform.forward(data_valid)
+                data_test = transform.forward(data_test)
+            else:
+                transform = DataStandardizer(sample_wise=False, flatten=True)
+                transform.fit(data_train)
+                data_train = transform.forward(data_train)
+                data_valid = transform.forward(data_valid)
+                data_test = transform.forward(data_test)
     _, n_features = data_train.shape
 
     if is_vision_dataset and args.discriminative:
@@ -113,7 +130,7 @@ if __name__ == '__main__':
         results = dict()
 
     # Build the model
-    rg_depth = min(args.rg_depth, np.log2(n_features).astype(np.int))
+    rg_depth = min(args.rg_depth, int(np.log2(n_features)))
 
     if is_binary_dataset:
         model = BernoulliRatSpn(
