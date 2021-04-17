@@ -222,28 +222,18 @@ class BinaryCLTree(Leaf):
             states = np.empty(shape=(n_features, 2), dtype=np.int64)
             # Let's proceed bottom-up
             for j in reversed(self.bfs[1:]):
-                # If observed j-th random variable
-                if not np.isnan(z[i, j]):
-                    # Set the states at prior
-                    obs_value = int(x[i, j])
-                    states[j] = obs_value
-                    messages[self.tree[j]] += self.params[j, :, obs_value] + messages[j, obs_value]
-                # If non-observed j-th random variable but observed parent random variable
-                elif not np.isnan(z[i, self.tree[j]]):
-                    # Set the states based on maximum likelihood estimation
-                    obs_parent_value = int(x[i, self.tree[j]])
-                    mpe_params = self.params[j, obs_parent_value] + messages[j]
-                    mpe_index = np.argmax(mpe_params)
-                    states[j, obs_parent_value] = mpe_index
-                    messages[self.tree[j], obs_parent_value] += mpe_params[mpe_index]
-                # If non-observed j-th random variable and also non-observed parent random variable
-                # or if observed j-th random variable but non-observed random variable
-                else:
+                # If non-observed value then factor marginalize that variable
+                if np.isnan(z[i, j]):
                     # Consider all the possible combinations of maximum likelihood estimation given a parent value
                     parent_mpe_params = self.params[j] + messages[j]
                     parent_mpe_indices = np.argmax(parent_mpe_params, axis=1)
                     states[j] = parent_mpe_indices
                     messages[self.tree[j]] += np.diag(parent_mpe_params[:, parent_mpe_indices])
+                else:
+                    # Set the states at prior
+                    obs_value = int(x[i, j])
+                    states[j] = obs_value
+                    messages[self.tree[j]] += self.params[j, :, obs_value] + messages[j, obs_value]
 
             # Compute the final maximum likelihood estimation considering the root node
             # Note that self.params[self.root, 0] = self.params[self.root, 1], since it is unconditioned
@@ -274,28 +264,18 @@ class BinaryCLTree(Leaf):
             states = np.empty(shape=(n_features, 2), dtype=np.int64)
             # Let's proceed bottom-up
             for j in reversed(self.bfs[1:]):
-                # If observed j-th random variable
-                if not np.isnan(z[i, j]):
-                    # Set the states at prior
-                    obs_value = int(x[i, j])
-                    states[j] = obs_value
-                    messages[self.tree[j]] += self.params[j, :, obs_value] + messages[j, obs_value]
-                # If non-observed j-th random variable but observed parent random variable
-                elif not np.isnan(z[i, self.tree[j]]):
-                    # Sample the states
-                    obs_parent_value = int(x[i, self.tree[j]])
-                    probs = self.params[j, obs_parent_value] + messages[j]
-                    value = stats.bernoulli.rvs(np.exp(probs[1]))
-                    states[j, obs_parent_value] = value
-                    messages[self.tree[j], obs_parent_value] += probs[value]
-                # If non-observed j-th random variable and also non-observed parent random variable
-                # or if observed j-th random variable but non-observed random variable
-                else:
+                # If non-observed value then factor marginalize that variable
+                if np.isnan(z[i, j]):
                     # Consider all the possible combinations of probabilities given a parent value
                     parent_probs = self.params[j] + messages[j]
                     values = stats.bernoulli.rvs(np.exp(parent_probs[:, 1]))
                     states[j] = values
                     messages[self.tree[j]] += np.diag(parent_probs[:, values])
+                else:
+                    # Set the states at prior
+                    obs_value = int(x[i, j])
+                    states[j] = obs_value
+                    messages[self.tree[j]] += self.params[j, :, obs_value] + messages[j, obs_value]
 
             # Compute the final sample considering the root node
             # Note that self.params[self.root, 0] = self.params[self.root, 1], since it is unconditioned
