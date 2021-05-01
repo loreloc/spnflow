@@ -50,7 +50,7 @@ class SpatialGaussianLayer(torch.nn.Module):
 
         # Initialize some useful constants
         self.register_buffer('zero', torch.zeros(1))
-        self.register_buffer('nan', torch.tensor(np.nan))
+        self.register_buffer('nan', torch.tensor([np.nan]))
 
     @property
     def in_channels(self):
@@ -137,8 +137,8 @@ class SpatialProductLayer(torch.nn.Module):
         else:
             weight = self._build_sparse_kernels(rand_state)
 
-        # Initialize the weight tensor
-        self.weight = torch.nn.Parameter(torch.tensor(weight), requires_grad=False)
+        # Initialize the weight buffer
+        self.register_buffer('weight', torch.tensor(weight))
 
     @property
     def in_channels(self):

@@ -144,7 +144,7 @@ class DequantizeLayer(torch.nn.Module):
         """
         batch_size = x.shape[0]
         num_dims = x.shape[1:].numel()
-        u = x + torch.rand(x.shape, device=self.ildj_dim.device, dtype=torch.float32)
+        u = x + torch.rand(x.shape, device=self.ildj_dim.device)
         u = u / self.quantization_bins
         ildj_dim = num_dims * self.ildj_dim
         inv_log_det_jacobian = ildj_dim.expand(batch_size, 1)
