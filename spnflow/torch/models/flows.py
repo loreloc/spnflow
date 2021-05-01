@@ -33,6 +33,27 @@ class AbstractNormalizingFlow(AbstractModel):
         # Initialize the normalizing flow layers
         self.layers = torch.nn.ModuleList()
 
+    def train(self, mode=True, base_mode=True):
+        """
+        Set the training mode.
+
+        :param mode: The training mode for the flows layers.
+        :param base_mode: The training mode for the in_base distribution.
+        :return: Itself.
+        """
+        self.layers.train(mode)
+        if isinstance(self.in_base, torch.nn.Module):
+            self.in_base.train(base_mode)
+        return self
+
+    def eval(self):
+        """
+        Turn off the training mode for both the flows layers and the in_base distribution.
+
+        :return: Itself.
+        """
+        return self.train(False, False)
+
     def forward(self, x):
         """
         Compute the log-likelihood given complete evidence.

@@ -4,6 +4,7 @@ import numpy as np
 from tqdm import tqdm
 
 from spnflow.torch.callbacks import EarlyStopping
+from spnflow.torch.models.flows import AbstractNormalizingFlow
 
 
 class RunningAverageMetric:
@@ -47,6 +48,7 @@ def torch_train(
         patience=30,
         optimizer_class=torch.optim.Adam,
         weight_decay=0.0,
+        train_base=True,
         n_workers=4,
         device=None,
         verbose=True
@@ -64,6 +66,7 @@ def torch_train(
     :param patience: The epochs patience for early stopping.
     :param optimizer_class: The optimizer class to use.
     :param weight_decay: L2 regularization factor.
+    :param train_base: Whether to train the input base module. Only applicable for normalizing flows.
     :param n_workers: The number of workers for data loading.
     :param device: The device used for training. If it's None 'cuda' will be used, if available.
     :param verbose: Whether to enable verbose mode.
@@ -95,10 +98,20 @@ def torch_train(
         train_func = torch_train_discriminative
     else:
         raise ValueError('Unknown train setting called %s' % setting)
-    return train_func(model, train_loader, val_loader, optimizer, epochs, patience, device, verbose)
+    return train_func(model, train_loader, val_loader, optimizer, epochs, patience, train_base, device, verbose)
 
 
-def torch_train_generative(model, train_loader, val_loader, optimizer, epochs, patience, device, verbose):
+def torch_train_generative(
+        model,
+        train_loader,
+        val_loader,
+        optimizer,
+        epochs,
+        patience,
+        train_base,
+        device,
+        verbose
+):
     """
     Train a Torch model in generative setting.
 
@@ -108,6 +121,7 @@ def torch_train_generative(model, train_loader, val_loader, optimizer, epochs, p
     :param optimizer: The optimize to use.
     :param epochs: The number of epochs.
     :param patience: The epochs patience for early stopping.
+    :param train_base: Whether to train the input base module. Only applicable for normalizing flows.
     :param device: The device to use for training.
     :param verbose: Whether to enable verbose mode.
     :return: The train history.
@@ -136,7 +150,10 @@ def torch_train_generative(model, train_loader, val_loader, optimizer, epochs, p
             tk_train = train_loader
 
         # Make sure the model is set to train mode
-        model.train()
+        if isinstance(model, AbstractNormalizingFlow):
+            model.train(base_mode=train_base)
+        else:
+            model.train()
 
         # Training phase
         running_train_loss = RunningAverageMetric(train_loader.batch_size)
@@ -192,7 +209,17 @@ def torch_train_generative(model, train_loader, val_loader, optimizer, epochs, p
     return history
 
 
-def torch_train_discriminative(model, train_loader, val_loader, optimizer, epochs, patience, device, verbose):
+def torch_train_discriminative(
+        model,
+        train_loader,
+        val_loader,
+        optimizer,
+        epochs,
+        patience,
+        train_base,
+        device,
+        verbose
+):
     """
     Train a Torch model in discriminative setting.
 
@@ -202,6 +229,7 @@ def torch_train_discriminative(model, train_loader, val_loader, optimizer, epoch
     :param optimizer: The optimize to use.
     :param epochs: The number of epochs.
     :param patience: The epochs patience for early stopping.
+    :param train_base: Whether to train the input base module. Only applicable for normalizing flows.
     :param device: The device to use for training.
     :param verbose: Whether to enable verbose mode.
     :return: The train history.
@@ -231,7 +259,10 @@ def torch_train_discriminative(model, train_loader, val_loader, optimizer, epoch
             tk_train = train_loader
 
         # Make sure the model is set to train mode
-        model.train()
+        if isinstance(model, AbstractNormalizingFlow):
+            model.train(base_mode=train_base)
+        else:
+            model.train()
 
         # Training phase
         running_train_loss = RunningAverageMetric(train_loader.batch_size)
