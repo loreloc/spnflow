@@ -83,7 +83,10 @@ def torch_train(
     )
 
     # Instantiate the optimizer
-    optimizer = optimizer_class(model.parameters(), lr=lr, weight_decay=weight_decay)
+    optimizer = optimizer_class(
+        filter(lambda p: p.requires_grad, model.parameters()),
+        lr=lr, weight_decay=weight_decay
+    )
 
     # Train the model
     if setting == 'generative':
