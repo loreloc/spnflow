@@ -20,7 +20,7 @@ class Dequantize:
         self.quantization_bins = 2 ** self.num_bits
 
     def __call__(self, x):
-        return (x + torch.rand(x.size())) / self.quantization_bins
+        return x + torch.rand(x.size()) / self.quantization_bins
 
 
 class Flatten:

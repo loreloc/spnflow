@@ -7,7 +7,7 @@ from spnflow.torch.constraints import ScaleClipper
 
 
 class DgcSpn(AbstractModel):
-    """Deep Generalized Convolutional SPN model class."""
+    """Deep Generalized Convolutional SPN (DGC-SPN) model class."""
     def __init__(self,
                  in_size,
                  dequantize=False,
@@ -25,7 +25,7 @@ class DgcSpn(AbstractModel):
                  rand_state=None,
                  ):
         """
-        Initialize a SpatialSpn.
+        Initialize a Deep Generalized Convolutional Sum-Product Network (DGC-SPN).
 
         :param in_size: The input size.
         :param dequantize: Whether to apply the dequantization transformation.
@@ -69,7 +69,7 @@ class DgcSpn(AbstractModel):
 
         self.quantiles_loc = None
         if quantiles_loc is not None:
-            self.quantiles_loc = torch.tensor(quantiles_loc)
+            self.quantiles_loc = torch.tensor(quantiles_loc, dtype=torch.float32)
 
         # If necessary, instantiate a random state
         if not self.depthwise and self.rand_state is None:

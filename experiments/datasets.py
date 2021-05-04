@@ -9,6 +9,7 @@ BINARY_DATASETS = [
     'ad',
     'audio',
     'bbc',
+    'bmnist',
     'book',
     'dna',
     'eachmovie',

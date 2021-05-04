@@ -11,6 +11,7 @@ n_classes = 10
 # Set the preprocessing transformation
 transform = torchvision.transforms.Compose([
     torchvision.transforms.ToTensor(),
+    torchvision.transforms.Normalize((0.1307,), (0.3081,)),
     Reshape(image_size)
 ])
 

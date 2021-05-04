@@ -37,6 +37,54 @@ class DataFlatten:
         return np.reshape(data, [len(data), *self.shape])
 
 
+class DataNormalizer:
+    """Data normalizer for probabilistic learning purposes."""
+    def __init__(self, factor, flatten=False, dtype=np.float32):
+        """
+        Build the data transform.
+
+        :param factor: The normalization factor.
+        :param flatten: Whether to flatten the data.
+        :param dtype: The type for type conversion.
+        """
+        self.factor = factor
+        self.flatten = flatten
+        self.dtype = dtype
+        self.shape = None
+
+    def fit(self, data):
+        """
+        Fit the data transform with some data.
+
+        :param data: The data for fitting.
+        """
+        self.shape = data.shape[1:]
+
+    def forward(self, data):
+        """
+        Apply the data transform to some data.
+
+        :param data: The data to transform.
+        :return: The transformed data.
+        """
+        data = data / self.factor
+        if self.flatten:
+            data = data.reshape([len(data), -1])
+        return data.astype(self.dtype)
+
+    def backward(self, data):
+        """
+        Apply the backward data transform to some data
+
+        :param data: The data to transform.
+        :return: The transformed data.
+        """
+        if self.flatten:
+            data = data.reshape([len(data), *self.shape])
+        data = data * self.factor
+        return data
+
+
 class DataStandardizer:
     """Data standardizer for probabilistic learning purposes."""
     def __init__(self, sample_wise=True, flatten=False, epsilon=1e-7, dtype=np.float32):
