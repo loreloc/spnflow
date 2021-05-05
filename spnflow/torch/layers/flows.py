@@ -231,7 +231,7 @@ class CouplingLayer2d(torch.nn.Module):
 
             # Apply the affine transformation (backward mode)
             x = u * torch.exp(s) + t
-        log_det_jacobian = -torch.sum(s.view(batch_size, -1), dim=1, keepdim=True)
+        log_det_jacobian = torch.sum(s.view(batch_size, -1), dim=1, keepdim=True)
         return x, log_det_jacobian
 
 
