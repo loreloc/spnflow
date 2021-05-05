@@ -51,7 +51,6 @@ class MaskedLinear(torch.nn.Linear):
 
 class BatchNormLayer(torch.nn.Module):
     """Batch Normalization layer."""
-
     def __init__(self, in_features, momentum=0.9, epsilon=1e-5):
         """
         Build a Batch Normalization layer.
@@ -223,7 +222,6 @@ class LogitLayer(torch.nn.Module):
 
 class SqueezeLayer2d(torch.nn.Module):
     """Squeeze 2x2 operation as in RealNVP based on ResNets."""
-
     def __init__(self):
         """Initialize the layer."""
         super(SqueezeLayer2d, self).__init__()
@@ -249,7 +247,6 @@ class SqueezeLayer2d(torch.nn.Module):
 
 class UnsqueezeLayer2d(torch.nn.Module):
     """Unsqueeze 2x2 operation as in RealNVP based on ResNets."""
-
     def __init__(self):
         """Initialize the layer."""
         super(UnsqueezeLayer2d, self).__init__()
@@ -275,8 +272,7 @@ class UnsqueezeLayer2d(torch.nn.Module):
 
 class WeightNormConv2d(torch.nn.Module):
     """Conv2D with weight normalization."""
-
-    def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0, bias=True):
+    def __init__(self, in_channels, out_channels, kernel_size, stride=(1, 1), padding=(0, 0), bias=True):
         """
         Initialize a Conv2d layer with weight normalization.
 
