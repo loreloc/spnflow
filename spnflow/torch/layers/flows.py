@@ -65,11 +65,12 @@ class CouplingLayer1d(torch.nn.Module):
             ts = layer(ts)
         t, s = torch.chunk(ts, chunks=2, dim=1)
         s = self.scale_activation(s)
+        t = self.inv_mask * t
+        s = self.inv_mask * s
 
         # Apply the affine transformation (backward mode)
-        u = mx + self.inv_mask * ((x - t) * torch.exp(-s))
-        ildj = self.inv_mask * s
-        inv_log_det_jacobian = -torch.sum(ildj, dim=1, keepdim=True)
+        u = (x - t) * torch.exp(-s)
+        inv_log_det_jacobian = -torch.sum(s, dim=1, keepdim=True)
         return u, inv_log_det_jacobian
 
     def forward(self, u):
@@ -86,17 +87,18 @@ class CouplingLayer1d(torch.nn.Module):
             ts = layer(ts)
         t, s = torch.chunk(ts, chunks=2, dim=1)
         s = self.scale_activation(s)
+        t = self.inv_mask * t
+        s = self.inv_mask * s
 
         # Apply the affine transformation (forward mode).
-        x = mu + self.inv_mask * (u * torch.exp(s) + t)
-        ldj = self.inv_mask * s
-        log_det_jacobian = torch.sum(ldj, dim=1, keepdim=True)
+        x = u * torch.exp(s) + t
+        log_det_jacobian = torch.sum(s, dim=1, keepdim=True)
         return x, log_det_jacobian
 
 
 class CouplingLayer2d(torch.nn.Module):
     """RealNVP 2D coupling layer."""
-    def __init__(self, in_features, n_blocks, channels, reverse, mask='chessboard'):
+    def __init__(self, in_features, n_blocks, channels, reverse, channel_wise=False):
         """
         Build a ResNet-based coupling layer as specified in RealNVP paper.
 
@@ -104,7 +106,8 @@ class CouplingLayer2d(torch.nn.Module):
         :param n_blocks: The number of residual blocks.
         :param channels: The number of output channels of each convolutional layer.
         :param reverse: Whether to reverse the mask used in the coupling layer. Useful for alternating masks.
-        :param mask: The mask kind of the coupling layer. It can be either 'chessboard' or 'channelwise'.
+        :param channel_wise: Whether to use channel_wise coupling mask.
+                             Defaults to False, i.e. chessboard coupling mask.
         """
         super(CouplingLayer2d, self).__init__()
         self.in_features = in_features
@@ -112,25 +115,27 @@ class CouplingLayer2d(torch.nn.Module):
         self.n_blocks = n_blocks
         self.channels = channels
         self.reverse = reverse
-        self.scale_activation = ScaledTanh([self.in_channels, 1, 1])
+        self.channel_wise = channel_wise
 
-        # Register the coupling mask
-        if mask == 'chessboard':
+        # Register the chessboard coupling mask, if specified
+        if not self.channel_wise:
             mask = self.build_mask_chessboard(self.in_features)
-        elif mask == 'channelwise':
-            mask = self.build_mask_channelwise(self.in_features)
-        else:
-            raise NotImplementedError('Unknown coupling mask kind ' + mask)
-        inv_mask = 1.0 - mask
-        if self.reverse:
-            self.register_buffer('mask', torch.tensor(inv_mask))
-            self.register_buffer('inv_mask', torch.tensor(mask))
-        else:
-            self.register_buffer('mask', torch.tensor(mask))
-            self.register_buffer('inv_mask', torch.tensor(inv_mask))
+            inv_mask = 1.0 - mask
+            if self.reverse:
+                self.register_buffer('mask', torch.tensor(inv_mask))
+                self.register_buffer('inv_mask', torch.tensor(mask))
+            else:
+                self.register_buffer('mask', torch.tensor(mask))
+                self.register_buffer('inv_mask', torch.tensor(inv_mask))
 
         # Build the ResNet
-        self.resnet = ResidualNetwork(self.in_channels, self.channels, self.in_channels * 2, n_blocks)
+        in_channels = self.in_channels
+        if self.channel_wise:
+            in_channels //= 2
+        self.resnet = ResidualNetwork(in_channels, self.channels, in_channels * 2, n_blocks)
+
+        # Build the activation function for the scale of affine transformation
+        self.scale_activation = ScaledTanh([in_channels, 1, 1])
 
     @property
     def in_channels(self):
@@ -151,16 +156,6 @@ class CouplingLayer2d(torch.nn.Module):
         mask = np.sum(np.indices([1, in_height, in_width]), axis=0) % 2
         return mask.astype(np.float32)
 
-    @staticmethod
-    def build_mask_channelwise(in_features):
-        # Build the channelwise coupling mask
-        in_channels, in_height, in_width = in_features
-        mask = np.vstack(
-            [np.ones([in_channels // 2, in_height, in_width]),
-             np.zeros([in_channels // 2, in_height, in_width])],
-        )
-        return mask.astype(np.float32)
-
     def inverse(self, x):
         """
         Evaluate the layer given some inputs (backward mode).
@@ -170,17 +165,34 @@ class CouplingLayer2d(torch.nn.Module):
         """
         batch_size = x.shape[0]
 
-        # Get the parameters
-        mx = self.mask * x
-        ts = self.resnet(mx)
+        if self.channel_wise:
+            # Get the parameters
+            if self.reverse:
+                mx, my = torch.chunk(x, 2, dim=1)
+            else:
+                my, mx = torch.chunk(x, 2, dim=1)
+            ts = self.resnet(mx)
+            t, s = torch.chunk(ts, chunks=2, dim=1)
+            s = self.scale_activation(s)
 
-        t, s = torch.chunk(ts, chunks=2, dim=1)
-        s = self.scale_activation(s)
+            # Apply the affine transformation (backward mode)
+            my = (my - t) * torch.exp(-s)
+            if self.reverse:
+                u = torch.cat([mx, my], dim=1)
+            else:
+                u = torch.cat([my, mx], dim=1)
+        else:
+            # Get the parameters
+            mx = self.mask * x
+            ts = self.resnet(mx)
+            t, s = torch.chunk(ts, chunks=2, dim=1)
+            s = self.scale_activation(s)
+            t = self.inv_mask * t
+            s = self.inv_mask * s
 
-        # Apply the affine transformation (backward mode)
-        u = mx + self.inv_mask * ((x - t) * torch.exp(-s))
-        ildj = self.inv_mask * s
-        inv_log_det_jacobian = -torch.sum(ildj.view(batch_size, -1), dim=1, keepdim=True)
+            # Apply the affine transformation (backward mode)
+            u = (x - t) * torch.exp(-s)
+        inv_log_det_jacobian = -torch.sum(s.view(batch_size, -1), dim=1, keepdim=True)
         return u, inv_log_det_jacobian
 
     def forward(self, u):
@@ -192,16 +204,34 @@ class CouplingLayer2d(torch.nn.Module):
         """
         batch_size = u.shape[0]
 
-        # Get the parameters
-        mu = self.mask * u
-        ts = self.resnet(mu)
-        t, s = torch.chunk(ts, chunks=2, dim=1)
-        s = self.scale_activation(s)
+        if self.channel_wise:
+            # Get the parameters
+            if self.reverse:
+                mu, mv = torch.chunk(u, 2, dim=1)
+            else:
+                mv, mu = torch.chunk(u, 2, dim=1)
+            ts = self.resnet(mu)
+            t, s = torch.chunk(ts, chunks=2, dim=1)
+            s = self.scale_activation(s)
 
-        # Apply the affine transformation (forward mode).
-        x = mu + self.inv_mask * (u * torch.exp(s) + t)
-        ldj = self.inv_mask * s
-        log_det_jacobian = torch.sum(ldj.view(batch_size, -1), dim=1, keepdim=True)
+            # Apply the affine transformation (backward mode)
+            mv = mv * torch.exp(s) + t
+            if self.reverse:
+                x = torch.cat([mu, mv], dim=1)
+            else:
+                x = torch.cat([mv, mu], dim=1)
+        else:
+            # Get the parameters
+            mu = self.mask * u
+            ts = self.resnet(mu)
+            t, s = torch.chunk(ts, chunks=2, dim=1)
+            s = self.scale_activation(s)
+            t = self.inv_mask * t
+            s = self.inv_mask * s
+
+            # Apply the affine transformation (backward mode)
+            x = u * torch.exp(s) + t
+        log_det_jacobian = -torch.sum(s.view(batch_size, -1), dim=1, keepdim=True)
         return x, log_det_jacobian
 
 

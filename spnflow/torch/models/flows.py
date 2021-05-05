@@ -185,11 +185,11 @@ class RealNVP2d(AbstractNormalizingFlow):
         for _ in range(n_flows):
             # Append the chessboard coupling layers
             self.layers.extend([
-                CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=False, mask='chessboard'),
+                CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=False, channel_wise=False),
                 BatchNormLayer(in_features),
-                CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=True, mask='chessboard'),
+                CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=True, channel_wise=False),
                 BatchNormLayer(in_features),
-                CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=False, mask='chessboard'),
+                CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=False, channel_wise=False),
                 BatchNormLayer(in_features)
             ])
 
@@ -201,23 +201,23 @@ class RealNVP2d(AbstractNormalizingFlow):
 
             # Append the channelwise coupling layers
             self.layers.extend([
-                CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=False, mask='channelwise'),
+                CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=False, channel_wise=True),
                 BatchNormLayer(in_features),
-                CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=True, mask='channelwise'),
+                CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=True, channel_wise=True),
                 BatchNormLayer(in_features),
-                CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=False, mask='channelwise'),
+                CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=False, channel_wise=True),
                 BatchNormLayer(in_features)
             ])
 
         # Build the output coupling layers
         self.layers.extend([
-            CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=False, mask='chessboard'),
+            CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=False, channel_wise=False),
             BatchNormLayer(in_features),
-            CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=True, mask='chessboard'),
+            CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=True, channel_wise=False),
             BatchNormLayer(in_features),
-            CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=False, mask='chessboard'),
+            CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=False, channel_wise=False),
             BatchNormLayer(in_features),
-            CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=True, mask='chessboard'),
+            CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=True, channel_wise=False),
             BatchNormLayer(in_features)
         ])
 

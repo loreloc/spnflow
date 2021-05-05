@@ -1,9 +1,10 @@
 import torch
+from spnflow.torch.layers.utils import WeightNormConv2d
 
 
 class ResidualBlock(torch.nn.Module):
     """Residual block for ResNets."""
-    def __init__(self, in_channels, out_channels, kernel_size, padding):
+    def __init__(self, in_channels, out_channels, kernel_size=(3, 3), padding=(1, 1)):
         """
         Initialize a residual block as in ResNets.
 
@@ -16,13 +17,18 @@ class ResidualBlock(torch.nn.Module):
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.block = torch.nn.Sequential(
-            torch.nn.Conv2d(self.in_channels, self.in_channels, kernel_size=kernel_size, padding=padding, bias=False),
-            torch.nn.BatchNorm2d(self.in_channels),
-            torch.nn.ReLU(),
-            torch.nn.Conv2d(self.in_channels, self.out_channels, kernel_size=kernel_size, padding=padding, bias=False),
+            WeightNormConv2d(
+                self.in_channels, self.out_channels,
+                kernel_size=kernel_size, padding=padding, bias=False
+            ),
             torch.nn.BatchNorm2d(self.out_channels),
+            torch.nn.ReLU(),
+            WeightNormConv2d(
+                self.out_channels, self.out_channels,
+                kernel_size=kernel_size, padding=padding, bias=False
+            ),
+            torch.nn.BatchNorm2d(self.out_channels)
         )
-        self.activation = torch.nn.ReLU()
 
     def forward(self, x):
         """
@@ -31,7 +37,7 @@ class ResidualBlock(torch.nn.Module):
         :param x: The inputs.
         :return: The outputs of the block.
         """
-        return self.activation(x + self.block(x))
+        return torch.relu(x + self.block(x))
 
 
 class ResidualNetwork(torch.nn.Module):
@@ -54,7 +60,9 @@ class ResidualNetwork(torch.nn.Module):
 
         # Build the input layers
         self.layers.extend([
-            torch.nn.Conv2d(self.in_channels, self.mid_channels, kernel_size=3, padding=1, bias=False),
+            torch.nn.Conv2d(
+                self.in_channels, self.mid_channels,
+                kernel_size=(3, 3), padding=(1, 1), bias=False),
             torch.nn.BatchNorm2d(self.mid_channels),
             torch.nn.ReLU()
         ])
@@ -62,12 +70,18 @@ class ResidualNetwork(torch.nn.Module):
         # Build the inner residual blocks
         for _ in range(self.n_blocks):
             self.layers.append(
-                ResidualBlock(self.mid_channels, self.mid_channels, kernel_size=3, padding=1)
+                ResidualBlock(
+                    self.mid_channels, self.mid_channels,
+                    kernel_size=(3, 3), padding=(1, 1)
+                )
             )
 
         # Build the output layer
         self.layers.append(
-            torch.nn.Conv2d(self.mid_channels, self.out_channels, kernel_size=1, padding=0)
+            torch.nn.Conv2d(
+                self.mid_channels, self.out_channels,
+                kernel_size=(1, 1), padding=(0, 0), bias=True
+            )
         )
 
     def forward(self, x):
