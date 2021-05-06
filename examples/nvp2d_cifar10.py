@@ -6,28 +6,29 @@ from spnflow.torch.transforms import Quantize
 from spnflow.torch.routines import torch_train
 
 
-class UnsupervisedMNIST(torchvision.datasets.MNIST):
-    N_FEATURES = 784
-    IMAGE_SIZE = (1, 28, 28)
+class UnsupervisedCIFAR10(torchvision.datasets.CIFAR10):
+    N_FEATURES = 3072
+    IMAGE_SIZE = (3, 32, 32)
 
     def __init__(self, root, train=True, transform=None, download=False):
-        super(UnsupervisedMNIST, self).__init__(root, train, transform, download=download)
+        super(UnsupervisedCIFAR10, self).__init__(root, train, transform, download=download)
 
     def __getitem__(self, index):
-        x, y = super(UnsupervisedMNIST, self).__getitem__(index)
+        x, y = super(UnsupervisedCIFAR10, self).__getitem__(index)
         return x
 
 
 # Set the preprocessing transformation
 transform = torchvision.transforms.Compose([
     torchvision.transforms.ToTensor(),
+    torchvision.transforms.RandomHorizontalFlip(),
     Quantize()
 ])
 
-# Load the MNIST dataset (unsupervised wrapping) and
+# Load the CIFAR-10 dataset (unsupervised wrapping) and
 # split the dataset in train set and validation set
-in_features = UnsupervisedMNIST.IMAGE_SIZE
-data_train = UnsupervisedMNIST('datasets', train=True, transform=transform, download=True)
+in_features = UnsupervisedCIFAR10.IMAGE_SIZE
+data_train = UnsupervisedCIFAR10('datasets', train=True, transform=transform, download=True)
 n_val = int(0.1 * len(data_train))
 n_train = len(data_train) - n_val
 data_train, data_val = torch.utils.data.random_split(data_train, [n_train, n_val])
@@ -36,10 +37,10 @@ data_train, data_val = torch.utils.data.random_split(data_train, [n_train, n_val
 model = RealNVP2d(
     in_features=in_features,
     dequantize=True,
-    logit=1e-6,
+    logit=0.05,
     n_flows=1,
-    n_blocks=2,
-    channels=32
+    n_blocks=4,
+    channels=64
 )
 
 # Train the model using generative setting (i.e. by maximizing the log-likelihood)
@@ -58,7 +59,7 @@ model.eval()
 # Draw some samples
 n_samples = 10
 samples = model.sample(n_samples ** 2).cpu()
-torchvision.utils.save_image(samples / 255.0, 'samples-mnist.png', nrow=n_samples, padding=0)
+torchvision.utils.save_image(samples / 255.0, 'samples-cifar10.png', nrow=n_samples, padding=0)
 
 # Save the model to file
-torch.save(model.state_dict(), 'nvp-mnist.pt')
+torch.save(model.state_dict(), 'nvp-cifar10.pt')
