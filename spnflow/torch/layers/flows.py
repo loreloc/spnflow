@@ -168,9 +168,9 @@ class CouplingLayer2d(torch.nn.Module):
         if self.channel_wise:
             # Get the parameters
             if self.reverse:
-                mx, my = torch.chunk(x, 2, dim=1)
+                mx, my = torch.chunk(x, chunks=2, dim=1)
             else:
-                my, mx = torch.chunk(x, 2, dim=1)
+                my, mx = torch.chunk(x, chunks=2, dim=1)
             ts = self.resnet(mx)
             t, s = torch.chunk(ts, chunks=2, dim=1)
             s = self.scale_activation(s)
@@ -207,9 +207,9 @@ class CouplingLayer2d(torch.nn.Module):
         if self.channel_wise:
             # Get the parameters
             if self.reverse:
-                mu, mv = torch.chunk(u, 2, dim=1)
+                mu, mv = torch.chunk(u, chunks=2, dim=1)
             else:
-                mv, mu = torch.chunk(u, 2, dim=1)
+                mv, mu = torch.chunk(u, chunks=2, dim=1)
             ts = self.resnet(mu)
             t, s = torch.chunk(ts, chunks=2, dim=1)
             s = self.scale_activation(s)
@@ -371,5 +371,3 @@ class AutoregressiveLayer(torch.nn.Module):
         d2 = np.expand_dims(degrees[0], axis=1)
         masks.append(np.less(d1, d2).astype(np.float32))
         return masks
-
-
