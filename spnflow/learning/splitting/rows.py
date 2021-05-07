@@ -42,4 +42,4 @@ def get_split_rows_method(split_rows):
     elif split_rows == 'random':
         return random_rows
     else:
-        raise NotImplementedError("Unknow split rows method called " + split_rows)
+        raise NotImplementedError("Unknown split rows method called " + split_rows)
