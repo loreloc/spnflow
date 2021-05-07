@@ -4,27 +4,27 @@ import h5py
 import numpy as np
 
 BINARY_DATASETS = [
-    '20newsgroup',
-    'accidents',
-    'ad',
-    'audio',
-    'bbc',
-    'bmnist',
-    'book',
-    'dna',
-    'eachmovie',
-    'jester',
-    'kddcup2000',
-    'kosarek',
-    'msnbc',
-    'msweb',
-    'netflix',
     'nltcs',
+    'msnbc',
+    'kddcup2000',
     'plants',
-    'pumsbstar',
+    'audio',
+    'jester',
+    'netflix',
+    'accidents',
     'retail',
-    'reuters52',
+    'pumsbstar',
+    'dna',
+    'kosarek',
+    'msweb',
+    'book',
+    'eachmovie',
+    'bmnist',
     'webkb'
+    'reuters52',
+    '20newsgroup',
+    'bbc',
+    'ad'
 ]
 
 CONTINUOUS_DATASETS = [
