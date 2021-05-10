@@ -47,10 +47,13 @@ if __name__ == '__main__':
     parser.add_argument(
         '--smoothing', type=float, default=0.1, help='Laplace smoothing value.'
     )
+    parser.add_argument(
+        '--seed', type=int, default=1337, help='The Numpy seed value to use.'
+    )
     args = parser.parse_args()
 
-    # Instantiate a random state, used for reproducibility
-    rand_state = np.random.RandomState(42)
+    # Apply the given seed, used for reproducibility
+    np.random.seed(args.seed)
 
     # Load the dataset
     if args.dataset in BINARY_DATASETS:
@@ -98,6 +101,7 @@ if __name__ == '__main__':
         split_cols_kwargs['d'] = args.rdc_threshold
 
     # Learn the SPN density estimator
+    start_time = time.perf_counter()
     spn = learn_estimator(
         data=data_train,
         distributions=distributions,
@@ -110,21 +114,21 @@ if __name__ == '__main__':
         split_rows_kwargs=split_rows_kwargs,
         split_cols_kwargs=split_cols_kwargs
     )
+    learning_time = time.perf_counter() - start_time
 
-    # Compute the log-likelihoods for the datasets
-    train_mean_ll, train_stddev_ll = evaluate_log_likelihoods(spn, data_train)
+    # Compute the log-likelihoods for the validation and test datasets
     valid_mean_ll, valid_stddev_ll = evaluate_log_likelihoods(spn, data_valid)
     test_mean_ll, test_stddev_ll = evaluate_log_likelihoods(spn, data_test)
 
     # Save the results
     results[timestamp] = {
         'log_likelihood': {
-            'train': {'mean': train_mean_ll, 'stddev': train_stddev_ll},
             'valid': {'mean': valid_mean_ll, 'stddev': valid_stddev_ll},
             'test': {'mean': test_mean_ll, 'stddev': test_stddev_ll}
         },
         'settings': args.__dict__,
-        'statistics': get_statistics(spn)
+        'statistics': get_statistics(spn),
+        'learning_time': learning_time
     }
     with open(filepath, 'w') as file:
         json.dump(results, file, indent=4)
