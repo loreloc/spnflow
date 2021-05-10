@@ -3,7 +3,6 @@ import numpy as np
 from sklearn import mixture, cluster
 from sklearn.exceptions import ConvergenceWarning
 
-from spnflow.structure.leaf import LeafType
 from spnflow.utils.data import ohe_data
 
 
@@ -19,7 +18,7 @@ def gmm(data, distributions, domains, n=2):
     """
     # Convert the data using One Hot Encoding, in case of non-binary discrete features
     if any([len(d) > 2 for d in domains]):
-        data = mixed_ohe_data(data, distributions, domains)
+        data = mixed_ohe_data(data, domains)
 
     # Apply GMM
     with warnings.catch_warnings():
@@ -39,7 +38,7 @@ def kmeans(data, distributions, domains, n=2):
     """
     # Convert the data using One Hot Encoding, in case of non-binary discrete features
     if any([len(d) > 2 for d in domains]):
-        data = mixed_ohe_data(data, distributions, domains)
+        data = mixed_ohe_data(data, domains)
 
     # Apply K-Means
     with warnings.catch_warnings():
@@ -47,19 +46,18 @@ def kmeans(data, distributions, domains, n=2):
         return cluster.KMeans(n_clusters=n).fit_predict(data)
 
 
-def mixed_ohe_data(data, distributions, domains):
+def mixed_ohe_data(data, domains):
     """
-    One-Hot-Encoding function, applied on mixed data (both continuous and discrete).
+    One-Hot-Encoding function, applied on mixed data (both continuous and non-binary discrete).
 
     :param data: The 2D data to encode.
-    :param distributions: The given distributions.
     :param domains: The domains to use.
     :return: The One Hot encoded data.
     """
     n_samples, n_features = data.shape
     ohe = []
     for i in range(n_features):
-        if distributions[i].LEAF_TYPE == LeafType.DISCRETE:
+        if len(domains[i]) > 2:
             ohe.append(ohe_data(data[:, i], domains[i]))
         else:
             ohe.append(data[:, i])
