@@ -41,6 +41,7 @@ class AbstractNormalizingFlow(AbstractModel):
         :param base_mode: The training mode for the in_base distribution.
         :return: Itself.
         """
+        self.training = mode
         self.layers.train(mode)
         if isinstance(self.in_base, torch.nn.Module):
             self.in_base.train(base_mode)
