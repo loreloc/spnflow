@@ -111,14 +111,8 @@ class BinaryCLTree(Leaf):
         :param joints: The joints probability distributions.
         :return: The mutual information between each pair of features (as a symmetric matrix).
         """
-        n_features = len(priors)
-        outers = np.empty((n_features, n_features, 2, 2), dtype=np.float32)
-        outers[:, :, 0, 0] = np.outer(priors[:, 0], priors[:, 0])
-        outers[:, :, 0, 1] = np.outer(priors[:, 0], priors[:, 1])
-        outers[:, :, 1, 0] = np.outer(priors[:, 1], priors[:, 0])
-        outers[:, :, 1, 1] = np.outer(priors[:, 1], priors[:, 1])
-
         # Compute the mutual information
+        outers = np.multiply.outer(priors, priors).transpose([0, 2, 1, 3])
         mutual_info = np.sum(joints * (np.log(joints) - np.log(outers)), axis=(2, 3))
         np.fill_diagonal(mutual_info, 0.0)
         return mutual_info
