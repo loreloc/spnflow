@@ -148,10 +148,8 @@ class BinaryCLTree(Leaf):
         # (note the conditionally independence respect to a dummy variable)
         params[root_id] = priors[root_id]
 
-        # Compute the conditional probabilities
-        # Use the transposed joints to subsequently vectorize the divisions
-        transposed_joints = np.transpose(joints[features, parents], axes=(0, 2, 1))
-        params[features] = transposed_joints / np.expand_dims(priors[parents], axis=2)
+        # Compute the conditional probabilities (by einsum operation)
+        params[features] = np.einsum('ikl,il->ilk', joints[features, parents], np.reciprocal(priors[parents]))
 
         return params
 
