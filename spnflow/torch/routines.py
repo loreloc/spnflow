@@ -4,37 +4,8 @@ import numpy as np
 from tqdm import tqdm
 
 from spnflow.torch.callbacks import EarlyStopping
+from spnflow.torch.metrics import RunningAverageMetric
 from spnflow.torch.models.flows import AbstractNormalizingFlow
-
-
-class RunningAverageMetric:
-    """Running (batched) average metric"""
-    def __init__(self, batch_size):
-        """
-        Initialize a running average metric object.
-
-        :param batch_size: The batch size.
-        """
-        self.batch_size = batch_size
-        self.metric_accumulator = 0.0
-        self.n_metrics = 0
-
-    def __call__(self, x):
-        """
-        Accumulate a metric.
-
-        :param x: The metric value.
-        """
-        self.metric_accumulator += x
-        self.n_metrics += 1
-
-    def average(self):
-        """
-        Get the metric average.
-
-        :return: The metric average.
-        """
-        return self.metric_accumulator / (self.n_metrics * self.batch_size)
 
 
 def torch_train(
@@ -85,6 +56,9 @@ def torch_train(
         data_val, batch_size=batch_size, shuffle=False, num_workers=n_workers
     )
 
+    # Move the model to device
+    model.to(device)
+
     # Instantiate the optimizer
     optimizer = optimizer_class(
         filter(lambda p: p.requires_grad, model.parameters()),
@@ -133,9 +107,6 @@ def torch_train_generative(
 
     # Instantiate the early stopping callback
     early_stopping = EarlyStopping(patience=patience)
-
-    # Move the model to device
-    model.to(device)
 
     for epoch in range(epochs):
         start_time = time.time()
@@ -242,9 +213,6 @@ def torch_train_discriminative(
 
     # Instantiate the early stopping callback
     early_stopping = EarlyStopping(patience=patience)
-
-    # Move the model to device
-    model.to(device)
 
     for epoch in range(epochs):
         start_time = time.time()
