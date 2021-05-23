@@ -2,13 +2,15 @@ import time
 import torch
 import numpy as np
 from tqdm import tqdm
+from sklearn import metrics
 
+from spnflow.torch.utils import get_optimizer_class
 from spnflow.torch.callbacks import EarlyStopping
 from spnflow.torch.metrics import RunningAverageMetric
 from spnflow.torch.models.flows import AbstractNormalizingFlow
 
 
-def torch_train(
+def train(
         model,
         data_train,
         data_val,
@@ -17,9 +19,11 @@ def torch_train(
         batch_size=100,
         epochs=1000,
         patience=30,
-        optimizer_class=torch.optim.Adam,
+        optimizer='adam',
+        optimizer_kwargs=None,
         weight_decay=0.0,
         train_base=True,
+        class_weights=None,
         n_workers=4,
         device=None,
         verbose=True
@@ -35,9 +39,11 @@ def torch_train(
     :param batch_size: The batch size for both train and validation.
     :param epochs: The number of epochs.
     :param patience: The epochs patience for early stopping.
-    :param optimizer_class: The optimizer class to use.
+    :param optimizer: The optimizer to use.
+    :param optimizer_kwargs: A dictionary containing additional optimizer parameters.
     :param weight_decay: L2 regularization factor.
     :param train_base: Whether to train the input base module. Only applicable for normalizing flows.
+    :param class_weights: The class weights (for im-balanced datasets). Used only if setting='discriminative'.
     :param n_workers: The number of workers for data loading.
     :param device: The device used for training. If it's None 'cuda' will be used, if available.
     :param verbose: Whether to enable verbose mode.
@@ -46,7 +52,7 @@ def torch_train(
     # Get the device to use
     if device is None:
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print('Train using device: ' + str(device))
+    print('Train using device: {}'.format(device))
 
     # Setup the data loaders
     train_loader = torch.utils.data.DataLoader(
@@ -60,22 +66,29 @@ def torch_train(
     model.to(device)
 
     # Instantiate the optimizer
-    optimizer = optimizer_class(
+    if optimizer_kwargs is None:
+        optimizer_kwargs = dict()
+    optimizer = get_optimizer_class(optimizer)(
         filter(lambda p: p.requires_grad, model.parameters()),
-        lr=lr, weight_decay=weight_decay
+        lr=lr, weight_decay=weight_decay, **optimizer_kwargs
     )
 
     # Train the model
     if setting == 'generative':
-        train_func = torch_train_generative
+        return train_generative(
+            model, train_loader, val_loader,
+            optimizer, epochs, patience, train_base, device, verbose
+        )
     elif setting == 'discriminative':
-        train_func = torch_train_discriminative
+        return train_discriminative(
+            model, train_loader, val_loader,
+            optimizer, epochs, patience, train_base, class_weights, device, verbose
+        )
     else:
-        raise ValueError('Unknown train setting called %s' % setting)
-    return train_func(model, train_loader, val_loader, optimizer, epochs, patience, train_base, device, verbose)
+        raise ValueError('Unknown train setting called {}'.format(setting))
 
 
-def torch_train_generative(
+def train_generative(
         model,
         train_loader,
         val_loader,
@@ -106,16 +119,16 @@ def torch_train_generative(
     }
 
     # Instantiate the early stopping callback
-    early_stopping = EarlyStopping(patience=patience)
+    early_stopping = EarlyStopping(model, patience=patience)
 
     for epoch in range(epochs):
-        start_time = time.time()
+        start_time = time.perf_counter()
 
         # Initialize the tqdm train data loader, if verbose is specified
         if verbose:
             tk_train = tqdm(
-                train_loader, leave=False, bar_format='{l_bar}{bar:32}{r_bar}',
-                desc='Train Epoch %d/%d' % (epoch + 1, epochs)
+                train_loader, leave=False, bar_format='{l_bar}{bar:24}{r_bar}',
+                desc='Train Epoch {}/{}'.format(epoch + 1, epochs)
             )
         else:
             tk_train = train_loader
@@ -142,8 +155,8 @@ def torch_train_generative(
         # Initialize the tqdm validation data loader, if verbose is specified
         if verbose:
             tk_val = tqdm(
-                val_loader, leave=False, bar_format='{l_bar}{bar:32}{r_bar}',
-                desc='Validation Epoch %d/%d' % (epoch + 1, epochs)
+                val_loader, leave=False, bar_format='{l_bar}{bar:24}{r_bar}',
+                desc='Validation Epoch {}/{}'.format(epoch + 1, epochs)
             )
         else:
             tk_val = val_loader
@@ -161,11 +174,12 @@ def torch_train_generative(
                 running_val_loss(loss.item())
 
         # Get the average train and validation losses and print it
-        end_time = time.time()
+        end_time = time.perf_counter()
         train_loss = running_train_loss.average()
         val_loss = running_val_loss.average()
-        print('Epoch %d/%d - train_loss: %.4f, validation_loss: %.4f [%ds]' %
-              (epoch + 1, epochs, train_loss, val_loss, end_time - start_time))
+        print('Epoch {}/{} - train_loss: {:.4f}, validation_loss: {:.4f} [{}s]'.format(
+            epoch + 1, epochs, train_loss, val_loss, int(end_time - start_time)
+        ))
 
         # Append losses to history data
         history['train'].append(train_loss)
@@ -174,13 +188,15 @@ def torch_train_generative(
         # Check if training should stop according to early stopping
         early_stopping(val_loss)
         if early_stopping.should_stop:
-            print('Early Stopping... Best Loss: %.4f' % early_stopping.best_loss)
+            print('Early Stopping... Best Loss: {:.4f}'.format(early_stopping.best_loss))
             break
 
+    # Load the best parameters state according to early stopping
+    model.load_state_dict(early_stopping.best_state)
     return history
 
 
-def torch_train_discriminative(
+def train_discriminative(
         model,
         train_loader,
         val_loader,
@@ -188,6 +204,7 @@ def torch_train_discriminative(
         epochs,
         patience,
         train_base,
+        class_weights,
         device,
         verbose
 ):
@@ -201,6 +218,7 @@ def torch_train_discriminative(
     :param epochs: The number of epochs.
     :param patience: The epochs patience for early stopping.
     :param train_base: Whether to train the input base module. Only applicable for normalizing flows.
+    :param class_weights: The class weights (for im-balanced datasets).
     :param device: The device to use for training.
     :param verbose: Whether to enable verbose mode.
     :return: The train history.
@@ -211,17 +229,24 @@ def torch_train_discriminative(
         'validation': {'loss': [], 'accuracy': []}
     }
 
+    # Instantiate the loss
+    if class_weights is not None:
+        weight = torch.tensor(class_weights, dtype=torch.float32, device=device)
+    else:
+        weight = None
+    nll_loss = torch.nn.NLLLoss(weight=weight, reduction='sum')
+
     # Instantiate the early stopping callback
-    early_stopping = EarlyStopping(patience=patience)
+    early_stopping = EarlyStopping(model, patience=patience)
 
     for epoch in range(epochs):
-        start_time = time.time()
+        start_time = time.perf_counter()
 
         # Initialize the tqdm train data loader, if verbose is enabled
         if verbose:
             tk_train = tqdm(
-                train_loader, leave=False, bar_format='{l_bar}{bar:32}{r_bar}',
-                desc='Train Epoch %d/%d' % (epoch + 1, epochs)
+                train_loader, leave=False, bar_format='{l_bar}{bar:24}{r_bar}',
+                desc='Train Epoch {}/{}'.format(epoch + 1, epochs)
             )
         else:
             tk_train = train_loader
@@ -239,7 +264,7 @@ def torch_train_discriminative(
             inputs, targets = inputs.to(device), targets.to(device)
             optimizer.zero_grad()
             outputs = torch.log_softmax(model(inputs), dim=1)
-            loss = torch.nn.functional.nll_loss(outputs, targets, reduction='sum')
+            loss = nll_loss(outputs, targets)
             running_train_loss(loss.item())
             loss /= train_loader.batch_size
             loss.backward()
@@ -253,8 +278,8 @@ def torch_train_discriminative(
         # Initialize the tqdm validation data loader, if verbose is specified
         if verbose:
             tk_val = tqdm(
-                val_loader, leave=False, bar_format='{l_bar}{bar:32}{r_bar}',
-                desc='Validation Epoch %d/%d' % (epoch + 1, epochs)
+                val_loader, leave=False, bar_format='{l_bar}{bar:24}{r_bar}',
+                desc='Validation Epoch {}/{}'.format(epoch + 1, epochs)
             )
         else:
             tk_val = val_loader
@@ -270,20 +295,24 @@ def torch_train_discriminative(
                 inputs, targets = inputs.to(device), targets.to(device)
                 optimizer.zero_grad()
                 outputs = torch.log_softmax(model(inputs), dim=1)
-                loss = torch.nn.functional.nll_loss(outputs, targets, reduction='sum')
+                loss = nll_loss(outputs, targets)
                 running_val_loss(loss.item())
                 predictions = torch.argmax(outputs, dim=1)
                 hits = torch.eq(predictions, targets).sum()
                 running_val_hits(hits.item())
 
         # Get the average train and validation losses and accuracies and print it
-        end_time = time.time()
+        end_time = time.perf_counter()
         train_loss = running_train_loss.average()
         train_accuracy = running_train_hits.average()
         val_loss = running_val_loss.average()
         val_accuracy = running_val_hits.average()
-        print('Epoch %d/%d - train_loss: %.4f, validation_loss: %.4f, train_acc: %.1f%%, validation_acc: %.1f%% [%ds]' %
-              (epoch + 1, epochs, train_loss, val_loss, train_accuracy*100, val_accuracy*100, end_time - start_time))
+        print('Epoch {}/{} - train_loss: {:.4f}, validation_loss: {:.4f}, '.format(
+            epoch + 1, epochs, train_loss, val_loss
+        ), end='')
+        print('train_acc: {:.1f}%, validation_acc: {:.1f}% [{}s]'.format(
+            train_accuracy * 100, val_accuracy * 100, int(end_time - start_time)
+        ))
 
         # Append losses and accuracies to history data
         history['train']['loss'].append(train_loss)
@@ -294,9 +323,11 @@ def torch_train_discriminative(
         # Check if training should stop according to early stopping
         early_stopping(val_loss)
         if early_stopping.should_stop:
-            print('Early Stopping... Best Loss: %.4f' % early_stopping.best_loss)
+            print('Early Stopping... Best Loss: {:.4f}'.format(early_stopping.best_loss))
             break
 
+    # Load the best parameters state according to early stopping
+    model.load_state_dict(early_stopping.best_state)
     return history
 
 
@@ -306,6 +337,7 @@ def torch_test(
         setting,
         batch_size=100,
         n_workers=4,
+        class_weights=None,
         device=None
 ):
     """
@@ -316,14 +348,15 @@ def torch_test(
     :param setting: The test setting. It can be either 'generative' or 'discriminative'.
     :param batch_size: The batch size for testing.
     :param n_workers: The number of workers for data loading.
+    :param class_weights: The class weights (for im-balanced datasets). Used only if setting='discriminative'.
     :param device: The device used for training. If it's None 'cuda' will be used, if available.
     :return: The mean log-likelihood and two standard deviations if setting='generative'.
-             The negative log-likelihood and accuracy if setting='discriminative'.
+             The negative log-likelihood and classification metrics if setting='discriminative'.
     """
     # Get the device to use
     if device is None:
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print('Test using device: ' + str(device))
+    print('Test using device: {}'.format(device))
 
     # Setup the data loader
     test_loader = torch.utils.data.DataLoader(
@@ -332,15 +365,14 @@ def torch_test(
 
     # Test the model
     if setting == 'generative':
-        test_func = torch_test_generative
+        return test_generative(model, test_loader, device)
     elif setting == 'discriminative':
-        test_func = torch_test_discriminative
+        return test_discriminative(model, test_loader, class_weights, device)
     else:
-        raise ValueError('Unknown test setting called %s' % setting)
-    return test_func(model, test_loader, device)
+        raise ValueError('Unknown test setting called {}'.format(setting))
 
 
-def torch_test_generative(model, test_loader, device):
+def test_generative(model, test_loader, device):
     """
     Test a Torch model in generative setting.
 
@@ -363,27 +395,36 @@ def torch_test_generative(model, test_loader, device):
     return mu_ll, sigma_ll
 
 
-def torch_test_discriminative(model, test_loader, device):
+def test_discriminative(model, test_loader, class_weights, device):
     """
     Test a Torch model in discriminative setting.
 
     :param model: The model to test.
     :param test_loader: The test data loader.
+    :param class_weights: The class weights (for im-balanced datasets).
     :param device: The device used for testing.
-    :return: The negative log-likelihood and accuracy.
+    :return: The negative log-likelihood and classification report dictionary.
     """
     # Make sure the model is set to evaluation mode
     model.eval()
 
+    # Instantiate the loss
+    if class_weights is not None:
+        weight = torch.tensor(class_weights, dtype=torch.float32, device=device)
+    else:
+        weight = None
+    nll_loss = torch.nn.NLLLoss(weight=weight, reduction='sum')
+
+    y_true = []
+    y_pred = []
     running_loss = RunningAverageMetric(test_loader.batch_size)
-    running_hits = RunningAverageMetric(test_loader.batch_size)
     with torch.no_grad():
         for inputs, targets in test_loader:
             inputs, targets = inputs.to(device), targets.to(device)
             outputs = torch.log_softmax(model(inputs), dim=1)
-            loss = torch.nn.functional.nll_loss(outputs, targets, reduction='sum')
+            loss = nll_loss(outputs, targets)
             running_loss(loss.item())
             predictions = torch.argmax(outputs, dim=1)
-            hits = torch.eq(predictions, targets).sum()
-            running_hits(hits.item())
-    return running_loss.average(), running_hits.average()
+            y_pred.extend(predictions.cpu().tolist())
+            y_true.extend(targets.cpu().tolist())
+    return running_loss.average(), metrics.classification_report(y_true, y_pred, output_dict=True)

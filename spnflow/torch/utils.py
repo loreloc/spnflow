@@ -8,12 +8,26 @@ def get_activation_class(activation):
     :param activation: The activation function's name. It can be: 'relu', 'tanh', 'sigmoid'.
     :return: The activation function class.
     """
-    dict_acts = {
+    return {
         'relu': torch.nn.ReLU,
         'tanh': torch.nn.Tanh,
         'sigmoid': torch.nn.Sigmoid
-    }
-    return dict_acts[activation]
+    }[activation]
+
+
+def get_optimizer_class(optimizer):
+    """
+    Get the optimizer class by its name.
+
+    :param optimizer: The optimizer's name. It can be 'sgd', 'rmsprop', 'adagrad', 'adam'.
+    :return: The optimizer class.
+    """
+    return {
+        'sgd': torch.optim.SGD,
+        'rmsprop': torch.optim.RMSprop,
+        'adagrad': torch.optim.Adagrad,
+        'adam': torch.optim.Adam
+    }[optimizer]
 
 
 def squeeze_depth2d(x):

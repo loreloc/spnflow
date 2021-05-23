@@ -161,7 +161,7 @@ if __name__ == '__main__':
 
     # Train the model and collect the results
     if args.discriminative:
-        nll, accuracy = collect_results_discriminative(
+        nll, metrics = collect_results_discriminative(
             model, data_train, data_valid, data_test,
             lr=args.learning_rate, batch_size=args.batch_size,
             epochs=args.epochs, patience=args.patience, weight_decay=args.weight_decay
@@ -169,7 +169,7 @@ if __name__ == '__main__':
 
         results[timestamp] = {
             'nll': nll,
-            'accuracy': accuracy,
+            'metrics': metrics,
             'settings': args.__dict__
         }
         with open(os.path.join(directory, args.dataset + '.json'), 'w') as file:
