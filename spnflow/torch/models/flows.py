@@ -158,8 +158,9 @@ class RealNVP2d(AbstractNormalizingFlow):
                  dequantize=False,
                  logit=None,
                  in_base=None,
-                 n_flows=2,
-                 n_blocks=4,
+                 network='resnet',
+                 n_flows=1,
+                 n_blocks=2,
                  channels=16
                  ):
         """
@@ -169,8 +170,9 @@ class RealNVP2d(AbstractNormalizingFlow):
         :param dequantize: Whether to apply the dequantization transformation.
         :param logit: The logit factor to use. Use None to disable the logit transformation.
         :param in_base: The input base distribution to use. If None, the standard Normal distribution is used.
+        :param network: The neural network conditioner to use. It can be either 'resnet' or 'densenet'.
         :param n_flows: The number of sequential multi-scale architectures.
-        :param n_blocks: The number of residual blocks.
+        :param n_blocks: The number of residual blocks or dense blocks.
         :param channels: The number of output channels of each convolutional layer.
         """
         super(RealNVP2d, self).__init__(in_features, dequantize=dequantize, logit=logit, in_base=in_base)
@@ -178,47 +180,82 @@ class RealNVP2d(AbstractNormalizingFlow):
         assert n_blocks > 0
         assert channels > 0
         self.n_flows = n_flows
+        self.network = network
         self.n_blocks = n_blocks
         self.channels = channels
 
         # Build the input coupling layers
+        channels = self.channels
         in_features = self.in_features
         for _ in range(n_flows):
             # Append the chessboard coupling layers
             self.layers.extend([
-                CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=False, channel_wise=False),
+                CouplingLayer2d(
+                    in_features, self.network, self.n_blocks, channels,
+                    reverse=False, channel_wise=False
+                ),
                 BatchNormLayer(in_features),
-                CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=True, channel_wise=False),
+                CouplingLayer2d(
+                    in_features, self.network, self.n_blocks, channels,
+                    reverse=True, channel_wise=False
+                ),
                 BatchNormLayer(in_features),
-                CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=False, channel_wise=False),
+                CouplingLayer2d(
+                    in_features, self.network, self.n_blocks, channels,
+                    reverse=False, channel_wise=False
+                ),
                 BatchNormLayer(in_features)
             ])
 
             # Append the squeezing layer
             self.layers.append(SqueezeLayer2d())
 
+            # Double the number of channels to use
+            channels *= 2
+
             # Update the input features
             in_features = (in_features[0] * 4, in_features[1] // 2, in_features[2] // 2)
 
             # Append the channelwise coupling layers
             self.layers.extend([
-                CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=False, channel_wise=True),
+                CouplingLayer2d(
+                    in_features, self.network, self.n_blocks, channels,
+                    reverse=False, channel_wise=True
+                ),
                 BatchNormLayer(in_features),
-                CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=True, channel_wise=True),
+                CouplingLayer2d(
+                    in_features, self.network, self.n_blocks, channels,
+                    reverse=True, channel_wise=True
+                ),
                 BatchNormLayer(in_features),
-                CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=False, channel_wise=True),
+                CouplingLayer2d(
+                    in_features, self.network, self.n_blocks, channels,
+                    reverse=False, channel_wise=True
+                ),
                 BatchNormLayer(in_features)
             ])
 
         # Build the output coupling layers
         self.layers.extend([
-            CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=False, channel_wise=False),
+            CouplingLayer2d(
+                in_features, self.network, self.n_blocks, channels,
+                reverse=False, channel_wise=False
+            ),
             BatchNormLayer(in_features),
-            CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=True, channel_wise=False),
+            CouplingLayer2d(
+                in_features, self.network, self.n_blocks, channels,
+                reverse=True, channel_wise=False
+            ),
             BatchNormLayer(in_features),
-            CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=False, channel_wise=False),
+            CouplingLayer2d(
+                in_features, self.network, self.n_blocks, channels,
+                reverse=False, channel_wise=False
+            ),
             BatchNormLayer(in_features),
-            CouplingLayer2d(in_features, self.n_blocks, self.channels, reverse=True, channel_wise=False),
+            CouplingLayer2d(
+                in_features, self.network, self.n_blocks, channels,
+                reverse=True, channel_wise=False
+            ),
             BatchNormLayer(in_features)
         ])
 

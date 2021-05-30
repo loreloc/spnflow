@@ -2,6 +2,7 @@ import torch
 import numpy as np
 
 from spnflow.torch.layers.resnet import ResidualNetwork
+from spnflow.torch.layers.densenet import DenseNetwork
 from spnflow.torch.layers.utils import ScaledTanh, MaskedLinear
 
 
@@ -40,7 +41,7 @@ class CouplingLayer1d(torch.nn.Module):
         out_features = self.units
         for _ in range(self.depth):
             self.layers.append(torch.nn.Linear(in_features, out_features))
-            self.layers.append(torch.nn.ReLU())
+            self.layers.append(torch.nn.ReLU(inplace=True))
             in_features = out_features
         out_features = self.in_features * 2
         self.layers.append(torch.nn.Linear(in_features, out_features))
@@ -98,12 +99,13 @@ class CouplingLayer1d(torch.nn.Module):
 
 class CouplingLayer2d(torch.nn.Module):
     """RealNVP 2D coupling layer."""
-    def __init__(self, in_features, n_blocks, channels, reverse, channel_wise=False):
+    def __init__(self, in_features, network, n_blocks, channels, reverse, channel_wise=False):
         """
         Build a ResNet-based coupling layer as specified in RealNVP paper.
 
         :param in_features: The size of the input.
-        :param n_blocks: The number of residual blocks.
+        :param network: The network conditioner to use. It can be either 'resnet' or 'densenet'.
+        :param n_blocks: The number of residual blocks or dense blocks.
         :param channels: The number of output channels of each convolutional layer.
         :param reverse: Whether to reverse the mask used in the coupling layer. Useful for alternating masks.
         :param channel_wise: Whether to use channel_wise coupling mask.
@@ -128,11 +130,16 @@ class CouplingLayer2d(torch.nn.Module):
                 self.register_buffer('mask', torch.tensor(mask))
                 self.register_buffer('inv_mask', torch.tensor(inv_mask))
 
-        # Build the ResNet
+        # Build the conditioner neural network
         in_channels = self.in_channels
         if self.channel_wise:
             in_channels //= 2
-        self.resnet = ResidualNetwork(in_channels, self.channels, in_channels * 2, n_blocks)
+        if network == 'resnet':
+            self.network = ResidualNetwork(in_channels, self.channels, in_channels * 2, self.n_blocks)
+        elif network == 'densenet':
+            self.network = DenseNetwork(in_channels, self.channels, in_channels * 2, self.n_blocks)
+        else:
+            raise NotImplementedError('Unknown network conditioner {}'.format(network))
 
         # Build the activation function for the scale of affine transformation
         self.scale_activation = ScaledTanh([in_channels, 1, 1])
@@ -171,7 +178,7 @@ class CouplingLayer2d(torch.nn.Module):
                 mx, my = torch.chunk(x, chunks=2, dim=1)
             else:
                 my, mx = torch.chunk(x, chunks=2, dim=1)
-            ts = self.resnet(mx)
+            ts = self.network(mx)
             t, s = torch.chunk(ts, chunks=2, dim=1)
             s = self.scale_activation(s)
 
@@ -184,7 +191,7 @@ class CouplingLayer2d(torch.nn.Module):
         else:
             # Get the parameters
             mx = self.mask * x
-            ts = self.resnet(mx)
+            ts = self.network(mx)
             t, s = torch.chunk(ts, chunks=2, dim=1)
             s = self.scale_activation(s)
             t = self.inv_mask * t
@@ -210,7 +217,7 @@ class CouplingLayer2d(torch.nn.Module):
                 mu, mv = torch.chunk(u, chunks=2, dim=1)
             else:
                 mv, mu = torch.chunk(u, chunks=2, dim=1)
-            ts = self.resnet(mu)
+            ts = self.network(mu)
             t, s = torch.chunk(ts, chunks=2, dim=1)
             s = self.scale_activation(s)
 
@@ -223,7 +230,7 @@ class CouplingLayer2d(torch.nn.Module):
         else:
             # Get the parameters
             mu = self.mask * u
-            ts = self.resnet(mu)
+            ts = self.network(mu)
             t, s = torch.chunk(ts, chunks=2, dim=1)
             s = self.scale_activation(s)
             t = self.inv_mask * t
@@ -272,7 +279,7 @@ class AutoregressiveLayer(torch.nn.Module):
         out_features = self.units
         for mask in masks[:-1]:
             self.layers.append(MaskedLinear(in_features, out_features, mask))
-            self.layers.append(self.activation())
+            self.layers.append(self.activation(inplace=True))
             in_features = out_features
         out_features = self.in_features * 2
         self.layers.append(MaskedLinear(in_features, out_features, np.tile(masks[-1], reps=(2, 1))))
