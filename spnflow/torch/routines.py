@@ -363,6 +363,9 @@ def torch_test(
         data_test, batch_size=batch_size, shuffle=False, num_workers=n_workers
     )
 
+    # Move the model to device
+    model.to(device)
+
     # Test the model
     if setting == 'generative':
         return test_generative(model, test_loader, device)
