@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from spnflow.algorithms.inference import log_likelihood
-from spnflow.torch.routines import torch_train, torch_test
+from spnflow.torch.routines import train, torch_test
 
 
 def evaluate_log_likelihoods(spn, data, batch_size=2048):
@@ -20,7 +20,7 @@ def evaluate_log_likelihoods(spn, data, batch_size=2048):
 
 def collect_results_generative(model, data_train, data_valid, data_test, compute_bpp=False, **kwargs):
     # Train the model
-    torch_train(model, data_train, data_valid, setting='generative', **kwargs)
+    train(model, data_train, data_valid, setting='generative', **kwargs)
 
     # Test the model
     (mu_ll, sigma_ll) = torch_test(model, data_test, setting='generative')
@@ -36,11 +36,11 @@ def collect_results_generative(model, data_train, data_valid, data_test, compute
 
 def collect_results_discriminative(model, data_train, data_valid, data_test, **kwargs):
     # Train the model
-    torch_train(model, data_train, data_valid, setting='discriminative', **kwargs)
+    train(model, data_train, data_valid, setting='discriminative', **kwargs)
 
     # Test the model
-    (nll, accuracy) = torch_test(model, data_test, setting='discriminative')
-    return nll, accuracy
+    nll, metrics = torch_test(model, data_test, setting='discriminative')
+    return nll, metrics
 
 
 def collect_samples(model, n_samples):

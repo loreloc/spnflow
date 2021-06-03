@@ -26,6 +26,10 @@ if __name__ == '__main__':
         '--no-batch-norm', dest='batch_norm',
         action='store_false', help='Whether to use batch normalization.'
     )
+    parser.add_argument(
+        '--network', choices=['resnet', 'densenet'], default='resnet',
+        help='The nvp2d conditioner neural network architecture'
+    )
     parser.add_argument('--depth', type=int, default=1, help='The depth of each normalizing flow layer.')
     parser.add_argument('--units', type=int, default=128, help='The number of units at each layer in nvp1d.')
     parser.add_argument('--channels', type=int, default=32, help='The number of convolutional channels in nvp2d.')
@@ -101,6 +105,7 @@ if __name__ == '__main__':
             in_size,
             dequantize=args.dequantize,
             logit=args.logit,
+            network=args.network,
             n_flows=args.n_flows,
             n_blocks=args.n_blocks,
             channels=args.channels

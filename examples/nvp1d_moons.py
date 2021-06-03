@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.datasets import make_moons
 from sklearn.model_selection import train_test_split
 from spnflow.torch.models.flows import RealNVP1d
-from spnflow.torch.routines import torch_train
+from spnflow.torch.routines import train
 
 
 x_train, y_train = make_moons(n_samples=10000, shuffle=True, noise=0.05)
@@ -16,7 +16,7 @@ plt.scatter(x_train[:, 0], x_train[:, 1], marker='o', s=2)
 plt.show()
 
 model = RealNVP1d(in_features=2, n_flows=10, depth=2, units=128, batch_norm=False)
-torch_train(
+train(
     model, x_train, x_valid,
     setting='generative', lr=1e-4,
     batch_size=100, epochs=200, patience=10

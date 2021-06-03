@@ -80,6 +80,8 @@ class BatchNormLayer(torch.nn.Module):
         :param x: The inputs.
         :return: The tensor result of the layer.
         """
+        batch_size = x.shape[0]
+
         # Check if the module is training
         if self.training:
             # Get the minibatch statistics
@@ -97,7 +99,7 @@ class BatchNormLayer(torch.nn.Module):
         var = var + self.epsilon
         u = (x - mean) / torch.sqrt(var)
         u = u * torch.exp(self.weight) + self.bias
-        inv_log_det_jacobian = torch.sum(self.weight - 0.5 * torch.log(var))
+        inv_log_det_jacobian = torch.sum(self.weight - 0.5 * torch.log(var)).expand(batch_size, 1)
         return u, inv_log_det_jacobian
 
     def forward(self, u):
@@ -107,6 +109,8 @@ class BatchNormLayer(torch.nn.Module):
         :param u: The inputs.
         :return: The tensor result of the layer.
         """
+        batch_size = u.shape[0]
+
         # Get the running parameters as batch mean and variance
         mean = self.running_mean
         var = self.running_var
@@ -115,7 +119,7 @@ class BatchNormLayer(torch.nn.Module):
         var = var + self.epsilon
         x = (u - self.bias) * torch.exp(-self.weight)
         x = x * torch.sqrt(var) + mean
-        log_det_jacobian = torch.sum(-self.weight + 0.5 * torch.log(var))
+        log_det_jacobian = torch.sum(-self.weight + 0.5 * torch.log(var)).expand(batch_size, 1)
         return x, log_det_jacobian
 
 
@@ -218,56 +222,6 @@ class LogitLayer(torch.nn.Module):
         ldj_dim = -num_dims * self.ildj_dim
         log_det_jacobian = torch.sum(v.view(batch_size, num_dims), dim=1, keepdim=True) + ldj_dim
         return x, log_det_jacobian
-
-
-class SqueezeLayer2d(torch.nn.Module):
-    """Squeeze 2x2 operation as in RealNVP based on ResNets."""
-    def __init__(self):
-        """Initialize the layer."""
-        super(SqueezeLayer2d, self).__init__()
-
-    def forward(self, x):
-        """
-        Evaluate the layer given some inputs (depth-to-space transformation).
-
-        :param x: The inputs of size [N, C * 4, H // 2, W // 2].
-        :return: The outputs of size [N, C, H, W].
-        """
-        return unsqueeze_depth2d(x), 0.0
-
-    def inverse(self, x):
-        """
-        Evaluate the layer given some inputs (space-to-depth transformation).
-
-        :param x: The inputs of size [N, C, H, W].
-        :return: The outputs of size [N, C * 4, H // 2, W // 2].
-        """
-        return squeeze_depth2d(x), 0.0
-
-
-class UnsqueezeLayer2d(torch.nn.Module):
-    """Unsqueeze 2x2 operation as in RealNVP based on ResNets."""
-    def __init__(self):
-        """Initialize the layer."""
-        super(UnsqueezeLayer2d, self).__init__()
-
-    def forward(self, x):
-        """
-        Evaluate the layer given some inputs (space-to-depth transformation).
-
-        :param x: The inputs of size [N, C, H, W].
-        :return: The outputs of size [N, C * 4, H // 2, W // 2].
-        """
-        return squeeze_depth2d(x), 0.0
-
-    def inverse(self, x):
-        """
-        Evaluate the layer given some inputs (depth-to-space transformation).
-
-        :param x: The inputs of size [N, C * 4, H // 2, W // 2].
-        :return: The outputs of size [N, C, H, W].
-        """
-        return unsqueeze_depth2d(x), 0.0
 
 
 class WeightNormConv2d(torch.nn.Module):
