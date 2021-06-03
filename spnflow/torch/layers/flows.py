@@ -1,9 +1,10 @@
 import torch
 import numpy as np
 
+from spnflow.torch.utils import unsqueeze_depth2d, squeeze_depth2d
 from spnflow.torch.layers.resnet import ResidualNetwork
 from spnflow.torch.layers.densenet import DenseNetwork
-from spnflow.torch.layers.utils import ScaledTanh, MaskedLinear
+from spnflow.torch.layers.utils import ScaledTanh, MaskedLinear, BatchNormLayer
 
 
 class CouplingLayer1d(torch.nn.Module):
@@ -239,6 +240,159 @@ class CouplingLayer2d(torch.nn.Module):
             # Apply the affine transformation (backward mode)
             x = u * torch.exp(s) + t
         log_det_jacobian = torch.sum(s.view(batch_size, -1), dim=1, keepdim=True)
+        return x, log_det_jacobian
+
+
+class CouplingBlock2d(torch.nn.Module):
+    """RealNVP 2D coupling block, consisting of checkboard/channelwise couplings and squeeze operation."""
+    def __init__(self, in_features, network, n_blocks, channels, last_block=False):
+        """
+        Build a RealNVP 2d coupling block.
+
+        :param in_features: The size of the input.
+        :param network: The network conditioner to use. It can be either 'resnet' or 'densenet'.
+        :param n_blocks: The number of residual blocks or dense blocks.
+        :param channels: The number of output channels of each convolutional layer.
+        :param last_block: Whether it is the last block (i.e. no channelwise-masked couplings) or not.
+        """
+        super(CouplingBlock2d, self).__init__()
+        self.in_features = in_features
+        self.network = network
+        self.n_blocks = n_blocks
+        self.channels = channels
+        self.last_block = last_block
+
+        if self.last_block:
+            # Get the size of the output (no squeeze operation if last_block=True)
+            self.out_features = self.in_features
+
+            # Build the input couplings (consisting of 4 checkboard-masked couplings)
+            self.in_couplings = torch.nn.ModuleList([
+                CouplingLayer2d(
+                    self.in_features, self.network, self.n_blocks, self.channels,
+                    reverse=False, channel_wise=False
+                ),
+                BatchNormLayer(self.in_features),
+                CouplingLayer2d(
+                    self.in_features, self.network, self.n_blocks, self.channels,
+                    reverse=True, channel_wise=False
+                ),
+                BatchNormLayer(self.in_features),
+                CouplingLayer2d(
+                    self.in_features, self.network, self.n_blocks, self.channels,
+                    reverse=False, channel_wise=False
+                ),
+                BatchNormLayer(self.in_features),
+                CouplingLayer2d(
+                    self.in_features, self.network, self.n_blocks, self.channels,
+                    reverse=True, channel_wise=False
+                ),
+                BatchNormLayer(self.in_features)
+            ])
+        else:
+            # Compute the size of the output (after squeezing operation)
+            self.out_features = (self.in_channels * 4, self.in_height // 2, self.in_width // 2)
+
+            # Build the input couplings (consisting of 3 checkboard-masked couplings)
+            self.in_couplings = torch.nn.ModuleList([
+                CouplingLayer2d(
+                    self.in_features, self.network, self.n_blocks, self.channels,
+                    reverse=False, channel_wise=False
+                ),
+                BatchNormLayer(self.in_features),
+                CouplingLayer2d(
+                    self.in_features, self.network, self.n_blocks, self.channels,
+                    reverse=True, channel_wise=False
+                ),
+                BatchNormLayer(self.in_features),
+                CouplingLayer2d(
+                    self.in_features, self.network, self.n_blocks, self.channels,
+                    reverse=False, channel_wise=False
+                ),
+                BatchNormLayer(self.in_features)
+            ])
+
+            # Build the output couplings (consisting of 3 channelwise-masked couplings)
+            self.out_couplings = torch.nn.ModuleList([
+                CouplingLayer2d(
+                    self.out_features, self.network, self.n_blocks, self.channels,
+                    reverse=False, channel_wise=True
+                ),
+                BatchNormLayer(self.out_features),
+                CouplingLayer2d(
+                    self.out_features, self.network, self.n_blocks, self.channels,
+                    reverse=True, channel_wise=True
+                ),
+                BatchNormLayer(self.out_features),
+                CouplingLayer2d(
+                    self.out_features, self.network, self.n_blocks, self.channels,
+                    reverse=False, channel_wise=True
+                ),
+                BatchNormLayer(self.out_features)
+            ])
+
+    @property
+    def in_channels(self):
+        return self.in_features[0]
+
+    @property
+    def in_height(self):
+        return self.in_features[1]
+
+    @property
+    def in_width(self):
+        return self.in_features[2]
+
+    def inverse(self, x):
+        """
+        Evaluate the coupling block (backward mode).
+
+        :param x: The inputs.
+        :return: The outputs of checkboard-masked only couplings if last_block=True
+                 and the outputs of checkboard-masked + squeeze + channelwise-masked couplings if last_block=False.
+        """
+        inv_log_det_jacobian = 0.0
+
+        # Pass through the checkboard-masked couplings
+        for layer in self.in_couplings:
+            x, ildj = layer.inverse(x)
+            inv_log_det_jacobian += ildj
+
+        if not self.last_block:
+            # Squeeze the inputs
+            x = squeeze_depth2d(x)
+
+            # Pass through the channelwise-masked couplings
+            for layer in self.out_couplings:
+                x, ildj = layer.inverse(x)
+                inv_log_det_jacobian += ildj
+
+        return x, inv_log_det_jacobian
+
+    def forward(self, x):
+        """
+        Evaluate the coupling block (forward mode).
+
+        :param x: The inputs.
+        :return: The outputs of checkboard-masked only couplings if last_block=True
+                 and the outputs of checkboard-masked + squeeze + channelwise-masked couplings if last_block=False.
+        """
+        log_det_jacobian = 0.0
+
+        if not self.last_block:
+            # Pass through the channelwise-masked couplings
+            for layer in reversed(self.out_couplings):
+                x, ldj = layer.forward(x)
+                log_det_jacobian += ldj
+
+            # Un-squeeze the inputs
+            x = unsqueeze_depth2d(x)
+
+        # Pass through the checkboard-masked couplings
+        for layer in reversed(self.in_couplings):
+            x, ldj = layer.forward(x)
+            log_det_jacobian += ldj
+
         return x, log_det_jacobian
 
 

@@ -2,9 +2,11 @@ import torch
 import numpy as np
 
 from spnflow.torch.models.abstract import AbstractModel
-from spnflow.torch.layers.flows import CouplingLayer1d, CouplingLayer2d, AutoregressiveLayer
-from spnflow.torch.layers.utils import BatchNormLayer, SqueezeLayer2d, UnsqueezeLayer2d
+from spnflow.torch.layers.flows import CouplingLayer1d, CouplingBlock2d
+from spnflow.torch.layers.flows import AutoregressiveLayer
+from spnflow.torch.layers.utils import BatchNormLayer
 from spnflow.torch.utils import get_activation_class
+from spnflow.torch.utils import squeeze_depth2d, unsqueeze_depth2d
 
 
 class AbstractNormalizingFlow(AbstractModel):
@@ -184,84 +186,89 @@ class RealNVP2d(AbstractNormalizingFlow):
         self.n_blocks = n_blocks
         self.channels = channels
 
-        # Build the input coupling layers
+        # Build the coupling blocks
         channels = self.channels
         in_features = self.in_features
         for _ in range(n_flows):
-            # Append the chessboard coupling layers
-            self.layers.extend([
-                CouplingLayer2d(
-                    in_features, self.network, self.n_blocks, channels,
-                    reverse=False, channel_wise=False
-                ),
-                BatchNormLayer(in_features),
-                CouplingLayer2d(
-                    in_features, self.network, self.n_blocks, channels,
-                    reverse=True, channel_wise=False
-                ),
-                BatchNormLayer(in_features),
-                CouplingLayer2d(
-                    in_features, self.network, self.n_blocks, channels,
-                    reverse=False, channel_wise=False
-                ),
-                BatchNormLayer(in_features)
-            ])
+            coupling_block = CouplingBlock2d(in_features, self.network, self.n_blocks, channels, last_block=False)
+            self.layers.append(coupling_block)
 
-            # Append the squeezing layer
-            self.layers.append(SqueezeLayer2d())
+            # Halve the number of channels due to multi-scale architecture
+            in_features = coupling_block.out_features
+            in_features = (in_features[0] // 2, in_features[1], in_features[2])
 
-            # Double the number of channels to use
+            # Double the number of channels
             channels *= 2
 
-            # Update the input features
-            in_features = (in_features[0] * 4, in_features[1] // 2, in_features[2] // 2)
+        # Add the last coupling block
+        self.last_block = CouplingBlock2d(in_features, self.network, self.n_blocks, channels, last_block=True)
 
-            # Append the channelwise coupling layers
-            self.layers.extend([
-                CouplingLayer2d(
-                    in_features, self.network, self.n_blocks, channels,
-                    reverse=False, channel_wise=True
-                ),
-                BatchNormLayer(in_features),
-                CouplingLayer2d(
-                    in_features, self.network, self.n_blocks, channels,
-                    reverse=True, channel_wise=True
-                ),
-                BatchNormLayer(in_features),
-                CouplingLayer2d(
-                    in_features, self.network, self.n_blocks, channels,
-                    reverse=False, channel_wise=True
-                ),
-                BatchNormLayer(in_features)
-            ])
+    def forward(self, x):
+        """
+        Compute the log-likelihood given complete evidence.
 
-        # Build the output coupling layers
-        self.layers.extend([
-            CouplingLayer2d(
-                in_features, self.network, self.n_blocks, channels,
-                reverse=False, channel_wise=False
-            ),
-            BatchNormLayer(in_features),
-            CouplingLayer2d(
-                in_features, self.network, self.n_blocks, channels,
-                reverse=True, channel_wise=False
-            ),
-            BatchNormLayer(in_features),
-            CouplingLayer2d(
-                in_features, self.network, self.n_blocks, channels,
-                reverse=False, channel_wise=False
-            ),
-            BatchNormLayer(in_features),
-            CouplingLayer2d(
-                in_features, self.network, self.n_blocks, channels,
-                reverse=True, channel_wise=False
-            ),
-            BatchNormLayer(in_features)
-        ])
+        :param x: The inputs tensor.
+        :return: The output of the model.
+        """
+        # Preprocess the samples
+        batch_size = x.shape[0]
+        x, inv_log_det_jacobian = self.preprocess(x)
 
-        # Append the unsqueezing layers
-        for _ in range(n_flows):
-            self.layers.append(UnsqueezeLayer2d())
+        # Apply the coupling block layers
+        slices = []
+        for layer in self.layers:
+            x, ildj = layer.inverse(x)
+            x, z = torch.chunk(x, chunks=2, dim=1)
+            slices.append(z)  # Collect the half-chunks (used for multi-scale architecture)
+            inv_log_det_jacobian += ildj
+
+        # Apply the last coupling block
+        x, ildj = self.last_block.inverse(x)
+        inv_log_det_jacobian += ildj
+
+        # Re-concatenate all the half-cunks in reverse order and unsqueeze the results
+        for z in reversed(slices):
+            x = torch.cat([x, z], dim=1)
+            x = unsqueeze_depth2d(x)
+
+        # Compute the prior log-likelihood
+        prior = torch.sum(
+            self.in_base.log_prob(x).view(batch_size, -1),
+            dim=1, keepdim=True
+        )
+
+        # Return the final log-likelihood
+        return prior + inv_log_det_jacobian
+
+    @torch.no_grad()
+    def sample(self, n_samples):
+        """
+        Sample some values from the modeled distribution.
+
+        :param n_samples: The number of samples.
+        :return: The samples.
+        """
+        # Sample from the base distribution
+        x = self.in_base.sample([n_samples])
+
+        # Collect the half-cunks in and squeeze the results
+        slices = []
+        for _ in range(len(self.layers)):
+            x = squeeze_depth2d(x)
+            x, z = torch.chunk(x, chunks=2, dim=1)
+            slices.append(z)
+
+        # Apply the last coupling block
+        x, _ = self.last_block.forward(x)
+
+        # Apply the normalizing flows in forward mode
+        for layer, z in zip(reversed(self.layers), reversed(slices)):
+            x = torch.cat([x, z], dim=1)
+            x, _ = layer.forward(x)
+
+        # Apply reverse preprocessing transformation
+        x, _ = self.unpreprocess(x)
+        return x
 
 
 class MAF(AbstractNormalizingFlow):
