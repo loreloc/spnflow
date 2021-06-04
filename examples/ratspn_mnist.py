@@ -28,8 +28,8 @@ model = GaussianRatSpn(
     out_classes=out_classes,
     rg_depth=2,
     rg_repetitions=16,
-    n_batch=16,
-    n_sum=16,
+    rg_batch=16,
+    rg_sum=16,
     sum_dropout=0.2,
     optimize_scale=False
 )

@@ -111,7 +111,7 @@ def rat_sample_energy(data):
     n_train = int(0.9 * len(data))
     data_valid = data[n_train:]
     data_train = data[:n_train]
-    model = GaussianRatSpn(in_features=2, rg_depth=1, rg_repetitions=5, n_batch=10, n_sum=10)
+    model = GaussianRatSpn(in_features=2, rg_depth=1, rg_repetitions=5, rg_batch=10, rg_sum=10)
     train(
         model, data_train, data_valid,
         setting='generative', lr=1e-3,

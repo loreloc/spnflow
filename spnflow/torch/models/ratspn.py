@@ -197,8 +197,8 @@ class GaussianRatSpn(AbstractRatSpn):
                  out_classes=1,
                  rg_depth=2,
                  rg_repetitions=1,
-                 n_batch=2,
-                 n_sum=2,
+                 rg_batch=2,
+                 rg_sum=2,
                  in_dropout=None,
                  sum_dropout=None,
                  rand_state=None,
@@ -214,8 +214,8 @@ class GaussianRatSpn(AbstractRatSpn):
         :param out_classes: The number of output classes. Specify 1 in case of plain density estimation.
         :param rg_depth: The depth of the region graph.
         :param rg_repetitions: The number of independent repetitions of the region graph.
-        :param n_batch: The number of base distributions batches.
-        :param n_sum: The number of sum nodes per region.
+        :param rg_batch: The number of base distributions batches.
+        :param rg_sum: The number of sum nodes per region.
         :param in_dropout: The dropout rate for probabilistic dropout at distributions layer outputs. It can be None.
         :param sum_dropout: The dropout rate for probabilistic dropout at sum layers. It can be None.
         :param rand_state: The random state used to generate the random graph.
@@ -224,7 +224,7 @@ class GaussianRatSpn(AbstractRatSpn):
         """
         super(GaussianRatSpn, self).__init__(
             in_features, dequantize, logit, out_classes, rg_depth, rg_repetitions,
-            n_batch, n_sum, in_dropout, sum_dropout, rand_state
+            rg_batch, rg_sum, in_dropout, sum_dropout, rand_state
         )
         assert uniform_loc is None or uniform_loc[0] < uniform_loc[1], \
             "The first parameter of the uniform distribution most be less than the second one."

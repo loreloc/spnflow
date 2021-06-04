@@ -61,11 +61,10 @@ class CouplingLayer1d(torch.nn.Module):
         :return: The tensor result of the layer.
         """
         # Get the parameters
-        mx = self.mask * x
-        ts = mx
+        z = self.mask * x
         for layer in self.layers:
-            ts = layer(ts)
-        t, s = torch.chunk(ts, chunks=2, dim=1)
+            z = layer(z)
+        t, s = torch.chunk(z, chunks=2, dim=1)
         s = self.scale_activation(s)
         t = self.inv_mask * t
         s = self.inv_mask * s
@@ -83,11 +82,10 @@ class CouplingLayer1d(torch.nn.Module):
         :return: The tensor result of the layer.
         """
         # Get the parameters
-        mu = self.mask * u
-        ts = mu
+        z = self.mask * u
         for layer in self.layers:
-            ts = layer(ts)
-        t, s = torch.chunk(ts, chunks=2, dim=1)
+            z = layer(z)
+        t, s = torch.chunk(z, chunks=2, dim=1)
         s = self.scale_activation(s)
         t = self.inv_mask * t
         s = self.inv_mask * s
