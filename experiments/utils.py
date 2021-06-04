@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from spnflow.algorithms.inference import log_likelihood
-from spnflow.torch.routines import train, torch_test
+from spnflow.torch.routines import train_model, test_model
 
 
 def evaluate_log_likelihoods(spn, data, batch_size=2048):
@@ -20,10 +20,10 @@ def evaluate_log_likelihoods(spn, data, batch_size=2048):
 
 def collect_results_generative(model, data_train, data_valid, data_test, compute_bpp=False, **kwargs):
     # Train the model
-    train(model, data_train, data_valid, setting='generative', **kwargs)
+    train_model(model, data_train, data_valid, setting='generative', **kwargs)
 
     # Test the model
-    (mu_ll, sigma_ll) = torch_test(model, data_test, setting='generative')
+    (mu_ll, sigma_ll) = test_model(model, data_test, setting='generative')
 
     # Compute the bits per pixel, if specified
     if compute_bpp:
@@ -36,10 +36,10 @@ def collect_results_generative(model, data_train, data_valid, data_test, compute
 
 def collect_results_discriminative(model, data_train, data_valid, data_test, **kwargs):
     # Train the model
-    train(model, data_train, data_valid, setting='discriminative', **kwargs)
+    train_model(model, data_train, data_valid, setting='discriminative', **kwargs)
 
     # Test the model
-    nll, metrics = torch_test(model, data_test, setting='discriminative')
+    nll, metrics = test_model(model, data_test, setting='discriminative')
     return nll, metrics
 
 

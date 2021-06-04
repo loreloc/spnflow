@@ -10,7 +10,7 @@ from spnflow.torch.metrics import RunningAverageMetric
 from spnflow.torch.models.flows import AbstractNormalizingFlow
 
 
-def train(
+def train_model(
         model,
         data_train,
         data_val,
@@ -340,7 +340,7 @@ def train_discriminative(
     return history
 
 
-def torch_test(
+def test_model(
         model,
         data_test,
         setting,

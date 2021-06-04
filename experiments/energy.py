@@ -8,7 +8,7 @@ from spnflow.algorithms.sampling import sample
 from spnflow.torch.models.ratspn import GaussianRatSpn
 from spnflow.torch.models.flows import RealNVP1d
 from spnflow.torch.models.flows import MAF
-from spnflow.torch.routines import train
+from spnflow.torch.routines import train_model
 
 LDOM, RDOM = -4.0, 4.0
 RESOLUTION = 128
@@ -112,7 +112,7 @@ def rat_sample_energy(data):
     data_valid = data[n_train:]
     data_train = data[:n_train]
     model = GaussianRatSpn(in_features=2, rg_depth=1, rg_repetitions=5, rg_batch=10, rg_sum=10)
-    train(
+    train_model(
         model, data_train, data_valid,
         setting='generative', lr=1e-3,
         batch_size=256, epochs=100, patience=1
@@ -126,7 +126,7 @@ def nvp_sample_energy(data):
     data_valid = data[n_train:]
     data_train = data[:n_train]
     model = RealNVP1d(in_features=2, n_flows=10, depth=1, units=256, batch_norm=False)
-    train(
+    train_model(
         model, data_train, data_valid,
         setting='generative', lr=1e-4,
         batch_size=256, epochs=100, patience=1
@@ -140,7 +140,7 @@ def maf_sample_energy(data):
     data_valid = data[n_train:]
     data_train = data[:n_train]
     model = MAF(in_features=2, n_flows=10, depth=1, units=256, batch_norm=False)
-    train(
+    train_model(
         model, data_train, data_valid,
         setting='generative', lr=1e-4,
         batch_size=256, epochs=100, patience=1

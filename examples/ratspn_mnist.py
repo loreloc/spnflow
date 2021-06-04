@@ -3,7 +3,7 @@ import torchvision
 
 from spnflow.torch.models.ratspn import GaussianRatSpn
 from spnflow.torch.transforms import Flatten
-from spnflow.torch.routines import train, torch_test
+from spnflow.torch.routines import train_model, test_model
 
 n_features = 784
 out_classes = 10
@@ -35,7 +35,7 @@ model = GaussianRatSpn(
 )
 
 # Train the model using discriminative setting (i.e. by minimizing the categorical cross-entropy)
-train(
+train_model(
     model, data_train, data_val,
     setting='discriminative',
     lr=1e-2,
@@ -44,7 +44,7 @@ train(
 )
 
 # Test the model
-nll, metrics = torch_test(model, data_test, setting='discriminative')
+nll, metrics = test_model(model, data_test, setting='discriminative')
 print('Test NLL: {:.4f}'.format(nll))
 print('Test Metrics: {}'.format(metrics))
 
