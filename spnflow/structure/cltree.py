@@ -51,8 +51,9 @@ class BinaryCLTree(Leaf):
         # Compute the mutual information
         mutual_info = self.__compute_mutual_information(priors, joints)
 
-        # Choose a starting root randomly, used to compute the maximum spanning tree
-        self.root = np.random.choice(n_features)
+        if self.root is None:
+            # Choose a starting root randomly, used to compute the maximum spanning tree
+            self.root = np.random.choice(n_features)
 
         # Compute the CLT structure by getting the maximum spanning tree of the mutual-information graph
         # Note adding one to the mutual information, because the graph must be connected
