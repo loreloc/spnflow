@@ -121,8 +121,16 @@ def train_generative(
     # Instantiate the early stopping callback
     early_stopping = EarlyStopping(model, patience=patience)
 
+    # Instantiate the running average metrics
+    running_train_loss = RunningAverageMetric(train_loader.batch_size)
+    running_val_loss = RunningAverageMetric(val_loader.batch_size)
+
     for epoch in range(epochs):
         start_time = time.perf_counter()
+
+        # Reset the metrics
+        running_train_loss.reset()
+        running_val_loss.reset()
 
         # Initialize the tqdm train data loader, if verbose is specified
         if verbose:
@@ -140,8 +148,6 @@ def train_generative(
             model.train()
 
         # Training phase
-        running_train_loss = RunningAverageMetric(train_loader.batch_size)
-
         for inputs in tk_train:
             inputs = inputs.to(device)
             optimizer.zero_grad()
@@ -164,7 +170,6 @@ def train_generative(
         model.eval()
 
         # Validation phase
-        running_val_loss = RunningAverageMetric(val_loader.batch_size)
         with torch.no_grad():
             for inputs in tk_val:
                 inputs = inputs.to(device)
@@ -237,8 +242,20 @@ def train_discriminative(
     # Instantiate the early stopping callback
     early_stopping = EarlyStopping(model, patience=patience)
 
+    # Instantiate the running average metrics
+    running_train_loss = RunningAverageMetric(train_loader.batch_size)
+    running_train_hits = RunningAverageMetric(train_loader.batch_size)
+    running_val_loss = RunningAverageMetric(val_loader.batch_size)
+    running_val_hits = RunningAverageMetric(val_loader.batch_size)
+
     for epoch in range(epochs):
         start_time = time.perf_counter()
+
+        # Reset the metrics
+        running_train_loss.reset()
+        running_train_hits.reset()
+        running_val_loss.reset()
+        running_val_hits.reset()
 
         # Initialize the tqdm train data loader, if verbose is enabled
         if verbose:
@@ -256,8 +273,6 @@ def train_discriminative(
             model.train()
 
         # Training phase
-        running_train_loss = RunningAverageMetric(train_loader.batch_size)
-        running_train_hits = RunningAverageMetric(train_loader.batch_size)
         for inputs, targets in tk_train:
             inputs, targets = inputs.to(device), targets.to(device)
             optimizer.zero_grad()
@@ -285,12 +300,9 @@ def train_discriminative(
         model.eval()
 
         # Validation phase
-        running_val_loss = RunningAverageMetric(val_loader.batch_size)
-        running_val_hits = RunningAverageMetric(val_loader.batch_size)
         with torch.no_grad():
             for inputs, targets in tk_val:
                 inputs, targets = inputs.to(device), targets.to(device)
-                optimizer.zero_grad()
                 outputs = torch.log_softmax(model(inputs), dim=1)
                 loss = nll_loss(outputs, targets)
                 running_val_loss(loss.item() * val_loader.batch_size)
