@@ -51,10 +51,10 @@ if __name__ == '__main__':
 
     # Load the dataset
     if args.dataset in BINARY_DATASETS:
-        data_train, data_valid, data_test = load_binary_dataset('datasets', args.dataset)
+        data_train, data_valid, data_test = load_binary_dataset('datasets', args.dataset, raw=True)
     else:
         transform = DataStandardizer()
-        data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
+        data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset, raw=True)
         transform.fit(data_train)
         data_train = transform.forward(data_train)
         data_valid = transform.forward(data_valid)

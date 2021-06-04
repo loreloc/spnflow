@@ -5,7 +5,7 @@ import argparse
 import numpy as np
 
 from spnflow.torch.models.dgcspn import DgcSpn
-from spnflow.utils.data import DataNormalizer, DataStandardizer, compute_mean_quantiles
+from spnflow.utils.data import compute_mean_quantiles
 
 from experiments.datasets import VISION_DATASETS, load_vision_dataset
 from experiments.utils import collect_results_generative, collect_results_discriminative
@@ -54,38 +54,23 @@ if __name__ == '__main__':
         'Only one between --quantiles-loc and --uniform-loc can be defined'
 
     # Load the dataset
+    if not args.dequantize:
+        if args.logit:
+            preproc = 'normalize'
+        else:
+            preproc='standardize'
+    else:
+        preproc = 'none'
     if args.discriminative:
-        (data_train, label_train), (data_valid, label_valid), (data_test, label_test) = load_vision_dataset(
-            'datasets', args.dataset, unsupervised=False
+        data_train, data_valid, data_test = load_vision_dataset(
+            'datasets', args.dataset, unsupervised=False, flatten=False, preproc=preproc
         )
     else:
         data_train, data_valid, data_test = load_vision_dataset(
-            'datasets', args.dataset, unsupervised=True
+            'datasets', args.dataset, unsupervised=True, flatten=False, preproc=preproc
         )
-    in_size = data_train.shape[1:]
-
-    # Apply the transformation, if needed
-    if not args.dequantize:
-        if args.logit:
-            transform = DataNormalizer(255.0)
-            transform.fit(data_train)
-            data_train = transform.forward(data_train)
-            data_valid = transform.forward(data_valid)
-            data_test = transform.forward(data_test)
-        else:
-            transform = DataStandardizer(sample_wise=False)
-            transform.fit(data_train)
-            data_train = transform.forward(data_train)
-            data_valid = transform.forward(data_valid)
-            data_test = transform.forward(data_test)
-
-    if args.discriminative:
-        out_classes = len(np.unique(label_train))
-        data_train = list(zip(data_train, label_train))
-        data_valid = list(zip(data_valid, label_valid))
-        data_test = list(zip(data_test, label_test))
-    else:
-        out_classes = 1
+    in_size = data_train.features_size()
+    out_classes = data_train.num_classes() if args.discriminative else 1
 
     # Create the results directory
     directory = 'dgcspn'
@@ -108,7 +93,7 @@ if __name__ == '__main__':
 
     # Compute mean quantiles, if specified
     if args.quantiles_loc:
-        quantiles_loc = compute_mean_quantiles(data_train, args.n_batches)
+        quantiles_loc = compute_mean_quantiles(data_train.data.numpy(), args.n_batches)
     else:
         quantiles_loc = None
 

@@ -4,7 +4,6 @@ import json
 import argparse
 import numpy as np
 
-from spnflow.utils.data import DataFlatten, DataStandardizer
 from spnflow.torch.models.flows import RealNVP1d, RealNVP2d, MAF
 
 from experiments.datasets import load_continuous_dataset, load_vision_dataset
@@ -52,26 +51,18 @@ if __name__ == '__main__':
     is_vision_dataset = args.dataset in VISION_DATASETS
     transform = None
     if is_vision_dataset:
-        data_train, data_valid, data_test = load_vision_dataset(
-            'datasets', args.dataset, unsupervised=True
-        )
-        if args.model == 'nvp2d':
-            in_size = data_train.shape[1:]
+        if args.dequantize:
+            preproc = 'none'
+        elif args.logit:
+            preproc = 'normalize'
         else:
-            transform = DataFlatten()
-            transform.fit(data_train)
-            data_train = transform.forward(data_train)
-            data_valid = transform.forward(data_valid)
-            data_test = transform.forward(data_test)
-            _, in_size = data_train.shape
+            preproc = 'standardize'
+        data_train, data_valid, data_test = load_vision_dataset(
+            'datasets', args.dataset, unsupervised=True, flatten=args.model != 'nvp2d', preproc=preproc
+        )
     else:
         data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
-        transform = DataStandardizer()
-        transform.fit(data_train)
-        data_train = transform.forward(data_train)
-        data_valid = transform.forward(data_valid)
-        data_test = transform.forward(data_test)
-        _, in_size = data_train.shape
+    in_size = data_train.features_size()
 
     # Create the results directory
     directory = 'flows'
@@ -147,8 +138,10 @@ if __name__ == '__main__':
     if is_vision_dataset:
         n_samples = 8
         images = collect_samples(model, n_samples * n_samples)
-        if transform is not None:
-            images = transform.backward(images)
+        if data_train.transform is not None:
+            images = np.asarray([data_train.transform.inverse(s).numpy() for s in images])
+        else:
+            images = images.numpy()
         images = images.reshape([n_samples, n_samples, *images.shape[1:]])
-        images_filename = os.path.join(samples_directory, str(timestamp) + '.png')
+        images_filename = os.path.join(samples_directory, timestamp + '.png')
         save_grid_images(images, images_filename)

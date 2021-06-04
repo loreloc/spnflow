@@ -4,7 +4,6 @@ import json
 import argparse
 import numpy as np
 
-from spnflow.utils.data import DataFlatten, DataNormalizer, DataStandardizer
 from spnflow.torch.models.ratspn import GaussianRatSpn, BernoulliRatSpn
 
 from experiments.datasets import load_binary_dataset, load_continuous_dataset, load_vision_dataset
@@ -58,54 +57,25 @@ if __name__ == '__main__':
     transform = None
     if is_binary_dataset:
         data_train, data_valid, data_test = load_binary_dataset('datasets', args.dataset)
-        data_train = data_train.astype(np.float32)
-        data_valid = data_valid.astype(np.float32)
-        data_test = data_test.astype(np.float32)
     elif is_continuous_dataset:
         data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
-        transform = DataStandardizer()
-        transform.fit(data_train)
-        data_train = transform.forward(data_train)
-        data_valid = transform.forward(data_valid)
-        data_test = transform.forward(data_test)
     else:
+        if args.dequantize:
+            preproc = 'none'
+        elif args.logit:
+            preproc = 'normalize'
+        else:
+            preproc = 'standardize'
         if args.discriminative:
-            (data_train, label_train), (data_valid, label_valid), (data_test, label_test) = load_vision_dataset(
-                'datasets', args.dataset, unsupervised=False
+            data_train, data_valid, data_test = load_vision_dataset(
+                'datasets', args.dataset, unsupervised=False, preproc=preproc
             )
         else:
             data_train, data_valid, data_test = load_vision_dataset(
-                'datasets', args.dataset, unsupervised=True
+                'datasets', args.dataset, unsupervised=True, preproc=preproc
             )
-        # Instantiate the transformation, according to the hyper-parameters
-        if args.dequantize:
-            transform = DataFlatten()
-            transform.fit(data_train)
-            data_train = transform.forward(data_train)
-            data_valid = transform.forward(data_valid)
-            data_test = transform.forward(data_test)
-        else:
-            if args.logit:
-                transform = DataNormalizer(255.0, flatten=True)
-                transform.fit(data_train)
-                data_train = transform.forward(data_train)
-                data_valid = transform.forward(data_valid)
-                data_test = transform.forward(data_test)
-            else:
-                transform = DataStandardizer(sample_wise=False, flatten=True)
-                transform.fit(data_train)
-                data_train = transform.forward(data_train)
-                data_valid = transform.forward(data_valid)
-                data_test = transform.forward(data_test)
-    _, n_features = data_train.shape
-
-    if is_vision_dataset and args.discriminative:
-        out_classes = len(np.unique(label_train))
-        data_train = list(zip(data_train, label_train))
-        data_valid = list(zip(data_valid, label_valid))
-        data_test = list(zip(data_test, label_test))
-    else:
-        out_classes = 1
+    n_features = data_train.features_size()
+    out_classes = data_train.num_classes() if args.discriminative else 1
 
     # Create the results directory
     directory = 'ratspn'
@@ -194,8 +164,11 @@ if __name__ == '__main__':
 
         if is_vision_dataset:
             n_samples = 10
-            samples = collect_samples(model, n_samples * n_samples)
-            images = transform.backward(samples)
+            images = collect_samples(model, n_samples * n_samples)
+            if data_train.transform is not None:
+                images = np.asarray([data_train.transform.inverse(s).numpy() for s in images])
+            else:
+                images = images.numpy()
             images = images.reshape([n_samples, n_samples, *images.shape[1:]])
             images_filename = os.path.join(samples_directory, timestamp + '.png')
             save_grid_images(images, images_filename)
