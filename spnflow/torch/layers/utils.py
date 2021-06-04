@@ -88,8 +88,8 @@ class BatchNormLayer(torch.nn.Module):
             var, mean = torch.var_mean(x, dim=0)
 
             # Update the running parameters
-            self.running_var.mul_(self.momentum).add_(var * (1.0 - self.momentum))
-            self.running_mean.mul_(self.momentum).add_(mean * (1.0 - self.momentum))
+            self.running_var.mul_(self.momentum).add_(var.data * (1.0 - self.momentum))
+            self.running_mean.mul_(self.momentum).add_(mean.data * (1.0 - self.momentum))
         else:
             # Get the running parameters as batch mean and variance
             mean = self.running_mean
