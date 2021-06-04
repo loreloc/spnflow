@@ -152,8 +152,8 @@ if __name__ == '__main__':
             out_classes=out_classes,
             rg_depth=rg_depth,
             rg_repetitions=args.rg_repetitions,
-            n_batch=args.rg_batch,
-            n_sum=args.rg_sum,
+            rg_batch=args.rg_batch,
+            rg_sum=args.rg_sum,
             rand_state=rand_state,
             uniform_loc=args.uniform_loc,
             optimize_scale=args.optimize_scale

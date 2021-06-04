@@ -3,7 +3,7 @@ import torchvision
 
 from spnflow.torch.models.flows import RealNVP2d
 from spnflow.torch.transforms import Quantize
-from spnflow.torch.routines import train
+from spnflow.torch.routines import train_model
 
 
 class UnsupervisedMNIST(torchvision.datasets.MNIST):
@@ -43,7 +43,7 @@ model = RealNVP2d(
 )
 
 # Train the model using generative setting (i.e. by maximizing the log-likelihood)
-train(
+train_model(
     model, data_train, data_val,
     setting='generative',
     batch_size=64,

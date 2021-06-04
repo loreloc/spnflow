@@ -45,7 +45,7 @@ autoencoder.to(device)
 epochs = 25
 batch_size = 128
 lr = 1e-3
-train_loader = torch.utils.data.DataLoader(data_train, batch_size=batch_size, num_workers=4)
+train_loader = torch.utils.data.DataLoader(data_train, batch_size=batch_size)
 optimizer = torch.optim.Adam(autoencoder.parameters(), lr=lr)
 criterion = torch.nn.BCELoss()
 for epoch in range(epochs):

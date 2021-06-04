@@ -3,7 +3,7 @@ import torchvision
 
 from spnflow.torch.models.flows import MAF
 from spnflow.torch.transforms import Quantize, Flatten, Reshape
-from spnflow.torch.routines import train
+from spnflow.torch.routines import train_model
 
 
 class UnsupervisedCIFAR10(torchvision.datasets.CIFAR10):
@@ -49,7 +49,7 @@ model = MAF(
 )
 
 # Train the model using generative setting (i.e. by maximizing the log-likelihood)
-train(
+train_model(
     model, data_train, data_val,
     setting='generative',
     batch_size=64,

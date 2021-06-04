@@ -10,7 +10,7 @@ from spnflow.torch.metrics import RunningAverageMetric
 from spnflow.torch.models.flows import AbstractNormalizingFlow
 
 
-def train(
+def train_model(
         model,
         data_train,
         data_val,
@@ -24,7 +24,7 @@ def train(
         weight_decay=0.0,
         train_base=True,
         class_weights=None,
-        n_workers=4,
+        num_workers=0,
         device=None,
         verbose=True
 ):
@@ -44,7 +44,7 @@ def train(
     :param weight_decay: L2 regularization factor.
     :param train_base: Whether to train the input base module. Only applicable for normalizing flows.
     :param class_weights: The class weights (for im-balanced datasets). Used only if setting='discriminative'.
-    :param n_workers: The number of workers for data loading.
+    :param num_workers: The number of workers for data loading.
     :param device: The device used for training. If it's None 'cuda' will be used, if available.
     :param verbose: Whether to enable verbose mode.
     :return: The train history.
@@ -56,10 +56,10 @@ def train(
 
     # Setup the data loaders
     train_loader = torch.utils.data.DataLoader(
-        data_train, batch_size=batch_size, shuffle=True, num_workers=n_workers
+        data_train, batch_size=batch_size, shuffle=True, num_workers=num_workers
     )
     val_loader = torch.utils.data.DataLoader(
-        data_val, batch_size=batch_size, shuffle=False, num_workers=n_workers
+        data_val, batch_size=batch_size, shuffle=False, num_workers=num_workers
     )
 
     # Move the model to device
@@ -121,8 +121,16 @@ def train_generative(
     # Instantiate the early stopping callback
     early_stopping = EarlyStopping(model, patience=patience)
 
+    # Instantiate the running average metrics
+    running_train_loss = RunningAverageMetric(train_loader.batch_size)
+    running_val_loss = RunningAverageMetric(val_loader.batch_size)
+
     for epoch in range(epochs):
         start_time = time.perf_counter()
+
+        # Reset the metrics
+        running_train_loss.reset()
+        running_val_loss.reset()
 
         # Initialize the tqdm train data loader, if verbose is specified
         if verbose:
@@ -140,17 +148,14 @@ def train_generative(
             model.train()
 
         # Training phase
-        running_train_loss = RunningAverageMetric(train_loader.batch_size)
         for inputs in tk_train:
             inputs = inputs.to(device)
             optimizer.zero_grad()
-            log_likelihoods = model(inputs)
-            loss = -torch.sum(log_likelihoods)
-            running_train_loss(loss.item())
-            loss /= train_loader.batch_size
+            loss = -torch.mean(model(inputs))
             loss.backward()
             optimizer.step()
             model.apply_constraints()
+            running_train_loss(loss.item() * train_loader.batch_size)
 
         # Initialize the tqdm validation data loader, if verbose is specified
         if verbose:
@@ -165,13 +170,11 @@ def train_generative(
         model.eval()
 
         # Validation phase
-        running_val_loss = RunningAverageMetric(val_loader.batch_size)
         with torch.no_grad():
             for inputs in tk_val:
                 inputs = inputs.to(device)
-                log_likelihoods = model(inputs)
-                loss = -torch.sum(log_likelihoods)
-                running_val_loss(loss.item())
+                loss = -torch.mean(model(inputs))
+                running_val_loss(loss.item() * val_loader.batch_size)
 
         # Get the average train and validation losses and print it
         end_time = time.perf_counter()
@@ -234,13 +237,25 @@ def train_discriminative(
         weight = torch.tensor(class_weights, dtype=torch.float32, device=device)
     else:
         weight = None
-    nll_loss = torch.nn.NLLLoss(weight=weight, reduction='sum')
+    nll_loss = torch.nn.NLLLoss(weight=weight)
 
     # Instantiate the early stopping callback
     early_stopping = EarlyStopping(model, patience=patience)
 
+    # Instantiate the running average metrics
+    running_train_loss = RunningAverageMetric(train_loader.batch_size)
+    running_train_hits = RunningAverageMetric(train_loader.batch_size)
+    running_val_loss = RunningAverageMetric(val_loader.batch_size)
+    running_val_hits = RunningAverageMetric(val_loader.batch_size)
+
     for epoch in range(epochs):
         start_time = time.perf_counter()
+
+        # Reset the metrics
+        running_train_loss.reset()
+        running_train_hits.reset()
+        running_val_loss.reset()
+        running_val_hits.reset()
 
         # Initialize the tqdm train data loader, if verbose is enabled
         if verbose:
@@ -258,18 +273,15 @@ def train_discriminative(
             model.train()
 
         # Training phase
-        running_train_loss = RunningAverageMetric(train_loader.batch_size)
-        running_train_hits = RunningAverageMetric(train_loader.batch_size)
         for inputs, targets in tk_train:
             inputs, targets = inputs.to(device), targets.to(device)
             optimizer.zero_grad()
             outputs = torch.log_softmax(model(inputs), dim=1)
             loss = nll_loss(outputs, targets)
-            running_train_loss(loss.item())
-            loss /= train_loader.batch_size
             loss.backward()
             optimizer.step()
             model.apply_constraints()
+            running_train_loss(loss.item() * train_loader.batch_size)
             with torch.no_grad():
                 predictions = torch.argmax(outputs, dim=1)
                 hits = torch.eq(predictions, targets).sum()
@@ -288,15 +300,12 @@ def train_discriminative(
         model.eval()
 
         # Validation phase
-        running_val_loss = RunningAverageMetric(val_loader.batch_size)
-        running_val_hits = RunningAverageMetric(val_loader.batch_size)
         with torch.no_grad():
             for inputs, targets in tk_val:
                 inputs, targets = inputs.to(device), targets.to(device)
-                optimizer.zero_grad()
                 outputs = torch.log_softmax(model(inputs), dim=1)
                 loss = nll_loss(outputs, targets)
-                running_val_loss(loss.item())
+                running_val_loss(loss.item() * val_loader.batch_size)
                 predictions = torch.argmax(outputs, dim=1)
                 hits = torch.eq(predictions, targets).sum()
                 running_val_hits(hits.item())
@@ -331,12 +340,12 @@ def train_discriminative(
     return history
 
 
-def torch_test(
+def test_model(
         model,
         data_test,
         setting,
         batch_size=100,
-        n_workers=4,
+        num_workers=0,
         class_weights=None,
         device=None
 ):
@@ -347,7 +356,7 @@ def torch_test(
     :param data_test: The test dataset.
     :param setting: The test setting. It can be either 'generative' or 'discriminative'.
     :param batch_size: The batch size for testing.
-    :param n_workers: The number of workers for data loading.
+    :param num_workers: The number of workers for data loading.
     :param class_weights: The class weights (for im-balanced datasets). Used only if setting='discriminative'.
     :param device: The device used for training. If it's None 'cuda' will be used, if available.
     :return: The mean log-likelihood and two standard deviations if setting='generative'.
@@ -360,7 +369,7 @@ def torch_test(
 
     # Setup the data loader
     test_loader = torch.utils.data.DataLoader(
-        data_test, batch_size=batch_size, shuffle=False, num_workers=n_workers
+        data_test, batch_size=batch_size, shuffle=False, num_workers=num_workers
     )
 
     # Move the model to device
@@ -416,7 +425,7 @@ def test_discriminative(model, test_loader, class_weights, device):
         weight = torch.tensor(class_weights, dtype=torch.float32, device=device)
     else:
         weight = None
-    nll_loss = torch.nn.NLLLoss(weight=weight, reduction='sum')
+    nll_loss = torch.nn.NLLLoss(weight=weight)
 
     y_true = []
     y_pred = []
@@ -426,7 +435,7 @@ def test_discriminative(model, test_loader, class_weights, device):
             inputs, targets = inputs.to(device), targets.to(device)
             outputs = torch.log_softmax(model(inputs), dim=1)
             loss = nll_loss(outputs, targets)
-            running_loss(loss.item())
+            running_loss(loss.item() * test_loader.batch_size)
             predictions = torch.argmax(outputs, dim=1)
             y_pred.extend(predictions.cpu().tolist())
             y_true.extend(targets.cpu().tolist())
