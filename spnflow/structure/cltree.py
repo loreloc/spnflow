@@ -146,6 +146,25 @@ class BinaryCLTree(Leaf):
         params[features] = np.einsum('ikl,il->ilk', joints[features, parents], np.reciprocal(priors[parents]))
         return params
 
+    def __message_passing(self, x):
+        """
+        Compute the messages passed from the leaves to the root node.
+
+        :param x: The input data.
+        :return: The messages array.
+        """
+        # Let's proceed bottom-up
+        n_features = len(x)
+        messages = np.zeros(shape=(n_features, 2), dtype=np.float32)
+        for j in reversed(self.bfs[1:]):
+            # If non-observed value then factor marginalize that variable
+            if np.isnan(x[j]):
+                messages[self.tree[j]] += logsumexp(self.params[j] + messages[j], axis=1)
+            else:
+                obs_value = int(x[j])
+                messages[self.tree[j]] += self.params[j, :, obs_value] + messages[j, obs_value]
+        return messages
+
     def likelihood(self, x):
         """
         Compute the likelihood of the distribution leaf given some input.
@@ -178,19 +197,9 @@ class BinaryCLTree(Leaf):
         # Un-vectorized implementation of marginalized inference
         marg_indices = np.where(mask)[0]
         for i in marg_indices:
-            messages = np.zeros(shape=(n_features, 2), dtype=np.float32)
-
-            # Let's proceed bottom-up
-            for j in reversed(self.bfs[1:]):
-                # If non-observed value then factor marginalize that variable
-                if np.isnan(x[i, j]):
-                    messages[self.tree[j]] += logsumexp(self.params[j] + messages[j], axis=1)
-                else:
-                    obs_value = int(x[i, j])
-                    messages[self.tree[j]] += self.params[j, :, obs_value] + messages[j, obs_value]
-
             # Compute the final likelihood considering the root node
-            # Note that self.params[self.root, 1] = self.params[self.root], since it is unconditioned
+            # Note that self.params[self.root, 1] = self.params[self.root, 0], since it is unconditioned
+            messages = self.__message_passing(x[i])
             if np.isnan(x[i, self.root]):
                 ll[i] = logsumexp(self.params[self.root, 0] + messages[self.root])
             else:
@@ -209,18 +218,8 @@ class BinaryCLTree(Leaf):
 
         # Un-vectorized implementation of MPE inference
         for i in range(n_samples):
-            messages = np.zeros(shape=(n_features, 2), dtype=np.float32)
-
-            # Let's proceed bottom-up
-            for j in reversed(self.bfs[1:]):
-                # If non-observed value then factor marginalize that variable
-                if np.isnan(z[i, j]):
-                    # Consider all the possible combinations of probabilities given a parent value
-                    messages[self.tree[j]] += logsumexp(self.params[j] + messages[j], axis=1)
-                else:
-                    # Set the states at prior
-                    obs_value = int(x[i, j])
-                    messages[self.tree[j]] += self.params[j, :, obs_value] + messages[j, obs_value]
+            # Do the message passing
+            messages = self.__message_passing(x[i])
 
             # Do MPE at the root feature, if necessary
             if np.isnan(z[i, self.root]):
@@ -247,18 +246,8 @@ class BinaryCLTree(Leaf):
 
         # Un-vectorized implementation of conditional sampling
         for i in range(n_samples):
-            messages = np.zeros(shape=(n_features, 2), dtype=np.float32)
-
-            # Let's proceed bottom-up
-            for j in reversed(self.bfs[1:]):
-                # If non-observed value then factor marginalize that variable
-                if np.isnan(z[i, j]):
-                    # Consider all the possible combinations of probabilities given a parent value
-                    messages[self.tree[j]] += logsumexp(self.params[j] + messages[j], axis=1)
-                else:
-                    # Set the states at prior
-                    obs_value = int(x[i, j])
-                    messages[self.tree[j]] += self.params[j, :, obs_value] + messages[j, obs_value]
+            # Do the message passing
+            messages = self.__message_passing(x[i])
 
             # Sample the root feature, if necessary
             if np.isnan(z[i, self.root]):
@@ -293,22 +282,3 @@ class BinaryCLTree(Leaf):
             'tree': self.tree,
             'params': self.params.tolist()
         }
-
-
-if __name__ == '__main__':
-    from experiments.datasets import load_binary_dataset
-    data_train, data_valid, data_test = load_binary_dataset('../../experiments/datasets', 'nltcs', raw=True)
-    n_samples, n_features = data_train.shape
-
-    scope = list(range(n_features))
-    domain = [[0, 1]] * n_features
-    cltree = BinaryCLTree(scope, root=0)
-    cltree.fit(data_train, domain)
-
-    print('EVI Mean LL: {}'.format(np.mean(cltree.log_likelihood(data_test))))
-    data_marg = data_train.copy().astype(np.float32)
-    data_marg[np.random.choice([False, True], data_train.shape, p=[0.8, 0.2])] = np.nan
-    print('20% MAR Mean LL: {}'.format(np.mean(cltree.log_likelihood(data_marg))))
-    print('20% MPE Mean LL: {}'.format(np.mean(cltree.log_likelihood(cltree.mpe(data_marg)))))
-    print('20% SAMPLE Mean LL: {}'.format(np.mean(cltree.log_likelihood(cltree.sample(data_marg)))))
-    print('FULL SAMPLE Mean LL: {}'.format(np.mean(cltree.log_likelihood(cltree.sample(np.zeros([1000, n_features]) * np.nan)))))
