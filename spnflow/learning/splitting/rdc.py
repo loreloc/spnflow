@@ -35,6 +35,7 @@ def rdc_cols(data, distributions, domains, d=0.3, k=20, s=1.0 / 6.0, nl=np.sin):
                 adj_matrix[i, j] = 1
                 adj_matrix[j, i] = 1
 
+    np.fill_diagonal(adj_matrix, 1)
     adj_matrix = sparse.csr_matrix(adj_matrix)
     _, clusters = sparse.csgraph.connected_components(adj_matrix, directed=False, return_labels=True)
     return clusters
@@ -66,9 +67,9 @@ def rdc_cca(i, j, features):
     :param features: The list of the features.
     :return: The RDC coefficient (the largest canonical correlation coefficient).
     """
-    cca = cross_decomposition.CCA(n_components=1, max_iter=128)
+    cca = cross_decomposition.CCA(n_components=1, max_iter=128, tol=1e-3)
     x_cca, y_cca = cca.fit_transform(features[i], features[j])
-    if np.std(x_cca) < 1e-15 or np.std(y_cca) < 1e-15:
+    if np.std(x_cca) < 1e-15 or np.std(y_cca) < 1e-15:  # avoid NaN correlation coefficients
         return 0.0
     return np.corrcoef(x_cca.T, y_cca.T)[0, 1]
 
@@ -99,8 +100,8 @@ def rdc_transform(data, distributions, domains, k, s, nl):
 
     samples = []
     for x in features:
-        w = s / x.shape[1] * np.random.randn(x.shape[1], k)
-        y = nl(np.dot(x, w))
+        z = np.random.randn(x.shape[1], k)
+        y = nl(s / x.shape[1] * np.dot(x, z))
         o = np.ones((y.shape[0], 1))
         samples.append(np.hstack((y, o)))
     return samples
