@@ -25,8 +25,8 @@ class TransformList(Transform, list):
         return x
 
 
-class Standardize(Transform):
-    """Standardize transformation."""
+class Normalize(Transform):
+    """Normalize transformation."""
     def __init__(self, mean, std, eps=1e-7):
         self.mean = mean
         self.std = std

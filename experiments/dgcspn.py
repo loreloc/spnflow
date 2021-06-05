@@ -54,20 +54,13 @@ if __name__ == '__main__':
         'Only one between --quantiles-loc and --uniform-loc can be defined'
 
     # Load the dataset
-    if not args.dequantize:
-        if args.logit:
-            preproc = 'normalize'
-        else:
-            preproc='standardize'
-    else:
-        preproc = 'none'
     if args.discriminative:
         data_train, data_valid, data_test = load_vision_dataset(
-            'datasets', args.dataset, unsupervised=False, flatten=False, preproc=preproc
+            'datasets', args.dataset, unsupervised=False, flatten=False, preproc='standardize'
         )
     else:
         data_train, data_valid, data_test = load_vision_dataset(
-            'datasets', args.dataset, unsupervised=True, flatten=False, preproc=preproc
+            'datasets', args.dataset, unsupervised=True, flatten=False, preproc='standardize'
         )
     in_size = data_train.features_size()
     out_classes = data_train.num_classes() if args.discriminative else 1
@@ -93,7 +86,8 @@ if __name__ == '__main__':
 
     # Compute mean quantiles, if specified
     if args.quantiles_loc:
-        quantiles_loc = compute_mean_quantiles(data_train.data.numpy(), args.n_batches)
+        preproc_data = np.asarray([x.numpy() for x in data_train])
+        quantiles_loc = compute_mean_quantiles(preproc_data, args.n_batches)
     else:
         quantiles_loc = None
 

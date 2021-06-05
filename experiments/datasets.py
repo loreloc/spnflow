@@ -148,7 +148,7 @@ def load_continuous_dataset(root, name, raw=False):
     # Instantiate the standardize transform
     mean = torch.tensor(np.mean(data_train, axis=0), dtype=torch.float32)
     std = torch.tensor(np.std(data_train, axis=0), dtype=torch.float32)
-    transform = Standardize(mean, std)
+    transform = Normalize(mean, std)
 
     # Instantiate the dataset
     data_train = UnsupervisedDataset(data_train, transform)
@@ -190,16 +190,16 @@ def load_vision_dataset(root, name, unsupervised=True, raw=False, flatten=True, 
             transform = Flatten(shape)
     elif preproc == 'normalize':
         if flatten:
-            transform = TransformList([Flatten(shape), Standardize(0.0, 255.0)])
+            transform = TransformList([Flatten(shape), Normalize(0.0, 255.0)])
         else:
-            transform = Standardize(0.0, 255.0)
+            transform = Normalize(0.0, 255.0)
     elif preproc == 'standardize':
         mean = np.mean(image_train)
         std = np.std(image_train)
         if flatten:
-            transform = TransformList([Flatten(shape), Standardize(mean, std)])
+            transform = TransformList([Flatten(shape), Normalize(mean, std)])
         else:
-            transform = Standardize(mean, std)
+            transform = Normalize(mean, std)
     else:
         raise NotImplementedError('Unknown preprocessing method {}'.format(preproc))
 
