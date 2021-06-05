@@ -52,9 +52,9 @@ class UnsupervisedDataset(torch.utils.data.Dataset):
 
         # Compute the features shape
         if self.transform is None:
-            self.shape = self.data.shape[1:]
+            self.shape = tuple(self.data.shape[1:])
         else:
-            self.shape = self.transform(self.data[0]).shape
+            self.shape = tuple(self.transform(self.data[0]).shape)
 
     def features_size(self):
         if len(self.shape) == 1:
@@ -83,9 +83,9 @@ class SupervisedDataset(torch.utils.data.Dataset):
 
         # Compute the features shape
         if self.transform is None:
-            self.shape = self.data.shape[1:]
+            self.shape = tuple(self.data.shape[1:])
         else:
-            self.shape = self.transform(self.data[0]).shape
+            self.shape = tuple(self.transform(self.data[0]).shape)
 
     def num_classes(self):
         return len(self.classes)
