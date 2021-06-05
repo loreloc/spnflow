@@ -95,12 +95,11 @@ class BinaryCLTree(Leaf):
 
         # Compute the joints probabilities
         joints = np.empty(shape=(n_features, n_features, 2, 2), dtype=np.float32)
-        joints[:, :, 0, 0] = n_samples - counts_cols - counts_rows + counts_ones + alpha
-        joints[:, :, 0, 1] = counts_cols - counts_ones + alpha
-        joints[:, :, 1, 0] = counts_rows - counts_ones + alpha
-        joints[:, :, 1, 1] = counts_ones + alpha
-        joints /= n_samples + 4 * alpha
-
+        joints[:, :, 0, 0] = n_samples - counts_cols - counts_rows + counts_ones
+        joints[:, :, 0, 1] = counts_cols - counts_ones
+        joints[:, :, 1, 0] = counts_rows - counts_ones
+        joints[:, :, 1, 1] = counts_ones
+        joints = (joints + alpha) / (n_samples + 4 * alpha)
         return priors, joints
 
     @staticmethod
@@ -145,7 +144,6 @@ class BinaryCLTree(Leaf):
 
         # Compute the conditional probabilities (by einsum operation)
         params[features] = np.einsum('ikl,il->ilk', joints[features, parents], np.reciprocal(priors[parents]))
-
         return params
 
     def likelihood(self, x):
@@ -254,33 +252,28 @@ class BinaryCLTree(Leaf):
         # Un-vectorized implementation of conditional sampling
         for i in range(n_samples):
             messages = np.zeros(shape=(n_features, 2), dtype=np.float32)
-            states = np.empty(shape=(n_features, 2), dtype=np.int64)
             # Let's proceed bottom-up
             for j in reversed(self.bfs[1:]):
                 # If non-observed value then factor marginalize that variable
                 if np.isnan(z[i, j]):
                     # Consider all the possible combinations of probabilities given a parent value
-                    parent_probs = self.params[j] + messages[j]
-                    values = stats.bernoulli.rvs(np.exp(parent_probs[:, 1]))
-                    states[j] = values
-                    messages[self.tree[j]] += np.diag(parent_probs[:, values])
+                    messages[self.tree[j]] += messages[j]
                 else:
                     # Set the states at prior
                     obs_value = int(x[i, j])
-                    states[j] = obs_value
                     messages[self.tree[j]] += self.params[j, :, obs_value] + messages[j, obs_value]
 
-            # Compute the final sample considering the root node
-            # Note that self.params[self.root, 0] = self.params[self.root, 1], since it is unconditioned
+            # Sample the root feature, if necessary
             if np.isnan(z[i, self.root]):
-                root_prob = self.params[self.root, 0, 1] + messages[self.root, 1]
-                z[i, self.root] = stats.bernoulli.rvs(np.exp(root_prob))
+                prob = np.exp(self.params[self.root, 0, 1] + messages[self.root, 0])
+                z[i, self.root] = stats.bernoulli.rvs(prob)
 
-            # Proceed top-down doing assignments from the obtained states
+            # Sample the other features, by using the accumulated messages
             for j in self.bfs[1:]:
                 if np.isnan(z[i, j]):
                     obs_parent_value = int(z[i, self.tree[j]])
-                    z[i, j] = states[j, obs_parent_value]
+                    prob = np.exp(self.params[j, obs_parent_value, 1] + messages[j, obs_parent_value])
+                    z[i, j] = stats.bernoulli.rvs(prob)
         return z
 
     def params_count(self):
@@ -303,3 +296,20 @@ class BinaryCLTree(Leaf):
             'tree': self.tree,
             'params': self.params.tolist()
         }
+
+
+if __name__ == '__main__':
+    from experiments.datasets import load_binary_dataset
+    data_train, data_valid, data_test = load_binary_dataset('../../experiments/datasets', 'nltcs', raw=True)
+    n_samples, n_features = data_train.shape
+
+    scope = list(range(n_features))
+    domain = [[0, 1]] * n_features
+    cltree = BinaryCLTree(scope, root=0)
+    cltree.fit(data_train, domain)
+
+    print(np.mean(cltree.log_likelihood(data_test)))
+    data_marg = data_train.copy().astype(np.float32)
+    data_marg[np.random.choice([0, 1], data_train.shape, p=[0.8, 0.2]).astype(np.bool_)] = np.nan
+    print(np.mean(cltree.log_likelihood(data_marg)))
+    print(np.mean(cltree.log_likelihood(cltree.sample(np.zeros([1000, n_features]) * np.nan))))
