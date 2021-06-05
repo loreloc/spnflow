@@ -210,12 +210,13 @@ class BinaryCLTree(Leaf):
         # Un-vectorized implementation of MPE inference
         for i in range(n_samples):
             messages = np.zeros(shape=(n_features, 2), dtype=np.float32)
+
             # Let's proceed bottom-up
             for j in reversed(self.bfs[1:]):
                 # If non-observed value then factor marginalize that variable
                 if np.isnan(z[i, j]):
                     # Consider all the possible combinations of probabilities given a parent value
-                    messages[self.tree[j]] += messages[j]
+                    messages[self.tree[j]] += logsumexp(self.params[j] + messages[j], axis=1)
                 else:
                     # Set the states at prior
                     obs_value = int(x[i, j])
@@ -247,12 +248,13 @@ class BinaryCLTree(Leaf):
         # Un-vectorized implementation of conditional sampling
         for i in range(n_samples):
             messages = np.zeros(shape=(n_features, 2), dtype=np.float32)
+
             # Let's proceed bottom-up
             for j in reversed(self.bfs[1:]):
                 # If non-observed value then factor marginalize that variable
                 if np.isnan(z[i, j]):
                     # Consider all the possible combinations of probabilities given a parent value
-                    messages[self.tree[j]] += messages[j]
+                    messages[self.tree[j]] += logsumexp(self.params[j] + messages[j], axis=1)
                 else:
                     # Set the states at prior
                     obs_value = int(x[i, j])
@@ -305,8 +307,8 @@ if __name__ == '__main__':
 
     print('EVI Mean LL: {}'.format(np.mean(cltree.log_likelihood(data_test))))
     data_marg = data_train.copy().astype(np.float32)
-    data_marg[np.random.choice([0, 1], data_train.shape, p=[0.8, 0.2]).astype(np.bool_)] = np.nan
+    data_marg[np.random.choice([False, True], data_train.shape, p=[0.8, 0.2])] = np.nan
     print('20% MAR Mean LL: {}'.format(np.mean(cltree.log_likelihood(data_marg))))
     print('20% MPE Mean LL: {}'.format(np.mean(cltree.log_likelihood(cltree.mpe(data_marg)))))
-    print('FULL SAMPLE Mean LL: {}'.format(np.mean(cltree.log_likelihood(cltree.sample(np.zeros([1000, n_features]) * np.nan)))))
     print('20% SAMPLE Mean LL: {}'.format(np.mean(cltree.log_likelihood(cltree.sample(data_marg)))))
+    print('FULL SAMPLE Mean LL: {}'.format(np.mean(cltree.log_likelihood(cltree.sample(np.zeros([1000, n_features]) * np.nan)))))
