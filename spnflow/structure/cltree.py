@@ -210,33 +210,28 @@ class BinaryCLTree(Leaf):
         # Un-vectorized implementation of MPE inference
         for i in range(n_samples):
             messages = np.zeros(shape=(n_features, 2), dtype=np.float32)
-            states = np.empty(shape=(n_features, 2), dtype=np.int64)
             # Let's proceed bottom-up
             for j in reversed(self.bfs[1:]):
                 # If non-observed value then factor marginalize that variable
                 if np.isnan(z[i, j]):
-                    # Consider all the possible combinations of maximum likelihood estimation given a parent value
-                    parent_mpe_params = self.params[j] + messages[j]
-                    parent_mpe_indices = np.argmax(parent_mpe_params, axis=1)
-                    states[j] = parent_mpe_indices
-                    messages[self.tree[j]] += np.diag(parent_mpe_params[:, parent_mpe_indices])
+                    # Consider all the possible combinations of probabilities given a parent value
+                    messages[self.tree[j]] += messages[j]
                 else:
                     # Set the states at prior
                     obs_value = int(x[i, j])
-                    states[j] = obs_value
                     messages[self.tree[j]] += self.params[j, :, obs_value] + messages[j, obs_value]
 
-            # Compute the final maximum likelihood estimation considering the root node
-            # Note that self.params[self.root, 0] = self.params[self.root, 1], since it is unconditioned
+            # Do MPE at the root feature, if necessary
             if np.isnan(z[i, self.root]):
-                root_params = self.params[self.root, 0] + messages[self.root]
-                z[i, self.root] = np.argmax(root_params)
+                probs = self.params[self.root, 0, :] + messages[self.root, 0]
+                z[i, self.root] = np.argmax(probs)
 
-            # Proceed top-down doing assignments from the obtained states
+            # Do MPE at the other features, by using the accumulated messages
             for j in self.bfs[1:]:
                 if np.isnan(z[i, j]):
                     obs_parent_value = int(z[i, self.tree[j]])
-                    z[i, j] = states[j, obs_parent_value]
+                    probs = self.params[j, obs_parent_value] + messages[j, obs_parent_value]
+                    z[i, j] = np.argmax(probs)
         return z
 
     def sample(self, x):
@@ -308,8 +303,10 @@ if __name__ == '__main__':
     cltree = BinaryCLTree(scope, root=0)
     cltree.fit(data_train, domain)
 
-    print(np.mean(cltree.log_likelihood(data_test)))
+    print('EVI Mean LL: {}'.format(np.mean(cltree.log_likelihood(data_test))))
     data_marg = data_train.copy().astype(np.float32)
     data_marg[np.random.choice([0, 1], data_train.shape, p=[0.8, 0.2]).astype(np.bool_)] = np.nan
-    print(np.mean(cltree.log_likelihood(data_marg)))
-    print(np.mean(cltree.log_likelihood(cltree.sample(np.zeros([1000, n_features]) * np.nan))))
+    print('20% MAR Mean LL: {}'.format(np.mean(cltree.log_likelihood(data_marg))))
+    print('20% MPE Mean LL: {}'.format(np.mean(cltree.log_likelihood(cltree.mpe(data_marg)))))
+    print('FULL SAMPLE Mean LL: {}'.format(np.mean(cltree.log_likelihood(cltree.sample(np.zeros([1000, n_features]) * np.nan)))))
+    print('20% SAMPLE Mean LL: {}'.format(np.mean(cltree.log_likelihood(cltree.sample(data_marg)))))
