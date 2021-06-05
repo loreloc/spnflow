@@ -365,6 +365,9 @@ class CouplingBlock2d(torch.nn.Module):
                 x, ildj = layer.inverse(x)
                 inv_log_det_jacobian += ildj
 
+            # Unsqueeze the outputs
+            x = unsqueeze_depth2d(x)
+
         return x, inv_log_det_jacobian
 
     def forward(self, x):
@@ -378,6 +381,9 @@ class CouplingBlock2d(torch.nn.Module):
         log_det_jacobian = 0.0
 
         if not self.last_block:
+            # Squeeze the inputs
+            x = squeeze_depth2d(x)
+
             # Pass through the channelwise-masked couplings
             for layer in reversed(self.out_couplings):
                 x, ldj = layer.forward(x)

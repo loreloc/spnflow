@@ -218,9 +218,12 @@ class RealNVP2d(AbstractNormalizingFlow):
         slices = []
         for layer in self.layers:
             x, ildj = layer.inverse(x)
-            x, z = torch.chunk(x, chunks=2, dim=1)
-            slices.append(z)  # Collect the half-chunks (used for multi-scale architecture)
             inv_log_det_jacobian += ildj
+
+            # # Collect the interleaved half-chunks (used for multi-scale architecture)
+            x = squeeze_depth2d(x, interleave=True)
+            x, z = torch.chunk(x, chunks=2, dim=1)
+            slices.append(z)
 
         # Apply the last coupling block
         x, ildj = self.last_block.inverse(x)
@@ -229,7 +232,7 @@ class RealNVP2d(AbstractNormalizingFlow):
         # Re-concatenate all the half-cunks in reverse order and unsqueeze the results
         for z in reversed(slices):
             x = torch.cat([x, z], dim=1)
-            x = unsqueeze_depth2d(x)
+            x = unsqueeze_depth2d(x, interleave=True)
 
         # Compute the prior log-likelihood
         prior = torch.sum(
@@ -254,7 +257,7 @@ class RealNVP2d(AbstractNormalizingFlow):
         # Collect the half-cunks in and squeeze the results
         slices = []
         for _ in range(len(self.layers)):
-            x = squeeze_depth2d(x)
+            x = squeeze_depth2d(x, interleave=True)
             x, z = torch.chunk(x, chunks=2, dim=1)
             slices.append(z)
 
@@ -264,6 +267,7 @@ class RealNVP2d(AbstractNormalizingFlow):
         # Apply the normalizing flows in forward mode
         for layer, z in zip(reversed(self.layers), reversed(slices)):
             x = torch.cat([x, z], dim=1)
+            x = unsqueeze_depth2d(x, interleave=True)
             x, _ = layer.forward(x)
 
         # Apply reverse preprocessing transformation
