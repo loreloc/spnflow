@@ -11,7 +11,7 @@ def assert_is_valid(root):
     :param root: The SPN root.
     """
     v, msg = is_valid(root)
-    assert v, "SPN not valid: " + msg
+    assert v, "SPN not valid: {}".format(msg)
 
 
 def is_valid(root):
@@ -22,11 +22,11 @@ def is_valid(root):
     :return: (True, None) if the SPN is valid;
              (False, reason) otherwise.
     """
-    valid, msg = is_complete(root)
+    valid, msg = is_smooth(root)
     if not valid:
         return valid, msg
 
-    valid, msg = is_consistent(root)
+    valid, msg = is_decomposable(root)
     if not valid:
         return valid, msg
 
@@ -37,9 +37,9 @@ def is_valid(root):
     return True, None
 
 
-def is_complete(root):
+def is_smooth(root):
     """
-    Check if the SPN is complete.
+    Check if the SPN is smooth (or complete).
     It checks that each child of a sum node has the same scope.
     Furthermore, it checks that the sum of the weights of a sum node is close to 1.
 
@@ -48,16 +48,39 @@ def is_complete(root):
              (False, reason) otherwise.
     """
     for n in filter_nodes_type(root, Sum):
-        if not np.isclose(sum(n.weights), 1.0):
-            return False, "Sum of weights of node #%s is not 1.0" % n.id
+        if not np.isclose(np.sum(n.weights), 1.0):
+            return False, "Sum of weights of node #{} is not 1.0".format(n.id)
         if len(n.children) == 0:
-            return False, "Sum node #%s has no children" % n.id
+            return False, "Sum node #{} has no children".format(n.id)
         if len(n.children) != len(n.weights):
-            return False, "Weights and children length mismatch in node #%s" % n.id
+            return False, "Weights and children length mismatch in node #{}".format(n.id)
         n_scope = set(n.scope)
         for c in n.children:
             if n_scope != set(c.scope):
-                return False, "Children of sum node #%s have different scopes" % n.id
+                return False, "Children of sum node #{} have different scopes".format(n.id)
+    return True, None
+
+
+def is_decomposable(root):
+    """
+    Check if the SPN is decomposable (or consistent).
+    It checks that each child of a sum node has disjointed scopes.
+
+    :param root: The root of the SPN.
+    :return: (True, None) if the SPN is consistent;
+             (False, reason) otherwise.
+    """
+    for n in filter_nodes_type(root, Mul):
+        if len(n.children) == 0:
+            return False, "Mul node #{} has no children".format(n.id)
+        sum_features = 0
+        all_scope = set()
+        n_scope = set(n.scope)
+        for c in n.children:
+            sum_features += len(c.scope)
+            all_scope.update(c.scope)
+        if n_scope != all_scope or sum_features != len(all_scope):
+            return False, "Children of mul node #{} don't have disjointed scopes".format(n.id)
     return True, None
 
 
@@ -95,31 +118,8 @@ def is_structured_decomposable(root, verbose=False):
         for j in range(len(scope_l)):
             int_len = len(scope_l[i].intersection(scope_l[j]))
             if int_len != 0 and int_len != min(len(scope_l[i]), len(scope_l[j])):
-                return False, "Intersection between scope %s and scope %s" % (scope_l[i], scope_l[j])
+                return False, "Intersection between scope {} and scope {}".format(scope_l[i], scope_l[j])
 
-    return True, None
-
-
-def is_consistent(root):
-    """
-    Check if the SPN is consistent.
-    It checks that each child of a sum node has disjointed scopes.
-
-    :param root: The root of the SPN.
-    :return: (True, None) if the SPN is consistent;
-             (False, reason) otherwise.
-    """
-    for n in filter_nodes_type(root, Mul):
-        if len(n.children) == 0:
-            return False, "Mul node #%s has no children" % n.id
-        sum_features = 0
-        all_scope = set()
-        n_scope = set(n.scope)
-        for c in n.children:
-            sum_features += len(c.scope)
-            all_scope.update(c.scope)
-        if n_scope != all_scope or sum_features != len(all_scope):
-            return False, "Children of mul node #%s don't have disjointed scopes" % n.id
     return True, None
 
 
