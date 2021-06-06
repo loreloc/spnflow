@@ -12,6 +12,7 @@ class Node:
         :param children: A list of nodes.
         :param scope: The scope.
         """
+        assert sorted(scope) == scope, 'The scope of a node must be sorted'
         self.id = None
         self.children = children
         self.scope = scope
@@ -87,7 +88,7 @@ class Mul(Node):
         if scope is None:
             scope = []
         if len(scope) == 0 and len(children) > 0:
-            scope = sum([c.scope for c in children], [])
+            scope = list(sorted(sum([c.scope for c in children], [])))
         super().__init__(children, scope)
 
     def likelihood(self, x):
