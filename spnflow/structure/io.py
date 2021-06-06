@@ -47,7 +47,7 @@ def json_spn_obj(node):
         return {
             'kind': Sum.__name__,
             'scope': node.scope,
-            'weights': node.weights,
+            'weights': list(node.weights),
             'children': [json_spn_obj(c) for c in node.children]
         }
     if isinstance(node, Mul):
@@ -62,8 +62,7 @@ def json_spn_obj(node):
             'scope': node.scope,
             'params': node.params_dict()
         }
-
-    raise NotImplementedError("JSON serialization not implemented for node of type " + node.__class__.__name__)
+    raise NotImplementedError("JSON serialization not implemented for node of type {}".format(node.__class__.__name__))
 
 
 def json_obj_spn(obj):

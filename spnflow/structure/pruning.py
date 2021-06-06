@@ -1,3 +1,5 @@
+import numpy as np
+
 from spnflow.structure.leaf import Leaf
 from spnflow.structure.node import Sum, bfs, assign_ids
 from spnflow.utils.validity import assert_is_valid
@@ -26,8 +28,7 @@ def prune(root):
                 node.children.extend(c.children)
                 if isinstance(node, Sum):
                     weights = [w * node.weights[i] for w in c.weights]
-                    node.weights.extend(weights)
-                    del node.weights[i]
+                    node.weights = np.array([w for j, w in enumerate(node.weights) if j != i] + weights)
                 continue
             i += 1
 

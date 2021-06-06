@@ -42,7 +42,7 @@ class Sum(Node):
         """
         Initialize a sum node given a list of children and their weights and a scope.
 
-        :param weights: The weights list.
+        :param weights: The weights.
         :param children: A list of nodes.
         :param scope: The scope.
         """
@@ -53,6 +53,8 @@ class Sum(Node):
         if len(scope) == 0 and len(children) > 0:
             scope = children[0].scope
         super().__init__(children, scope)
+        if isinstance(weights, list):
+            weights = np.array(weights)
         self.weights = weights
 
     def likelihood(self, x):
