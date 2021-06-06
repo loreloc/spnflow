@@ -1,5 +1,6 @@
 import numpy as np
 from spnflow.structure.node import Sum, Mul
+from spnflow.structure.cltree import BinaryCLTree
 from spnflow.utils.filter import get_nodes, filter_nodes_type
 
 
@@ -57,6 +58,45 @@ def is_complete(root):
         for c in n.children:
             if n_scope != set(c.scope):
                 return False, "Children of sum node #%s have different scopes" % n.id
+    return True, None
+
+
+def is_structured_decomposable(root, verbose=False):
+    """
+    Check if the PC is structured decomposable.
+    It checks that product nodes follow a vtree.
+    Note that if a PC is structured decomposable then it's also decomposable / consistent.
+
+    :param root: The root of the PC.
+    :param verbose: if True, it prints the product nodes scopes in a relevant order.
+    :return: (True, None) if the PC is structured decomposable;
+             (False, reason) otherwise.
+    """
+    nodes = get_nodes(root)
+
+    scope_set = set()
+    for n in nodes:
+        if isinstance(n, Mul):
+            scope_set.add(tuple(n.scope))
+        elif isinstance(n, BinaryCLTree):
+            raise Exception("Case not yet considered.")
+
+    scope_l = list(scope_set)
+    scope_l = [set(t) for t in scope_l]
+
+    # ordering is not needed, but useful for printing when verbose = True
+    if verbose:
+        scope_l.sort(key=len)
+        for scope in scope_l:
+            print(scope)
+
+    # quadratic in the number of product nodes, but at least does not require a vtree structure
+    for i in range(len(scope_l)):
+        for j in range(len(scope_l)):
+            int_len = len(scope_l[i].intersection(scope_l[j]))
+            if int_len != 0 and int_len != min(len(scope_l[i]), len(scope_l[j])):
+                return False, "Intersection between scope %s and scope %s" % (scope_l[i], scope_l[j])
+
     return True, None
 
 
