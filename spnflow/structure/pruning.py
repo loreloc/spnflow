@@ -28,7 +28,10 @@ def prune(root):
                 node.children.extend(c.children)
                 if isinstance(node, Sum):
                     weights = [w * node.weights[i] for w in c.weights]
-                    node.weights = np.array([w for j, w in enumerate(node.weights) if j != i] + weights)
+                    node.weights = np.array(
+                        [w for j, w in enumerate(node.weights) if j != i] + weights,
+                        dtype=np.float32
+                    )
                 continue
             i += 1
 
@@ -36,5 +39,4 @@ def prune(root):
 
     if len(root.children) == 1:
         root = root.children[0]
-
     return assign_ids(root)

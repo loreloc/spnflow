@@ -54,7 +54,7 @@ class Sum(Node):
             scope = children[0].scope
         super().__init__(children, scope)
         if isinstance(weights, list):
-            weights = np.array(weights)
+            weights = np.array(weights, dtype=np.float32)
         self.weights = weights
 
     def likelihood(self, x):
