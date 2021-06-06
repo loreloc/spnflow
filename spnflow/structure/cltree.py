@@ -3,7 +3,63 @@ import scipy.stats as stats
 import scipy.sparse as sparse
 from scipy.special import logsumexp
 
-from spnflow.structure.leaf import Leaf, LeafType
+from spnflow.structure.leaf import Leaf, LeafType, Bernoulli
+from spnflow.structure.node import Sum, Mul, assign_ids
+
+
+class TreeNode:
+    """ A simple class to model a node of a tree. """
+
+    def __init__(self, node_id, parent=None):
+        """
+        Initialize a binary CLT.
+
+        :param node_id: The ID of the node.
+        :param parent: The parent node.
+        """
+        self.node_id = node_id
+        self.set_parent(parent)
+        self.children = []
+
+    def get_node_id(self):
+        """
+        Get the ID of the node.
+        
+        :return: The ID of the node.
+        """
+        return self.node_id
+
+    def get_parent(self):
+        """
+        Get the parent node.
+
+        :return: The parent node, None if the node has no parent.
+        """
+        return self.parent
+
+    def get_children(self):
+        """
+        Get the children list of the node.
+
+        :return: The children list of the node.
+        """
+        return self.children
+
+    def set_parent(self, parent):
+        """
+        Set the parent node and update its children list.
+        """
+        if parent is not None:
+            self.parent = parent
+            self.parent.children.append(self)
+
+    def is_leaf(self):
+        """
+        Check whether the node is leaf.
+
+        :return: True if the node is leaf, False otherwise.
+        """
+        return len(self.children) == 0
 
 
 class BinaryCLTree(Leaf):
@@ -22,13 +78,17 @@ class BinaryCLTree(Leaf):
         :param scope: The scope of the leaf.
         """
         super(BinaryCLTree, self).__init__(scope)
-        self.root = root
         self.bfs = bfs
         self.tree = tree
         if params is not None:
             self.params = np.array(params, dtype=np.float32)
         else:
             self.params = None
+        if root is not None:
+            assert root in scope
+            self.root = self.scope.index(root)
+        else:
+            self.root = np.random.choice(len(scope))
 
     def fit(self, data, domain, alpha=0.1, **kwargs):
         """
@@ -50,10 +110,6 @@ class BinaryCLTree(Leaf):
 
         # Compute the mutual information
         mutual_info = self.__compute_mutual_information(priors, joints)
-
-        if self.root is None:
-            # Choose a starting root randomly, used to compute the maximum spanning tree
-            self.root = np.random.choice(n_features)
 
         # Compute the CLT structure by getting the maximum spanning tree of the mutual-information graph
         # Note adding one to the mutual information, because the graph must be connected
@@ -261,6 +317,45 @@ class BinaryCLTree(Leaf):
                     prob = np.exp(self.params[j, obs_parent_value, 1] + messages[j, obs_parent_value])
                     z[i, j] = stats.bernoulli.rvs(prob)
         return z
+
+    def to_pc(self):
+        """
+        Convert a Chow-Liu Tree into a smooth, deterministic and structured-decomposable PC
+
+        :return: A smooth, deterministic and structured-decomposable PC.
+        """
+
+        # Build tree structure
+        tree_nodes = {node_id: TreeNode(node_id) for node_id in range(len(self.scope))}
+        [tree_nodes[i].set_parent(tree_nodes[self.tree[i]]) for i in range(len(self.scope)) if i != self.root]
+
+        neg_buffer, pos_buffer = [], []
+        nodes_stack = [tree_nodes[self.root]]
+        last_node_visited = None
+        # Post-Order exploration
+        while nodes_stack:
+            node = nodes_stack[-1]
+            if node.is_leaf() or (last_node_visited in node.children):
+                leaves = [Bernoulli(p=0.0, scope=[self.scope[node.node_id]]),
+                          Bernoulli(p=1.0, scope=[self.scope[node.node_id]])]
+                if not node.is_leaf():
+                    neg_prod = Mul(children=[leaves[0]] + neg_buffer[-len(node.children):])
+                    pos_prod = Mul(children=[leaves[1]] + pos_buffer[-len(node.children):])
+                    del neg_buffer[-len(node.children):]
+                    del pos_buffer[-len(node.children):]
+                    sum_children = [neg_prod, pos_prod]
+                else:
+                    sum_children = leaves
+                neg_buffer.append(
+                    Sum(children=sum_children, weights=np.exp(self.params[node.node_id][0])))
+                pos_buffer.append(
+                    Sum(children=sum_children, weights=np.exp(self.params[node.node_id][1])))
+                last_node_visited = nodes_stack.pop()
+            else:
+                nodes_stack.extend(node.children)
+        # equivalently, pos = neg_buffer[0]
+        pc = pos_buffer[0]
+        return assign_ids(pc)
 
     def params_count(self):
         """
