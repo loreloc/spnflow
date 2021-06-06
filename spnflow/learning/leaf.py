@@ -64,7 +64,7 @@ def learn_isotonic(data, distributions, domains, scope):
     return learn_naive_bayes(data, distributions, domains, scope, learn_isotonic)
 
 
-def learn_cltree(data, distributions, domains, scope, alpha=0.1):
+def learn_cltree(data, distributions, domains, scope, to_pc=True, alpha=0.1):
     """
     Learn a leaf using Chow-Liu tree (CLT).
     If the data is univariate, a Maximum Likelihood Estimate leaf is returned.
@@ -73,6 +73,7 @@ def learn_cltree(data, distributions, domains, scope, alpha=0.1):
     :param distributions: The distributions of the random variables.
     :param domains: The domains of the random variables.
     :param scope: The scope of the leaf.
+    :param to_pc: Whether to convert the CLT into an equivalent PC.
     :param alpha: Laplace smoothing factor.
     :return: A leaf distribution.
     """
@@ -87,6 +88,8 @@ def learn_cltree(data, distributions, domains, scope, alpha=0.1):
     assert all([d == Bernoulli for d in dists]), "Chow-Liu trees are only available for binary data"
     leaf = BinaryCLTree(scope)
     leaf.fit(data, doms, alpha=alpha)
+    if to_pc:
+        return leaf.to_pc()
     return leaf
 
 
