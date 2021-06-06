@@ -64,7 +64,7 @@ def is_smooth(root):
 def is_decomposable(root):
     """
     Check if the SPN is decomposable (or consistent).
-    It checks that each child of a sum node has disjointed scopes.
+    It checks that each child of a product node has disjointed scopes.
 
     :param root: The root of the SPN.
     :return: (True, None) if the SPN is consistent;
