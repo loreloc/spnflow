@@ -26,7 +26,7 @@ def rdc_cols(data, distributions, domains, d=0.3, k=20, s=1.0 / 6.0, nl=np.sin):
     rdc_features = rdc_transform(data, distributions, domains, k, s, nl)
     pairwise_comparisons = list(combinations(range(n_features), 2))
 
-    adj_matrix = np.zeros((n_features, n_features), dtype=np.int)
+    adj_matrix = np.zeros((n_features, n_features), dtype=np.int32)
     with warnings.catch_warnings():
         warnings.simplefilter(action='ignore', category=ConvergenceWarning)  # Ignore convergence warnings for CCA
         for i, j in pairwise_comparisons:

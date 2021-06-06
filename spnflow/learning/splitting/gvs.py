@@ -33,7 +33,7 @@ def gvs_cols(data, distributions, domains, p=5.0):
                 features_queue.append(other_feature)
         features_set = features_set.difference(features_remove)
 
-    partition = np.zeros(n_features, dtype=np.int)
+    partition = np.zeros(n_features, dtype=np.int32)
     partition[list(dependent_features_set)] = 1
     return partition
 
