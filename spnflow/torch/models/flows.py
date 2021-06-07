@@ -220,7 +220,7 @@ class RealNVP2d(AbstractNormalizingFlow):
             x, ildj = layer.inverse(x)
             inv_log_det_jacobian += ildj
 
-            # # Collect the interleaved half-chunks (used for multi-scale architecture)
+            # Collect the interleaved half-chunks (used for multi-scale architecture)
             x = squeeze_depth2d(x, interleave=True)
             x, z = torch.chunk(x, chunks=2, dim=1)
             slices.append(z)

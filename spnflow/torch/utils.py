@@ -40,12 +40,17 @@ def squeeze_depth2d(x, interleave=False):
     :return: The output tensor of size [N, C * 4, H // 2, W // 2].
     """
     n, c, h, w = x.size()
-    x = x.reshape(n, c, h // 2, 2, w // 2, 2)
-    x = x.permute(0, 3, 5, 1, 2, 4)
-    x = x.reshape(n, c * 4, h // 2, w // 2)
+    sq_c = c * 4
     if interleave:
+        x = x.reshape(n, c, h // 2, 2, w // 2, 2)
+        x = x.permute(0, 3, 5, 1, 2, 4)
+        x = x.reshape(n, sq_c, h // 2, w // 2)
         shuffle = torch.tensor([k * c + i for k, i in itertools.product([0, 3, 1, 2], range(c))])
         x = x[:, shuffle]
+    else:
+        x = x.reshape(n, c, h // 2, 2, w // 2, 2)
+        x = x.permute(0, 1, 3, 5, 2, 4)
+        x = x.reshape(n, sq_c, h // 2, w // 2)
     return x
 
 
@@ -58,11 +63,15 @@ def unsqueeze_depth2d(x, interleave=False):
     :return: The output tensor of size [N, C, H, W].
     """
     n, c, h, w = x.size()
+    unsq_c = c // 4
     if interleave:
-        unsq_c = c // 4
         shuffle = torch.tensor([k * unsq_c + i for k, i in itertools.product([0, 2, 3, 1], range(unsq_c))])
         x = x[:, shuffle]
-    x = x.reshape(n, 2, 2, c // 4, h, w)
-    x = x.permute(0, 3, 4, 1, 5, 2)
-    x = x.reshape(n, c // 4, h * 2, w * 2)
+        x = x.reshape(n, 2, 2, unsq_c, h, w)
+        x = x.permute(0, 3, 4, 1, 5, 2)
+        x = x.reshape(n, unsq_c, h * 2, w * 2)
+    else:
+        x = x.reshape(n, unsq_c, 2, 2, h, w)
+        x = x.permute(0, 1, 4, 2, 5, 3)
+        x = x.reshape(n, unsq_c, h * 2, w * 2)
     return x
