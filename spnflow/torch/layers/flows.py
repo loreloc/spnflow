@@ -313,17 +313,17 @@ class CouplingBlock2d(torch.nn.Module):
             # Build the output couplings (consisting of 3 channelwise-masked couplings)
             self.out_couplings = torch.nn.ModuleList([
                 CouplingLayer2d(
-                    self.out_features, self.network, self.n_blocks, self.channels,
+                    self.out_features, self.network, self.n_blocks, self.channels * 2,
                     reverse=False, channel_wise=True
                 ),
                 BatchNormLayer(self.out_features),
                 CouplingLayer2d(
-                    self.out_features, self.network, self.n_blocks, self.channels,
+                    self.out_features, self.network, self.n_blocks, self.channels * 2,
                     reverse=True, channel_wise=True
                 ),
                 BatchNormLayer(self.out_features),
                 CouplingLayer2d(
-                    self.out_features, self.network, self.n_blocks, self.channels,
+                    self.out_features, self.network, self.n_blocks, self.channels * 2,
                     reverse=False, channel_wise=True
                 ),
                 BatchNormLayer(self.out_features)
