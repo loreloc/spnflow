@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import itertools
 
 from spnflow.torch.models.abstract import AbstractModel
 from spnflow.torch.layers.flows import CouplingLayer1d, CouplingBlock2d
@@ -185,6 +186,7 @@ class RealNVP2d(AbstractNormalizingFlow):
         self.network = network
         self.n_blocks = n_blocks
         self.channels = channels
+        self.perm_matrices = torch.nn.ParameterList()
 
         # Build the coupling blocks
         channels = self.channels
@@ -193,15 +195,44 @@ class RealNVP2d(AbstractNormalizingFlow):
             coupling_block = CouplingBlock2d(in_features, self.network, self.n_blocks, channels, last_block=False)
             self.layers.append(coupling_block)
 
+            # Initialize the order matrix for downscaling-upscaling
+            self.perm_matrices.append(
+                torch.nn.Parameter(self.__build_permutation_matrix(in_features[0]), requires_grad=False)
+            )
+
             # Halve the number of channels due to multi-scale architecture
-            in_features = coupling_block.out_features
-            in_features = (in_features[0] // 2, in_features[1], in_features[2])
+            in_features = (in_features[0] * 2, in_features[1] // 2, in_features[2] // 2)
 
             # Double the number of channels
             channels *= 2
 
         # Add the last coupling block
         self.last_block = CouplingBlock2d(in_features, self.network, self.n_blocks, channels, last_block=True)
+
+    @staticmethod
+    def __build_permutation_matrix(channels):
+        """
+        Build the permutation matrix that defines (a non-trivial) variables ordering
+        when downscaling or upscaling as in RealNVP.
+
+        :param channels: The number of input channels.
+        :return: The permutation matrix tensor.
+        """
+        weights = np.zeros([channels * 4, channels, 2, 2], dtype=np.float32)
+        ordering = np.array([
+            [[[1., 0.],
+              [0., 0.]]],
+            [[[0., 0.],
+              [0., 1.]]],
+            [[[0., 1.],
+              [0., 0.]]],
+            [[[0., 0.],
+              [1., 0.]]]
+        ], dtype=np.float32)
+        for i in range(channels):
+            weights[4*i:4*i+4, i:i+1] = ordering
+        permutation = np.array([4 * i + j for j in [0, 1, 2, 3] for i in range(channels)])
+        return torch.tensor(weights[permutation], dtype=torch.float32)
 
     def forward(self, x):
         """
@@ -216,12 +247,12 @@ class RealNVP2d(AbstractNormalizingFlow):
 
         # Apply the coupling block layers
         slices = []
-        for layer in self.layers:
+        for layer, p in zip(self.layers, self.perm_matrices):
             x, ildj = layer.inverse(x)
             inv_log_det_jacobian += ildj
 
-            # Collect the interleaved half-chunks (used for multi-scale architecture)
-            x = squeeze_depth2d(x, interleave=True)
+            # Downscale the results and split them in half (i.e. multi-scale architecture)
+            x = torch.nn.functional.conv2d(x, p, stride=2)
             x, z = torch.chunk(x, chunks=2, dim=1)
             slices.append(z)
 
@@ -229,10 +260,10 @@ class RealNVP2d(AbstractNormalizingFlow):
         x, ildj = self.last_block.inverse(x)
         inv_log_det_jacobian += ildj
 
-        # Re-concatenate all the half-cunks in reverse order and unsqueeze the results
-        for z in reversed(slices):
+        # Re-concatenate all the chunks in reverse order and upscale the results
+        for p, z in zip(reversed(self.perm_matrices), reversed(slices)):
             x = torch.cat([x, z], dim=1)
-            x = unsqueeze_depth2d(x, interleave=True)
+            x = torch.nn.functional.conv_transpose2d(x, p, stride=2)
 
         # Compute the prior log-likelihood
         prior = torch.sum(
@@ -254,10 +285,11 @@ class RealNVP2d(AbstractNormalizingFlow):
         # Sample from the base distribution
         x = self.in_base.sample([n_samples])
 
-        # Collect the half-cunks in and squeeze the results
+        # Collect the cunks in and upscale the results
         slices = []
-        for _ in range(len(self.layers)):
-            x = squeeze_depth2d(x, interleave=True)
+        for p in self.perm_matrices:
+            # Downscale the results and split them in half (i.e. multi-scale architecture)
+            x = torch.nn.functional.conv2d(x, p, stride=2)
             x, z = torch.chunk(x, chunks=2, dim=1)
             slices.append(z)
 
@@ -265,9 +297,9 @@ class RealNVP2d(AbstractNormalizingFlow):
         x, _ = self.last_block.forward(x)
 
         # Apply the normalizing flows in forward mode
-        for layer, z in zip(reversed(self.layers), reversed(slices)):
+        for layer, p, z in zip(reversed(self.layers), reversed(self.perm_matrices), reversed(slices)):
             x = torch.cat([x, z], dim=1)
-            x = unsqueeze_depth2d(x, interleave=True)
+            x = torch.nn.functional.conv_transpose2d(x, p, stride=2)
             x, _ = layer.forward(x)
 
         # Apply reverse preprocessing transformation

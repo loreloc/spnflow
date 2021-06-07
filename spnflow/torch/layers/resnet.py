@@ -40,7 +40,7 @@ class ResidualBlock(torch.nn.Module):
 
 
 class ResidualNetwork(torch.nn.Module):
-    """Residual network (aka ResNet)."""
+    """Residual network (aka ResNet) with skip connections."""
     def __init__(self, in_channels, mid_channels, out_channels, n_blocks):
         """
         Initialize a residual network.
@@ -56,16 +56,25 @@ class ResidualNetwork(torch.nn.Module):
         self.out_channels = out_channels
         self.n_blocks = n_blocks
         self.blocks = torch.nn.ModuleList()
+        self.skips = torch.nn.ModuleList()
 
-        # Build the input convolutional layer
+        # Build the input convolutional layer and input skip layer
         self.in_conv = WeightNormConv2d(
             self.in_channels, self.mid_channels,
             kernel_size=(3, 3), padding=(1, 1), bias=False
+        )
+        self.in_skip = WeightNormConv2d(
+            self.mid_channels, self.mid_channels,
+            kernel_size=(1, 1), padding=(0, 0), bias=True
         )
 
         # Build the list of residual blocks
         for _ in range(self.n_blocks):
             self.blocks.append(ResidualBlock(self.mid_channels))
+            self.skips.append(WeightNormConv2d(
+                self.mid_channels, self.mid_channels,
+                kernel_size=(1, 1), padding=(0, 0), bias=True
+            ))
 
         # Build the output network
         self.out_network = torch.nn.Sequential(
@@ -86,11 +95,13 @@ class ResidualNetwork(torch.nn.Module):
         """
         # Pass through the input convolutional layer
         x = self.in_conv(x)
+        z = self.in_skip(x)
 
         # Pass through the residual blocks
-        for block in self.blocks:
+        for block, skip in zip(self.blocks, self.skips):
             x = block(x)
+            z += skip(x)
 
         # Pass through the output network
-        x = self.out_network(x)
+        x = self.out_network(z)
         return x

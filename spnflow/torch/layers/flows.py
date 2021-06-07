@@ -255,15 +255,13 @@ class CouplingBlock2d(torch.nn.Module):
         """
         super(CouplingBlock2d, self).__init__()
         self.in_features = in_features
+        self.out_features = in_features
         self.network = network
         self.n_blocks = n_blocks
         self.channels = channels
         self.last_block = last_block
 
         if self.last_block:
-            # Get the size of the output (no squeeze operation if last_block=True)
-            self.out_features = self.in_features
-
             # Build the input couplings (consisting of 4 checkboard-masked couplings)
             self.in_couplings = torch.nn.ModuleList([
                 CouplingLayer2d(
@@ -288,9 +286,6 @@ class CouplingBlock2d(torch.nn.Module):
                 BatchNormLayer(self.in_features)
             ])
         else:
-            # Compute the size of the output (after squeezing operation)
-            self.out_features = (self.in_channels * 4, self.in_height // 2, self.in_width // 2)
-
             # Build the input couplings (consisting of 3 checkboard-masked couplings)
             self.in_couplings = torch.nn.ModuleList([
                 CouplingLayer2d(
@@ -310,23 +305,26 @@ class CouplingBlock2d(torch.nn.Module):
                 BatchNormLayer(self.in_features)
             ])
 
+            # Compute the size of the input (after squeezing operation)
+            squeezed_features = (self.in_channels * 4, self.in_height // 2, self.in_width // 2)
+
             # Build the output couplings (consisting of 3 channelwise-masked couplings)
             self.out_couplings = torch.nn.ModuleList([
                 CouplingLayer2d(
-                    self.out_features, self.network, self.n_blocks, self.channels * 2,
+                    squeezed_features, self.network, self.n_blocks, self.channels * 2,
                     reverse=False, channel_wise=True
                 ),
-                BatchNormLayer(self.out_features),
+                BatchNormLayer(squeezed_features),
                 CouplingLayer2d(
-                    self.out_features, self.network, self.n_blocks, self.channels * 2,
+                    squeezed_features, self.network, self.n_blocks, self.channels * 2,
                     reverse=True, channel_wise=True
                 ),
-                BatchNormLayer(self.out_features),
+                BatchNormLayer(squeezed_features),
                 CouplingLayer2d(
-                    self.out_features, self.network, self.n_blocks, self.channels * 2,
+                    squeezed_features, self.network, self.n_blocks, self.channels * 2,
                     reverse=False, channel_wise=True
                 ),
-                BatchNormLayer(self.out_features)
+                BatchNormLayer(squeezed_features)
             ])
 
     @property
@@ -346,8 +344,8 @@ class CouplingBlock2d(torch.nn.Module):
         Evaluate the coupling block (backward mode).
 
         :param x: The inputs.
-        :return: The outputs of checkboard-masked only couplings if last_block=True
-                 and the outputs of checkboard-masked + squeeze + channelwise-masked couplings if last_block=False.
+        :return: The outputs of checkboard coupling if last_block=True
+                 and the outputs of squeeze-channelwise coupling-unsqueeze-checkboard coupling if last_block=False.
         """
         inv_log_det_jacobian = 0.0
 
@@ -375,8 +373,8 @@ class CouplingBlock2d(torch.nn.Module):
         Evaluate the coupling block (forward mode).
 
         :param x: The inputs.
-        :return: The outputs of checkboard-masked only couplings if last_block=True
-                 and the outputs of checkboard-masked + squeeze + channelwise-masked couplings if last_block=False.
+        :return: The outputs of checkboard coupling if last_block=True
+                 and the outputs of checkboard coupling-squeeze-channelwise coupling-unsqueeze if last_block=False.
         """
         log_det_jacobian = 0.0
 
