@@ -14,4 +14,4 @@ pip_upload:
 clean:
 	rm -rf dist
 	rm -rf build
-	rm -rf deeprob.egg-info
+	rm -rf deeprob_kit.egg-info
