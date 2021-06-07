@@ -11,7 +11,7 @@ Some models are implemented using **PyTorch** for fast training and inference on
 ## Features
 - Inference algorithms for SPNs. [1] [2] [4]
 - Learning algorithms for SPNs structure. [1] [2] [3] [4]
-- Chow-Liu Trees (CLT) as SPN leaves [10] [11].
+- Chow-Liu Trees (CLT) as SPN leaves. [10] [11]
 - Optimization of the structure of SPNs. [4]
 - JSON I/O operations for SPNs. [4]
 - Implementation of RAT-SPN using PyTorch. [5]
