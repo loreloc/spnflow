@@ -5,12 +5,13 @@
 
 ## Abstract
 DeeProb-kit is a Python library that implements deep probabilistic models such as various kinds of
-**Sum-Product Networks**, **Normalizing Flows** and their possible combinations fo probabilistic inference.
+**Sum-Product Networks**, **Normalizing Flows** and their possible combinations for probabilistic inference.
 Some models are implemented using **PyTorch** for fast training and inference on GPUs.
 
 ## Features
 - Inference algorithms for SPNs. [1] [2] [4]
 - Learning algorithms for SPNs structure. [1] [2] [3] [4]
+- Chow-Liu Trees (CLT) as SPN leaves [10] [11].
 - Optimization of the structure of SPNs. [4]
 - JSON I/O operations for SPNs. [4]
 - Implementation of RAT-SPN using PyTorch. [5]
@@ -43,3 +44,5 @@ Various code examples can be found in `examples` directory.
 7. Density Estimation using RealNVP (Dinh et al.).
 8. Normalizing Flows for Probabilistic Modeling and Inference (Papamakarios, Nalisnick et al.).
 9. Deep Generalized Convolutional Sum-Product Networks for Probabilistic Image Representations (Van de Wolfshaar and Pronobis).
+10. Cutset Networks: A Simple, Tractable, and Scalable Approach for Improving the Accuracy of Chow-Liu Trees (Rahman et al.).
+11. Random Probabilistic Circuits (Di Mauro, Gala et al.).
