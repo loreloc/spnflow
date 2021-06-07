@@ -23,17 +23,25 @@ class TestInference(unittest.TestCase):
         )
         cls.spn_clt = learn_estimator(
             data, [Bernoulli] * n_features,
-            learn_leaf='cltree', split_cols='gvs', verbose=False
+            learn_leaf='cltree', split_cols='gvs', learn_leaf_kwargs={'to_pc': True}, verbose=False
+        )
+        cls.spn_clt_plain = learn_estimator(
+            data, [Bernoulli] * n_features,
+            learn_leaf='cltree', split_cols='gvs', learn_leaf_kwargs={'to_pc': False}, verbose=False
         )
         cls.complete_data = np.array([list(i) for i in product([0, 1], repeat=n_features)])
 
     def test_complete_inference_mle(self):
-        ll_mle = log_likelihood(self.spn_mle, self.complete_data)
-        self.assertAlmostEqual(np.sum(np.exp(ll_mle)).item(), 1.0, places=6)
+        ll = log_likelihood(self.spn_mle, self.complete_data)
+        self.assertAlmostEqual(np.sum(np.exp(ll)).item(), 1.0, places=6)
 
     def test_complete_inference_clt(self):
-        ll_clt = log_likelihood(self.spn_clt, self.complete_data)
-        self.assertAlmostEqual(np.sum(np.exp(ll_clt)).item(), 1.0, places=6)
+        ll = log_likelihood(self.spn_clt, self.complete_data)
+        self.assertAlmostEqual(np.sum(np.exp(ll)).item(), 1.0, places=6)
+
+    def test_complete_inference_clt_plain(self):
+        ll = log_likelihood(self.spn_clt_plain, self.complete_data)
+        self.assertAlmostEqual(np.sum(np.exp(ll)).item(), 1.0, places=6)
 
 
 if __name__ == '__main__':
