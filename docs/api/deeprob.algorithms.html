@@ -1,0 +1,405 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>deeprob.algorithms package &#8212; DeeProb-kit 0.6.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="deeprob.learning package" href="deeprob.learning.html" />
+    <link rel="prev" title="deeprob package" href="deeprob.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="deeprob-algorithms-package">
+<h1>deeprob.algorithms package<a class="headerlink" href="#deeprob-algorithms-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-deeprob.algorithms.evaluation">
+<span id="deeprob-algorithms-evaluation-module"></span><h2>deeprob.algorithms.evaluation module<a class="headerlink" href="#module-deeprob.algorithms.evaluation" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.algorithms.evaluation.eval_bottom_up">
+<span class="sig-prename descclassname"><span class="pre">deeprob.algorithms.evaluation.</span></span><span class="sig-name descname"><span class="pre">eval_bottom_up</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leaf_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.algorithms.evaluation.eval_bottom_up" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the SPN bottom up given some inputs and leaves and nodes evaluation functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> – The root of the SPN.</p></li>
+<li><p><strong>x</strong> – The inputs.</p></li>
+<li><p><strong>leaf_func</strong> – The function to compute at the leaves.</p></li>
+<li><p><strong>node_func</strong> – The function to compute at each internal node.</p></li>
+<li><p><strong>return_results</strong> – A flag indicating if this function must return the log likelihoods of each node of the SPN.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs. Additionally it returns the output of each node.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.algorithms.evaluation.eval_top_down">
+<span class="sig-prename descclassname"><span class="pre">deeprob.algorithms.evaluation.</span></span><span class="sig-name descname"><span class="pre">eval_top_down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leaf_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sum_func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.algorithms.evaluation.eval_top_down" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the SPN top down given some inputs, the likelihoods of each node and a leaves evaluation function.
+The leaves to evaluate are chosen by following the nodes having maximum likelihood top down.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> – The root of the SPN.</p></li>
+<li><p><strong>x</strong> – The inputs (must have at least one NaN value).</p></li>
+<li><p><strong>ls</strong> – The likelihoods of each node.</p></li>
+<li><p><strong>leaf_func</strong> – The leaves evaluation function.</p></li>
+<li><p><strong>sum_func</strong> – The sum node evaluation function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The NaN-filled inputs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-deeprob.algorithms.inference">
+<span id="deeprob-algorithms-inference-module"></span><h2>deeprob.algorithms.inference module<a class="headerlink" href="#module-deeprob.algorithms.inference" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.algorithms.inference.likelihood">
+<span class="sig-prename descclassname"><span class="pre">deeprob.algorithms.inference.</span></span><span class="sig-name descname"><span class="pre">likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.algorithms.inference.likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the likelihoods of the SPN given some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> – The root of the SPN.</p></li>
+<li><p><strong>x</strong> – The inputs. They can be marginalized using NaNs.</p></li>
+<li><p><strong>return_results</strong> – A flag indicating if this function must return the likelihoods of each node of the SPN.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The likelihood values. Additionally it returns the likelihood values of each node.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.algorithms.inference.log_likelihood">
+<span class="sig-prename descclassname"><span class="pre">deeprob.algorithms.inference.</span></span><span class="sig-name descname"><span class="pre">log_likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.algorithms.inference.log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the logarithmic likelihoods of the SPN given some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> – The root of the SPN.</p></li>
+<li><p><strong>x</strong> – The inputs. They can be marginalized using NaNs.</p></li>
+<li><p><strong>return_results</strong> – A flag indicating if this function must return the log likelihoods of each node of the SPN.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The log likelihood values. Additionally it returns the log likelihood values of each node.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.algorithms.inference.mpe">
+<span class="sig-prename descclassname"><span class="pre">deeprob.algorithms.inference.</span></span><span class="sig-name descname"><span class="pre">mpe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.algorithms.inference.mpe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the Maximum Posterior Estimate of a SPN given some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> – The root of the SPN.</p></li>
+<li><p><strong>x</strong> – The inputs. They can be marginalized using NaNs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The NaN-filled inputs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.algorithms.inference.leaf_likelihood">
+<span class="sig-prename descclassname"><span class="pre">deeprob.algorithms.inference.</span></span><span class="sig-name descname"><span class="pre">leaf_likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.algorithms.inference.leaf_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the likelihood of a leaf given an input and its NaN mask.
+It also handles of NaN and infinite likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> – The leaf node.</p></li>
+<li><p><strong>x</strong> – The input.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The likelihood of the leaf given the input.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.algorithms.inference.leaf_log_likelihood">
+<span class="sig-prename descclassname"><span class="pre">deeprob.algorithms.inference.</span></span><span class="sig-name descname"><span class="pre">leaf_log_likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.algorithms.inference.leaf_log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the logarithmic likelihood of a leaf given an input and its NaN mask.
+It also handles of NaN and infinite log likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> – The leaf node.</p></li>
+<li><p><strong>x</strong> – The input.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The log likelihood of the leaf given the input.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.algorithms.inference.node_likelihood">
+<span class="sig-prename descclassname"><span class="pre">deeprob.algorithms.inference.</span></span><span class="sig-name descname"><span class="pre">node_likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.algorithms.inference.node_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the likelihood of a node given the list of likelihoods of its children.
+It also handles of NaN and infinite likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> – The internal node.</p></li>
+<li><p><strong>x</strong> – The array of likelihoods of the children.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The likelihood of the node given the inputs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.algorithms.inference.node_log_likelihood">
+<span class="sig-prename descclassname"><span class="pre">deeprob.algorithms.inference.</span></span><span class="sig-name descname"><span class="pre">node_log_likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.algorithms.inference.node_log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the logarithmic likelihood of a node given the list of logarithmic likelihoods of its children.
+It also handles of NaN and infinite log likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> – The internal node.</p></li>
+<li><p><strong>x</strong> – The array of log likelihoods of the children.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The log likelihood of the node given the inputs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.algorithms.inference.leaf_mpe">
+<span class="sig-prename descclassname"><span class="pre">deeprob.algorithms.inference.</span></span><span class="sig-name descname"><span class="pre">leaf_mpe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.algorithms.inference.leaf_mpe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the maximum likelihood estimate of a leaf node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> – The leaf node.</p></li>
+<li><p><strong>x</strong> – Some evidence.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The maximum likelihood estimate.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.algorithms.inference.sum_mpe">
+<span class="sig-prename descclassname"><span class="pre">deeprob.algorithms.inference.</span></span><span class="sig-name descname"><span class="pre">sum_mpe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.algorithms.inference.sum_mpe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose the branch that maximize the posterior estimate likelihood.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> – The sum node.</p></li>
+<li><p><strong>lc</strong> – The log likelihoods of the children nodes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The branch that maximize the posterior estimate likelihood.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-deeprob.algorithms.sampling">
+<span id="deeprob-algorithms-sampling-module"></span><h2>deeprob.algorithms.sampling module<a class="headerlink" href="#module-deeprob.algorithms.sampling" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.algorithms.sampling.sample">
+<span class="sig-prename descclassname"><span class="pre">deeprob.algorithms.sampling.</span></span><span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.algorithms.sampling.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample some features from the distribution represented by the SPN.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> – The root of the SPN.</p></li>
+<li><p><strong>x</strong> – The inputs with possible NaN values to fill with sampled values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The inputs that are NaN-filled with samples from appropriate distributions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.algorithms.sampling.leaf_sample">
+<span class="sig-prename descclassname"><span class="pre">deeprob.algorithms.sampling.</span></span><span class="sig-name descname"><span class="pre">leaf_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.algorithms.sampling.leaf_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample some values from the distribution leaf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> – The distribution leaf node.</p></li>
+<li><p><strong>x</strong> – The inputs with possible NaN values to fill with sampled values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The completed samples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.algorithms.sampling.sum_sample">
+<span class="sig-prename descclassname"><span class="pre">deeprob.algorithms.sampling.</span></span><span class="sig-name descname"><span class="pre">sum_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.algorithms.sampling.sum_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose the sub-distribution from which sample.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> – The sum node.</p></li>
+<li><p><strong>lc</strong> – The log likelihoods of the children nodes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The index of the sub-distribution to follow.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-deeprob.algorithms">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-deeprob.algorithms" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">DeeProb-kit</a></h1>
+
+
+
+<p class="blurb">Python library for Deep Probabilistic Modeling</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=loreloc&repo=deeprob-kit&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">deeprob</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="deeprob.html">deeprob package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="deeprob.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">deeprob.algorithms package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.learning.html">deeprob.learning package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.structure.html">deeprob.structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.torch.html">deeprob.torch package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.utils.html">deeprob.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="deeprob.html#module-deeprob">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">deeprob</a><ul>
+  <li><a href="deeprob.html">deeprob package</a><ul>
+      <li>Previous: <a href="deeprob.html" title="previous chapter">deeprob package</a></li>
+      <li>Next: <a href="deeprob.learning.html" title="next chapter">deeprob.learning package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Lorenzo Loconte.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/api/deeprob.algorithms.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/loreloc/deeprob-kit" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

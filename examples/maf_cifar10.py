@@ -1,9 +1,9 @@
 import torch
 import torchvision
 
-from spnflow.torch.models.flows import MAF
-from spnflow.torch.transforms import Quantize, Flatten, Reshape
-from spnflow.torch.routines import train_model
+from deeprob.torch.models.flows import MAF
+from deeprob.torch.transforms import Quantize, Flatten, Reshape
+from deeprob.torch.routines import train_model
 
 
 class UnsupervisedCIFAR10(torchvision.datasets.CIFAR10):

@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from spnflow.algorithms.inference import log_likelihood
-from spnflow.torch.routines import train_model, test_model
+from deeprob.algorithms.inference import log_likelihood
+from deeprob.torch.routines import train_model, test_model
 
 
 def evaluate_log_likelihoods(spn, data, batch_size=2048):

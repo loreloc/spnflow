@@ -1,0 +1,1204 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>deeprob.torch.layers package &#8212; DeeProb-kit 0.6.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="deeprob.torch.models package" href="deeprob.torch.models.html" />
+    <link rel="prev" title="deeprob.torch package" href="deeprob.torch.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="deeprob-torch-layers-package">
+<h1>deeprob.torch.layers package<a class="headerlink" href="#deeprob-torch-layers-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-deeprob.torch.layers.densenet">
+<span id="deeprob-torch-layers-densenet-module"></span><h2>deeprob.torch.layers.densenet module<a class="headerlink" href="#module-deeprob.torch.layers.densenet" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.densenet.DenseLayer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.densenet.</span></span><span class="sig-name descname"><span class="pre">DenseLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_checkpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.densenet.DenseLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>The dense layer as in DenseNet.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.densenet.DenseLayer.bottleneck">
+<span class="sig-name descname"><span class="pre">bottleneck</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.densenet.DenseLayer.bottleneck" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pass through the bottleneck layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>inputs</strong> – A list of previous feature maps.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of the bottleneck.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.densenet.DenseLayer.checkpoint_bottleneck">
+<span class="sig-name descname"><span class="pre">checkpoint_bottleneck</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.densenet.DenseLayer.checkpoint_bottleneck" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pass through the bottleneck layer (by using a checkpoint).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>inputs</strong> – A list of previous feature maps.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of the bottleneck.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.densenet.DenseLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.densenet.DenseLayer.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the dense layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>inputs</strong> – A list of previous feature maps.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.densenet.DenseLayer.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.densenet.DenseLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.densenet.DenseBlock">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.densenet.</span></span><span class="sig-name descname"><span class="pre">DenseBlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_layers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_checkpoint</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.densenet.DenseBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>The dense block as in DenseNet.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.densenet.DenseBlock.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.densenet.DenseBlock.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the dense block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.densenet.DenseBlock.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.densenet.DenseBlock.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.densenet.Transition">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.densenet.</span></span><span class="sig-name descname"><span class="pre">Transition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.densenet.Transition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>The transition layer as in DenseNet.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.densenet.Transition.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.densenet.Transition.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.densenet.Transition.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.densenet.Transition.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.densenet.DenseNetwork">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.densenet.</span></span><span class="sig-name descname"><span class="pre">DenseNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mid_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_blocks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_checkpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.densenet.DenseNetwork" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Dense network (aka DenseNet) with only one dense block.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.densenet.DenseNetwork.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.densenet.DenseNetwork.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the dense network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of the model.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.densenet.DenseNetwork.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.densenet.DenseNetwork.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-deeprob.torch.layers.dgcspn">
+<span id="deeprob-torch-layers-dgcspn-module"></span><h2>deeprob.torch.layers.dgcspn module<a class="headerlink" href="#module-deeprob.torch.layers.dgcspn" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialGaussianLayer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.dgcspn.</span></span><span class="sig-name descname"><span class="pre">SpatialGaussianLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantiles_loc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uniform_loc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialGaussianLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Spatial Gaussian input layer.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialGaussianLayer.in_channels">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">in_channels</span></span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialGaussianLayer.in_channels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialGaussianLayer.in_height">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">in_height</span></span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialGaussianLayer.in_height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialGaussianLayer.in_width">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">in_width</span></span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialGaussianLayer.in_width" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialGaussianLayer.out_size">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">out_size</span></span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialGaussianLayer.out_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialGaussianLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialGaussianLayer.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialGaussianLayer.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialGaussianLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialProductLayer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.dgcspn.</span></span><span class="sig-name descname"><span class="pre">SpatialProductLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depthwise</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dilation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialProductLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Spatial Product layer class.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialProductLayer.in_channels">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">in_channels</span></span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialProductLayer.in_channels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialProductLayer.in_height">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">in_height</span></span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialProductLayer.in_height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialProductLayer.in_width">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">in_width</span></span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialProductLayer.in_width" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialProductLayer.out_size">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">out_size</span></span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialProductLayer.out_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialProductLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialProductLayer.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialProductLayer.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialProductLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialSumLayer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.dgcspn.</span></span><span class="sig-name descname"><span class="pre">SpatialSumLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialSumLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Spatial Sum layer class.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialSumLayer.in_channels">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">in_channels</span></span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialSumLayer.in_channels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialSumLayer.in_height">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">in_height</span></span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialSumLayer.in_height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialSumLayer.in_width">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">in_width</span></span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialSumLayer.in_width" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialSumLayer.out_size">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">out_size</span></span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialSumLayer.out_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialSumLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialSumLayer.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialSumLayer.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialSumLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialRootLayer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.dgcspn.</span></span><span class="sig-name descname"><span class="pre">SpatialRootLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialRootLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Spatial Root layer class.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialRootLayer.in_channels">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">in_channels</span></span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialRootLayer.in_channels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialRootLayer.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialRootLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialRootLayer.in_height">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">in_height</span></span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialRootLayer.in_height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialRootLayer.in_width">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">in_width</span></span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialRootLayer.in_width" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialRootLayer.out_size">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">out_size</span></span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialRootLayer.out_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.dgcspn.SpatialRootLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.dgcspn.SpatialRootLayer.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-deeprob.torch.layers.flows">
+<span id="deeprob-torch-layers-flows-module"></span><h2>deeprob.torch.layers.flows module<a class="headerlink" href="#module-deeprob.torch.layers.flows" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.CouplingLayer1d">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.flows.</span></span><span class="sig-name descname"><span class="pre">CouplingLayer1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.flows.CouplingLayer1d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>RealNVP 1D coupling layer.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.CouplingLayer1d.build_mask_alternating">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">build_mask_alternating</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.flows.CouplingLayer1d.build_mask_alternating" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.CouplingLayer1d.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.flows.CouplingLayer1d.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (backward mode).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.CouplingLayer1d.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.flows.CouplingLayer1d.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (forward mode).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>u</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.CouplingLayer1d.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.flows.CouplingLayer1d.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.CouplingLayer2d">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.flows.</span></span><span class="sig-name descname"><span class="pre">CouplingLayer2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_blocks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_wise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.flows.CouplingLayer2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>RealNVP 2D coupling layer.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.CouplingLayer2d.in_channels">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">in_channels</span></span><a class="headerlink" href="#deeprob.torch.layers.flows.CouplingLayer2d.in_channels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.CouplingLayer2d.in_height">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">in_height</span></span><a class="headerlink" href="#deeprob.torch.layers.flows.CouplingLayer2d.in_height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.CouplingLayer2d.in_width">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">in_width</span></span><a class="headerlink" href="#deeprob.torch.layers.flows.CouplingLayer2d.in_width" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.CouplingLayer2d.build_mask_chessboard">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">build_mask_chessboard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.flows.CouplingLayer2d.build_mask_chessboard" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.CouplingLayer2d.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.flows.CouplingLayer2d.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (backward mode).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.CouplingLayer2d.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.flows.CouplingLayer2d.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (forward mode).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>u</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.CouplingLayer2d.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.flows.CouplingLayer2d.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.CouplingBlock2d">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.flows.</span></span><span class="sig-name descname"><span class="pre">CouplingBlock2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_blocks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.flows.CouplingBlock2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>RealNVP 2D coupling block, consisting of checkboard/channelwise couplings and squeeze operation.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.CouplingBlock2d.in_channels">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">in_channels</span></span><a class="headerlink" href="#deeprob.torch.layers.flows.CouplingBlock2d.in_channels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.CouplingBlock2d.in_height">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">in_height</span></span><a class="headerlink" href="#deeprob.torch.layers.flows.CouplingBlock2d.in_height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.CouplingBlock2d.in_width">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">in_width</span></span><a class="headerlink" href="#deeprob.torch.layers.flows.CouplingBlock2d.in_width" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.CouplingBlock2d.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.flows.CouplingBlock2d.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the coupling block (backward mode).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of checkboard coupling if last_block=True
+and the outputs of squeeze-channelwise coupling-unsqueeze-checkboard coupling if last_block=False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.CouplingBlock2d.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.flows.CouplingBlock2d.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the coupling block (forward mode).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of checkboard coupling if last_block=True
+and the outputs of checkboard coupling-squeeze-channelwise coupling-unsqueeze if last_block=False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.CouplingBlock2d.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.flows.CouplingBlock2d.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.AutoregressiveLayer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.flows.</span></span><span class="sig-name descname"><span class="pre">AutoregressiveLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequential</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.flows.AutoregressiveLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Masked Autoregressive Flow autoregressive layer.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.AutoregressiveLayer.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.flows.AutoregressiveLayer.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (backward mode).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.AutoregressiveLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.flows.AutoregressiveLayer.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (forward mode).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>u</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.flows.AutoregressiveLayer.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.flows.AutoregressiveLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-deeprob.torch.layers.ratspn">
+<span id="deeprob-torch-layers-ratspn-module"></span><h2>deeprob.torch.layers.ratspn module<a class="headerlink" href="#module-deeprob.torch.layers.ratspn" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.RegionGraphLayer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.ratspn.</span></span><span class="sig-name descname"><span class="pre">RegionGraphLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rg_depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.ratspn.RegionGraphLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Abstract class for input distributions layers.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.RegionGraphLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.ratspn.RegionGraphLayer.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the layer on some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The log likelihood of each distribution leaf.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.RegionGraphLayer.mpe">
+<span class="sig-name descname"><span class="pre">mpe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_offset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.ratspn.RegionGraphLayer.mpe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs for maximum at posteriori estimation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – The inputs. Random variables can be marginalized using NaN values.</p></li>
+<li><p><strong>idx_group</strong> – The group indices.</p></li>
+<li><p><strong>idx_offset</strong> – The offset indices.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The samples having maximum at posteriori estimates on marginalized random variables.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.RegionGraphLayer.sample">
+<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_offset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.ratspn.RegionGraphLayer.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from a base distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idx_group</strong> – The group indices.</p></li>
+<li><p><strong>idx_offset</strong> – The offset indices.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The computed samples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.RegionGraphLayer.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.ratspn.RegionGraphLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.GaussianLayer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.ratspn.</span></span><span class="sig-name descname"><span class="pre">GaussianLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rg_depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uniform_loc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.ratspn.GaussianLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#deeprob.torch.layers.ratspn.RegionGraphLayer" title="deeprob.torch.layers.ratspn.RegionGraphLayer"><code class="xref py py-class docutils literal notranslate"><span class="pre">deeprob.torch.layers.ratspn.RegionGraphLayer</span></code></a></p>
+<p>The Gaussian distributions input layer class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.GaussianLayer.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.ratspn.GaussianLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.BernoulliLayer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.ratspn.</span></span><span class="sig-name descname"><span class="pre">BernoulliLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rg_depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.ratspn.BernoulliLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#deeprob.torch.layers.ratspn.RegionGraphLayer" title="deeprob.torch.layers.ratspn.RegionGraphLayer"><code class="xref py py-class docutils literal notranslate"><span class="pre">deeprob.torch.layers.ratspn.RegionGraphLayer</span></code></a></p>
+<p>The Bernoulli distributions input layer class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.BernoulliLayer.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.ratspn.BernoulliLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.ProductLayer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.ratspn.</span></span><span class="sig-name descname"><span class="pre">ProductLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_regions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_nodes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.ratspn.ProductLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Product node layer class.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.ProductLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.ratspn.ProductLayer.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.ProductLayer.mpe">
+<span class="sig-name descname"><span class="pre">mpe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_offset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.ratspn.ProductLayer.mpe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs for maximum at posteriori estimation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – The inputs (not used here).</p></li>
+<li><p><strong>idx_group</strong> – The group indices.</p></li>
+<li><p><strong>idx_offset</strong> – The offset indices.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The group and offset indices.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.ProductLayer.sample">
+<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_offset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.ratspn.ProductLayer.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from a product layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idx_group</strong> – The group indices.</p></li>
+<li><p><strong>idx_offset</strong> – The offset indices.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The group and offset indices.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.ProductLayer.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.ratspn.ProductLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.SumLayer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.ratspn.</span></span><span class="sig-name descname"><span class="pre">SumLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_partitions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.ratspn.SumLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Sum node layer.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.SumLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.ratspn.SumLayer.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.SumLayer.mpe">
+<span class="sig-name descname"><span class="pre">mpe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_offset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.ratspn.SumLayer.mpe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs for maximum at posteriori estimation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – The inputs.</p></li>
+<li><p><strong>idx_group</strong> – The group indices.</p></li>
+<li><p><strong>idx_offset</strong> – The offset indices.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The group and offset indices.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.SumLayer.sample">
+<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_offset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.ratspn.SumLayer.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from a sum layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idx_group</strong> – The group indices.</p></li>
+<li><p><strong>idx_offset</strong> – The offset indices.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The group and offset indices.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.SumLayer.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.ratspn.SumLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.RootLayer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.ratspn.</span></span><span class="sig-name descname"><span class="pre">RootLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_partitions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_classes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.ratspn.RootLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Root sum node layer.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.RootLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.ratspn.RootLayer.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.RootLayer.mpe">
+<span class="sig-name descname"><span class="pre">mpe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.ratspn.RootLayer.mpe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs for maximum at posteriori estimation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – The inputs.</p></li>
+<li><p><strong>y</strong> – The target classes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The group and offset indices.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.RootLayer.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.ratspn.RootLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.ratspn.RootLayer.sample">
+<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.ratspn.RootLayer.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from the root layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>y</strong> – The target classes.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The group and offset indices.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-deeprob.torch.layers.resnet">
+<span id="deeprob-torch-layers-resnet-module"></span><h2>deeprob.torch.layers.resnet module<a class="headerlink" href="#module-deeprob.torch.layers.resnet" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.resnet.ResidualBlock">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.resnet.</span></span><span class="sig-name descname"><span class="pre">ResidualBlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_channels</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.resnet.ResidualBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>The residual basic block as in ResNet.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.resnet.ResidualBlock.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.resnet.ResidualBlock.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the residual block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs tensor.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.resnet.ResidualBlock.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.resnet.ResidualBlock.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.resnet.ResidualNetwork">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.resnet.</span></span><span class="sig-name descname"><span class="pre">ResidualNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mid_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_blocks</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.resnet.ResidualNetwork" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Residual network (aka ResNet) with skip connections.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.resnet.ResidualNetwork.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.resnet.ResidualNetwork.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the residual network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of the module.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.resnet.ResidualNetwork.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.resnet.ResidualNetwork.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-deeprob.torch.layers.utils">
+<span id="deeprob-torch-layers-utils-module"></span><h2>deeprob.torch.layers.utils module<a class="headerlink" href="#module-deeprob.torch.layers.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.ScaledTanh">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.utils.</span></span><span class="sig-name descname"><span class="pre">ScaledTanh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.utils.ScaledTanh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Scaled Tanh activation module.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.ScaledTanh.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.utils.ScaledTanh.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the scaled tanh function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The result of the module.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.ScaledTanh.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.utils.ScaledTanh.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.MaskedLinear">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.utils.</span></span><span class="sig-name descname"><span class="pre">MaskedLinear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.utils.MaskedLinear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.linear.Linear</span></code></p>
+<p>Masked version of linear layer.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.MaskedLinear.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.utils.MaskedLinear.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.MaskedLinear.in_features">
+<span class="sig-name descname"><span class="pre">in_features</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#deeprob.torch.layers.utils.MaskedLinear.in_features" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.MaskedLinear.out_features">
+<span class="sig-name descname"><span class="pre">out_features</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#deeprob.torch.layers.utils.MaskedLinear.out_features" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.MaskedLinear.weight">
+<span class="sig-name descname"><span class="pre">weight</span></span><em class="property"><span class="pre">:</span> <span class="pre">torch.Tensor</span></em><a class="headerlink" href="#deeprob.torch.layers.utils.MaskedLinear.weight" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.BatchNormLayer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.utils.</span></span><span class="sig-name descname"><span class="pre">BatchNormLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">momentum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.utils.BatchNormLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Batch Normalization layer.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.BatchNormLayer.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.utils.BatchNormLayer.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (backward mode).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.BatchNormLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.utils.BatchNormLayer.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (forward mode).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>u</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.BatchNormLayer.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.utils.BatchNormLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.DequantizeLayer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.utils.</span></span><span class="sig-name descname"><span class="pre">DequantizeLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.utils.DequantizeLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Dequantization transformation layer.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.DequantizeLayer.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.utils.DequantizeLayer.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (backward mode).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.DequantizeLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.utils.DequantizeLayer.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (forward mode).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>u</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.DequantizeLayer.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.utils.DequantizeLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.LogitLayer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.utils.</span></span><span class="sig-name descname"><span class="pre">LogitLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.utils.LogitLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Logit transformation layer.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.LogitLayer.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.utils.LogitLayer.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (backward mode).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.LogitLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.utils.LogitLayer.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the layer given some inputs (forward mode).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>u</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The tensor result of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.LogitLayer.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.utils.LogitLayer.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.WeightNormConv2d">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.layers.utils.</span></span><span class="sig-name descname"><span class="pre">WeightNormConv2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.utils.WeightNormConv2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Conv2D with weight normalization.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.WeightNormConv2d.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.layers.utils.WeightNormConv2d.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the convolutional layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The inputs.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The outputs of convolution.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.layers.utils.WeightNormConv2d.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.layers.utils.WeightNormConv2d.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-deeprob.torch.layers">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-deeprob.torch.layers" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">DeeProb-kit</a></h1>
+
+
+
+<p class="blurb">Python library for Deep Probabilistic Modeling</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=loreloc&repo=deeprob-kit&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">deeprob</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="deeprob.html">deeprob package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="deeprob.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="deeprob.algorithms.html">deeprob.algorithms package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.learning.html">deeprob.learning package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.structure.html">deeprob.structure package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="deeprob.torch.html">deeprob.torch package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.utils.html">deeprob.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="deeprob.html#module-deeprob">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">deeprob</a><ul>
+  <li><a href="deeprob.html">deeprob package</a><ul>
+  <li><a href="deeprob.torch.html">deeprob.torch package</a><ul>
+      <li>Previous: <a href="deeprob.torch.html" title="previous chapter">deeprob.torch package</a></li>
+      <li>Next: <a href="deeprob.torch.models.html" title="next chapter">deeprob.torch.models package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Lorenzo Loconte.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/api/deeprob.torch.layers.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/loreloc/deeprob-kit" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

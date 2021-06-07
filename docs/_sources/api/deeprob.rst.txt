@@ -1,0 +1,22 @@
+deeprob package
+===============
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   deeprob.algorithms
+   deeprob.learning
+   deeprob.structure
+   deeprob.torch
+   deeprob.utils
+
+Module contents
+---------------
+
+.. automodule:: deeprob
+   :members:
+   :undoc-members:
+   :show-inheritance:

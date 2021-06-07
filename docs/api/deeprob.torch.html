@@ -1,0 +1,496 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>deeprob.torch package &#8212; DeeProb-kit 0.6.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="deeprob.torch.layers package" href="deeprob.torch.layers.html" />
+    <link rel="prev" title="deeprob.structure package" href="deeprob.structure.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="deeprob-torch-package">
+<h1>deeprob.torch package<a class="headerlink" href="#deeprob-torch-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="deeprob.torch.layers.html">deeprob.torch.layers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="deeprob.torch.layers.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deeprob.torch.layers.html#module-deeprob.torch.layers.densenet">deeprob.torch.layers.densenet module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deeprob.torch.layers.html#module-deeprob.torch.layers.dgcspn">deeprob.torch.layers.dgcspn module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deeprob.torch.layers.html#module-deeprob.torch.layers.flows">deeprob.torch.layers.flows module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deeprob.torch.layers.html#module-deeprob.torch.layers.ratspn">deeprob.torch.layers.ratspn module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deeprob.torch.layers.html#module-deeprob.torch.layers.resnet">deeprob.torch.layers.resnet module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deeprob.torch.layers.html#module-deeprob.torch.layers.utils">deeprob.torch.layers.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deeprob.torch.layers.html#module-deeprob.torch.layers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="deeprob.torch.models.html">deeprob.torch.models package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="deeprob.torch.models.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deeprob.torch.models.html#module-deeprob.torch.models.abstract">deeprob.torch.models.abstract module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deeprob.torch.models.html#module-deeprob.torch.models.dgcspn">deeprob.torch.models.dgcspn module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deeprob.torch.models.html#module-deeprob.torch.models.flows">deeprob.torch.models.flows module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deeprob.torch.models.html#module-deeprob.torch.models.ratspn">deeprob.torch.models.ratspn module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deeprob.torch.models.html#module-deeprob.torch.models">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-deeprob.torch.callbacks">
+<span id="deeprob-torch-callbacks-module"></span><h2>deeprob.torch.callbacks module<a class="headerlink" href="#module-deeprob.torch.callbacks" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.callbacks.EarlyStopping">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.callbacks.</span></span><span class="sig-name descname"><span class="pre">EarlyStopping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.callbacks.EarlyStopping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Early stops the training if validation loss doesn’t improve after a given number of consecutive epochs</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-deeprob.torch.constraints">
+<span id="deeprob-torch-constraints-module"></span><h2>deeprob.torch.constraints module<a class="headerlink" href="#module-deeprob.torch.constraints" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.constraints.ScaleClipper">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.constraints.</span></span><span class="sig-name descname"><span class="pre">ScaleClipper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.constraints.ScaleClipper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Constraints the scale to be positive.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="deeprob.torch.constraints.ScaleClipper.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#deeprob.torch.constraints.ScaleClipper.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-deeprob.torch.metrics">
+<span id="deeprob-torch-metrics-module"></span><h2>deeprob.torch.metrics module<a class="headerlink" href="#module-deeprob.torch.metrics" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.metrics.RunningAverageMetric">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.metrics.</span></span><span class="sig-name descname"><span class="pre">RunningAverageMetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.metrics.RunningAverageMetric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Running (batched) average metric</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.metrics.RunningAverageMetric.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.metrics.RunningAverageMetric.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the running average metric.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.metrics.RunningAverageMetric.average">
+<span class="sig-name descname"><span class="pre">average</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.metrics.RunningAverageMetric.average" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the metric average.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The metric average.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-deeprob.torch.routines">
+<span id="deeprob-torch-routines-module"></span><h2>deeprob.torch.routines module<a class="headerlink" href="#module-deeprob.torch.routines" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.torch.routines.train_model">
+<span class="sig-prename descclassname"><span class="pre">deeprob.torch.routines.</span></span><span class="sig-name descname"><span class="pre">train_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">setting</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adam'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_decay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.routines.train_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train a Torch model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – The model to train.</p></li>
+<li><p><strong>data_train</strong> – The train dataset.</p></li>
+<li><p><strong>data_val</strong> – The validation dataset.</p></li>
+<li><p><strong>setting</strong> – The train setting. It can be either ‘generative’ or ‘discriminative’.</p></li>
+<li><p><strong>lr</strong> – The learning rate to use.</p></li>
+<li><p><strong>batch_size</strong> – The batch size for both train and validation.</p></li>
+<li><p><strong>epochs</strong> – The number of epochs.</p></li>
+<li><p><strong>patience</strong> – The epochs patience for early stopping.</p></li>
+<li><p><strong>optimizer</strong> – The optimizer to use.</p></li>
+<li><p><strong>optimizer_kwargs</strong> – A dictionary containing additional optimizer parameters.</p></li>
+<li><p><strong>weight_decay</strong> – L2 regularization factor.</p></li>
+<li><p><strong>train_base</strong> – Whether to train the input base module. Only applicable for normalizing flows.</p></li>
+<li><p><strong>class_weights</strong> – The class weights (for im-balanced datasets). Used only if setting=’discriminative’.</p></li>
+<li><p><strong>num_workers</strong> – The number of workers for data loading.</p></li>
+<li><p><strong>device</strong> – The device used for training. If it’s None ‘cuda’ will be used, if available.</p></li>
+<li><p><strong>verbose</strong> – Whether to enable verbose mode.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The train history.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.torch.routines.train_generative">
+<span class="sig-prename descclassname"><span class="pre">deeprob.torch.routines.</span></span><span class="sig-name descname"><span class="pre">train_generative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.routines.train_generative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train a Torch model in generative setting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – The model.</p></li>
+<li><p><strong>train_loader</strong> – The train data loader.</p></li>
+<li><p><strong>val_loader</strong> – The validation data loader.</p></li>
+<li><p><strong>optimizer</strong> – The optimize to use.</p></li>
+<li><p><strong>epochs</strong> – The number of epochs.</p></li>
+<li><p><strong>patience</strong> – The epochs patience for early stopping.</p></li>
+<li><p><strong>train_base</strong> – Whether to train the input base module. Only applicable for normalizing flows.</p></li>
+<li><p><strong>device</strong> – The device to use for training.</p></li>
+<li><p><strong>verbose</strong> – Whether to enable verbose mode.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The train history.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.torch.routines.train_discriminative">
+<span class="sig-prename descclassname"><span class="pre">deeprob.torch.routines.</span></span><span class="sig-name descname"><span class="pre">train_discriminative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.routines.train_discriminative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train a Torch model in discriminative setting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – The model.</p></li>
+<li><p><strong>train_loader</strong> – The train data loader.</p></li>
+<li><p><strong>val_loader</strong> – The validation data loader.</p></li>
+<li><p><strong>optimizer</strong> – The optimize to use.</p></li>
+<li><p><strong>epochs</strong> – The number of epochs.</p></li>
+<li><p><strong>patience</strong> – The epochs patience for early stopping.</p></li>
+<li><p><strong>train_base</strong> – Whether to train the input base module. Only applicable for normalizing flows.</p></li>
+<li><p><strong>class_weights</strong> – The class weights (for im-balanced datasets).</p></li>
+<li><p><strong>device</strong> – The device to use for training.</p></li>
+<li><p><strong>verbose</strong> – Whether to enable verbose mode.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The train history.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.torch.routines.test_model">
+<span class="sig-prename descclassname"><span class="pre">deeprob.torch.routines.</span></span><span class="sig-name descname"><span class="pre">test_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">setting</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.routines.test_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test a Torch model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – The model to test.</p></li>
+<li><p><strong>data_test</strong> – The test dataset.</p></li>
+<li><p><strong>setting</strong> – The test setting. It can be either ‘generative’ or ‘discriminative’.</p></li>
+<li><p><strong>batch_size</strong> – The batch size for testing.</p></li>
+<li><p><strong>num_workers</strong> – The number of workers for data loading.</p></li>
+<li><p><strong>class_weights</strong> – The class weights (for im-balanced datasets). Used only if setting=’discriminative’.</p></li>
+<li><p><strong>device</strong> – The device used for training. If it’s None ‘cuda’ will be used, if available.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The mean log-likelihood and two standard deviations if setting=’generative’.
+The negative log-likelihood and classification metrics if setting=’discriminative’.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.torch.routines.test_generative">
+<span class="sig-prename descclassname"><span class="pre">deeprob.torch.routines.</span></span><span class="sig-name descname"><span class="pre">test_generative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.routines.test_generative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test a Torch model in generative setting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – The model to test.</p></li>
+<li><p><strong>test_loader</strong> – The test data loader.</p></li>
+<li><p><strong>device</strong> – The device used for testing.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The mean log-likelihood and two standard deviations.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.torch.routines.test_discriminative">
+<span class="sig-prename descclassname"><span class="pre">deeprob.torch.routines.</span></span><span class="sig-name descname"><span class="pre">test_discriminative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.routines.test_discriminative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test a Torch model in discriminative setting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – The model to test.</p></li>
+<li><p><strong>test_loader</strong> – The test data loader.</p></li>
+<li><p><strong>class_weights</strong> – The class weights (for im-balanced datasets).</p></li>
+<li><p><strong>device</strong> – The device used for testing.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The negative log-likelihood and classification report dictionary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-deeprob.torch.transforms">
+<span id="deeprob-torch-transforms-module"></span><h2>deeprob.torch.transforms module<a class="headerlink" href="#module-deeprob.torch.transforms" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.transforms.Transform">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.transforms.</span></span><span class="sig-name descname"><span class="pre">Transform</span></span><a class="headerlink" href="#deeprob.torch.transforms.Transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Generic data transform function.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.transforms.Transform.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.transforms.Transform.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.transforms.TransformList">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.transforms.</span></span><span class="sig-name descname"><span class="pre">TransformList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.transforms.TransformList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#deeprob.torch.transforms.Transform" title="deeprob.torch.transforms.Transform"><code class="xref py py-class docutils literal notranslate"><span class="pre">deeprob.torch.transforms.Transform</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+<p>A list of transformations.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.transforms.TransformList.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.transforms.TransformList.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.transforms.Normalize">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.transforms.</span></span><span class="sig-name descname"><span class="pre">Normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-07</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.transforms.Normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#deeprob.torch.transforms.Transform" title="deeprob.torch.transforms.Transform"><code class="xref py py-class docutils literal notranslate"><span class="pre">deeprob.torch.transforms.Transform</span></code></a></p>
+<p>Normalize transformation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.transforms.Normalize.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.transforms.Normalize.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.transforms.Quantize">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.transforms.</span></span><span class="sig-name descname"><span class="pre">Quantize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_bits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.transforms.Quantize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#deeprob.torch.transforms.Transform" title="deeprob.torch.transforms.Transform"><code class="xref py py-class docutils literal notranslate"><span class="pre">deeprob.torch.transforms.Transform</span></code></a></p>
+<p>Quantize and Dequantize transformations.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.transforms.Quantize.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.transforms.Quantize.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.transforms.Flatten">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.transforms.</span></span><span class="sig-name descname"><span class="pre">Flatten</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.transforms.Flatten" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#deeprob.torch.transforms.Transform" title="deeprob.torch.transforms.Transform"><code class="xref py py-class docutils literal notranslate"><span class="pre">deeprob.torch.transforms.Transform</span></code></a></p>
+<p>Flatten transformation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="deeprob.torch.transforms.Flatten.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.transforms.Flatten.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="deeprob.torch.transforms.Reshape">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">deeprob.torch.transforms.</span></span><span class="sig-name descname"><span class="pre">Reshape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.transforms.Reshape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#deeprob.torch.transforms.Transform" title="deeprob.torch.transforms.Transform"><code class="xref py py-class docutils literal notranslate"><span class="pre">deeprob.torch.transforms.Transform</span></code></a></p>
+<p>Reshape transformation.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-deeprob.torch.utils">
+<span id="deeprob-torch-utils-module"></span><h2>deeprob.torch.utils module<a class="headerlink" href="#module-deeprob.torch.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.torch.utils.get_activation_class">
+<span class="sig-prename descclassname"><span class="pre">deeprob.torch.utils.</span></span><span class="sig-name descname"><span class="pre">get_activation_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">activation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.utils.get_activation_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the activation function class by its name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>activation</strong> – The activation function’s name. It can be: ‘relu’, ‘tanh’, ‘sigmoid’.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The activation function class.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.torch.utils.get_optimizer_class">
+<span class="sig-prename descclassname"><span class="pre">deeprob.torch.utils.</span></span><span class="sig-name descname"><span class="pre">get_optimizer_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.utils.get_optimizer_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the optimizer class by its name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>optimizer</strong> – The optimizer’s name. It can be ‘sgd’, ‘rmsprop’, ‘adagrad’, ‘adam’.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The optimizer class.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.torch.utils.squeeze_depth2d">
+<span class="sig-prename descclassname"><span class="pre">deeprob.torch.utils.</span></span><span class="sig-name descname"><span class="pre">squeeze_depth2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.utils.squeeze_depth2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Squeeze operation (as in RealNVP).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The input tensor of size [N, C, H, W].</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The output tensor of size [N, C * 4, H // 2, W // 2].</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="deeprob.torch.utils.unsqueeze_depth2d">
+<span class="sig-prename descclassname"><span class="pre">deeprob.torch.utils.</span></span><span class="sig-name descname"><span class="pre">unsqueeze_depth2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#deeprob.torch.utils.unsqueeze_depth2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Un-squeeze operation (as in RealNVP).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> – The input tensor of size [N, C * 4, H // 2, W // 2].</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The output tensor of size [N, C, H, W].</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-deeprob.torch">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-deeprob.torch" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">DeeProb-kit</a></h1>
+
+
+
+<p class="blurb">Python library for Deep Probabilistic Modeling</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=loreloc&repo=deeprob-kit&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">deeprob</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="deeprob.html">deeprob package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="deeprob.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="deeprob.algorithms.html">deeprob.algorithms package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.learning.html">deeprob.learning package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.structure.html">deeprob.structure package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">deeprob.torch package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.utils.html">deeprob.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="deeprob.html#module-deeprob">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">deeprob</a><ul>
+  <li><a href="deeprob.html">deeprob package</a><ul>
+      <li>Previous: <a href="deeprob.structure.html" title="previous chapter">deeprob.structure package</a></li>
+      <li>Next: <a href="deeprob.torch.layers.html" title="next chapter">deeprob.torch.layers package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Lorenzo Loconte.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/api/deeprob.torch.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/loreloc/deeprob-kit" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

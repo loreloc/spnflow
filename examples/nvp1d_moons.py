@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 
 from sklearn.datasets import make_moons
 from sklearn.model_selection import train_test_split
-from spnflow.torch.models.flows import RealNVP1d
-from spnflow.torch.routines import train_model
+from deeprob.torch.models.flows import RealNVP1d
+from deeprob.torch.routines import train_model
 
 
 x_train, y_train = make_moons(n_samples=10000, shuffle=True, noise=0.05)

@@ -1,14 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from spnflow.structure.leaf import Gaussian
-from spnflow.learning.wrappers import learn_estimator
-from spnflow.algorithms.sampling import sample
+from deeprob.structure.leaf import Gaussian
+from deeprob.learning.wrappers import learn_estimator
+from deeprob.algorithms.sampling import sample
 
-from spnflow.torch.models.ratspn import GaussianRatSpn
-from spnflow.torch.models.flows import RealNVP1d
-from spnflow.torch.models.flows import MAF
-from spnflow.torch.routines import train_model
+from deeprob.torch.models.ratspn import GaussianRatSpn
+from deeprob.torch.models.flows import RealNVP1d
+from deeprob.torch.models.flows import MAF
+from deeprob.torch.routines import train_model
 
 LDOM, RDOM = -4.0, 4.0
 RESOLUTION = 128

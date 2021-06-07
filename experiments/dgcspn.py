@@ -4,8 +4,8 @@ import json
 import argparse
 import numpy as np
 
-from spnflow.torch.models.dgcspn import DgcSpn
-from spnflow.utils.data import compute_mean_quantiles
+from deeprob.torch.models.dgcspn import DgcSpn
+from deeprob.utils.data import compute_mean_quantiles
 
 from experiments.datasets import VISION_DATASETS, load_vision_dataset
 from experiments.utils import collect_results_generative, collect_results_discriminative

@@ -4,10 +4,10 @@ import json
 import argparse
 import numpy as np
 
-from spnflow.structure.leaf import Bernoulli, Gaussian
-from spnflow.learning.wrappers import learn_estimator
-from spnflow.utils.data import DataStandardizer
-from spnflow.utils.statistics import get_statistics
+from deeprob.structure.leaf import Bernoulli, Gaussian
+from deeprob.learning.wrappers import learn_estimator
+from deeprob.utils.data import DataStandardizer
+from deeprob.utils.statistics import get_statistics
 
 from experiments.datasets import load_binary_dataset, load_continuous_dataset
 from experiments.datasets import BINARY_DATASETS, CONTINUOUS_DATASETS

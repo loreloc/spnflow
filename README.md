@@ -1,13 +1,11 @@
-![Logo](sphinx/_static/spnflow-logo.svg)
-
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
-[![PyPI version](https://badge.fury.io/py/spnflow.svg)](https://badge.fury.io/py/spnflow)
+[![PyPI version](https://badge.fury.io/py/deeprob-kit.svg)](https://badge.fury.io/py/deeprob-kit)
 
-# SPNFlow
+# DeeProb-kit
 
 ## Abstract
-SPNFlow is a Python library that implements probabilistic models such as various kinds of **Sum-Product Networks**,
-**Normalizing Flows** and their possible combinations for tractable probabilistic inference.
+DeeProb-kit is a Python library that implements deep probabilistic models such as various kinds of
+**Sum-Product Networks**, **Normalizing Flows** and their possible combinations fo probabilistic inference.
 Some models are implemented using **PyTorch** for fast training and inference on GPUs.
 
 ## Features
@@ -20,7 +18,7 @@ Some models are implemented using **PyTorch** for fast training and inference on
 - Implementation of Deep Generalized Convolutional SPNs (DGC-SPNs). [9]
 
 ## Documentation
-The library documentation is hosted using Github Pages at [SPNFlow](https://loreloc.github.io/spnflow/).
+The library documentation is hosted using GitHub Pages at [deeprob-kit](https://loreloc.github.io/deeprob-kit/).
 
 ## Experiments
 The datasets required to run the experiments can be found on [Google Drive](https://drive.google.com/file/d/1sQaygKi3vhjyiTSZ_8gJ5Lffynx3KqU4/view?usp=sharing).

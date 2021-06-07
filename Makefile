@@ -14,5 +14,4 @@ pip_upload:
 clean:
 	rm -rf dist
 	rm -rf build
-	rm -rf spnflow.egg-info
-
+	rm -rf deeprob.egg-info

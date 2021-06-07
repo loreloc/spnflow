@@ -1,7 +1,7 @@
-spnflow
+deeprob
 =======
 
 .. toctree::
    :maxdepth: 4
 
-   spnflow
+   deeprob

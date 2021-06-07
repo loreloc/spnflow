@@ -4,7 +4,7 @@ import json
 import argparse
 import numpy as np
 
-from spnflow.torch.models.ratspn import GaussianRatSpn, BernoulliRatSpn
+from deeprob.torch.models.ratspn import GaussianRatSpn, BernoulliRatSpn
 
 from experiments.datasets import load_binary_dataset, load_continuous_dataset, load_vision_dataset
 from experiments.datasets import BINARY_DATASETS, CONTINUOUS_DATASETS, VISION_DATASETS

@@ -1,0 +1,45 @@
+deeprob.learning package
+========================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   deeprob.learning.splitting
+
+Submodules
+----------
+
+deeprob.learning.leaf module
+----------------------------
+
+.. automodule:: deeprob.learning.leaf
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deeprob.learning.structure module
+---------------------------------
+
+.. automodule:: deeprob.learning.structure
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deeprob.learning.wrappers module
+--------------------------------
+
+.. automodule:: deeprob.learning.wrappers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: deeprob.learning
+   :members:
+   :undoc-members:
+   :show-inheritance:

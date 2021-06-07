@@ -3,7 +3,7 @@ import csv
 import h5py
 import numpy as np
 
-from spnflow.torch.transforms import *
+from deeprob.torch.transforms import *
 
 
 BINARY_DATASETS = [

@@ -1,9 +1,9 @@
 import torch
 import torchvision
 
-from spnflow.torch.models.ratspn import GaussianRatSpn
-from spnflow.torch.transforms import Flatten
-from spnflow.torch.routines import train_model, test_model
+from deeprob.torch.models.ratspn import GaussianRatSpn
+from deeprob.torch.transforms import Flatten
+from deeprob.torch.routines import train_model, test_model
 
 n_features = 784
 out_classes = 10

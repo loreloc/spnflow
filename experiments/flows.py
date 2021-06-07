@@ -4,7 +4,7 @@ import json
 import argparse
 import numpy as np
 
-from spnflow.torch.models.flows import RealNVP1d, RealNVP2d, MAF
+from deeprob.torch.models.flows import RealNVP1d, RealNVP2d, MAF
 
 from experiments.datasets import load_continuous_dataset, load_vision_dataset
 from experiments.datasets import CONTINUOUS_DATASETS, VISION_DATASETS

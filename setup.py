@@ -7,14 +7,14 @@ with open("requirements.txt", "r") as fh:
     requirements = fh.readlines()
 
 setuptools.setup(
-    name="spnflow",
-    version="0.5.2",
+    name="deeprob-kit",
+    version="0.6.0",
     author="loreloc",
     author_email="lorenzoloconte@outlook.it",
-    description="Sum-Product Networks and Normalizing Flows for Tractable Density Estimation",
+    description="Python library for Deep Probabilistic Modeling",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/loreloc/spnflow",
+    url="https://github.com/loreloc/deeprob-kit",
     packages=setuptools.find_packages(exclude=['test']),
     classifiers=[
         "Programming Language :: Python :: 3",

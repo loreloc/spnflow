@@ -1,9 +1,9 @@
 import torch
 import torchvision
 
-from spnflow.torch.models.flows import RealNVP2d
-from spnflow.torch.transforms import Quantize
-from spnflow.torch.routines import train_model
+from deeprob.torch.models.flows import RealNVP2d
+from deeprob.torch.transforms import Quantize
+from deeprob.torch.routines import train_model
 
 
 class UnsupervisedMNIST(torchvision.datasets.MNIST):

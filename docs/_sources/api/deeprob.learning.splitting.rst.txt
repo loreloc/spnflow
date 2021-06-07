@@ -1,0 +1,61 @@
+deeprob.learning.splitting package
+==================================
+
+Submodules
+----------
+
+deeprob.learning.splitting.cluster module
+-----------------------------------------
+
+.. automodule:: deeprob.learning.splitting.cluster
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deeprob.learning.splitting.cols module
+--------------------------------------
+
+.. automodule:: deeprob.learning.splitting.cols
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deeprob.learning.splitting.gvs module
+-------------------------------------
+
+.. automodule:: deeprob.learning.splitting.gvs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deeprob.learning.splitting.random module
+----------------------------------------
+
+.. automodule:: deeprob.learning.splitting.random
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deeprob.learning.splitting.rdc module
+-------------------------------------
+
+.. automodule:: deeprob.learning.splitting.rdc
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deeprob.learning.splitting.rows module
+--------------------------------------
+
+.. automodule:: deeprob.learning.splitting.rows
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: deeprob.learning.splitting
+   :members:
+   :undoc-members:
+   :show-inheritance:

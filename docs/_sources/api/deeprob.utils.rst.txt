@@ -1,0 +1,61 @@
+deeprob.utils package
+=====================
+
+Submodules
+----------
+
+deeprob.utils.data module
+-------------------------
+
+.. automodule:: deeprob.utils.data
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deeprob.utils.filter module
+---------------------------
+
+.. automodule:: deeprob.utils.filter
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deeprob.utils.region module
+---------------------------
+
+.. automodule:: deeprob.utils.region
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deeprob.utils.sklearn module
+----------------------------
+
+.. automodule:: deeprob.utils.sklearn
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deeprob.utils.statistics module
+-------------------------------
+
+.. automodule:: deeprob.utils.statistics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deeprob.utils.validity module
+-----------------------------
+
+.. automodule:: deeprob.utils.validity
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: deeprob.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:

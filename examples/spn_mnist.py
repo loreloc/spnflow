@@ -3,13 +3,13 @@ import torchvision
 import numpy as np
 import sklearn as sk
 
-from spnflow.utils.data import DataStandardizer
-from spnflow.utils.statistics import get_statistics
-from spnflow.structure.leaf import Gaussian, Categorical
-from spnflow.learning.wrappers import learn_classifier
-from spnflow.algorithms.inference import mpe
-from spnflow.algorithms.sampling import sample
-from spnflow.structure.io import save_json
+from deeprob.utils.data import DataStandardizer
+from deeprob.utils.statistics import get_statistics
+from deeprob.structure.leaf import Gaussian, Categorical
+from deeprob.learning.wrappers import learn_classifier
+from deeprob.algorithms.inference import mpe
+from deeprob.algorithms.sampling import sample
+from deeprob.structure.io import save_json
 
 # Load the MNIST dataset
 n_classes = 10

@@ -1,0 +1,70 @@
+deeprob.torch package
+=====================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   deeprob.torch.layers
+   deeprob.torch.models
+
+Submodules
+----------
+
+deeprob.torch.callbacks module
+------------------------------
+
+.. automodule:: deeprob.torch.callbacks
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deeprob.torch.constraints module
+--------------------------------
+
+.. automodule:: deeprob.torch.constraints
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deeprob.torch.metrics module
+----------------------------
+
+.. automodule:: deeprob.torch.metrics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deeprob.torch.routines module
+-----------------------------
+
+.. automodule:: deeprob.torch.routines
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deeprob.torch.transforms module
+-------------------------------
+
+.. automodule:: deeprob.torch.transforms
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deeprob.torch.utils module
+--------------------------
+
+.. automodule:: deeprob.torch.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: deeprob.torch
+   :members:
+   :undoc-members:
+   :show-inheritance:

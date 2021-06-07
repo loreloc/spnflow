@@ -5,17 +5,17 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>spnflow &#8212; SPNFlow 0.5.2 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <title>deeprob &#8212; DeeProb-kit 0.6.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="spnflow package" href="spnflow.html" />
-    <link rel="prev" title="Sum-Product Networks and Normalizing Flows for Tractable Density Estimation" href="../index.html" />
+    <link rel="next" title="deeprob package" href="deeprob.html" />
+    <link rel="prev" title="Python library for Deep Probabilistic Modeling" href="../index.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -32,68 +32,65 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="spnflow">
-<h1>spnflow<a class="headerlink" href="#spnflow" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="deeprob">
+<h1>deeprob<a class="headerlink" href="#deeprob" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="spnflow.html">spnflow package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="spnflow.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="spnflow.algorithms.html">spnflow.algorithms package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.algorithms.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.algorithms.html#module-spnflow.algorithms.evaluation">spnflow.algorithms.evaluation module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.algorithms.html#module-spnflow.algorithms.inference">spnflow.algorithms.inference module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.algorithms.html#module-spnflow.algorithms.mpe">spnflow.algorithms.mpe module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.algorithms.html#module-spnflow.algorithms.sampling">spnflow.algorithms.sampling module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.algorithms.html#module-spnflow.algorithms">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deeprob.html">deeprob package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="deeprob.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="deeprob.algorithms.html">deeprob.algorithms package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.algorithms.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.algorithms.html#module-deeprob.algorithms.evaluation">deeprob.algorithms.evaluation module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.algorithms.html#module-deeprob.algorithms.inference">deeprob.algorithms.inference module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.algorithms.html#module-deeprob.algorithms.sampling">deeprob.algorithms.sampling module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.algorithms.html#module-deeprob.algorithms">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="spnflow.io.html">spnflow.io package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.io.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.io.html#module-spnflow.io.json">spnflow.io.json module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.io.html#module-spnflow.io">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="deeprob.learning.html">deeprob.learning package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.learning.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.learning.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.learning.html#module-deeprob.learning.leaf">deeprob.learning.leaf module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.learning.html#module-deeprob.learning.structure">deeprob.learning.structure module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.learning.html#module-deeprob.learning.wrappers">deeprob.learning.wrappers module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.learning.html#module-deeprob.learning">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="spnflow.learning.html">spnflow.learning package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.learning.html#subpackages">Subpackages</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.learning.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.learning.html#module-spnflow.learning.leaf">spnflow.learning.leaf module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.learning.html#module-spnflow.learning.structure">spnflow.learning.structure module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.learning.html#module-spnflow.learning.wrappers">spnflow.learning.wrappers module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.learning.html#module-spnflow.learning">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="deeprob.structure.html">deeprob.structure package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.structure.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.structure.html#module-deeprob.structure.cltree">deeprob.structure.cltree module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.structure.html#module-deeprob.structure.io">deeprob.structure.io module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.structure.html#module-deeprob.structure.leaf">deeprob.structure.leaf module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.structure.html#module-deeprob.structure.node">deeprob.structure.node module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.structure.html#module-deeprob.structure.pruning">deeprob.structure.pruning module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.structure.html#module-deeprob.structure">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="spnflow.structure.html">spnflow.structure package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.structure.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.structure.html#module-spnflow.structure.leaf">spnflow.structure.leaf module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.structure.html#module-spnflow.structure.node">spnflow.structure.node module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.structure.html#module-spnflow.structure.pruning">spnflow.structure.pruning module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.structure.html#module-spnflow.structure">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="deeprob.torch.html">deeprob.torch package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.torch.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.torch.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.torch.html#module-deeprob.torch.callbacks">deeprob.torch.callbacks module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.torch.html#module-deeprob.torch.constraints">deeprob.torch.constraints module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.torch.html#module-deeprob.torch.metrics">deeprob.torch.metrics module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.torch.html#module-deeprob.torch.routines">deeprob.torch.routines module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.torch.html#module-deeprob.torch.transforms">deeprob.torch.transforms module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.torch.html#module-deeprob.torch.utils">deeprob.torch.utils module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.torch.html#module-deeprob.torch">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="spnflow.torch.html">spnflow.torch package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.torch.html#subpackages">Subpackages</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.torch.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.torch.html#module-spnflow.torch.callbacks">spnflow.torch.callbacks module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.torch.html#module-spnflow.torch.constraints">spnflow.torch.constraints module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.torch.html#module-spnflow.torch.routines">spnflow.torch.routines module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.torch.html#module-spnflow.torch.transforms">spnflow.torch.transforms module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.torch.html#module-spnflow.torch.utils">spnflow.torch.utils module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.torch.html#module-spnflow.torch">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="spnflow.utils.html">spnflow.utils package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.utils.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.utils.html#module-spnflow.utils.data">spnflow.utils.data module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.utils.html#module-spnflow.utils.filter">spnflow.utils.filter module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.utils.html#module-spnflow.utils.region">spnflow.utils.region module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.utils.html#module-spnflow.utils.statistics">spnflow.utils.statistics module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.utils.html#module-spnflow.utils.validity">spnflow.utils.validity module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="spnflow.utils.html#module-spnflow.utils">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="deeprob.utils.html">deeprob.utils package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.utils.html#module-deeprob.utils.data">deeprob.utils.data module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.utils.html#module-deeprob.utils.filter">deeprob.utils.filter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.utils.html#module-deeprob.utils.region">deeprob.utils.region module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.utils.html#module-deeprob.utils.sklearn">deeprob.utils.sklearn module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.utils.html#module-deeprob.utils.statistics">deeprob.utils.statistics module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.utils.html#module-deeprob.utils.validity">deeprob.utils.validity module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deeprob.utils.html#module-deeprob.utils">Module contents</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="spnflow.html#module-spnflow">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deeprob.html#module-deeprob">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -107,24 +104,17 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<p class="logo">
-  <a href="../index.html">
-    <img class="logo" src="../_static/spnflow-logo.svg" alt="Logo"/>
-    
-    <h1 class="logo logo-name">SPNFlow</h1>
-    
-  </a>
-</p>
+<h1 class="logo"><a href="../index.html">DeeProb-kit</a></h1>
 
 
 
-<p class="blurb">Sum-Product Networks and Normalizing Flows for Tractable Density Estimation</p>
+<p class="blurb">Python library for Deep Probabilistic Modeling</p>
 
 
 
 
 <p>
-<iframe src="https://ghbtns.com/github-btn.html?user=loreloc&repo=spnflow&type=watch&count=true&size=large&v=2"
+<iframe src="https://ghbtns.com/github-btn.html?user=loreloc&repo=deeprob-kit&type=watch&count=true&size=large&v=2"
   allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
 </p>
 
@@ -135,8 +125,8 @@
 <h3>Navigation</h3>
 <p class="caption"><span class="caption-text">Contents</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">spnflow</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="spnflow.html">spnflow package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">deeprob</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="deeprob.html">deeprob package</a></li>
 </ul>
 </li>
 </ul>
@@ -145,8 +135,8 @@
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="../index.html" title="previous chapter">Sum-Product Networks and Normalizing Flows for Tractable Density Estimation</a></li>
-      <li>Next: <a href="spnflow.html" title="next chapter">spnflow package</a></li>
+      <li>Previous: <a href="../index.html" title="previous chapter">Python library for Deep Probabilistic Modeling</a></li>
+      <li>Next: <a href="deeprob.html" title="next chapter">deeprob package</a></li>
   </ul></li>
 </ul>
 </div>
@@ -173,10 +163,10 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2020, Lorenzo Loconte.
+      &copy;2021, Lorenzo Loconte.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
@@ -185,7 +175,7 @@
     </div>
 
     
-    <a href="https://github.com/loreloc/spnflow" class="github">
+    <a href="https://github.com/loreloc/deeprob-kit" class="github">
         <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
     </a>
     

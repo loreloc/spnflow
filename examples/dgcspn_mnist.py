@@ -1,9 +1,9 @@
 import torch
 import torchvision
 
-from spnflow.torch.models.dgcspn import DgcSpn
-from spnflow.torch.transforms import Reshape
-from spnflow.torch.routines import train_model, test_model
+from deeprob.torch.models.dgcspn import DgcSpn
+from deeprob.torch.transforms import Reshape
+from deeprob.torch.routines import train_model, test_model
 
 image_size = (1, 28, 28)
 n_classes = 10

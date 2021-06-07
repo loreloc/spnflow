@@ -1,5 +1,5 @@
-Sum-Product Networks and Normalizing Flows for Tractable Density Estimation 
-===========================================================================
+Python library for Deep Probabilistic Modeling
+==============================================
 
 .. toctree::
    :maxdepth: 4
