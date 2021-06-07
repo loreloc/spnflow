@@ -32,7 +32,7 @@ def learn_structure(
         distributions,
         domains,
         learn_leaf='mle',
-        learn_leaf_params=None,
+        learn_leaf_kwargs=None,
         split_rows='kmeans',
         split_cols='rdc',
         split_rows_kwargs=None,
@@ -48,7 +48,7 @@ def learn_structure(
     :param distributions: A list of distributions classes (one for each feature).
     :param domains: A list of domains (one for each feature).
     :param learn_leaf: The method to use to learn a distribution leaf node (it can be 'mle', 'isotonic' or 'cltree').
-    :param learn_leaf_params: The parameters of the learn leaf method.
+    :param learn_leaf_kwargs: The parameters of the learn leaf method.
     :param split_rows: The rows splitting method (it can be 'kmeans', 'gmm', 'rdc' or 'random').
     :param split_cols: The columns splitting method (it can be 'gvs', 'rdc' or 'random').
     :param split_rows_kwargs: The parameters of the rows splitting method.
@@ -66,8 +66,8 @@ def learn_structure(
     assert min_rows_slice > 1
     assert min_cols_slice > 1
 
-    if learn_leaf_params is None:
-        learn_leaf_params = {}
+    if learn_leaf_kwargs is None:
+        learn_leaf_kwargs = {}
     if split_rows_kwargs is None:
         split_rows_kwargs = {}
     if split_cols_kwargs is None:
@@ -118,7 +118,7 @@ def learn_structure(
             rem_scope = [task.scope[i] for i in np.argwhere(zero_var_idx).flatten()]
             naive = learn_naive_bayes(
                 task.data[:, zero_var_idx], distributions, domains, rem_scope,
-                learn_leaf_func=learn_leaf_func, **learn_leaf_params
+                learn_leaf_func=learn_leaf_func, **learn_leaf_kwargs
             )
             node.children.append(naive)
             # Add the tasks regarding non-removed features
@@ -128,13 +128,13 @@ def learn_structure(
             task.parent.children.append(node)
         elif op == OperationKind.CREATE_LEAF:
             # Create a leaf node
-            leaf = learn_leaf_func(task.data, distributions, domains, task.scope, **learn_leaf_params)
+            leaf = learn_leaf_func(task.data, distributions, domains, task.scope, **learn_leaf_kwargs)
             task.parent.children.append(leaf)
         elif op == OperationKind.SPLIT_NAIVE:
             # Split the data using Naive Bayes
             node = learn_naive_bayes(
                 task.data, distributions, domains, task.scope,
-                learn_leaf_func=learn_leaf_func, **learn_leaf_params
+                learn_leaf_func=learn_leaf_func, **learn_leaf_kwargs
             )
             task.parent.children.append(node)
         elif op == OperationKind.SPLIT_ROWS:
