@@ -87,9 +87,9 @@ if __name__ == '__main__':
         results = dict()
 
     if args.learn_leaf == 'mle' or args.learn_leaf == 'cltree':
-        learn_leaf_params = {'alpha': args.smoothing}
+        learn_leaf_kwargs = {'alpha': args.smoothing}
     else:
-        learn_leaf_params = dict()
+        learn_leaf_kwargs = dict()
 
     split_rows_kwargs = dict()
     if args.split_rows == 'kmeans' or args.split_rows == 'gmm':
@@ -106,7 +106,7 @@ if __name__ == '__main__':
         data=data_train,
         distributions=distributions,
         learn_leaf=args.learn_leaf,
-        learn_leaf_params=learn_leaf_params,
+        learn_leaf_kwargs=learn_leaf_kwargs,
         split_rows=args.split_rows,
         split_cols=args.split_cols,
         min_rows_slice=args.min_rows_slice,
