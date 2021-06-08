@@ -346,10 +346,13 @@ class BinaryCLTree(Leaf):
                     sum_children = [neg_prod, pos_prod]
                 else:
                     sum_children = leaves
+                weights = np.exp(self.params[node.node_id])
+                # Re-normalize the weights, because there can be FP32 approximation errors
+                weights /= np.expand_dims(np.sum(weights, axis=1), axis=-1)
                 neg_buffer.append(
-                    Sum(children=sum_children, weights=np.exp(self.params[node.node_id][0])))
+                    Sum(children=sum_children, weights=weights[0]))
                 pos_buffer.append(
-                    Sum(children=sum_children, weights=np.exp(self.params[node.node_id][1])))
+                    Sum(children=sum_children, weights=weights[1]))
                 last_node_visited = nodes_stack.pop()
             else:
                 nodes_stack.extend(node.children)
