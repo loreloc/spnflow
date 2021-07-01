@@ -67,7 +67,7 @@ class Flatten(Transform):
     def inverse(self, x):
         if self.shape is not None:
             return torch.reshape(x, self.shape)
-
+        raise NotImplementedError("Flatten inverse method not implemented because shape is None")
 
 class Reshape(Transform):
     """Reshape transformation."""

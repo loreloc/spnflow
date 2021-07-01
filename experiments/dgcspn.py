@@ -4,8 +4,8 @@ import json
 import argparse
 import numpy as np
 
-from deeprob.torch.models.dgcspn import DgcSpn
-from deeprob.utils.data import compute_mean_quantiles
+from deeprob.spn.models.dgcspn import DgcSpn
+from deeprob.spn.utils.data import compute_mean_quantiles
 
 from experiments.datasets import VISION_DATASETS, load_vision_dataset
 from experiments.utils import collect_results_generative, collect_results_discriminative
@@ -19,8 +19,6 @@ if __name__ == '__main__':
     parser.add_argument(
         'dataset', choices=VISION_DATASETS, help='The vision dataset used in the experiment.'
     )
-    parser.add_argument('--dequantize', action='store_true', help='Whether to use dequantization.')
-    parser.add_argument('--logit', type=float, default=None, help='The logit value to use for vision datasets.')
     parser.add_argument('--discriminative', action='store_true', help='Whether to use discriminative settings.')
     parser.add_argument('--n-batches', type=int, default=8, help='The number of input distribution layer batches.')
     parser.add_argument('--sum-channels', type=int, default=8, help='The number of channels at sum layers.')
@@ -94,8 +92,6 @@ if __name__ == '__main__':
     # Build the model
     model = DgcSpn(
         in_size,
-        dequantize=args.dequantize,
-        logit=args.logit,
         out_classes=out_classes,
         n_batch=args.n_batches,
         sum_channels=args.sum_channels,
@@ -114,7 +110,7 @@ if __name__ == '__main__':
         nll, metrics = collect_results_discriminative(
             model, data_train, data_valid, data_test,
             lr=args.learning_rate, batch_size=args.batch_size,
-            epochs=args.epochs, patience=args.patience, weight_decay=args.weight_decay
+            epochs=args.epochs, patience=args.patience, optimizer_kwargs={'weight_decay': args.weight_decay}
         )
         results[timestamp] = {
             'nll': nll,
@@ -127,7 +123,7 @@ if __name__ == '__main__':
         mean_ll, stddev_ll, bpp = collect_results_generative(
             model, data_train, data_valid, data_test, compute_bpp=True,
             lr=args.learning_rate, batch_size=args.batch_size,
-            epochs=args.epochs, patience=args.patience, weight_decay=args.weight_decay
+            epochs=args.epochs, patience=args.patience, optimizer_kwargs={'weight_decay': args.weight_decay}
         )
         results[timestamp] = {
             'log_likelihood': {

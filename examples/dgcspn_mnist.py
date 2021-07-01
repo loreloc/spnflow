@@ -1,7 +1,9 @@
 import torch
-import torchvision
+import torch.utils.data as data
+import torchvision.datasets as datasets
+import torchvision.transforms as transforms
 
-from deeprob.torch.models.dgcspn import DgcSpn
+from deeprob.spn.models.dgcspn import DgcSpn
 from deeprob.torch.transforms import Reshape
 from deeprob.torch.routines import train_model, test_model
 
@@ -9,18 +11,18 @@ image_size = (1, 28, 28)
 n_classes = 10
 
 # Set the preprocessing transformation
-transform = torchvision.transforms.Compose([
-    torchvision.transforms.ToTensor(),
-    torchvision.transforms.Normalize((0.1307,), (0.3081,)),
+transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize((0.1307,), (0.3081,)),
     Reshape(image_size)
 ])
 
 # Load the dataset
-data_train = torchvision.datasets.MNIST('datasets', train=True, transform=transform, download=True)
-data_test = torchvision.datasets.MNIST('datasets', train=False, transform=transform, download=True)
+data_train = datasets.MNIST('datasets', train=True, transform=transform, download=True)
+data_test = datasets.MNIST('datasets', train=False, transform=transform, download=True)
 n_val = int(0.1 * len(data_train))
 n_train = len(data_train) - n_val
-data_train, data_val = torch.utils.data.random_split(data_train, [n_train, n_val])
+data_train, data_val = data.random_split(data_train, [n_train, n_val])
 
 # Instantiate the model
 model = DgcSpn(

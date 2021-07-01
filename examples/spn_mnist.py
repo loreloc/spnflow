@@ -1,53 +1,59 @@
-import torch
-import torchvision
 import numpy as np
 import sklearn as sk
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import torch.utils.data as data
+import torchvision
+import torchvision.transforms as transforms
+import torchvision.datasets as datasets
 
-from deeprob.utils.data import DataStandardizer
-from deeprob.utils.statistics import get_statistics
-from deeprob.structure.leaf import Gaussian, Categorical
-from deeprob.learning.wrappers import learn_classifier
-from deeprob.algorithms.inference import mpe
-from deeprob.algorithms.sampling import sample
-from deeprob.structure.io import save_json
+from deeprob.spn.utils.data import DataStandardizer
+from deeprob.spn.utils.statistics import get_statistics
+from deeprob.spn.structure.leaf import Gaussian, Categorical
+from deeprob.spn.learning.wrappers import learn_classifier
+from deeprob.spn.algorithms.inference import mpe
+from deeprob.spn.algorithms.sampling import sample
+from deeprob.spn.structure.io import save_json
 
 # Load the MNIST dataset
 n_classes = 10
 image_w, image_h = 28, 28
-transform = torchvision.transforms.ToTensor()
-data_train = torchvision.datasets.MNIST('datasets', train=True, transform=transform, download=True)
-data_test = torchvision.datasets.MNIST('datasets', train=False, transform=transform, download=True)
+transform = transforms.ToTensor()
+data_train = datasets.MNIST('datasets', train=True, transform=transform, download=True)
+data_test = datasets.MNIST('datasets', train=False, transform=transform, download=True)
 
 # Build the autoencoder for features extraction
-n_features = 50
+n_features = 32
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-encoder = torch.nn.Sequential(
-    torch.nn.Flatten(),
-    torch.nn.Linear(784, 512),
-    torch.nn.ReLU(),
-    torch.nn.Linear(512, 256),
-    torch.nn.ReLU(),
-    torch.nn.Linear(256, n_features)
+encoder = nn.Sequential(
+    nn.Flatten(),
+    nn.Linear(784, 512),
+    nn.ReLU(),
+    nn.Linear(512, 256),
+    nn.ReLU(),
+    nn.Linear(256, n_features),
+    nn.ReLU(),
 )
-decoder = torch.nn.Sequential(
-    torch.nn.Linear(n_features, 256),
-    torch.nn.ReLU(),
-    torch.nn.Linear(256, 512),
-    torch.nn.ReLU(),
-    torch.nn.Linear(512, 784),
-    torch.nn.Sigmoid(),
-    torch.nn.Unflatten(1, (1, 28, 28))
+decoder = nn.Sequential(
+    nn.Linear(n_features, 256),
+    nn.ReLU(),
+    nn.Linear(256, 512),
+    nn.ReLU(),
+    nn.Linear(512, 784),
+    nn.Sigmoid(),
+    nn.Unflatten(1, (1, 28, 28))
 )
-autoencoder = torch.nn.Sequential(encoder, decoder)
+autoencoder = nn.Sequential(encoder, decoder)
 autoencoder.to(device)
 
 # Train the autoencoder
-epochs = 25
+epochs = 20
 batch_size = 128
 lr = 1e-3
-train_loader = torch.utils.data.DataLoader(data_train, batch_size=batch_size)
-optimizer = torch.optim.Adam(autoencoder.parameters(), lr=lr)
-criterion = torch.nn.BCELoss()
+train_loader = data.DataLoader(data_train, batch_size=batch_size)
+optimizer = optim.Adam(autoencoder.parameters(), lr=lr)
+criterion = nn.BCELoss()
 for epoch in range(epochs):
     train_loss = 0.0
     for (inputs, labels) in train_loader:
@@ -93,10 +99,10 @@ spn = learn_classifier(
     distributions,
     learn_leaf='mle',
     split_rows='kmeans',
-    split_cols='gvs',
+    split_cols='rdc',
     min_rows_slice=200,
     split_rows_kwargs={'n': 2},
-    split_cols_kwargs={'p': 1.0}
+    split_cols_kwargs={'d': 0.3}
 )
 
 # Print some statistics

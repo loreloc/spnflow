@@ -1,17 +1,23 @@
 import torch
+import torch.nn as nn
+import torch.optim as optim
+import torch.nn.functional as F
 
 
 def get_activation_class(activation):
     """
     Get the activation function class by its name.
 
-    :param activation: The activation function's name. It can be: 'relu', 'tanh', 'sigmoid'.
+    :param activation: The activation function's name.
+                       It can be one of: 'relu', 'leaky-relu', 'softplus', 'tanh', 'sigmoid'.
     :return: The activation function class.
     """
     return {
-        'relu': torch.nn.ReLU,
-        'tanh': torch.nn.Tanh,
-        'sigmoid': torch.nn.Sigmoid
+        'relu': nn.ReLU,
+        'leaky-relu': nn.LeakyReLU,
+        'softplus': nn.Softplus,
+        'tanh': nn.Tanh,
+        'sigmoid': nn.Sigmoid,
     }[activation]
 
 
@@ -23,38 +29,88 @@ def get_optimizer_class(optimizer):
     :return: The optimizer class.
     """
     return {
-        'sgd': torch.optim.SGD,
-        'rmsprop': torch.optim.RMSprop,
-        'adagrad': torch.optim.Adagrad,
-        'adam': torch.optim.Adam
+        'sgd': optim.SGD,
+        'rmsprop': optim.RMSprop,
+        'adagrad': optim.Adagrad,
+        'adam': optim.Adam
     }[optimizer]
 
 
-def squeeze_depth2d(x):
-    """
-    Squeeze operation (as in RealNVP).
+class ScaledTanh(nn.Module):
+    """Scaled Tanh activation module."""
+    def __init__(self, n_weights=None):
+        """
+        Build the module.
 
-    :param x: The input tensor of size [N, C, H, W].
-    :return: The output tensor of size [N, C * 4, H // 2, W // 2].
-    """
-    # This is literally 6D tensor black magic
-    n, c, h, w = x.size()
-    x = x.reshape(n, c, h // 2, 2, w // 2, 2)
-    x = x.permute(0, 1, 3, 5, 2, 4)
-    x = x.reshape(n, c * 4, h // 2, w // 2)
-    return x
+        :param n_weights: The number of weights. It can be None in order to get only one scale parameter.
+        """
+        super(ScaledTanh, self).__init__()
+        if n_weights is None:
+            n_weights = 1
+        self.weight = nn.Parameter(torch.ones(n_weights), requires_grad=True)
+
+    def forward(self, x):
+        """
+        Apply the scaled tanh function.
+
+        :return: The result of the module.
+        """
+        return self.weight * torch.tanh(x)
 
 
-def unsqueeze_depth2d(x):
-    """
-    Un-squeeze operation (as in RealNVP).
+class MaskedLinear(nn.Linear):
+    """Masked version of linear layer."""
+    def __init__(self, in_features, out_features, mask):
+        """
+        Build a masked linear layer.
 
-    :param x: The input tensor of size [N, C * 4, H // 2, W // 2].
-    :return: The output tensor of size [N, C, H, W].
-    """
-    # This is literally 6D tensor black magic
-    n, c, h, w = x.size()
-    x = x.reshape(n, c // 4, 2, 2, h, w)
-    x = x.permute(0, 1, 4, 2, 5, 3)
-    x = x.reshape(n, c // 4, h * 2, w * 2)
-    return x
+        :param in_features: The number of input features.
+        :param out_features: The number of output_features.
+        :param mask: The mask to apply to the weights of the layer.
+        """
+        super(MaskedLinear, self).__init__(in_features, out_features)
+        self.register_buffer('mask', torch.tensor(mask))
+
+    def forward(self, x):
+        """
+        Evaluate the layer given some inputs.
+
+        :param x: The inputs.
+        :return: The tensor result of the layer.
+        """
+        return F.linear(x, self.mask * self.weight, self.bias)
+
+
+class WeightNormConv2d(nn.Module):
+    """Conv2D with weight normalization."""
+    def __init__(self, in_channels, out_channels, kernel_size, stride=(1, 1), padding=(0, 0), bias=True):
+        """
+        Initialize a Conv2d layer with weight normalization.
+
+        :param in_channels: The number of input channels.
+        :param out_channels: The number of output channels.
+        :param kernel_size: The convolving kernel size.
+        :param stride: The stride of convolution.
+        :param padding: The padding to apply.
+        :param bias: Whether to use bias parameters.
+        """
+        super(WeightNormConv2d, self).__init__()
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.kernel_size = kernel_size
+        self.stride = stride
+        self.padding = padding
+        self.bias = bias
+        self.conv = nn.utils.weight_norm(nn.Conv2d(
+            in_channels, out_channels, kernel_size,
+            stride=stride, padding=padding, bias=bias
+        ))
+
+    def forward(self, x):
+        """
+        Evaluate the convolutional layer.
+
+        :param x: The inputs.
+        :return: The outputs of convolution.
+        """
+        return self.conv(x)

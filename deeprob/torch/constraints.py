@@ -1,7 +1,8 @@
 import torch
+import torch.nn as nn
 
 
-class ScaleClipper(torch.nn.Module):
+class ScaleClipper(nn.Module):
     """
     Constraints the scale to be positive.
     """

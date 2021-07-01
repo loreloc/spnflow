@@ -4,7 +4,8 @@ import json
 import argparse
 import numpy as np
 
-from deeprob.torch.models.flows import RealNVP1d, RealNVP2d, MAF
+from deeprob.flows.models.maf import MAF
+from deeprob.flows.models.realnvp import RealNVP1d, RealNVP2d
 
 from experiments.datasets import load_continuous_dataset, load_vision_dataset
 from experiments.datasets import CONTINUOUS_DATASETS, VISION_DATASETS
@@ -120,7 +121,7 @@ if __name__ == '__main__':
     mean_ll, stddev_ll, bpp = collect_results_generative(
         model, data_train, data_valid, data_test, compute_bpp=is_vision_dataset,
         lr=args.learning_rate, batch_size=args.batch_size,
-        epochs=args.epochs, patience=args.patience, weight_decay=args.weight_decay
+        epochs=args.epochs, patience=args.patience, optimizer_kwargs={'weight_decay': args.weight_decay}
     )
 
     # Save the results

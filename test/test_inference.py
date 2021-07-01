@@ -2,9 +2,9 @@ import unittest
 import numpy as np
 
 from itertools import product
-from deeprob.structure.leaf import Bernoulli
-from deeprob.learning.wrappers import learn_estimator
-from deeprob.algorithms.inference import log_likelihood
+from deeprob.spn.structure.leaf import Bernoulli
+from deeprob.spn.learning.wrappers import learn_estimator
+from deeprob.spn.algorithms.inference import log_likelihood
 from experiments.datasets import load_binary_dataset
 
 

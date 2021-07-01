@@ -1,13 +1,15 @@
 import time
-import torch
 import numpy as np
+import torch
+import torch.utils.data as data
+
 from tqdm import tqdm
 from sklearn import metrics
 
 from deeprob.torch.utils import get_optimizer_class
 from deeprob.torch.callbacks import EarlyStopping
 from deeprob.torch.metrics import RunningAverageMetric
-from deeprob.torch.models.flows import AbstractNormalizingFlow
+from deeprob.flows.models.abstract import AbstractNormalizingFlow
 
 
 def train_model(
@@ -21,7 +23,6 @@ def train_model(
         patience=30,
         optimizer='adam',
         optimizer_kwargs=None,
-        weight_decay=0.0,
         train_base=True,
         class_weights=None,
         num_workers=0,
@@ -41,7 +42,6 @@ def train_model(
     :param patience: The epochs patience for early stopping.
     :param optimizer: The optimizer to use.
     :param optimizer_kwargs: A dictionary containing additional optimizer parameters.
-    :param weight_decay: L2 regularization factor.
     :param train_base: Whether to train the input base module. Only applicable for normalizing flows.
     :param class_weights: The class weights (for im-balanced datasets). Used only if setting='discriminative'.
     :param num_workers: The number of workers for data loading.
@@ -55,12 +55,8 @@ def train_model(
     print('Train using device: {}'.format(device))
 
     # Setup the data loaders
-    train_loader = torch.utils.data.DataLoader(
-        data_train, batch_size=batch_size, shuffle=True, num_workers=num_workers
-    )
-    val_loader = torch.utils.data.DataLoader(
-        data_val, batch_size=batch_size, shuffle=False, num_workers=num_workers
-    )
+    train_loader = data.DataLoader(data_train, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+    val_loader = data.DataLoader(data_val, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     # Move the model to device
     model.to(device)
@@ -69,8 +65,7 @@ def train_model(
     if optimizer_kwargs is None:
         optimizer_kwargs = dict()
     optimizer = get_optimizer_class(optimizer)(
-        filter(lambda p: p.requires_grad, model.parameters()),
-        lr=lr, weight_decay=weight_decay, **optimizer_kwargs
+        filter(lambda p: p.requires_grad, model.parameters()), lr=lr, **optimizer_kwargs
     )
 
     # Train the model
@@ -368,9 +363,7 @@ def test_model(
     print('Test using device: {}'.format(device))
 
     # Setup the data loader
-    test_loader = torch.utils.data.DataLoader(
-        data_test, batch_size=batch_size, shuffle=False, num_workers=num_workers
-    )
+    test_loader = data.DataLoader(data_test, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     # Move the model to device
     model.to(device)
@@ -396,12 +389,12 @@ def test_generative(model, test_loader, device):
     # Make sure the model is set to evaluation mode
     model.eval()
 
-    test_ll = np.array([])
+    test_ll = []
     with torch.no_grad():
         for inputs in test_loader:
             inputs = inputs.to(device)
-            ll = model(inputs).cpu().numpy().flatten()
-            test_ll = np.hstack((test_ll, ll))
+            ll = model(inputs).cpu().squeeze(1).tolist()
+            test_ll.extend(ll)
     mu_ll = np.mean(test_ll)
     sigma_ll = 2.0 * np.std(test_ll) / np.sqrt(len(test_ll))
     return mu_ll, sigma_ll

@@ -1,12 +1,15 @@
 import torch
+import torch.utils.data as data
 import torchvision
+import torchvision.datasets as datasets
+import torchvision.transforms as transforms
 
-from deeprob.torch.models.flows import RealNVP2d
+from deeprob.flows.models.realnvp import RealNVP2d
 from deeprob.torch.transforms import Quantize
-from deeprob.torch.routines import train_model
+from deeprob.torch.routines import train_model, test_model
 
 
-class UnsupervisedCIFAR10(torchvision.datasets.CIFAR10):
+class UnsupervisedCIFAR10(datasets.CIFAR10):
     N_FEATURES = 3072
     IMAGE_SIZE = (3, 32, 32)
 
@@ -19,9 +22,9 @@ class UnsupervisedCIFAR10(torchvision.datasets.CIFAR10):
 
 
 # Set the preprocessing transformation
-transform = torchvision.transforms.Compose([
-    torchvision.transforms.ToTensor(),
-    torchvision.transforms.RandomHorizontalFlip(),
+transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.RandomHorizontalFlip(),
     Quantize()
 ])
 
@@ -29,9 +32,10 @@ transform = torchvision.transforms.Compose([
 # split the dataset in train set and validation set
 in_features = UnsupervisedCIFAR10.IMAGE_SIZE
 data_train = UnsupervisedCIFAR10('datasets', train=True, transform=transform, download=True)
+data_test = UnsupervisedCIFAR10('datasets', train=False, transform=transform, download=True)
 n_val = int(0.1 * len(data_train))
 n_train = len(data_train) - n_val
-data_train, data_val = torch.utils.data.random_split(data_train, [n_train, n_val])
+data_train, data_val = data.random_split(data_train, [n_train, n_val])
 
 # Instantiate the model
 model = RealNVP2d(
@@ -48,10 +52,13 @@ train_model(
     model, data_train, data_val,
     setting='generative',
     batch_size=64,
-    weight_decay=5e-5,
-    epochs=10,
-    patience=3
+    optimizer_kwargs={'weight_decay': 5e-5},
+    epochs=10, patience=3
 )
+
+# Test the model using generative setting
+mu_ll, sigma_ll = test_model(model, data_test, 'generative', batch_size=64)
+print('Mean LL: {} - Two Stddev LL: {}'.format(mu_ll, sigma_ll))
 
 # Just to make sure to switch to evaluation mode
 model.eval()

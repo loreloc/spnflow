@@ -1,8 +1,8 @@
 import numpy as np
 from sklearn.datasets import load_breast_cancer
 
-from deeprob.structure.leaf import Gaussian
-from deeprob.utils.sklearn import SPNEstimator, SPNClassifier
+from deeprob.spn.structure.leaf import Gaussian
+from deeprob.spn.models.sklearn import SPNEstimator, SPNClassifier
 
 # Load the dataset and set the features distributions
 data, _ = load_breast_cancer(return_X_y=True)

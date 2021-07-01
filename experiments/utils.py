@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from deeprob.algorithms.inference import log_likelihood
+from deeprob.spn.algorithms.inference import log_likelihood
 from deeprob.torch.routines import train_model, test_model
 
 

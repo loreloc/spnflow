@@ -8,14 +8,14 @@ with open("requirements.txt", "r") as fh:
 
 setuptools.setup(
     name="deeprob-kit",
-    version="0.6.0",
+    version="0.6.1",
     author="loreloc",
     author_email="lorenzoloconte@outlook.it",
     description="Python library for Deep Probabilistic Modeling",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/loreloc/deeprob-kit",
-    packages=setuptools.find_packages(exclude=['test']),
+    packages=setuptools.find_packages(exclude=['test', 'experiments']),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

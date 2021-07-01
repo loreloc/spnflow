@@ -4,11 +4,12 @@ import json
 import argparse
 import numpy as np
 
-from deeprob.torch.models.ratspn import GaussianRatSpn, BernoulliRatSpn
+from deeprob.spn.models.ratspn import GaussianRatSpn, BernoulliRatSpn
 
 from experiments.datasets import load_binary_dataset, load_continuous_dataset, load_vision_dataset
 from experiments.datasets import BINARY_DATASETS, CONTINUOUS_DATASETS, VISION_DATASETS
-from experiments.utils import collect_results_generative, collect_results_discriminative, collect_samples, save_grid_images
+from experiments.utils import collect_results_generative, collect_results_discriminative, collect_samples
+from experiments.utils import save_grid_images
 
 
 if __name__ == '__main__':
@@ -20,8 +21,6 @@ if __name__ == '__main__':
         'dataset', choices=BINARY_DATASETS + CONTINUOUS_DATASETS + VISION_DATASETS,
         help='The dataset used in the experiment.'
     )
-    parser.add_argument('--dequantize', action='store_true', help='Whether to use dequantization.')
-    parser.add_argument('--logit', type=float, default=None, help='The logit value to use for vision datasets.')
     parser.add_argument('--discriminative', action='store_true', help='Whether to use discriminative settings.')
     parser.add_argument('--rg-depth', type=int, default=1, help='The region graph\'s depth.')
     parser.add_argument('--rg-repetitions', type=int, default=4, help='The region graph\'s number of repetitions.')
@@ -60,19 +59,13 @@ if __name__ == '__main__':
     elif is_continuous_dataset:
         data_train, data_valid, data_test = load_continuous_dataset('datasets', args.dataset)
     else:
-        if args.dequantize:
-            preproc = 'none'
-        elif args.logit:
-            preproc = 'normalize'
-        else:
-            preproc = 'standardize'
         if args.discriminative:
             data_train, data_valid, data_test = load_vision_dataset(
-                'datasets', args.dataset, unsupervised=False, preproc=preproc
+                'datasets', args.dataset, unsupervised=False, preproc='standardize'
             )
         else:
             data_train, data_valid, data_test = load_vision_dataset(
-                'datasets', args.dataset, unsupervised=True, preproc=preproc
+                'datasets', args.dataset, unsupervised=True, preproc='standardize'
             )
     n_features = data_train.features_size()
     out_classes = data_train.num_classes() if args.discriminative else 1
@@ -117,8 +110,6 @@ if __name__ == '__main__':
     else:
         model = GaussianRatSpn(
             n_features,
-            dequantize=args.dequantize,
-            logit=args.logit,
             out_classes=out_classes,
             rg_depth=rg_depth,
             rg_repetitions=args.rg_repetitions,
@@ -134,7 +125,7 @@ if __name__ == '__main__':
         nll, metrics = collect_results_discriminative(
             model, data_train, data_valid, data_test,
             lr=args.learning_rate, batch_size=args.batch_size,
-            epochs=args.epochs, patience=args.patience, weight_decay=args.weight_decay
+            epochs=args.epochs, patience=args.patience, optimizer_kwargs={'weight_decay': args.weight_decay}
         )
 
         results[timestamp] = {
@@ -148,7 +139,7 @@ if __name__ == '__main__':
         mean_ll, stddev_ll, bpp = collect_results_generative(
             model, data_train, data_valid, data_test, compute_bpp=is_vision_dataset,
             lr=args.learning_rate, batch_size=args.batch_size,
-            epochs=args.epochs, patience=args.patience, weight_decay=args.weight_decay
+            epochs=args.epochs, patience=args.patience, optimizer_kwargs={'weight_decay': args.weight_decay}
         )
 
         results[timestamp] = {
