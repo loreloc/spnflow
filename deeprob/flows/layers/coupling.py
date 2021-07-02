@@ -11,7 +11,7 @@ from deeprob.flows.layers.resnet import ResidualNetwork
 
 class CouplingLayer1d(nn.Module):
     """RealNVP 1D coupling layer."""
-    def __init__(self, in_features, depth, units, reverse):
+    def __init__(self, in_features, depth, units, affine=True, reverse=False):
         """
         Build a coupling layer as specified in RealNVP paper.
 
@@ -19,12 +19,14 @@ class CouplingLayer1d(nn.Module):
         :param depth: The number of hidden layers of the conditioner.
         :param units: The number of units of each hidden layer of the conditioner.
         :param reverse: Whether to reverse the mask used in the coupling layer. Useful for alternating masks.
+        :param affine: Whether to use affine transformation. If False then use only translation (as in NICE).
         """
         super(CouplingLayer1d, self).__init__()
         self.in_features = in_features
         self.out_features = in_features
         self.depth = depth
         self.units = units
+        self.affine = affine
         self.reverse = reverse
         self.layers = nn.ModuleList()
         self.scale_activation = ScaledTanh()
@@ -46,7 +48,7 @@ class CouplingLayer1d(nn.Module):
             self.layers.append(nn.Linear(in_features, out_features))
             self.layers.append(nn.ReLU(inplace=True))
             in_features = out_features
-        out_features = self.in_features * 2
+        out_features = self.in_features * 2 if self.affine else self.in_features
         self.layers.append(nn.Linear(in_features, out_features))
 
     @staticmethod
@@ -66,14 +68,21 @@ class CouplingLayer1d(nn.Module):
         z = self.mask * x
         for layer in self.layers:
             z = layer(z)
-        t, s = torch.chunk(z, chunks=2, dim=1)
-        s = self.scale_activation(s)
-        t = self.inv_mask * t
-        s = self.inv_mask * s
 
-        # Apply the affine transformation (backward mode)
-        u = (x - t) * torch.exp(-s)
-        inv_log_det_jacobian = -torch.sum(s, dim=1, keepdim=True)
+        if self.affine:
+            # Apply the affine transformation (backward mode)
+            t, s = torch.chunk(z, chunks=2, dim=1)
+            s = self.scale_activation(s)
+            t = self.inv_mask * t
+            s = self.inv_mask * s
+            u = (x - t) * torch.exp(-s)
+            inv_log_det_jacobian = -torch.sum(s, dim=1, keepdim=True)
+        else:
+            # Apply the translation-only transformation (backward mode)
+            t = self.inv_mask * z
+            u = x - t
+            inv_log_det_jacobian = 0.0
+
         return u, inv_log_det_jacobian
 
     def forward(self, u):
@@ -87,20 +96,27 @@ class CouplingLayer1d(nn.Module):
         z = self.mask * u
         for layer in self.layers:
             z = layer(z)
-        t, s = torch.chunk(z, chunks=2, dim=1)
-        s = self.scale_activation(s)
-        t = self.inv_mask * t
-        s = self.inv_mask * s
 
-        # Apply the affine transformation (forward mode).
-        x = u * torch.exp(s) + t
-        log_det_jacobian = torch.sum(s, dim=1, keepdim=True)
+        if self.affine:
+            # Apply the affine transformation (forward mode).
+            t, s = torch.chunk(z, chunks=2, dim=1)
+            s = self.scale_activation(s)
+            t = self.inv_mask * t
+            s = self.inv_mask * s
+            x = u * torch.exp(s) + t
+            log_det_jacobian = torch.sum(s, dim=1, keepdim=True)
+        else:
+            # Apply the translation-only transformation (forward mode)
+            t = self.inv_mask * z
+            x = u + t
+            log_det_jacobian = 0.0
+
         return x, log_det_jacobian
 
 
 class CouplingLayer2d(nn.Module):
     """RealNVP 2D coupling layer."""
-    def __init__(self, in_features, network, n_blocks, channels, reverse, channel_wise=False):
+    def __init__(self, in_features, network, n_blocks, channels, affine=True, channel_wise=False, reverse=False):
         """
         Build a ResNet-based coupling layer as specified in RealNVP paper.
 
@@ -108,17 +124,19 @@ class CouplingLayer2d(nn.Module):
         :param network: The network conditioner to use. It can be either 'resnet' or 'densenet'.
         :param n_blocks: The number of residual blocks or dense blocks.
         :param channels: The number of output channels of each convolutional layer.
-        :param reverse: Whether to reverse the mask used in the coupling layer. Useful for alternating masks.
-        :param channel_wise: Whether to use channel_wise coupling mask.
+        :param affine: Whether to use affine transformation. If False then use only translation (as in NICE).
+        :param channel_wise: Whether to use channel-wise coupling mask.
                              Defaults to False, i.e. chessboard coupling mask.
+        :param reverse: Whether to reverse the mask used in the coupling layer. Useful for alternating masks.
         """
         super(CouplingLayer2d, self).__init__()
         self.in_features = in_features
         self.out_features = in_features
         self.n_blocks = n_blocks
         self.channels = channels
-        self.reverse = reverse
+        self.affine = affine
         self.channel_wise = channel_wise
+        self.reverse = reverse
 
         # Register the chessboard coupling mask, if specified
         if not self.channel_wise:
@@ -135,10 +153,11 @@ class CouplingLayer2d(nn.Module):
         in_channels = self.in_channels
         if self.channel_wise:
             in_channels //= 2
+        out_channels = in_channels * 2 if self.affine else in_channels
         if network == 'resnet':
-            self.network = ResidualNetwork(in_channels, self.channels, in_channels * 2, self.n_blocks)
+            self.network = ResidualNetwork(in_channels, self.channels, out_channels, self.n_blocks)
         elif network == 'densenet':
-            self.network = DenseNetwork(in_channels, self.channels, in_channels * 2, self.n_blocks)
+            self.network = DenseNetwork(in_channels, self.channels, out_channels, self.n_blocks)
         else:
             raise NotImplementedError('Unknown network conditioner {}'.format(network))
 
@@ -174,17 +193,25 @@ class CouplingLayer2d(nn.Module):
         batch_size = x.shape[0]
 
         if self.channel_wise:
-            # Get the parameters
             if self.reverse:
                 mx, my = torch.chunk(x, chunks=2, dim=1)
             else:
                 my, mx = torch.chunk(x, chunks=2, dim=1)
-            ts = self.network(mx)
-            t, s = torch.chunk(ts, chunks=2, dim=1)
-            s = self.scale_activation(s)
 
-            # Apply the affine transformation (backward mode)
-            my = (my - t) * torch.exp(-s)
+            # Get the parameters
+            z = self.network(mx)
+
+            if self.affine:
+                # Apply the affine transformation (backward mode)
+                t, s = torch.chunk(z, chunks=2, dim=1)
+                s = self.scale_activation(s)
+                my = (my - t) * torch.exp(-s)
+                inv_log_det_jacobian = -torch.sum(s.view(batch_size, -1), dim=1, keepdim=True)
+            else:
+                # Apply the translation-only transformation (backward mode)
+                my = my - z
+                inv_log_det_jacobian = 0.0
+
             if self.reverse:
                 u = torch.cat([mx, my], dim=1)
             else:
@@ -192,15 +219,22 @@ class CouplingLayer2d(nn.Module):
         else:
             # Get the parameters
             mx = self.mask * x
-            ts = self.network(mx)
-            t, s = torch.chunk(ts, chunks=2, dim=1)
-            s = self.scale_activation(s)
-            t = self.inv_mask * t
-            s = self.inv_mask * s
+            z = self.network(mx)
 
-            # Apply the affine transformation (backward mode)
-            u = (x - t) * torch.exp(-s)
-        inv_log_det_jacobian = -torch.sum(s.view(batch_size, -1), dim=1, keepdim=True)
+            if self.affine:
+                # Apply the affine transformation (backward mode)
+                t, s = torch.chunk(z, chunks=2, dim=1)
+                s = self.scale_activation(s)
+                t = self.inv_mask * t
+                s = self.inv_mask * s
+                u = (x - t) * torch.exp(-s)
+                inv_log_det_jacobian = -torch.sum(s.view(batch_size, -1), dim=1, keepdim=True)
+            else:
+                # Apply the translation-only transformation (backward mode)
+                t = self.inv_mask * z
+                u = x - t
+                inv_log_det_jacobian = 0.0
+
         return u, inv_log_det_jacobian
 
     def forward(self, u):
@@ -213,17 +247,25 @@ class CouplingLayer2d(nn.Module):
         batch_size = u.shape[0]
 
         if self.channel_wise:
-            # Get the parameters
             if self.reverse:
                 mu, mv = torch.chunk(u, chunks=2, dim=1)
             else:
                 mv, mu = torch.chunk(u, chunks=2, dim=1)
-            ts = self.network(mu)
-            t, s = torch.chunk(ts, chunks=2, dim=1)
-            s = self.scale_activation(s)
 
-            # Apply the affine transformation (backward mode)
-            mv = mv * torch.exp(s) + t
+            # Get the parameters
+            z = self.network(mu)
+
+            if self.affine:
+                # Apply the affine transformation (forward mode)
+                t, s = torch.chunk(z, chunks=2, dim=1)
+                s = self.scale_activation(s)
+                mv = mv * torch.exp(s) + t
+                log_det_jacobian = torch.sum(s.view(batch_size, -1), dim=1, keepdim=True)
+            else:
+                # Apply the translation-only transformation (forward mode)
+                mv = mv + z
+                log_det_jacobian = 0.0
+
             if self.reverse:
                 x = torch.cat([mu, mv], dim=1)
             else:
@@ -231,21 +273,28 @@ class CouplingLayer2d(nn.Module):
         else:
             # Get the parameters
             mu = self.mask * u
-            ts = self.network(mu)
-            t, s = torch.chunk(ts, chunks=2, dim=1)
-            s = self.scale_activation(s)
-            t = self.inv_mask * t
-            s = self.inv_mask * s
+            z = self.network(mu)
 
-            # Apply the affine transformation (backward mode)
-            x = u * torch.exp(s) + t
-        log_det_jacobian = torch.sum(s.view(batch_size, -1), dim=1, keepdim=True)
+            if self.affine:
+                # Apply the affine transformation (forward mode)
+                t, s = torch.chunk(z, chunks=2, dim=1)
+                s = self.scale_activation(s)
+                t = self.inv_mask * t
+                s = self.inv_mask * s
+                x = u * torch.exp(s) + t
+                log_det_jacobian = torch.sum(s.view(batch_size, -1), dim=1, keepdim=True)
+            else:
+                # Apply the translation-only transformation (forward mode)
+                t = self.inv_mask * z
+                x = u + t
+                log_det_jacobian = 0.0
+
         return x, log_det_jacobian
 
 
 class CouplingBlock2d(nn.Module):
     """RealNVP 2D coupling block, consisting of checkboard/channelwise couplings and squeeze operation."""
-    def __init__(self, in_features, network, n_blocks, channels, last_block=False):
+    def __init__(self, in_features, network, n_blocks, channels, affine=True, last_block=False):
         """
         Build a RealNVP 2d coupling block.
 
@@ -253,6 +302,7 @@ class CouplingBlock2d(nn.Module):
         :param network: The network conditioner to use. It can be either 'resnet' or 'densenet'.
         :param n_blocks: The number of residual blocks or dense blocks.
         :param channels: The number of output channels of each convolutional layer.
+        :param affine: Whether to use affine transformation. If False then use only translation (as in NICE).
         :param last_block: Whether it is the last block (i.e. no channelwise-masked couplings) or not.
         """
         super(CouplingBlock2d, self).__init__()
@@ -261,29 +311,30 @@ class CouplingBlock2d(nn.Module):
         self.network = network
         self.n_blocks = n_blocks
         self.channels = channels
+        self.affine = affine
         self.last_block = last_block
 
         if self.last_block:
             # Build the input couplings (consisting of 4 checkboard-masked couplings)
             self.in_couplings = nn.ModuleList([
                 CouplingLayer2d(
-                    self.in_features, self.network, self.n_blocks, self.channels,
-                    reverse=False, channel_wise=False
+                    self.in_features, self.network, self.n_blocks, self.channels, self.affine,
+                    channel_wise=False, reverse=False
                 ),
                 BatchNormLayer(self.in_features),
                 CouplingLayer2d(
-                    self.in_features, self.network, self.n_blocks, self.channels,
-                    reverse=True, channel_wise=False
+                    self.in_features, self.network, self.n_blocks, self.channels, self.affine,
+                    channel_wise=False, reverse=True
                 ),
                 BatchNormLayer(self.in_features),
                 CouplingLayer2d(
-                    self.in_features, self.network, self.n_blocks, self.channels,
-                    reverse=False, channel_wise=False
+                    self.in_features, self.network, self.n_blocks, self.channels, self.affine,
+                    channel_wise=False, reverse=False
                 ),
                 BatchNormLayer(self.in_features),
                 CouplingLayer2d(
-                    self.in_features, self.network, self.n_blocks, self.channels,
-                    reverse=True, channel_wise=False
+                    self.in_features, self.network, self.n_blocks, self.channels, self.affine,
+                    channel_wise=False, reverse=True
                 ),
                 BatchNormLayer(self.in_features)
             ])
@@ -291,18 +342,18 @@ class CouplingBlock2d(nn.Module):
             # Build the input couplings (consisting of 3 checkboard-masked couplings)
             self.in_couplings = nn.ModuleList([
                 CouplingLayer2d(
-                    self.in_features, self.network, self.n_blocks, self.channels,
-                    reverse=False, channel_wise=False
+                    self.in_features, self.network, self.n_blocks, self.channels, self.affine,
+                    channel_wise=False, reverse=False
                 ),
                 BatchNormLayer(self.in_features),
                 CouplingLayer2d(
-                    self.in_features, self.network, self.n_blocks, self.channels,
-                    reverse=True, channel_wise=False
+                    self.in_features, self.network, self.n_blocks, self.channels, self.affine,
+                    channel_wise=False, reverse=True
                 ),
                 BatchNormLayer(self.in_features),
                 CouplingLayer2d(
-                    self.in_features, self.network, self.n_blocks, self.channels,
-                    reverse=False, channel_wise=False
+                    self.in_features, self.network, self.n_blocks, self.channels, self.affine,
+                    channel_wise=False, reverse=False
                 ),
                 BatchNormLayer(self.in_features)
             ])
@@ -310,21 +361,21 @@ class CouplingBlock2d(nn.Module):
             # Compute the size of the input (after squeezing operation)
             squeezed_features = (self.in_channels * 4, self.in_height // 2, self.in_width // 2)
 
-            # Build the output couplings (consisting of 3 channelwise-masked couplings)
+            # Build the output couplings (consisting of 3 channel-wise-masked couplings)
             self.out_couplings = nn.ModuleList([
                 CouplingLayer2d(
-                    squeezed_features, self.network, self.n_blocks, self.channels * 2,
-                    reverse=False, channel_wise=True
+                    squeezed_features, self.network, self.n_blocks, self.channels * 2, self.affine,
+                    channel_wise=True, reverse=False
                 ),
                 BatchNormLayer(squeezed_features),
                 CouplingLayer2d(
-                    squeezed_features, self.network, self.n_blocks, self.channels * 2,
-                    reverse=True, channel_wise=True
+                    squeezed_features, self.network, self.n_blocks, self.channels * 2, self.affine,
+                    channel_wise=True, reverse=True
                 ),
                 BatchNormLayer(squeezed_features),
                 CouplingLayer2d(
-                    squeezed_features, self.network, self.n_blocks, self.channels * 2,
-                    reverse=False, channel_wise=True
+                    squeezed_features, self.network, self.n_blocks, self.channels * 2, self.affine,
+                    channel_wise=True, reverse=False
                 ),
                 BatchNormLayer(squeezed_features)
             ])

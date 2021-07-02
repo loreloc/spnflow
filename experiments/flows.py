@@ -23,8 +23,7 @@ if __name__ == '__main__':
     parser.add_argument('--logit', type=float, default=None, help='The logit value to use for vision datasets.')
     parser.add_argument('--n-flows', type=int, default=5, help='The number of normalizing flows layers.')
     parser.add_argument(
-        '--no-batch-norm', dest='batch_norm',
-        action='store_false', help='Whether to use batch normalization.'
+        '--no-batch-norm', dest='batch_norm', action='store_false', help='Whether to use batch normalization.'
     )
     parser.add_argument(
         '--network', choices=['resnet', 'densenet'], default='resnet',
@@ -34,6 +33,10 @@ if __name__ == '__main__':
     parser.add_argument('--units', type=int, default=128, help='The number of units at each layer in nvp1d.')
     parser.add_argument('--channels', type=int, default=32, help='The number of convolutional channels in nvp2d.')
     parser.add_argument('--n-blocks', type=int, default=2, help='The number of residual blocks in nvp2d.')
+    parser.add_argument(
+        '--no-affine', dest='affine', action='store_false',
+        help='Whether to use only translation (as in NICE) instead of affine transformations (only for RealNVP).'
+    )
     parser.add_argument(
         '--activation', choices=['relu', 'tanh', 'sigmoid'], default='relu',
         help='The activation function to use in maf.'
@@ -90,7 +93,8 @@ if __name__ == '__main__':
             n_flows=args.n_flows,
             depth=args.depth,
             units=args.units,
-            batch_norm=args.batch_norm
+            batch_norm=args.batch_norm,
+            affine=args.affine
         )
     elif args.model == 'nvp2d':
         model = RealNVP2d(
@@ -100,7 +104,8 @@ if __name__ == '__main__':
             network=args.network,
             n_flows=args.n_flows,
             n_blocks=args.n_blocks,
-            channels=args.channels
+            channels=args.channels,
+            affine=args.affine
         )
     elif args.model == 'maf':
         model = MAF(

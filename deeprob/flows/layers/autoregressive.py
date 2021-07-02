@@ -7,7 +7,7 @@ from deeprob.torch.utils import ScaledTanh, MaskedLinear
 
 class AutoregressiveLayer(nn.Module):
     """Masked Autoregressive Flow autoregressive layer."""
-    def __init__(self, in_features, depth, units, activation, reverse, sequential=True, rand_state=None):
+    def __init__(self, in_features, depth, units, activation, reverse=False, sequential=True, rand_state=None):
         """
         Build an autoregressive layer as specified in Masked Autoregressive Flow paper.
 

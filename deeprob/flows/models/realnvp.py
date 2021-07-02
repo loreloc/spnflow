@@ -18,7 +18,8 @@ class RealNVP1d(AbstractNormalizingFlow):
                  n_flows=5,
                  depth=1,
                  units=128,
-                 batch_norm=True
+                 batch_norm=True,
+                 affine=True
                  ):
         """
         Initialize a RealNVP.
@@ -31,6 +32,7 @@ class RealNVP1d(AbstractNormalizingFlow):
         :param depth: The number of hidden layers of flows conditioners.
         :param units: The number of hidden units per layer of flows conditioners.
         :param batch_norm: Whether to apply batch normalization after each coupling layer.
+        :param affine: Whether to use affine transformation. If False then use only translation (as in NICE).
         """
         super(RealNVP1d, self).__init__(in_features, dequantize=dequantize, logit=logit, in_base=in_base)
         assert depth > 0
@@ -39,12 +41,16 @@ class RealNVP1d(AbstractNormalizingFlow):
         self.depth = depth
         self.units = units
         self.batch_norm = batch_norm
+        self.affine = affine
 
         # Build the coupling layers
         reverse = False
         for _ in range(self.n_flows):
             self.layers.append(
-                CouplingLayer1d(self.in_features, self.depth, self.units, reverse=reverse)
+                CouplingLayer1d(
+                    self.in_features, self.depth, self.units,
+                    affine=self.affine, reverse=reverse
+                )
             )
 
             # Append batch normalization after each layer, if specified
@@ -65,7 +71,8 @@ class RealNVP2d(AbstractNormalizingFlow):
                  network='resnet',
                  n_flows=1,
                  n_blocks=2,
-                 channels=16
+                 channels=16,
+                 affine=True
                  ):
         """
         Initialize a RealNVP.
@@ -78,6 +85,7 @@ class RealNVP2d(AbstractNormalizingFlow):
         :param n_flows: The number of sequential multi-scale architectures.
         :param n_blocks: The number of residual blocks or dense blocks.
         :param channels: The number of output channels of each convolutional layer.
+        :param affine: Whether to use affine transformation. If False then use only translation (as in NICE).
         """
         super(RealNVP2d, self).__init__(in_features, dequantize=dequantize, logit=logit, in_base=in_base)
         assert n_flows > 0
@@ -87,13 +95,17 @@ class RealNVP2d(AbstractNormalizingFlow):
         self.network = network
         self.n_blocks = n_blocks
         self.channels = channels
+        self.affine = affine
         self.perm_matrices = torch.nn.ParameterList()
 
         # Build the coupling blocks
         channels = self.channels
         in_features = self.in_features
         for _ in range(n_flows):
-            coupling_block = CouplingBlock2d(in_features, self.network, self.n_blocks, channels, last_block=False)
+            coupling_block = CouplingBlock2d(
+                in_features, self.network, self.n_blocks, channels,
+                affine=self.affine, last_block=False
+            )
             self.layers.append(coupling_block)
 
             # Initialize the order matrix for downscaling-upscaling
@@ -108,7 +120,10 @@ class RealNVP2d(AbstractNormalizingFlow):
             channels *= 2
 
         # Add the last coupling block
-        self.last_block = CouplingBlock2d(in_features, self.network, self.n_blocks, channels, last_block=True)
+        self.last_block = CouplingBlock2d(
+            in_features, self.network, self.n_blocks, channels,
+            affine=self.affine, last_block=True
+        )
 
     @staticmethod
     def __build_permutation_matrix(channels):
