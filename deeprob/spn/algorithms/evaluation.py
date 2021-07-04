@@ -70,7 +70,9 @@ def eval_top_down(root, x, ls, leaf_func, sum_func):
             for i, c in enumerate(node.children):
                 max_masks[c.id] = max_masks[node.id] & (max_branch == i)
         else:
-            raise NotImplementedError("Top down evaluation not implemented for node of type " + node.__class__.__name__)
+            raise NotImplementedError(
+                'Top down evaluation not implemented for node of type {}'.format(node.__class__.__name__)
+            )
 
     bfs(root, evaluate)
     return x_mpe

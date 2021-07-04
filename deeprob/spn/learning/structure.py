@@ -27,7 +27,7 @@ class Task:
         self.is_first = is_first
 
 
-def learn_structure(
+def learn_spn(
         data,
         distributions,
         domains,

@@ -4,7 +4,7 @@ from tqdm import tqdm
 from deeprob.spn.structure.leaf import LeafType
 from deeprob.spn.structure.node import Sum, assign_ids
 from deeprob.spn.structure.pruning import prune
-from deeprob.spn.learning.structure import learn_structure
+from deeprob.spn.learning.structure import learn_spn
 
 
 def learn_estimator(data, distributions, domains=None, **kwargs):
@@ -23,7 +23,7 @@ def learn_estimator(data, distributions, domains=None, **kwargs):
     if domains is None:
         domains = get_data_domains(data, distributions)
 
-    root = learn_structure(data, distributions, domains, **kwargs)
+    root = learn_spn(data, distributions, domains, **kwargs)
     return prune(root)
 
 
@@ -62,7 +62,7 @@ def learn_classifier(data, distributions, domains=None, class_idx=-1, verbose=Tr
         local_data = data[classes == c]
         n_local_samples, _ = local_data.shape
         weight = n_local_samples / n_samples
-        branch = learn_structure(local_data, distributions, domains, verbose=verbose, **kwargs)
+        branch = learn_spn(local_data, distributions, domains, verbose=verbose, **kwargs)
         weights.append(weight)
         children.append(prune(branch))
 
