@@ -14,8 +14,9 @@ def eval_backward(root, lls):
     :return: A dictionary having keys the node ids and values the log-gradients w.r.t. the input nodes.
     """
     assert_is_valid(root)
+    n_nodes, n_samples = lls.shape
+    grads = np.empty(shape=(n_nodes, n_samples), dtype=np.float32)
     parents = dict()
-    grads = dict()
 
     # Initialize the identity log-gradient at root node
     grads[root.id] = 0.0

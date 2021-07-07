@@ -1,11 +1,9 @@
 import numpy as np
 
 from tqdm import tqdm
-from scipy.special import softmax
-from scipy.stats import ttest_1samp
-from deeprob.spn.utils.filter import filter_nodes_type
 from deeprob.spn.structure.leaf import Leaf
-from deeprob.spn.structure.node import Sum, Mul, bfs
+from deeprob.spn.structure.node import Sum
+from deeprob.spn.utils.filter import filter_nodes_type
 from deeprob.spn.algorithms.inference import log_likelihood
 from deeprob.spn.algorithms.gradient import eval_backward
 
@@ -13,70 +11,92 @@ from deeprob.spn.algorithms.gradient import eval_backward
 def expectation_maximization(
         spn,
         data,
-        max_iter=100,
-        p_thresh=0.1,
+        num_iter=100,
+        batch_perc=0.1,
+        step_size=0.5,
         random_init=True,
         random_state=None,
         verbose=True
 ):
     """
-    Learn the parameters of a SPN by Expectation-Maximization (EM).
+    Learn the parameters of a SPN by batch Expectation-Maximization (EM).
     See https://arxiv.org/abs/1604.07243 and https://arxiv.org/abs/2004.06231 for details.
 
     :param spn: The spn structure.
     :param data: The data to use to learn the parameters.
-    :param max_iter: The maximum number of iterations.
-    :param p_thresh: The threshold for the T-Test's p-value to ensure a statistically relevant EM step improvement.
+    :param num_iter: The number of iterations.
+    :param batch_perc: The percentage of data to use for each step.
+    :param step_size: The step size for batch EM.
     :param random_init: Whether to random initialize the weights of the SPN.
     :param random_state: The random state to use. It can be None.
     :param verbose: Whether to enable verbose learning.
     :return: The spn with learned parameters.
     """
-    assert max_iter > 0, "The number of maximum iterations must be greater than zero"
-    assert 0.0 < p_thresh < 0.5, "The T-Test's p-value threshold must be in (0.0, 0.5)"
+    assert num_iter > 0, "The number of iterations must be positive"
+    assert 0.0 < batch_perc < 1.0, "The batch percentage must be in (0, 1)"
+    assert 0.0 < step_size < 1.0, "The step size must be in (0, 1)"
+
+    # Compute the batch size
+    n_samples = len(data)
+    batch_size = int(batch_perc * n_samples)
+
+    # Compute a list-based cache for accessing nodes
+    cached_nodes = {
+        'sum': filter_nodes_type(spn, Sum),
+        'leaf': filter_nodes_type(spn, Leaf)
+    }
+
+    # Initialize the random state
+    if random_state is None:
+        random_state = np.random.RandomState(42)
+    elif type(random_state) == int:
+        random_state = np.random.RandomState(random_state)
+    else:
+        random_state = random_state
 
     # Random initialize the parameters of the SPN, if specified
     if random_init:
-        # Initialize the random state
-        if random_state is None:
-            random_state = np.random.RandomState(42)
-        elif type(random_state) == int:
-            random_state = np.random.RandomState(random_state)
-        else:
-            random_state = random_state
-        random_initialize_parameters(spn, random_state)
+        # Initialize the sum parameters
+        for n in cached_nodes['sum']:
+            n.em_init(random_state)
+
+        # Initialize the leaf parameters
+        for n in cached_nodes['leaf']:
+            n.em_init(random_state)
 
     # Initialize the tqdm bar, if verbose is specified
     tk = tqdm(total=np.inf, leave=None) if verbose else None
 
-    it = 0
-    last_mean_ll = -np.inf
-    while it < max_iter:
+    for it in range(num_iter):
+        # Sample a batch of data randomly with uniform distribution
+        batch_indices = random_state.choice(n_samples, size=batch_size, replace=False)
+        batch_data = data[batch_indices]
+
         # Forward step, obtaining the LLs at each node
-        root_ll, lls = log_likelihood(spn, data, return_results=True)
+        root_ll, lls = log_likelihood(spn, batch_data, return_results=True)
         mean_ll = np.mean(root_ll)
 
-        # Update the progress bar's description
-        if verbose:
-            tk.set_description('Mean LL: {:.4f}'.format(mean_ll))
-
-        # Do a T-Test to ensure statistically relevant improvements on the LL
-        _, p = ttest_1samp(root_ll, last_mean_ll, alternative='greater')
-        if p > p_thresh:
-            break
-
-        # Backward step, compute the log-gradients required to compute the expected sufficient statistics
+        # Backward step, compute the log-gradients required to compute the sufficient statistics
         grads = eval_backward(spn, lls)
 
         # Update the weights of each sum node
-        for s in filter_nodes_type(spn, Sum):
-            update_sum_weights(s, root_ll, lls, grads)
+        for n in cached_nodes['sum']:
+            children_ll = lls[list(map(lambda c: c.id, n.children))]
+            stats = np.exp(children_ll - root_ll + grads[n.id])
+            params = n.em_step(stats)
+            update_node_parameters(n, params, step_size)
+
+        # Update the parameters of each leaf node
+        for n in cached_nodes['leaf']:
+            sc = n.scope[0] if len(n.scope) == 1 else n.scope
+            stats = np.exp(lls[n.id] - root_ll + grads[n.id])
+            params = n.em_step(stats, batch_data[:, sc])
+            update_node_parameters(n, params, step_size)
 
         # Update the counter, statistics and progress bar
-        it += 1
-        last_mean_ll = mean_ll
         if verbose:
             tk.update()
+            tk.set_description('Mean LL: {:.4f}'.format(mean_ll), refresh=False)
             tk.refresh()
 
     if verbose:
@@ -84,61 +104,15 @@ def expectation_maximization(
     return spn
 
 
-def update_sum_weights(node, root_ll, lls, grads):
+def update_node_parameters(node, params_dict, step_size):
     """
-    Update the weights of a sum node.
+    Update the node parameters by a batch EM step.
 
-    :param node: The sum node.
-    :param root_ll: The log-likelihood at the root node of the SPN.
-    :param lls: The log-likelihoods at each node in the SPN.
-    :param grads: The log-gradients w.r.t. the sum node.
+    :param node: The node to update.
+    :param params_dict: A dictionary containing the parameters to update.
+    :param step_size: The batch EM step size.
     """
-    stats = np.zeros(len(node.weights), dtype=np.float32)
-    for i, (c, w) in enumerate(zip(node.children, node.weights)):
-        stats[i] = w * np.sum(np.exp(lls[c.id] - root_ll + grads[node.id]))
-    node.weights = stats / np.sum(stats)
-
-
-def random_initialize_parameters(spn, random_state):
-    """
-    Random initialize the parameters of a SPN.
-
-    :param spn: The SPN to random initialize.
-    :param random_state: The random state to use.
-    """
-    def rand_init(node):
-        if isinstance(node, Sum):
-            w = random_state.randn(len(node.weights)).astype(np.float32)
-            node.weights = softmax(w)
-        elif isinstance(node, Mul):
-            pass
-        elif isinstance(node, Leaf):
-            pass  # TODO (possible handling EM for any kind of leaves)
-        else:
-            raise NotImplementedError(
-                'Random parameters initialization not implemented for type {}'.format(node.__class__.__name__)
-            )
-
-    bfs(spn, rand_init)
-
-
-if __name__ == '__main__':
-    from experiments.datasets import load_binary_dataset
-    from deeprob.spn.structure.leaf import Bernoulli
-    from deeprob.spn.learning.wrappers import learn_estimator
-
-    data_train, data_valid, data_test = load_binary_dataset('../../../experiments/datasets', 'netflix', raw=True)
-    n_features = data_train.shape[1]
-    distributions = [Bernoulli] * n_features
-    spn = learn_estimator(
-        data_train, distributions, learn_leaf='mle',
-        split_rows='gmm', split_cols='gvs'
-    )
-
-    test_ll = log_likelihood(spn, data_test)
-    print('Mean LL: {}'.format(np.mean(test_ll)))
-
-    spn = expectation_maximization(spn, data_train)
-
-    test_ll = log_likelihood(spn, data_test)
-    print('Mean LL: {}'.format(np.mean(test_ll)))
+    for name, value in params_dict.items():
+        old_param = getattr(node, name)
+        new_param = (1.0 - step_size) * old_param + step_size * value
+        setattr(node, name, new_param)

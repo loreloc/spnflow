@@ -1,7 +1,9 @@
+import abc
 import numpy as np
-import scipy.stats as stats
+import scipy.stats as ss
 
 from enum import Enum
+from scipy.special import logsumexp
 from deeprob.spn.structure.node import Node
 from deeprob.spn.utils.data import ohe_data
 
@@ -26,6 +28,25 @@ class Leaf(Node):
         """
         super(Leaf, self).__init__([], [scope] if type(scope) == int else scope)
 
+    def em_init(self, random_state):
+        """
+        Random initialize the leaf's parameters for Expectation-Maximization (EM).
+
+        :param random_state: The random state.
+        """
+        pass
+
+    def em_step(self, stats, data):
+        """
+        Compute the parameters after an EM step.
+
+        :param stats: The sufficient statistics of each sample.
+        :param data: The data regarding random variables of the leaf.
+        :return: A dictionary of new parameters.
+        """
+        return dict()
+
+    @abc.abstractmethod
     def fit(self, data, domain, **kwargs):
         """
         Fit the distribution parameters given the domain and some training data.
@@ -36,6 +57,7 @@ class Leaf(Node):
         """
         pass
 
+    @abc.abstractmethod
     def likelihood(self, x):
         """
         Compute the likelihood of the distribution leaf given some input.
@@ -45,6 +67,7 @@ class Leaf(Node):
         """
         pass
 
+    @abc.abstractmethod
     def log_likelihood(self, x):
         """
         Compute the logarithmic likelihood of the distribution leaf given some input.
@@ -54,6 +77,7 @@ class Leaf(Node):
         """
         pass
 
+    @abc.abstractmethod
     def mpe(self, x):
         """
         Compute the maximum at posteriori values.
@@ -62,6 +86,7 @@ class Leaf(Node):
         """
         pass
 
+    @abc.abstractmethod
     def sample(self, x):
         """
         Sample from the leaf distribution.
@@ -71,6 +96,7 @@ class Leaf(Node):
         """
         pass
 
+    @abc.abstractmethod
     def params_count(self):
         """
         Get the number of parameters of the distribution leaf.
@@ -79,6 +105,7 @@ class Leaf(Node):
         """
         pass
 
+    @abc.abstractmethod
     def params_dict(self):
         """
         Get a dictionary representation of the distribution parameters.
@@ -115,6 +142,28 @@ class Bernoulli(Leaf):
         """
         self.p = (data.sum().item() + alpha) / (len(data) + 2 * alpha)
 
+    def em_init(self, random_state):
+        """
+        Random initialize the leaf's parameters for Expectation-Maximization (EM).
+
+        :param random_state: The random state.
+        """
+        self.p = random_state.rand()
+
+    def em_step(self, stats, data):
+        """
+        Compute the parameters after an EM step.
+
+        :param stats: The sufficient statistics of each sample.
+        :param data: The data regarding random variables of the leaf.
+        :return: A dictionary of new parameters.
+        """
+        if np.count_nonzero(data) == 0:
+            return {'p': 0.0}
+        total_stats = np.sum(stats) + np.finfo(np.float32).eps
+        p = np.sum(stats[data == 1]) / total_stats
+        return {'p': p}
+
     def likelihood(self, x):
         """
         Compute the likelihood of the distribution leaf given some input.
@@ -122,7 +171,7 @@ class Bernoulli(Leaf):
         :param x: The inputs.
         :return: The resulting likelihood.
         """
-        return stats.bernoulli.pmf(x, self.p)
+        return ss.bernoulli.pmf(x, self.p)
 
     def log_likelihood(self, x):
         """
@@ -131,7 +180,7 @@ class Bernoulli(Leaf):
         :param x: The inputs.
         :return: The resulting log likelihood.
         """
-        y = stats.bernoulli.logpmf(x, self.p)
+        y = ss.bernoulli.logpmf(x, self.p)
         return y
 
     def mpe(self, x):
@@ -154,7 +203,7 @@ class Bernoulli(Leaf):
         z = np.copy(x)
         mask = np.isnan(x)
         n_nans = np.count_nonzero(mask)
-        z[mask] = stats.bernoulli.rvs(self.p, size=n_nans)
+        z[mask] = ss.bernoulli.rvs(self.p, size=n_nans)
         return z
 
     def params_count(self):
@@ -216,7 +265,7 @@ class Categorical(Leaf):
         mask = np.isnan(x)
         ll = np.ones(shape=(len(x), 1))
         z = x[~mask].astype(np.int64)
-        ll[~mask] = stats.multinomial.pmf(ohe_data(z, range(len(self.p))), 1, self.p)
+        ll[~mask] = ss.multinomial.pmf(ohe_data(z, range(len(self.p))), 1, self.p)
         return ll
 
     def log_likelihood(self, x):
@@ -229,7 +278,7 @@ class Categorical(Leaf):
         mask = np.isnan(x)
         ll = np.zeros(shape=(len(x), 1))
         z = x[~mask].astype(np.int64)
-        ll[~mask] = stats.multinomial.logpmf(ohe_data(z, range(len(self.p))), 1, self.p)
+        ll[~mask] = ss.multinomial.logpmf(ohe_data(z, range(len(self.p))), 1, self.p)
         return ll
 
     def mpe(self, x):
@@ -252,7 +301,7 @@ class Categorical(Leaf):
         z = np.copy(x)
         mask = np.isnan(x)
         n_nans = np.count_nonzero(mask)
-        z[mask] = np.argmax(stats.multinomial.rvs(1, self.p, size=n_nans), axis=1)
+        z[mask] = np.argmax(ss.multinomial.rvs(1, self.p, size=n_nans), axis=1)
         return z
 
     def params_count(self):
@@ -364,7 +413,7 @@ class Isotonic(Leaf):
         if self.continuous == LeafType.DISCRETE:
             z[mask] = np.random.choice(self.mids, p=self.densities, size=n_nans)
         else:
-            z[mask] = stats.rv_histogram((self.densities, self.breaks)).ppf(
+            z[mask] = ss.rv_histogram((self.densities, self.breaks)).ppf(
                 np.random.rand(n_nans)
             )
         return z
@@ -417,7 +466,7 @@ class Uniform(Leaf):
         :param domain: The domain of the distribution leaf.
         :param kwargs: Optional parameters.
         """
-        self.start, self.width = stats.uniform.fit(data)
+        self.start, self.width = ss.uniform.fit(data)
 
     def likelihood(self, x):
         """
@@ -426,7 +475,7 @@ class Uniform(Leaf):
         :param x: The inputs.
         :return: The resulting likelihood.
         """
-        return stats.uniform.pdf(x, self.start, self.width)
+        return ss.uniform.pdf(x, self.start, self.width)
 
     def log_likelihood(self, x):
         """
@@ -435,7 +484,7 @@ class Uniform(Leaf):
         :param x: The inputs.
         :return: The resulting log likelihood.
         """
-        return stats.uniform.logpdf(x, self.start, self.width)
+        return ss.uniform.logpdf(x, self.start, self.width)
 
     def mpe(self, x):
         """
@@ -457,7 +506,7 @@ class Uniform(Leaf):
         z = np.copy(x)
         mask = np.isnan(x)
         n_nans = np.count_nonzero(mask)
-        z[mask] = stats.uniform.rvs(self.start, self.width, size=n_nans)
+        z[mask] = ss.uniform.rvs(self.start, self.width, size=n_nans)
         return z
 
     def params_count(self):
@@ -506,9 +555,31 @@ class Gaussian(Leaf):
         :param domain: The domain of the distribution leaf.
         :param kwargs: Optional parameters.
         """
-        self.mean, self.stddev = stats.norm.fit(data)
-        if np.isclose(self.stddev, 0.0):
-            self.stddev += np.finfo(np.float32).eps
+        self.mean, self.stddev = ss.norm.fit(data)
+        self.stddev = max(self.stddev, 1e-5)
+
+    def em_init(self, random_state):
+        """
+        Random initialize the leaf's parameters for Expectation-Maximization (EM).
+
+        :param random_state: The random state.
+        """
+        self.mean = 1e-1 * random_state.randn()
+        self.stddev = 0.5 + 1e-1 * np.tanh(random_state.randn())
+
+    def em_step(self, stats, data):
+        """
+        Compute the parameters after an EM step.
+
+        :param stats: The sufficient statistics of each sample.
+        :param data: The data regarding random variables of the leaf.
+        :return: A dictionary of new parameters.
+        """
+        total_stats = np.sum(stats) + np.finfo(np.float32).eps
+        mean = np.sum(stats * data) / total_stats
+        stddev = np.sum(stats * (data - mean) ** 2.0) / total_stats
+        stddev = max(stddev, 1e-5)
+        return {'mean': mean, 'stddev': stddev}
 
     def likelihood(self, x):
         """
@@ -517,7 +588,7 @@ class Gaussian(Leaf):
         :param x: The inputs.
         :return: The resulting likelihood.
         """
-        return stats.norm.pdf(x, self.mean, self.stddev)
+        return ss.norm.pdf(x, self.mean, self.stddev)
 
     def log_likelihood(self, x):
         """
@@ -526,7 +597,7 @@ class Gaussian(Leaf):
         :param x: The inputs.
         :return: The resulting log likelihood.
         """
-        return stats.norm.logpdf(x, self.mean, self.stddev)
+        return ss.norm.logpdf(x, self.mean, self.stddev)
 
     def mpe(self, x):
         """
@@ -548,7 +619,7 @@ class Gaussian(Leaf):
         z = np.copy(x)
         mask = np.isnan(x)
         n_nans = np.count_nonzero(mask)
-        z[mask] = stats.norm.rvs(self.mean, self.stddev, size=n_nans)
+        z[mask] = ss.norm.rvs(self.mean, self.stddev, size=n_nans)
         return z
 
     def params_count(self):

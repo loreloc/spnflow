@@ -1,9 +1,11 @@
+import abc
 import numpy as np
-from scipy.special import logsumexp
+
 from collections import deque
+from scipy.special import softmax, logsumexp
 
 
-class Node:
+class Node(abc.ABC):
     """SPN node base class."""
     def __init__(self, children, scope):
         """
@@ -17,6 +19,7 @@ class Node:
         self.children = children
         self.scope = scope
 
+    @abc.abstractmethod
     def likelihood(self, x):
         """
         Compute the likelihood of the node given some input.
@@ -26,6 +29,7 @@ class Node:
         """
         pass
 
+    @abc.abstractmethod
     def log_likelihood(self, x):
         """
         Compute the logarithmic likelihood of the node given some input.
@@ -57,6 +61,26 @@ class Sum(Node):
             weights = np.array(weights, dtype=np.float32)
         self.weights = weights
 
+    def em_init(self, random_state):
+        """
+        Random initialize the node's parameters for Expectation-Maximization (EM).
+
+        :param random_state: The random state.
+        """
+        w = 1e-1 * random_state.randn(len(self.children))
+        self.weights = softmax(w).astype(np.float32)
+
+    def em_step(self, stats):
+        """
+        Compute the parameters after an EM step.
+
+        :param stats: The sufficient statistics of each sample.
+        :return: A dictionary of new parameters.
+        """
+        unnorm_weights = self.weights * np.sum(stats, axis=1) + np.finfo(np.float32).eps
+        weights = unnorm_weights / np.sum(unnorm_weights)
+        return {'weights': weights}
+
     def likelihood(self, x):
         """
         Compute the likelihood of the sum node given some input.
@@ -64,7 +88,7 @@ class Sum(Node):
         :param x: The inputs.
         :return: The resulting likelihood.
         """
-        return np.dot(x, self.weights)
+        return np.expand_dims(np.dot(x, self.weights), axis=1)
 
     def log_likelihood(self, x):
         """
@@ -73,7 +97,7 @@ class Sum(Node):
         :param x: The inputs.
         :return: The resulting log likelihood.
         """
-        return logsumexp(x, b=self.weights, axis=1)
+        return logsumexp(x, b=self.weights, axis=1, keepdims=True)
 
 
 class Mul(Node):
@@ -100,7 +124,7 @@ class Mul(Node):
         :param x: The inputs.
         :return: The resulting likelihood.
         """
-        return np.prod(x, axis=1)
+        return np.prod(x, axis=1, keepdims=True)
 
     def log_likelihood(self, x):
         """
@@ -109,7 +133,7 @@ class Mul(Node):
         :param x: The inputs.
         :return: The resulting log likelihood.
         """
-        return np.sum(x, axis=1)
+        return np.sum(x, axis=1, keepdims=True)
 
 
 def assign_ids(root):

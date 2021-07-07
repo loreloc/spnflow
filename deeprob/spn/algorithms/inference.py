@@ -12,7 +12,7 @@ def likelihood(root, x, return_results=False):
     :param return_results: A flag indicating if this function must return the likelihoods of each node of the SPN.
     :return: The likelihood values. Additionally it returns the likelihood values of each node.
     """
-    return eval_bottom_up(root, x, leaf_likelihood, node_likelihood, return_results)
+    return eval_bottom_up(root, x, node_likelihood, return_results)
 
 
 def log_likelihood(root, x, return_results=False):
@@ -24,7 +24,7 @@ def log_likelihood(root, x, return_results=False):
     :param return_results: A flag indicating if this function must return the log likelihoods of each node of the SPN.
     :return: The log likelihood values. Additionally it returns the log likelihood values of each node.
     """
-    return eval_bottom_up(root, x, leaf_log_likelihood, node_log_likelihood, return_results)
+    return eval_bottom_up(root, x, node_log_likelihood, return_results)
 
 
 def mpe(root, x):
@@ -39,36 +39,6 @@ def mpe(root, x):
     return eval_top_down(root, x, ls, leaf_mpe, sum_mpe)
 
 
-def leaf_likelihood(node, x):
-    """
-    Compute the likelihood of a leaf given an input and its NaN mask.
-    It also handles of NaN and infinite likelihoods.
-
-    :param node: The leaf node.
-    :param x: The input.
-    :return: The likelihood of the leaf given the input.
-    """
-    z = node.likelihood(x)
-    z[np.isnan(z)] = 1.0
-    z[np.isinf(z)] = 0.0
-    return np.squeeze(z)
-
-
-def leaf_log_likelihood(node, x):
-    """
-    Compute the logarithmic likelihood of a leaf given an input and its NaN mask.
-    It also handles of NaN and infinite log likelihoods.
-
-    :param node: The leaf node.
-    :param x: The input.
-    :return: The log likelihood of the leaf given the input.
-    """
-    z = node.log_likelihood(x)
-    z[np.isnan(z)] = 0.0
-    z[np.isinf(z)] = np.finfo(np.float32).min
-    return np.squeeze(z)
-
-
 def node_likelihood(node, x):
     """
     Compute the likelihood of a node given the list of likelihoods of its children.
@@ -81,7 +51,7 @@ def node_likelihood(node, x):
     z = node.likelihood(x)
     z[np.isnan(z)] = 1.0
     z[np.isinf(z)] = 0.0
-    return z
+    return np.squeeze(z)
 
 
 def node_log_likelihood(node, x):
@@ -95,8 +65,8 @@ def node_log_likelihood(node, x):
     """
     z = node.log_likelihood(x)
     z[np.isnan(z)] = 0.0
-    z[np.isinf(z)] = np.finfo(np.float32).min
-    return z
+    z[np.isinf(z)] = np.finfo(np.float16).min
+    return np.squeeze(z)
 
 
 def leaf_mpe(node, x):

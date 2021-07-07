@@ -6,14 +6,13 @@ from deeprob.spn.structure.node import Sum, Mul, bfs, dfs_post_order
 from deeprob.spn.utils.validity import assert_is_valid
 
 
-def eval_bottom_up(root, x, leaf_func, node_func, return_results=False):
+def eval_bottom_up(root, x, node_func, return_results=False):
     """
     Evaluate the SPN bottom up given some inputs and leaves and nodes evaluation functions.
 
     :param root: The root of the SPN.
     :param x: The inputs.
-    :param leaf_func: The function to compute at the leaves.
-    :param node_func: The function to compute at each internal node.
+    :param node_func: The function to compute at each node.
     :param return_results: A flag indicating if this function must return the log likelihoods of each node of the SPN.
     :return: The outputs. Additionally it returns the output of each node.
     """
@@ -24,7 +23,7 @@ def eval_bottom_up(root, x, leaf_func, node_func, return_results=False):
 
     def evaluate(node):
         if isinstance(node, Leaf):
-            ls[node.id] = leaf_func(node, x[:, node.scope])
+            ls[node.id] = node_func(node, x[:, node.scope])
         else:
             children_ls = np.stack([ls[c.id] for c in node.children], axis=1)
             ls[node.id] = node_func(node, children_ls)
