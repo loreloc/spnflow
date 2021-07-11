@@ -2,7 +2,7 @@ import numpy as np
 
 from deeprob.spn.structure.leaf import Leaf
 from deeprob.spn.structure.node import Sum, bfs, assign_ids
-from deeprob.spn.utils.validity import assert_is_valid
+from deeprob.spn.utils.validity import assert_smooth, assert_decomposable, assert_labeled
 
 
 def prune(root):
@@ -12,7 +12,9 @@ def prune(root):
     :param root: The root of the SPN.
     :return: A minimal and equivalent SPN.
     """
-    assert_is_valid(root)
+    assert_smooth(root)
+    assert_decomposable(root)
+    assert_labeled(root)
 
     def evaluate(node):
         if isinstance(node, Leaf):

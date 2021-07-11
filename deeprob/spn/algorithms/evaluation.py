@@ -1,9 +1,8 @@
 import numpy as np
 
-from deeprob.spn.utils.filter import get_nodes
 from deeprob.spn.structure.leaf import Leaf
-from deeprob.spn.structure.node import Sum, Mul, bfs, dfs_post_order
-from deeprob.spn.utils.validity import assert_is_valid
+from deeprob.spn.structure.node import Sum, Mul, topological_order
+from deeprob.spn.utils.validity import assert_smooth, assert_decomposable, assert_labeled
 
 
 def eval_bottom_up(root, x, node_func, return_results=False):
@@ -16,19 +15,22 @@ def eval_bottom_up(root, x, node_func, return_results=False):
     :param return_results: A flag indicating if this function must return the log likelihoods of each node of the SPN.
     :return: The outputs. Additionally it returns the output of each node.
     """
-    assert_is_valid(root)
-    n_samples, n_features = x.shape
-    n_nodes = len(get_nodes(root))
-    ls = np.empty(shape=(n_nodes, n_samples), dtype=np.float32)
+    assert_smooth(root)
+    assert_decomposable(root)
+    assert_labeled(root)
 
-    def evaluate(node):
+    nodes = topological_order(root)
+    assert nodes is not None, "The SPN Graph is not acyclic"
+
+    n_samples, n_features = x.shape
+    ls = np.empty((len(nodes), n_samples), dtype=np.float32)
+
+    for node in reversed(nodes):
         if isinstance(node, Leaf):
             ls[node.id] = node_func(node, x[:, node.scope])
         else:
             children_ls = np.stack([ls[c.id] for c in node.children], axis=1)
             ls[node.id] = node_func(node, children_ls)
-
-    dfs_post_order(root, evaluate)
 
     if return_results:
         return ls[root.id], ls
@@ -47,19 +49,24 @@ def eval_top_down(root, x, ls, leaf_func, sum_func):
     :param sum_func: The sum node evaluation function.
     :return: The NaN-filled inputs.
     """
-    assert_is_valid(root)
+    assert_smooth(root)
+    assert_decomposable(root)
+    assert_labeled(root)
+
+    nodes = topological_order(root)
+    assert nodes is not None, "The SPN Graph is not acyclic"
+
     n_samples, n_features = x.shape
-    n_nodes = len(get_nodes(root))
-    x_mpe = np.copy(x)
+    z = np.copy(x)
 
-    # Build the dictionary consisting of maximum masks
-    max_masks = np.ones(shape=(n_nodes, n_samples), dtype=np.bool_)
+    # Build the array consisting of maximum masks
+    max_masks = np.ones((len(nodes), n_samples), dtype=np.bool_)
 
-    def evaluate(node):
+    for node in nodes:
         if isinstance(node, Leaf):
             m = max_masks[node.id]
             mask = np.ix_(m, node.scope)
-            x_mpe[mask] = leaf_func(node, x[mask])
+            z[mask] = leaf_func(node, x[mask])
         elif isinstance(node, Mul):
             for c in node.children:
                 max_masks[c.id] = max_masks[node.id]
@@ -72,6 +79,4 @@ def eval_top_down(root, x, ls, leaf_func, sum_func):
             raise NotImplementedError(
                 'Top down evaluation not implemented for node of type {}'.format(node.__class__.__name__)
             )
-
-    bfs(root, evaluate)
-    return x_mpe
+    return z

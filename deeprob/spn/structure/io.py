@@ -48,7 +48,7 @@ def json_spn_obj(node):
         return {
             'kind': Sum.__name__,
             'scope': node.scope,
-            'weights': list(node.weights.tolist()),
+            'weights': node.weights.tolist(),
             'children': [json_spn_obj(c) for c in node.children]
         }
     if isinstance(node, Mul):

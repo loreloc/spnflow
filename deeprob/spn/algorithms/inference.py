@@ -50,7 +50,6 @@ def node_likelihood(node, x):
     """
     z = node.likelihood(x)
     z[np.isnan(z)] = 1.0
-    z[np.isinf(z)] = 0.0
     return np.squeeze(z)
 
 
@@ -65,7 +64,7 @@ def node_log_likelihood(node, x):
     """
     z = node.log_likelihood(x)
     z[np.isnan(z)] = 0.0
-    z[np.isinf(z)] = np.finfo(np.float16).min
+    z = np.maximum(z, -1e32)
     return np.squeeze(z)
 
 

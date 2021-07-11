@@ -1,7 +1,7 @@
 import abc
 import numpy as np
 
-from collections import deque
+from collections import deque, defaultdict
 from scipy.special import softmax, logsumexp
 
 
@@ -191,3 +191,34 @@ def dfs_post_order(root, func):
                 if c not in seen:
                     seen.add(c)
                     stack.append(c)
+
+
+def topological_order(root):
+    """
+    Compute the Topological Ordering for a SPN, using the Kahn's Algorithm.
+
+    :param root: The root of the SPN.
+    :return: A list of nodes that form a topological ordering.
+             If the SPN graph is not acyclic, it returns None.
+    """
+    num_incomings = defaultdict(int)
+    num_incomings[root] = 0
+
+    def count_incomings(node):
+        for c in node.children:
+            num_incomings[c] += 1
+    bfs(root, count_incomings)
+
+    ordering = []
+    queue = deque([root])
+    while queue:
+        node = queue.popleft()
+        ordering.append(node)
+        for c in node.children:
+            num_incomings[c] -= 1
+            if num_incomings[c] == 0:
+                queue.append(c)
+
+    if sum(num_incomings.values()) > 0:
+        return None
+    return ordering
