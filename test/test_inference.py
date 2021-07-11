@@ -14,34 +14,44 @@ class TestInference(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        np.random.seed(42)
+        cls.random_state = np.random.RandomState(42)
+
         data, _, _ = load_binary_dataset('experiments/datasets', 'nltcs', raw=True)
         n_features = data.shape[1]
+
         cls.spn_mle = learn_estimator(
             data, [Bernoulli] * n_features,
             learn_leaf='mle', split_cols='gvs', verbose=False
         )
         cls.spn_clt = learn_estimator(
             data, [Bernoulli] * n_features,
-            learn_leaf='cltree', split_cols='gvs', learn_leaf_kwargs={'to_pc': True}, verbose=False
-        )
-        cls.spn_clt_plain = learn_estimator(
-            data, [Bernoulli] * n_features,
             learn_leaf='cltree', split_cols='gvs', learn_leaf_kwargs={'to_pc': False}, verbose=False
         )
+
         cls.complete_data = np.array([list(i) for i in product([0, 1], repeat=n_features)])
+        indices = cls.random_state.choice(np.arange(len(cls.complete_data)), size=1000, replace=True)
+        cls.evi_data = cls.complete_data[indices]
+        cls.mar_data = np.copy(cls.evi_data).astype(np.float32)
+        mar_mask = cls.random_state.choice([False, True], size=cls.mar_data.shape, p=[0.7, 0.3])
+        cls.mar_data[mar_mask] = np.nan
 
     def test_complete_inference_mle(self):
-        ll = log_likelihood(self.spn_mle, self.complete_data)
-        self.assertAlmostEqual(np.sum(np.exp(ll)).item(), 1.0, places=6)
+        lls = log_likelihood(self.spn_mle, self.complete_data)
+        self.assertAlmostEqual(np.sum(np.exp(lls)).item(), 1.0, places=5)
 
     def test_complete_inference_clt(self):
-        ll = log_likelihood(self.spn_clt, self.complete_data)
-        self.assertAlmostEqual(np.sum(np.exp(ll)).item(), 1.0, places=6)
+        lls = log_likelihood(self.spn_clt, self.complete_data)
+        self.assertAlmostEqual(np.sum(np.exp(lls)).item(), 1.0, places=5)
 
-    def test_complete_inference_clt_plain(self):
-        ll = log_likelihood(self.spn_clt_plain, self.complete_data)
-        self.assertAlmostEqual(np.sum(np.exp(ll)).item(), 1.0, places=6)
+    def test_marginal_inference_mle(self):
+        evi_ll = log_likelihood(self.spn_mle, self.evi_data).mean()
+        mar_ll = log_likelihood(self.spn_mle, self.mar_data).mean()
+        self.assertGreater(mar_ll, evi_ll)
+
+    def test_marginal_inference_clt(self):
+        evi_ll = log_likelihood(self.spn_clt, self.evi_data).mean()
+        mar_ll = log_likelihood(self.spn_clt, self.mar_data).mean()
+        self.assertGreater(mar_ll, evi_ll)
 
 
 if __name__ == '__main__':
