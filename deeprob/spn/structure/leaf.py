@@ -3,7 +3,6 @@ import numpy as np
 import scipy.stats as ss
 
 from enum import Enum
-from scipy.special import logsumexp
 from deeprob.spn.structure.node import Node
 from deeprob.spn.utils.data import ohe_data
 
@@ -158,8 +157,6 @@ class Bernoulli(Leaf):
         :param data: The data regarding random variables of the leaf.
         :return: A dictionary of new parameters.
         """
-        if np.count_nonzero(data) == 0:
-            return {'p': 0.0}
         total_stats = np.sum(stats) + np.finfo(np.float32).eps
         p = np.sum(stats[data == 1]) / total_stats
         return {'p': p}
@@ -577,7 +574,7 @@ class Gaussian(Leaf):
         """
         total_stats = np.sum(stats) + np.finfo(np.float32).eps
         mean = np.sum(stats * data) / total_stats
-        stddev = np.sum(stats * (data - mean) ** 2.0) / total_stats
+        stddev = np.sqrt(np.sum(stats * (data - mean) ** 2.0) / total_stats)
         stddev = max(stddev, 1e-5)
         return {'mean': mean, 'stddev': stddev}
 
