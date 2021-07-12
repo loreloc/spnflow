@@ -12,6 +12,7 @@ Some models are implemented using **PyTorch** for fast training and inference on
 - Inference algorithms for SPNs. [1] [2] [4]
 - Learning algorithms for SPNs structure. [1] [2] [3] [4]
 - Chow-Liu Trees (CLT) as SPN leaves. [10] [11]
+- Batch Expectation-Maximization (EM) for SPNs with arbitrarily leaves. [12] [13]
 - Optimization of the structure of SPNs. [4]
 - JSON I/O operations for SPNs. [4]
 - Implementation of RAT-SPN using PyTorch. [5]
@@ -46,3 +47,5 @@ Various code examples can be found in `examples` directory.
 9. Deep Generalized Convolutional Sum-Product Networks for Probabilistic Image Representations (Van de Wolfshaar and Pronobis).
 10. Cutset Networks: A Simple, Tractable, and Scalable Approach for Improving the Accuracy of Chow-Liu Trees (Rahman et al.).
 11. Random Probabilistic Circuits (Di Mauro, Gala et al.).
+12. Learning Arbitrary Sum-Product Network Leaves with Expectation-Maximization (Desana and Schnörr).
+13. Einsum Networks: Fast and Scalable Learning of Tractable Probabilistic Circuits (Peharz et al.).
