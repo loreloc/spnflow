@@ -15,7 +15,8 @@ clf = SPNEstimator(
     learn_leaf='mle',
     split_rows='kmeans',
     split_cols='rdc',
-    min_rows_slice=64
+    min_rows_slice=64,
+    random_state=42
 )
 clf.fit(data)
 
@@ -41,7 +42,8 @@ clf = SPNClassifier(
     learn_leaf='mle',
     split_rows='kmeans',
     split_cols='rdc',
-    min_rows_slice=64
+    min_rows_slice=64,
+    random_state=42
 )
 clf.fit(data, target)
 

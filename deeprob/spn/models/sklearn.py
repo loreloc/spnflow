@@ -24,6 +24,7 @@ class SPNEstimator(BaseEstimator, DensityMixin):
             split_cols_kwargs=None,
             min_rows_slice=256,
             min_cols_slice=2,
+            random_state=None,
             verbose=True
     ):
         """
@@ -40,6 +41,8 @@ class SPNEstimator(BaseEstimator, DensityMixin):
         :param split_cols_kwargs: The parameters of the cols splitting method.
         :param min_rows_slice: The minimum number of samples required to split horizontally.
         :param min_cols_slice: The minimum number of features required to split vertically.
+        :param random_state: The random state. It can be either None, a seed integer or a Numpy RandomState.
+        :param verbose: Whether to enable verbose mode.
         """
         super(SPNEstimator, self).__init__()
         self.distributions = distributions
@@ -52,6 +55,7 @@ class SPNEstimator(BaseEstimator, DensityMixin):
         self.split_cols_kwargs = split_cols_kwargs
         self.min_rows_slice = min_rows_slice
         self.min_cols_slice = min_cols_slice
+        self.random_state = random_state
         self.verbose = verbose
         self.spn_ = None
         self.n_features_ = 0
@@ -70,7 +74,7 @@ class SPNEstimator(BaseEstimator, DensityMixin):
             split_rows=self.split_rows, split_cols=self.split_cols,
             split_rows_kwargs=self.split_rows_kwargs, split_cols_kwargs=self.split_cols_kwargs,
             min_rows_slice=self.min_rows_slice, min_cols_slice=self.min_cols_slice,
-            verbose=self.verbose
+            random_state=self.random_state, verbose=self.verbose
         )
         _, self.n_features_ = X.shape
         return self
@@ -145,6 +149,7 @@ class SPNClassifier(BaseEstimator, ClassifierMixin):
             split_cols_kwargs=None,
             min_rows_slice=256,
             min_cols_slice=2,
+            random_state=None,
             verbose=True
     ):
         """
@@ -161,6 +166,8 @@ class SPNClassifier(BaseEstimator, ClassifierMixin):
         :param split_cols_kwargs: The parameters of the cols splitting method.
         :param min_rows_slice: The minimum number of samples required to split horizontally.
         :param min_cols_slice: The minimum number of features required to split vertically.
+        :param random_state: The random state. It can be either None, a seed integer or a Numpy RandomState.
+        :param verbose: Whether to enable verbose mode.
         """
         super(SPNClassifier, self).__init__()
         self.distributions = distributions
@@ -173,6 +180,7 @@ class SPNClassifier(BaseEstimator, ClassifierMixin):
         self.split_cols_kwargs = split_cols_kwargs
         self.min_rows_slice = min_rows_slice
         self.min_cols_slice = min_cols_slice
+        self.random_state = random_state
         self.verbose = verbose
         self.spn_ = None
         self.n_features_ = 0
@@ -205,7 +213,7 @@ class SPNClassifier(BaseEstimator, ClassifierMixin):
             split_rows=self.split_rows, split_cols=self.split_cols,
             split_rows_kwargs=self.split_rows_kwargs, split_cols_kwargs=self.split_cols_kwargs,
             min_rows_slice=self.min_rows_slice, min_cols_slice=self.min_cols_slice,
-            verbose=self.verbose
+            random_state=self.random_state, verbose=self.verbose
         )
         _, self.n_features_ = X.shape
         self.n_classes_ = n_classes
