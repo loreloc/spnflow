@@ -7,7 +7,7 @@ from deeprob.torch.utils import ScaledTanh, MaskedLinear
 
 class AutoregressiveLayer(nn.Module):
     """Masked Autoregressive Flow autoregressive layer."""
-    def __init__(self, in_features, depth, units, activation, reverse=False, sequential=True, rand_state=None):
+    def __init__(self, in_features, depth, units, activation, reverse=False, sequential=True, random_state=None):
         """
         Build an autoregressive layer as specified in Masked Autoregressive Flow paper.
 
@@ -17,7 +17,7 @@ class AutoregressiveLayer(nn.Module):
         :param activation: The activation class used for inner layers of the conditioner.
         :param reverse: Whether to reverse the mask used in the autoregressive layer. Used only if sequential is True.
         :param sequential: Whether to use sequential degrees for inner layers masks.
-        :param rand_state: The random state used to generate the masks degrees. Used only if sequential is False.
+        :param random_state: The random state used to generate the masks degrees. Used only if sequential is False.
         """
         super(AutoregressiveLayer, self).__init__()
         self.in_features = in_features
@@ -27,13 +27,13 @@ class AutoregressiveLayer(nn.Module):
         self.activation = activation
         self.reverse = reverse
         self.sequential = sequential
-        self.rand_state = rand_state
+        self.random_state = random_state
         self.layers = nn.ModuleList()
         self.scale_activation = ScaledTanh()
 
         # Create the masks of the masked linear layers
-        degrees = self._build_degrees_sequential() if sequential else self._build_degrees_random()
-        masks = self._build_masks(degrees)
+        degrees = self.__build_degrees_sequential() if sequential else self.__build_degrees_random()
+        masks = self.__build_masks(degrees)
 
         # Preserve the input ordering
         self.ordering = degrees[0]
@@ -89,7 +89,7 @@ class AutoregressiveLayer(nn.Module):
         log_det_jacobian = torch.sum(log_det_jacobian, dim=1, keepdim=True)
         return x, log_det_jacobian
 
-    def _build_degrees_sequential(self):
+    def __build_degrees_sequential(self):
         """
         Build sequential degrees for the linear layers of the autoregressive network.
 
@@ -107,7 +107,7 @@ class AutoregressiveLayer(nn.Module):
             degrees.append(np.arange(self.units) % (self.in_features - 1))
         return degrees
 
-    def _build_degrees_random(self):
+    def __build_degrees_random(self):
         """
         Create random degrees for the linear layers of the autoregressive network.
 
@@ -116,17 +116,17 @@ class AutoregressiveLayer(nn.Module):
         # Initialize the input degrees randomly
         degrees = []
         ordering = np.arange(self.in_features)
-        self.rand_state.shuffle(ordering)
+        self.random_state.shuffle(ordering)
         degrees.append(ordering)
 
         # Add the degrees of the hidden layers
         for _ in range(self.depth):
             min_prev_degree = np.min(degrees[-1])
-            degrees.append(self.rand_state.randint(min_prev_degree, self.in_features - 1, self.units))
+            degrees.append(self.random_state.randint(min_prev_degree, self.in_features - 1, self.units))
         return degrees
 
     @staticmethod
-    def _build_masks(degrees):
+    def __build_masks(degrees):
         """
         Build masks from degrees.
 

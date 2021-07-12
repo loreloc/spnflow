@@ -1,21 +1,22 @@
 import numpy as np
-from collections import deque
 
+from collections import deque
 from deeprob.spn.structure.leaf import LeafType
 
 
-def gvs_cols(data, distributions, domains, p=5.0):
+def gvs_cols(data, distributions, domains, random_state, p=5.0):
     """
     Greedy Variable Splitting (GVS) independence test.
 
     :param data: The data.
     :param distributions: The distributions.
     :param domains: The domains.
+    :param random_state: The random state.
     :param p: The threshold for the G-Test.
     :return: A partitioning of features.
     """
     n_samples, n_features = data.shape
-    rand_init = np.random.randint(0, n_features)
+    rand_init = random_state.randint(0, n_features)
     features_set = set(filter(lambda x: x != rand_init, range(n_features)))
     dependent_features_set = {rand_init}
 

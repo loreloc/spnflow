@@ -19,7 +19,7 @@ class MAF(AbstractNormalizingFlow):
                  batch_norm=True,
                  activation='relu',
                  sequential=True,
-                 rand_state=None
+                 random_state=None
                  ):
         """
         Initialize a MAF.
@@ -34,7 +34,7 @@ class MAF(AbstractNormalizingFlow):
         :param batch_norm: Whether to apply batch normalization after each autoregressive layer.
         :param activation: The activation function name to use for the flows conditioners hidden layers.
         :param sequential: If True build masks degrees sequentially, otherwise randomly.
-        :param rand_state: The random state used to generate the masks degrees. Used only if sequential is False.
+        :param random_state: The random state used to generate the masks degrees. Used only if sequential is False.
         """
         super(MAF, self).__init__(in_features, dequantize=dequantize, logit=logit, in_base=in_base)
         assert n_flows > 0
@@ -46,11 +46,18 @@ class MAF(AbstractNormalizingFlow):
         self.batch_norm = batch_norm
         self.activation = get_activation_class(activation)
         self.sequential = sequential
-        self.rand_state = rand_state
 
-        # If necessary, instantiate a random state
-        if not self.sequential and self.rand_state is None:
-            self.rand_state = np.random.RandomState(42)
+        # Initialize the random state, if not using sequential masks
+        if not self.sequential:
+            if random_state is None:
+                random_state = np.random.RandomState()
+            elif type(random_state) == int:
+                random_state = np.random.RandomState(random_state)
+            elif not isinstance(random_state, np.random.RandomState):
+                raise ValueError("The random state must be either None, a seed integer or a Numpy RandomState")
+            self.random_state = random_state
+        else:
+            self.random_state = None
 
         # Build the autoregressive layers
         reverse = False
@@ -58,7 +65,7 @@ class MAF(AbstractNormalizingFlow):
             self.layers.append(
                 AutoregressiveLayer(
                     self.in_features, self.depth, self.units, self.activation,
-                    reverse=reverse, sequential=self.sequential, rand_state=self.rand_state
+                    reverse=reverse, sequential=self.sequential, random_state=self.random_state
                 )
             )
 

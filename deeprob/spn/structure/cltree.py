@@ -8,8 +8,7 @@ from deeprob.spn.structure.node import Sum, Mul, assign_ids
 
 
 class TreeNode:
-    """ A simple class to model a node of a tree. """
-
+    """A simple class to model a node of a tree."""
     def __init__(self, node_id, parent=None):
         """
         Initialize a binary CLT.
@@ -68,9 +67,8 @@ class BinaryCLTree(Leaf):
 
     Thanks to Gennaro Gala (https://github.com/gengala) for his implementation.
     """
-
     LEAF_TYPE = LeafType.DISCRETE
-    
+
     def __init__(self, scope, root=None, bfs=None, tree=None, params=None):
         """
         Initialize a binary CLT.
@@ -78,29 +76,46 @@ class BinaryCLTree(Leaf):
         :param scope: The scope of the leaf.
         """
         super(BinaryCLTree, self).__init__(scope)
+        assert root is None or root in self.scope, "The root variable must be in scope"
         self.bfs = bfs
         self.tree = tree
+
+        # Initialize the parameters
         if params is not None:
             self.params = np.array(params, dtype=np.float32)
         else:
             self.params = None
+
+        # Initialize the root variable
         if root is not None:
-            assert root in scope
             self.root = self.scope.index(root)
         else:
-            self.root = np.random.choice(len(scope))
+            self.root = None
 
-    def fit(self, data, domain, alpha=0.1, **kwargs):
+    def fit(self, data, domain, alpha=0.1, random_state=None, **kwargs):
         """
         Fit the distribution parameters given the domain and some training data.
 
         :param data: The training data.
         :param domain: The domain of the distribution leaf.
         :param alpha: Laplace smoothing factor.
+        :param random_state: The random state. It can be either None, a seed integer or a Numpy RandomState.
         :param kwargs: Optional parameters.
         """
         n_samples, n_features = data.shape
         assert n_features == len(self.scope), "Number of features and leaf scope mismatch"
+
+        # Initialize the random state
+        if random_state is None:
+            random_state = np.random.RandomState()
+        elif type(random_state) == int:
+            random_state = np.random.RandomState(random_state)
+        elif not isinstance(random_state, np.random.RandomState):
+            raise ValueError("The random state must be either None, a seed integer or a Numpy RandomState")
+
+        # Choose a root variable randomly, if not specified
+        if self.root is None:
+            self.root = random_state.choice(len(self.scope))
 
         # Make sure to work with float32
         data = data.astype(np.float32)

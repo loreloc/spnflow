@@ -22,39 +22,43 @@ class RegionGraph:
     associated with the child regions. Connect these products as children of all sum nodes in the parent region of P.
     In the end, this procedure will always deliver a complete and decomposable SPN.
     """
-    def __init__(self, n_features, depth, rand_state=None):
+    def __init__(self, n_features, depth, random_state=None):
         """
         Initialize a region graph.
         :param n_features: The number of features.
         :param depth: The maximum depth.
-        :param rand_state: The random state to use.
+        :param random_state: The random state. It can be either None, a seed integer or a Numpy RandomState.
         """
         assert depth > 0
         assert n_features > 0
+        self.items = tuple(range(n_features))
+        self.depth = depth
 
-        self._items = tuple(range(n_features))
-        self._depth = depth
-        if rand_state is None:
-            self._rand_state = np.random.RandomState(42)
-        else:
-            self._rand_state = rand_state
+        # Initialize the random state
+        if random_state is None:
+            random_state = np.random.RandomState()
+        elif type(random_state) == int:
+            random_state = np.random.RandomState(random_state)
+        elif not isinstance(random_state, np.random.RandomState):
+            raise ValueError("The random state must be either None, a seed integer or a Numpy RandomState")
+        self.random_state = random_state
 
     def random_layers(self):
         """
         Generate a list of layers randomly over a single repetition of features.
         :return: A list of layers, alternating between regions and partitions.
         """
-        root = [self._items]
+        root = [self.items]
         layers = [root]
 
-        for i in range(self._depth):
+        for i in range(self.depth):
             regions = []
             partitions = []
             for r in layers[i * 2]:
                 mid = len(r) // 2
                 if mid == 0:
                     return layers
-                permutation = self._rand_state.permutation(r).tolist()
+                permutation = self.random_state.permutation(r).tolist()
                 p0 = tuple(sorted(permutation[:mid]))
                 p1 = tuple(sorted(permutation[mid:]))
                 regions.append(p0)
@@ -73,12 +77,11 @@ class RegionGraph:
         """
         assert n_repetitions > 0
 
-        root = [self._items]
-        graph_layers = [root] + [[]] * (self._depth * 2)
+        root = [self.items]
+        graph_layers = [root] + [[]] * (self.depth * 2)
 
         for _ in range(n_repetitions):
             layers = self.random_layers()
             for h in range(1, len(layers)):
                 graph_layers[h] = graph_layers[h] + layers[h]
-
         return graph_layers

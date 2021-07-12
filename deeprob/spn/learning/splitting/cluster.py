@@ -1,18 +1,19 @@
 import warnings
 import numpy as np
+
 from sklearn import mixture, cluster
 from sklearn.exceptions import ConvergenceWarning
-
 from deeprob.spn.utils.data import ohe_data
 
 
-def gmm(data, distributions, domains, n=2):
+def gmm(data, distributions, domains, random_state, n=2):
     """
     Execute GMM clustering on some data.
 
     :param data: The data.
     :param distributions: The data distributions.
     :param domains: The data domains.
+    :param random_state: The random state.
     :param n: The number of clusters.
     :return: An array where each element is the cluster where the corresponding data belong.
     """
@@ -23,16 +24,17 @@ def gmm(data, distributions, domains, n=2):
     # Apply GMM
     with warnings.catch_warnings():
         warnings.simplefilter(action='ignore', category=ConvergenceWarning)  # Ignore convergence warnings for GMM
-        return mixture.GaussianMixture(n_components=n, n_init=3).fit_predict(data)
+        return mixture.GaussianMixture(n, n_init=3, random_state=random_state).fit_predict(data)
 
 
-def kmeans(data, distributions, domains, n=2):
+def kmeans(data, distributions, domains, random_state, n=2):
     """
     Execute KMeans clustering on some data.
 
     :param data: The data.
     :param distributions: The data distributions.
     :param domains: The data domains.
+    :param random_state: The random state.
     :param n: The number of clusters.
     :return: An array where each element is the cluster where the corresponding data belong.
     """
@@ -43,7 +45,7 @@ def kmeans(data, distributions, domains, n=2):
     # Apply K-Means
     with warnings.catch_warnings():
         warnings.simplefilter(action='ignore', category=ConvergenceWarning)  # Ignore convergence warnings for K-Means
-        return cluster.KMeans(n_clusters=n).fit_predict(data)
+        return cluster.KMeans(n, n_init=5, random_state=random_state).fit_predict(data)
 
 
 def mixed_ohe_data(data, domains):

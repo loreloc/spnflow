@@ -48,12 +48,9 @@ if __name__ == '__main__':
         '--smoothing', type=float, default=0.1, help='Laplace smoothing value.'
     )
     parser.add_argument(
-        '--seed', type=int, default=1337, help='The Numpy seed value to use.'
+        '--seed', type=int, default=42, help='The Numpy seed value to use.'
     )
     args = parser.parse_args()
-
-    # Apply the given seed, used for reproducibility
-    np.random.seed(args.seed)
 
     # Load the dataset
     if args.dataset in BINARY_DATASETS:
@@ -112,7 +109,8 @@ if __name__ == '__main__':
         min_rows_slice=args.min_rows_slice,
         min_cols_slice=args.min_cols_slice,
         split_rows_kwargs=split_rows_kwargs,
-        split_cols_kwargs=split_cols_kwargs
+        split_cols_kwargs=split_cols_kwargs,
+        random_state=args.seed
     )
     learning_time = time.perf_counter() - start_time
 

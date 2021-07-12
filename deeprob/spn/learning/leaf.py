@@ -1,5 +1,3 @@
-import numpy as np
-
 from deeprob.spn.structure.node import Mul
 from deeprob.spn.structure.leaf import LeafType, Bernoulli, Isotonic
 from deeprob.spn.structure.cltree import BinaryCLTree
@@ -19,10 +17,10 @@ def get_learn_leaf_method(learn_leaf):
     elif learn_leaf == 'cltree':
         return learn_cltree
     else:
-        raise NotImplementedError("Unknown learn leaf method called " + learn_leaf)
+        raise NotImplementedError("Unknown learn leaf method called {}".format(learn_leaf))
 
 
-def learn_mle(data, distributions, domains, scope, alpha=0.1):
+def learn_mle(data, distributions, domains, scope, alpha=0.1, random_state=None):
     """
     Learn a leaf using Maximum Likelihood Estimate (MLE).
     If the data is multivariate, Naive Bayes is learned.
@@ -31,6 +29,7 @@ def learn_mle(data, distributions, domains, scope, alpha=0.1):
     :param distributions: The distributions of the random variables.
     :param domains: The domains of the random variables.
     :param scope: The scope of the leaf.
+    :param random_state: The random state. It can be None.
     :param alpha: Laplace smoothing factor.
     :return: A leaf distribution.
     """
@@ -40,10 +39,13 @@ def learn_mle(data, distributions, domains, scope, alpha=0.1):
         leaf = dist(sc)
         leaf.fit(data, dom, alpha=alpha)
         return leaf
-    return learn_naive_bayes(data, distributions, domains, scope, learn_mle, alpha=alpha)
+    return learn_naive_bayes(
+        data, distributions, domains, scope, learn_mle,
+        alpha=alpha, random_state=random_state
+    )
 
 
-def learn_isotonic(data, distributions, domains, scope):
+def learn_isotonic(data, distributions, domains, scope, random_state=None):
     """
     Learn a leaf using Isotonic method.
     If the data is multivariate, Naive Bayes is learned.
@@ -52,6 +54,7 @@ def learn_isotonic(data, distributions, domains, scope):
     :param distributions: The distribution of the random variables.
     :param domains: The domain of the random variables.
     :param scope: The scope of the leaf.
+    :param random_state: The random sate. It can be None.
     :return: A leaf distribution.
     """
     if len(scope) == 1:
@@ -61,10 +64,13 @@ def learn_isotonic(data, distributions, domains, scope):
         leaf = Isotonic(sc, continuous=continuous)
         leaf.fit(data, dom)
         return leaf
-    return learn_naive_bayes(data, distributions, domains, scope, learn_isotonic)
+    return learn_naive_bayes(
+        data, distributions, domains, scope, learn_isotonic,
+        random_state=random_state
+    )
 
 
-def learn_cltree(data, distributions, domains, scope, to_pc=True, alpha=0.1):
+def learn_cltree(data, distributions, domains, scope, to_pc=True, alpha=0.1, random_state=None):
     """
     Learn a leaf using Chow-Liu tree (CLT).
     If the data is univariate, a Maximum Likelihood Estimate leaf is returned.
@@ -75,10 +81,14 @@ def learn_cltree(data, distributions, domains, scope, to_pc=True, alpha=0.1):
     :param scope: The scope of the leaf.
     :param to_pc: Whether to convert the CLT into an equivalent PC.
     :param alpha: Laplace smoothing factor.
+    :param random_state: The random state. It can be None.
     :return: A leaf distribution.
     """
     if len(scope) == 1:  # If univariate, learn using MLE instead
-        return learn_mle(data, distributions, domains, scope, alpha=alpha)
+        return learn_mle(
+            data, distributions, domains, scope,
+            alpha=alpha, random_state=random_state
+        )
 
     # Obtain the features distributions and domains
     dists = [distributions[sc] for sc in scope]
@@ -87,7 +97,9 @@ def learn_cltree(data, distributions, domains, scope, to_pc=True, alpha=0.1):
     # If multivariate, learn a binary CLTree
     assert all([d == Bernoulli for d in dists]), "Chow-Liu trees are only available for binary data"
     leaf = BinaryCLTree(scope)
-    leaf.fit(data, doms, alpha=alpha)
+    leaf.fit(data, doms, alpha=alpha, random_state=random_state)
+
+    # Make the conversion to a probabilistic circuits, if specified
     if to_pc:
         return leaf.to_pc()
     return leaf
@@ -98,7 +110,7 @@ def learn_naive_bayes(
         distributions,
         domains,
         scope,
-        learn_leaf_func=learn_mle,
+        learn_leaf_func,
         **learn_leaf_params
 ):
     """
@@ -115,7 +127,7 @@ def learn_naive_bayes(
     _, n_features = data.shape
     node = Mul([], scope)
     for i, sc in enumerate(scope):
-        univariate_data = np.expand_dims(data[:, i], axis=1)
+        univariate_data = data[:, [i]]
         leaf = learn_leaf_func(univariate_data, distributions, domains, [sc], **learn_leaf_params)
         node.children.append(leaf)
     return node

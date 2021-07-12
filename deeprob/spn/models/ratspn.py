@@ -18,7 +18,7 @@ class AbstractRatSpn(nn.Module):
                  n_sum=2,
                  in_dropout=None,
                  sum_dropout=None,
-                 rand_state=None,
+                 random_state=None,
                  ):
         """
         Initialize a RAT-SPN.
@@ -31,7 +31,7 @@ class AbstractRatSpn(nn.Module):
         :param n_sum: The number of sum nodes per region.
         :param in_dropout: The dropout rate for probabilistic dropout at distributions layer outputs. It can be None.
         :param sum_dropout: The dropout rate for probabilistic dropout at sum layers. It can be None.
-        :param rand_state: The random state used to generate the random graph.
+        :param random_state: The random state. It can be either None, a seed integer or a Numpy RandomState.
         """
         super(AbstractRatSpn, self).__init__()
         assert in_features > 0
@@ -50,17 +50,22 @@ class AbstractRatSpn(nn.Module):
         self.n_sum = n_sum
         self.in_dropout = in_dropout
         self.sum_dropout = sum_dropout
-        self.rand_state = rand_state
+        self.random_state = random_state
         self.base_layer = None
         self.layers = None
         self.root_layer = None
 
-        # If necessary, instantiate a random state
-        if self.rand_state is None:
-            self.rand_state = np.random.RandomState(42)
+        # Initialize the random state
+        if random_state is None:
+            random_state = np.random.RandomState()
+        elif type(random_state) == int:
+            random_state = np.random.RandomState(random_state)
+        elif not isinstance(random_state, np.random.RandomState):
+            raise ValueError("The random state must be either None, a seed integer or a Numpy RandomState")
+        self.random_state = random_state
 
         # Instantiate the region graph
-        region_graph = RegionGraph(self.in_features, self.rg_depth, self.rand_state)
+        region_graph = RegionGraph(self.in_features, self.rg_depth, self.random_state)
 
         # Generate the layers
         self.rg_layers = region_graph.make_layers(self.rg_repetitions)
@@ -190,9 +195,9 @@ class GaussianRatSpn(AbstractRatSpn):
                  rg_sum=2,
                  in_dropout=None,
                  sum_dropout=None,
-                 rand_state=None,
                  uniform_loc=None,
-                 optimize_scale=True
+                 optimize_scale=True,
+                 random_state=None
                  ):
         """
         Initialize a RAT-SPN.
@@ -205,13 +210,13 @@ class GaussianRatSpn(AbstractRatSpn):
         :param rg_sum: The number of sum nodes per region.
         :param in_dropout: The dropout rate for probabilistic dropout at distributions layer outputs. It can be None.
         :param sum_dropout: The dropout rate for probabilistic dropout at sum layers. It can be None.
-        :param rand_state: The random state used to generate the random graph.
         :param uniform_loc: The optional uniform distribution parameters for location initialization.
         :param optimize_scale: Whether to train scale and location jointly.
+        :param random_state: The random state. It can be either None, a seed integer or a Numpy RandomState.
         """
         super(GaussianRatSpn, self).__init__(
             in_features, out_classes, rg_depth, rg_repetitions,
-            rg_batch, rg_sum, in_dropout, sum_dropout, rand_state
+            rg_batch, rg_sum, in_dropout, sum_dropout, random_state
         )
         assert uniform_loc is None or uniform_loc[0] < uniform_loc[1], \
             "The first parameter of the uniform distribution most be less than the second one."
@@ -253,7 +258,7 @@ class BernoulliRatSpn(AbstractRatSpn):
                  n_sum=2,
                  in_dropout=None,
                  sum_dropout=None,
-                 rand_state=None
+                 random_state=None
                  ):
         """
         Initialize a RAT-SPN.
@@ -266,11 +271,11 @@ class BernoulliRatSpn(AbstractRatSpn):
         :param n_sum: The number of sum nodes per region.
         :param in_dropout: The dropout rate for probabilistic dropout at distributions layer outputs. It can be None.
         :param sum_dropout: The dropout rate for probabilistic dropout at product layer outputs. It can be None.
-        :param rand_state: The random state used to generate the random graph.
+        :param random_state: The random state. It can be either None, a seed integer or a Numpy RandomState.
         """
         super(BernoulliRatSpn, self).__init__(
             in_features, out_classes, rg_depth, rg_repetitions,
-            n_batch, n_sum, in_dropout, sum_dropout, rand_state
+            n_batch, n_sum, in_dropout, sum_dropout, random_state
         )
 
         # Instantiate the base distributions layer

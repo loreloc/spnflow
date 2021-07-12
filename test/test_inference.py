@@ -20,12 +20,12 @@ class TestInference(unittest.TestCase):
         n_features = data.shape[1]
 
         cls.spn_mle = learn_estimator(
-            data, [Bernoulli] * n_features,
-            learn_leaf='mle', split_cols='gvs', verbose=False
+            data, [Bernoulli] * n_features, learn_leaf='mle', split_cols='gvs',
+            random_state=cls.random_state, verbose=False
         )
         cls.spn_clt = learn_estimator(
-            data, [Bernoulli] * n_features,
-            learn_leaf='cltree', split_cols='gvs', learn_leaf_kwargs={'to_pc': False}, verbose=False
+            data, [Bernoulli] * n_features, learn_leaf='cltree', split_cols='gvs',
+            learn_leaf_kwargs={'to_pc': False}, random_state=cls.random_state, verbose=False
         )
 
         cls.complete_data = np.array([list(i) for i in product([0, 1], repeat=n_features)])

@@ -9,13 +9,14 @@ from deeprob.spn.structure.leaf import LeafType
 from deeprob.spn.utils.data import ecdf_data, ohe_data
 
 
-def rdc_cols(data, distributions, domains, d=0.3, k=20, s=1.0 / 6.0, nl=np.sin):
+def rdc_cols(data, distributions, domains, random_state, d=0.3, k=20, s=1.0 / 6.0, nl=np.sin):
     """
     Split the features using the RDC (Randomized Dependency Coefficient) method.
 
     :param data: The data.
     :param distributions: The data distributions.
     :param domains: The data domains.
+    :param random_state: The random state.
     :param d: The threshold value that regulates the independence tests among the features.
     :param k: The size of the latent space.
     :param s: The standard deviation of the gaussian distribution.
@@ -23,7 +24,7 @@ def rdc_cols(data, distributions, domains, d=0.3, k=20, s=1.0 / 6.0, nl=np.sin):
     :return: A features partitioning.
     """
     n_samples, n_features = data.shape
-    rdc_features = rdc_transform(data, distributions, domains, k, s, nl)
+    rdc_features = rdc_transform(data, distributions, domains, random_state, k, s, nl)
     pairwise_comparisons = list(combinations(range(n_features), 2))
 
     adj_matrix = np.zeros((n_features, n_features), dtype=np.int32)
@@ -41,21 +42,29 @@ def rdc_cols(data, distributions, domains, d=0.3, k=20, s=1.0 / 6.0, nl=np.sin):
     return clusters
 
 
-def rdc_rows(data, distributions, domains, n=2, k=20, s=1.0 / 6.0, nl=np.sin):
+def rdc_rows(data, distributions, domains, random_state, n=2, k=20, s=1.0 / 6.0, nl=np.sin):
     """
     Split the samples using the RDC (Randomized Dependency Coefficient) method.
 
     :param data: The data.
     :param distributions: The data distributions.
     :param domains: The data domains.
+    :param random_state: The random state.
     :param n: The number of clusters for KMeans.
     :param k: The size of the latent space.
     :param s: The standard deviation of the gaussian distribution.
     :param nl: The non linear function to use.
     :return: A samples partitioning.
     """
-    rdc_samples = np.concatenate(rdc_transform(data, distributions, domains, k, s, nl), axis=1)
-    return cluster.KMeans(n_clusters=n).fit_predict(rdc_samples)
+    # Transform the samples by RDC
+    rdc_samples = np.concatenate(
+        rdc_transform(data, distributions, domains, random_state, k, s, nl), axis=1
+    )
+
+    # Apply K-Means to the transformed samples
+    with warnings.catch_warnings():
+        warnings.simplefilter(action='ignore', category=ConvergenceWarning)  # Ignore convergence warnings for K-Means
+        return cluster.KMeans(n, n_init=5, random_state=random_state).fit_predict(rdc_samples)
 
 
 def rdc_cca(i, j, features):
@@ -74,13 +83,14 @@ def rdc_cca(i, j, features):
     return np.corrcoef(x_cca.T, y_cca.T)[0, 1]
 
 
-def rdc_transform(data, distributions, domains, k, s, nl):
+def rdc_transform(data, distributions, domains, random_state, k, s, nl):
     """
     Execute the RDC (Randomized Dependency Coefficient) pipeline on some data.
 
     :param data: The data.
     :param distributions: The data distributions.
     :param domains: The data domains.
+    :param random_state: The random state.
     :param k: The size of the latent space.
     :param s: The standard deviation of the gaussian distribution.
     :param nl: The non-linear function to use.
@@ -100,7 +110,7 @@ def rdc_transform(data, distributions, domains, k, s, nl):
 
     samples = []
     for x in features:
-        z = np.random.randn(x.shape[1], k)
+        z = random_state.randn(x.shape[1], k)
         y = nl(s / x.shape[1] * np.dot(x, z))
         o = np.ones((y.shape[0], 1))
         samples.append(np.hstack((y, o)))

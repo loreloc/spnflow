@@ -48,9 +48,6 @@ if __name__ == '__main__':
     parser.add_argument('--weight-decay', type=float, default=0.0, help='L2 regularization factor.')
     args = parser.parse_args()
 
-    # Instantiate a random state, used for reproducibility
-    rand_state = np.random.RandomState(42)
-
     # Load the dataset
     is_vision_dataset = args.dataset in VISION_DATASETS
     transform = None

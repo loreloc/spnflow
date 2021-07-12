@@ -28,7 +28,7 @@ def expectation_maximization(
     :param batch_perc: The percentage of data to use for each step.
     :param step_size: The step size for batch EM.
     :param random_init: Whether to random initialize the weights of the SPN.
-    :param random_state: The random state to use. It can be None.
+    :param random_state: The random state. It can be either None, a seed integer or a Numpy RandomState.
     :param verbose: Whether to enable verbose learning.
     :return: The spn with learned parameters.
     """
@@ -48,11 +48,11 @@ def expectation_maximization(
 
     # Initialize the random state
     if random_state is None:
-        random_state = np.random.RandomState(42)
+        random_state = np.random.RandomState()
     elif type(random_state) == int:
         random_state = np.random.RandomState(random_state)
-    else:
-        random_state = random_state
+    elif not isinstance(random_state, np.random.RandomState):
+        raise ValueError("The random state must be either None, a seed integer or a Numpy RandomState")
 
     # Random initialize the parameters of the SPN, if specified
     if random_init:

@@ -41,6 +41,7 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', type=int, default=1000, help='The number of epochs.')
     parser.add_argument('--patience', type=int, default=30, help='The epochs patience used for early stopping.')
     parser.add_argument('--weight-decay', type=float, default=0.0, help='L2 regularization factor.')
+    parser.add_argument('--seed', type=int, default=42, help='The Numpy seed value to use.')
     args = parser.parse_args()
 
     is_vision_dataset = args.dataset in VISION_DATASETS
@@ -48,9 +49,6 @@ if __name__ == '__main__':
     is_continuous_dataset = args.dataset in CONTINUOUS_DATASETS
     assert is_vision_dataset or args.discriminative is False, \
         'Discriminative setting is not supported for dataset ' + args.dataset
-
-    # Instantiate a random state, used for reproducibility
-    rand_state = np.random.RandomState(42)
 
     # Load the dataset
     transform = None
@@ -105,7 +103,7 @@ if __name__ == '__main__':
             n_sum=args.rg_sum,
             in_dropout=args.in_dropout,
             sum_dropout=args.sum_dropout,
-            rand_state=rand_state
+            random_state=args.seed
         )
     else:
         model = GaussianRatSpn(
@@ -115,9 +113,9 @@ if __name__ == '__main__':
             rg_repetitions=args.rg_repetitions,
             rg_batch=args.rg_batch,
             rg_sum=args.rg_sum,
-            rand_state=rand_state,
             uniform_loc=args.uniform_loc,
-            optimize_scale=args.optimize_scale
+            optimize_scale=args.optimize_scale,
+            random_state=args.seed
         )
 
     # Train the model and collect the results

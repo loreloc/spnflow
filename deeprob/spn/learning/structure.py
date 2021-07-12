@@ -39,6 +39,7 @@ def learn_spn(
         split_cols_kwargs=None,
         min_rows_slice=256,
         min_cols_slice=2,
+        random_state=None,
         verbose=True,
 ):
     """
@@ -55,6 +56,7 @@ def learn_spn(
     :param split_cols_kwargs: The parameters of the cols splitting method.
     :param min_rows_slice: The minimum number of samples required to split horizontally.
     :param min_cols_slice: The minimum number of features required to split vertically.
+    :param random_state: The random state. It can be either None, a seed integer or a Numpy RandomState.
     :param verbose: Whether to enable verbose mode.
     :return: A learned valid SPN.
     """
@@ -67,26 +69,38 @@ def learn_spn(
     assert min_cols_slice > 1
 
     if learn_leaf_kwargs is None:
-        learn_leaf_kwargs = {}
+        learn_leaf_kwargs = dict()
     if split_rows_kwargs is None:
-        split_rows_kwargs = {}
+        split_rows_kwargs = dict()
     if split_cols_kwargs is None:
-        split_cols_kwargs = {}
+        split_cols_kwargs = dict()
 
     n_samples, n_features = data.shape
     assert len(distributions) == n_features, "Each feature must have a distribution"
+    assert len(domains) == n_features, "Each feature must have a domain"
 
     learn_leaf_func = get_learn_leaf_method(learn_leaf)
     split_rows_func = get_split_rows_method(split_rows)
     split_cols_func = get_split_cols_method(split_cols)
     initial_scope = list(range(n_features))
 
-    tasks = deque()
-    tmp_node = Mul([], initial_scope)
-    tasks.append(Task(tmp_node, data, initial_scope, is_first=True))
+    # Initialize the random state
+    if random_state is None:
+        random_state = np.random.RandomState()
+    elif type(random_state) == int:
+        random_state = np.random.RandomState(random_state)
+    elif not isinstance(random_state, np.random.RandomState):
+        raise ValueError("The random state must be either None, a seed integer or a Numpy RandomState")
+
+    # Add the random state to learning leaf parameters
+    learn_leaf_kwargs['random_state'] = random_state
 
     # Initialize the progress bar (with unspecified total), if verbose is enabled
     tk = tqdm(total=np.inf, leave=None) if verbose else None
+
+    tasks = deque()
+    tmp_node = Mul([], initial_scope)
+    tasks.append(Task(tmp_node, data, initial_scope, is_first=True))
 
     while tasks:
         # Get the next task
@@ -141,7 +155,7 @@ def learn_spn(
             # Split the data by rows (sum node)
             dists = [distributions[s] for s in task.scope]
             doms = [domains[s] for s in task.scope]
-            clusters = split_rows_func(task.data, dists, doms, **split_rows_kwargs)
+            clusters = split_rows_func(task.data, dists, doms, random_state, **split_rows_kwargs)
             slices, weights = split_rows_clusters(task.data, clusters)
             if len(slices) == 1:  # Check whether only one cluster is returned
                 tasks.append(Task(task.parent, task.data, task.scope, no_cols_split=False, no_rows_split=True))
@@ -154,7 +168,7 @@ def learn_spn(
             # Split the data by columns (product node)
             dists = [distributions[s] for s in task.scope]
             doms = [domains[s] for s in task.scope]
-            clusters = split_cols_func(task.data, dists, doms, **split_cols_kwargs)
+            clusters = split_cols_func(task.data, dists, doms, random_state, **split_cols_kwargs)
             slices, scopes = split_cols_clusters(task.data, clusters, task.scope)
             if len(slices) == 1:  # Check whether only one cluster is returned
                 tasks.append(Task(task.parent, task.data, task.scope, no_cols_split=True, no_rows_split=False))
@@ -164,7 +178,7 @@ def learn_spn(
                 tasks.append(Task(node, local_data, scopes[i]))
             task.parent.children.append(node)
         else:
-            raise NotImplementedError('Operation of kind {} not implemented'.format(op))
+            raise NotImplementedError("Operation of kind {} not implemented".format(op))
 
         if verbose:
             tk.update()

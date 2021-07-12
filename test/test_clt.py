@@ -18,8 +18,8 @@ class TestCLT(unittest.TestCase):
         data, _, _ = load_binary_dataset('experiments/datasets', 'nltcs', raw=True)
         n_features = data.shape[1]
 
-        cls.cltree = BinaryCLTree(list(range(n_features)), root=7)
-        cls.cltree.fit(data, None, alpha=0.1)
+        cls.cltree = BinaryCLTree(list(range(n_features)))
+        cls.cltree.fit(data, None, alpha=0.1, random_state=cls.random_state)
         cls.spn = cls.cltree.to_pc()
 
         cls.complete_data = np.array([list(i) for i in product([0, 1], repeat=n_features)])

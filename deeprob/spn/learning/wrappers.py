@@ -91,5 +91,7 @@ def get_data_domains(data, distributions):
         elif d.LEAF_TYPE == LeafType.CONTINUOUS:
             domains.append([vmin, vmax])
         else:
-            raise NotImplementedError("Domain for leaf type " + d.LEAF_TYPE.__name__ + " not implemented")
+            raise NotImplementedError(
+                "Domain computation for leaf type {} not implemented".format(d.LEAF_TYPE.__name__)
+            )
     return domains

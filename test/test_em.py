@@ -24,8 +24,8 @@ class TestEM(unittest.TestCase):
 
         n_features = cls.binary_data.shape[1]
         cls.binary_spn = learn_estimator(
-            cls.binary_data, [Bernoulli] * n_features,
-            learn_leaf='mle', split_cols='gvs', verbose=False
+            cls.binary_data, [Bernoulli] * n_features, learn_leaf='mle', split_cols='gvs',
+            random_state=cls.random_state, verbose=False
         )
 
         cls.blobs_spn = Sum(None, [
@@ -49,7 +49,7 @@ class TestEM(unittest.TestCase):
             random_init=True, random_state=self.random_state, verbose=False
         )
         lls = log_likelihood(self.blobs_spn, self.blobs_data)
-        self.assertAlmostEqual(np.mean(lls).item(), -0.89, places=3)
+        self.assertAlmostEqual(np.mean(lls).item(), -0.889, places=3)
 
 
 if __name__ == '__main__':
