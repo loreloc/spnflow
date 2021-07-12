@@ -93,7 +93,7 @@ def expectation_maximization(
             params = n.em_step(stats, batch_data[:, sc])
             update_node_parameters(n, params, step_size)
 
-        # Update the counter, statistics and progress bar
+        # Update the progress bar
         if verbose:
             tk.update()
             tk.set_description('Mean LL: {:.4f}'.format(mean_ll), refresh=False)
