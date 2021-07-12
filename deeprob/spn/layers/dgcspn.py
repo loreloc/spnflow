@@ -94,7 +94,7 @@ class SpatialGaussianLayer(nn.Module):
 
 class SpatialProductLayer(nn.Module):
     """Spatial Product layer class."""
-    def __init__(self, in_size, depthwise, kernel_size, padding, stride, dilation, rand_state=None):
+    def __init__(self, in_size, depthwise, kernel_size, padding, stride, dilation, random_state=None):
         """
         Initialize a Spatial Product layer.
 
@@ -104,7 +104,7 @@ class SpatialProductLayer(nn.Module):
         :param stride: The strides to use.
         :param padding: The padding mode to use. It can be 'valid', 'full' or 'final'.
         :param dilation: The space between the kernel points.
-        :param rand_state: The random state used to generate the weight mask. It can be None if depthwise is True.
+        :param random_state: The random state used to generate the weight mask. It can be None if depthwise is True.
         """
         super(SpatialProductLayer, self).__init__()
         self.in_size = in_size
@@ -113,7 +113,7 @@ class SpatialProductLayer(nn.Module):
         self.padding = padding
         self.stride = stride
         self.dilation = dilation
-        self.rand_state = rand_state
+        self.random_state = random_state
         self.groups = self.in_channels if self.depthwise else 1
         self.out_channels = self.in_channels if self.depthwise else self.in_channels * np.prod(self.kernel_size)
 
@@ -135,9 +135,9 @@ class SpatialProductLayer(nn.Module):
 
         # Build the convolution kernels
         if self.depthwise:
-            weight = self._build_depthwise_kernels()
+            weight = self.__build_depthwise_kernels()
         else:
-            weight = self._build_sparse_kernels(rand_state)
+            weight = self.__build_sparse_kernels(random_state)
 
         # Initialize the weight buffer
         self.register_buffer('weight', torch.tensor(weight))
@@ -176,11 +176,11 @@ class SpatialProductLayer(nn.Module):
             x, self.weight, stride=self.stride, dilation=self.dilation, groups=self.groups
         )
 
-    def _build_sparse_kernels(self, rand_state):
+    def __build_sparse_kernels(self, random_state):
         """
         Generate sparse (and non-depthwise) convolution kernels randomly.
 
-        :param rand_state: The random state used to generate the weight mask.
+        :param random_state: The random state used to generate the weight mask.
         :return: The convolution kernels.
         """
         kernels_idx = []
@@ -189,7 +189,7 @@ class SpatialProductLayer(nn.Module):
         # Generate a sparse representation of weight
         for _ in range(kh * kw):
             idx = np.arange(self.out_channels) % self.in_channels
-            rand_state.shuffle(idx)
+            random_state.shuffle(idx)
             kernels_idx.append(idx)
         kernels_idx = np.stack(kernels_idx, axis=1)
         kernels_idx = np.reshape(kernels_idx, (self.out_channels, 1, kh, kw))
@@ -200,7 +200,7 @@ class SpatialProductLayer(nn.Module):
         weight = np.equal(weight, kernels_idx)
         return weight.astype(np.float32)
 
-    def _build_depthwise_kernels(self):
+    def __build_depthwise_kernels(self):
         """
         Generate depthwise convolution kernels.
 

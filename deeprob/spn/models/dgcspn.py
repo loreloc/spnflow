@@ -20,7 +20,7 @@ class DgcSpn(nn.Module):
                  sum_dropout=None,
                  quantiles_loc=None,
                  uniform_loc=None,
-                 rand_state=None,
+                 random_state=None,
                  ):
         """
         Initialize a Deep Generalized Convolutional Sum-Product Network (DGC-SPN).
@@ -36,8 +36,8 @@ class DgcSpn(nn.Module):
         :param sum_dropout: The dropout rate for probabilistic dropout at sum layers. It can be None.
         :param quantiles_loc: The mean quantiles for location initialization. It can be None.
         :param uniform_loc: The uniform range for location initialization. It can be None.
-        :param rand_state: The random state used to initialize the spatial product layers weights.
-                           Used only if depthwise is False.
+        :param random_state: The random state. It can be either None, a seed integer or a Numpy RandomState.
+                             It is used only if depthwise is False.
         """
         super(DgcSpn, self).__init__()
         assert len(in_size) == 3 and in_size[0] > 0 and in_size[1] > 0 and in_size[2] > 0
@@ -61,15 +61,22 @@ class DgcSpn(nn.Module):
         self.in_dropout = in_dropout
         self.sum_dropout = sum_dropout
         self.uniform_loc = uniform_loc
-        self.rand_state = rand_state
 
         self.quantiles_loc = None
         if quantiles_loc is not None:
             self.quantiles_loc = torch.tensor(quantiles_loc, dtype=torch.float32)
 
         # If necessary, instantiate a random state
-        if not self.depthwise and self.rand_state is None:
-            self.rand_state = np.random.RandomState(42)
+        if not self.depthwise:
+            if random_state is None:
+                random_state = np.random.RandomState()
+            elif type(random_state) == int:
+                random_state = np.random.RandomState(random_state)
+            elif not isinstance(random_state, np.random.RandomState):
+                raise ValueError("The random state must be either None, a seed integer or a Numpy RandomState")
+            self.random_state = random_state
+        else:
+            self.random_state = None
 
         # Instantiate the base layer
         self.base_layer = SpatialGaussianLayer(
@@ -104,7 +111,7 @@ class DgcSpn(nn.Module):
             # Add a spatial product layer (with full padding and no strides)
             spatial_prod = SpatialProductLayer(
                 in_size, depthwise=self.depthwise, kernel_size=(2, 2), padding='full',
-                stride=(1, 1), dilation=(2 ** k, 2 ** k), rand_state=self.rand_state
+                stride=(1, 1), dilation=(2 ** k, 2 ** k), random_state=self.random_state
             )
             self.layers.append(spatial_prod)
             in_size = spatial_prod.out_size
@@ -117,7 +124,7 @@ class DgcSpn(nn.Module):
         # Add the last product layer
         spatial_prod = SpatialProductLayer(
             in_size, depthwise=self.depthwise, kernel_size=(2, 2), padding='final',
-            stride=(1, 1), dilation=(2 ** depth, 2 ** depth), rand_state=self.rand_state
+            stride=(1, 1), dilation=(2 ** depth, 2 ** depth), random_state=self.random_state
         )
         self.layers.append(spatial_prod)
         in_size = spatial_prod.out_size
