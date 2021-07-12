@@ -50,7 +50,6 @@ class AbstractRatSpn(nn.Module):
         self.n_sum = n_sum
         self.in_dropout = in_dropout
         self.sum_dropout = sum_dropout
-        self.random_state = random_state
         self.base_layer = None
         self.layers = None
         self.root_layer = None
